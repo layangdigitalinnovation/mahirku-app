@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const res = await axios.post<{ token: string; user: BackendUser }>(
-        'http://localhost:5000/api/auth/login',
+        'https://mahirku-production.up.railway.app/api/auth/login',
         { email, password }
       );
 
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   try {
     const roleId = role === 'affiliator' ? 2 : 3;
 
-    await axios.post('http://localhost:5000/api/auth/register', {
+    await axios.post('https://mahirku-production.up.railway.app/api/auth/register', {
       email,
       password,
       username: details?.username || email.split('@')[0],
