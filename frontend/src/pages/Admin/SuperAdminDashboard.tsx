@@ -35,7 +35,7 @@ export const SuperAdminDashboard: React.FC = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('neuroscan-token');
-      const res = await axios.get<UserData[]>('http://localhost:5000/api/users', {
+      const res = await axios.get<UserData[]>('https://mahirku-production.up.railway.app/api/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
