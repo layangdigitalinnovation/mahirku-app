@@ -1,8 +1,9 @@
 import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { Brain, User, LogOut, Home, Shield } from 'lucide-react';
+import { User, LogOut, Home, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './ui/Button';
+import mahirkuLogo from "../assets/logo_mahirku.png";
 
 export const Layout: React.FC = () => {
   const { user, loading, logout } = useAuth();
@@ -66,8 +67,8 @@ export const Layout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">Mahirku</span>
+              <img src={mahirkuLogo} className="w-24 mx-auto" alt="Mahirku Logo" />
+              <span className="text-2xl font-bold text-blue-600">Mahirku</span>
             </Link>
             
             <div className="flex items-center space-x-4">

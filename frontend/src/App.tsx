@@ -10,6 +10,10 @@ import { TestResult } from './pages/Test/TestResult';
 import { UserDashboard } from './pages/User/UserDashboard';
 import { AffiliatorDashboard } from './pages/Affiliator/AffiliatorDashboard';
 import { SuperAdminDashboard } from './pages/Admin/SuperAdminDashboard';
+import Contact from './pages/Contact';
+import Faq from './pages/Faq';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
 import { useAuth } from './hooks/useAuth';
 
 // Protected Route Component
@@ -55,6 +59,10 @@ function AppContent() {
           <Route path="register" element={<Register />} />
           <Route path="test" element={<CognitiveTest />} />
           <Route path="test/result" element={<TestResult />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<Faq />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<Terms />} />
           
           <Route 
             path="user/dashboard" 

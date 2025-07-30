@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 import { User, BackendUser } from '../types';
+import api from '../utils/axios'; // gunakan axios instance yang sudah dibuat
 
 interface AuthContextType {
   user: User | null;
@@ -39,20 +39,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await axios.post<{ token: string; user: BackendUser }>(
-        'https://mahirku-production.up.railway.app/api/auth/login',
-        { email, password }
-      );
+      const res = await api.post<{ token: string; user: BackendUser }>('/auth/login', {
+        email,
+        password,
+      });
 
       const { token, user: backendUser } = res.data;
 
       const frontendUser: User = {
-        uid: `user-${backendUser.id}`, // generate dari id backend
+        uid: `user-${backendUser.id}`,
         email: backendUser.email,
         role: backendUser.role.name,
         createdAt: new Date(backendUser.createdAt),
       };
-
 
       localStorage.setItem('neuroscan-token', token);
       localStorage.setItem('neuroscan-user', JSON.stringify(frontendUser));
@@ -76,21 +75,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       phoneNumber: string;
     }
   ) => {
-  try {
-    const roleId = role === 'affiliator' ? 2 : 3;
+    try {
+      const roleId = role === 'affiliator' ? 2 : 3;
 
-    await axios.post('https://mahirku-production.up.railway.app/api/auth/register', {
-      email,
-      password,
-      username: details?.username || email.split('@')[0],
-      fullname: details?.fullname || '',
-      address: details?.address || '',
-      phoneNumber: details?.phoneNumber || '',
-      roleId,
-      referrerId: referrerId || undefined,
-    });
+      await api.post('/auth/register', {
+        email,
+        password,
+        username: details?.username || email.split('@')[0],
+        fullname: details?.fullname || '',
+        address: details?.address || '',
+        phoneNumber: details?.phoneNumber || '',
+        roleId,
+        referrerId: referrerId || undefined,
+      });
 
-    await login(email, password);
+      await login(email, password);
     } catch (err) {
       console.error('Register error:', err);
       throw new Error('Registration failed');
