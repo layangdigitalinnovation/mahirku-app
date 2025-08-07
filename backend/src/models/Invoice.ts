@@ -17,12 +17,14 @@ interface InvoiceAttributes {
   voucherCode?: string | null;
   status: 'PENDING' | 'PAID' | 'FAILED';
   paymentDate?: Date | null;
+  xenditInvoiceId?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 interface InvoiceCreationAttributes
-  extends Optional<InvoiceAttributes, 'id' | 'voucherId' | 'packageId' | 'voucherCode' | 'status' | 'paymentDate' | 'createdAt' | 'updatedAt'> {}
+  extends Optional<InvoiceAttributes, 'id' | 'voucherId' | 'packageId' | 'voucherCode' | 'status' | 'paymentDate' | 'xenditInvoiceId' | 'createdAt' | 'updatedAt'> {}
+
 
 class Invoice
   extends Model<InvoiceAttributes, InvoiceCreationAttributes>
@@ -35,6 +37,7 @@ class Invoice
   public voucherCode!: string | null;
   public status!: 'PENDING' | 'PAID' | 'FAILED';
   public paymentDate!: Date | null;
+  public xenditInvoiceId!: string | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -74,6 +77,10 @@ Invoice.init(
     },
     paymentDate: {
       type: DataTypes.DATE,
+      allowNull: true,
+    },
+    xenditInvoiceId: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },

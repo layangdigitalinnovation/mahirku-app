@@ -1,25 +1,24 @@
 // routes/paymentRoutes.ts
 import { Router } from 'express';
 import {
-  startDuitkuPayment,
+  xenditPayment,
   handlePaymentCallback,
-} from '../controllers/paymentController';
+} from '../controllers/xenditController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
 /**
- * @route   POST /api/payment/start
- * @desc    Memulai proses pembayaran dengan Duitku
+ * @route   POST /api/payment/xendit
+ * @desc    Memulai proses pembayaran dengan Xendit
  * @access  Protected
  */
-router.post('/start', authMiddleware, startDuitkuPayment);
-
-/**
- * @route   POST /api/payment/payment-callback
- * @desc    Callback dari Duitku untuk update status pembayaran
- * @access  Public (Duitku tidak mengirim token auth)
+router.post('/xendit', authMiddleware, xenditPayment);
+  /**
+ * @route   POST /api/payment/xendit/callback
+ * @desc    Callback dari Xendit untuk update status pembayaran
+ * @access  Public (Xendit tidak mengirim token auth)
  */
-router.post('/payment-callback', handlePaymentCallback);
+router.post('/xendit/callback', handlePaymentCallback);
 
 export default router;

@@ -2,7 +2,6 @@
 import { Router } from 'express';
 import {
   purchaseToken,
-  handlePaymentCallback,
   addChildUser,
   getChildrenUsers,
   switchActiveUser,
@@ -18,13 +17,6 @@ const router = Router();
  * @access  Protected
  */
 router.post('/purchase', authMiddleware, purchaseToken);
-
-/**
- * @route   POST /api/token/payment-callback
- * @desc    Simulasikan callback pembayaran dari payment gateway
- * @access  Public
- */
-router.post('/payment-callback', handlePaymentCallback);
 
 /**
  * @route   POST /api/token/add-child

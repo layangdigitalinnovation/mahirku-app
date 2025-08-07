@@ -18,8 +18,8 @@ export const Landing: React.FC = () => {
     },
     {
       icon: Shield,
-      title: 'Verifikasi Sidik Jari & Wajah',
-      description: 'Sistem keamanan berbasis biometrik menggunakan fingerprint dan face recognition.'
+      title: 'Verifikasi Sidik Jari',
+      description: 'Sistem keamanan berbasis biometrik menggunakan fingerprint'
     },
     {
       icon: Eye,
@@ -35,7 +35,7 @@ export const Landing: React.FC = () => {
 
   const services = [
     {
-      title: 'Tes Sidik Jari & Wajah',
+      title: 'Tes Sidik Jari',
       description: 'Menggunakan teknologi biometrik untuk hasil akurat.',
       icon: Brain,
     },
@@ -61,7 +61,7 @@ export const Landing: React.FC = () => {
       name: 'Personal',
       price: 'Rp250.000',
       benefits: [
-        'Tes berbasis sidik jari & face recognition',
+        'Tes berbasis sidik jari',
         'Sertifikat hasil tes + Map',
         'Penjelasan hasil secara umum',
         'E-book penjelasan hasil tes',
