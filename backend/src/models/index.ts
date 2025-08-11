@@ -3,6 +3,8 @@ import Role from './Role';
 import Voucher from './Voucher';
 import Invoice from './Invoice';
 import Package from './Package';
+import ThinkingStyleResult from './ThinkingStyleResult';
+import AffiliateCommission from './AffiliateCommission';
 
 const models = {
   User,
@@ -10,6 +12,8 @@ const models = {
   Voucher,
   Invoice,
   Package,
+  ThinkingStyleResult,
+  AffiliateCommission,
 };
 
 // Registrasi association

@@ -60,9 +60,9 @@ export const xenditPayment = async (req: Request, res: Response): Promise<void> 
         email: user.email,
         mobile_number: user.phoneNumber
       },
-      success_redirect_url: xenditConfig.successRedirectUrl,
-      failure_redirect_url: xenditConfig.failureRedirectUrl,
-      callback_url: xenditConfig.callbackUrl
+      success_redirect_url: `${xenditConfig.successRedirectUrl}?invoiceId=${invoice.id}&status=success`,
+      failure_redirect_url: `${xenditConfig.failureRedirectUrl}?invoiceId=${invoice.id}&status=failure`,
+      callback_url: `${xenditConfig.callbackUrl}?invoiceId=${invoice.id}`
     };
 
     const response = await axios.post(

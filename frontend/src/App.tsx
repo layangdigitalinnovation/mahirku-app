@@ -14,6 +14,7 @@ import Contact from './pages/Contact';
 import Faq from './pages/Faq';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
+import PaymentSuccess from './pages/Payment/PaymentSuccess';
 import { useAuth } from './hooks/useAuth';
 
 // Protected Route Component
@@ -63,6 +64,7 @@ function AppContent() {
           <Route path="/faq" element={<Faq />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           
           <Route 
             path="user/dashboard" 
