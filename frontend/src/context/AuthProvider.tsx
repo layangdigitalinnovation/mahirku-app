@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, BackendUser } from '../types';
 import api from '../utils/axios'; // gunakan axios instance yang sudah dibuat
+import {  registerUser } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -78,15 +79,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const roleId = role === 'affiliator' ? 2 : 3;
 
-      await api.post('/auth/register', {
+      await registerUser({
         email,
         password,
         username: details?.username || email.split('@')[0],
         fullname: details?.fullname || '',
         address: details?.address || '',
         phoneNumber: details?.phoneNumber || '',
-        roleId,
-        referrerId: referrerId || undefined,
+        roleId
       });
 
       await login(email, password);

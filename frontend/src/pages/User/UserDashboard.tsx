@@ -44,7 +44,7 @@ export const UserDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className=" bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back!</h1>
@@ -100,7 +100,7 @@ export const UserDashboard: React.FC = () => {
         {/* Action Buttons */}
         <div className="mb-8">
           <Link to="/test">
-            <Button size="lg" icon={Plus}>
+            <Button size="lg">
               Take New Test
             </Button>
           </Link>
@@ -118,7 +118,7 @@ export const UserDashboard: React.FC = () => {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No tests yet</h3>
                 <p className="text-gray-600 mb-4">Take your first cognitive style assessment</p>
                 <Link to="/test">
-                  <Button icon={Plus}>Take Your First Test</Button>
+                  <Button>Take Your First Test</Button>
                 </Link>
               </div>
             ) : (
@@ -143,7 +143,7 @@ export const UserDashboard: React.FC = () => {
                           Verified
                         </span>
                       )}
-                      <Button variant="ghost" size="sm" icon={Eye}>
+                      <Button variant="ghost" size="sm">
                         View Details
                       </Button>
                     </div>
