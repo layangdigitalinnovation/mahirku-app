@@ -5,6 +5,7 @@ import Invoice from '../models/Invoice';
 import User from '../models/User';
 import Package from '../models/Package';
 import { validateVoucher, calculateDiscount } from '../utils/voucherUtils';
+import WithdrawRequest from '../models/WithdrawRequest';
 
 export const xenditPayment = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -149,5 +150,175 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
   } catch (error: any) {
     console.error('handlePaymentCallback error:', error);
     res.status(500).json({ message: 'Gagal memproses callback pembayaran', error: error.message });
+  }
+};
+
+// Fungsi untuk melakukan payout otomatis menggunakan Xendit
+export const processAutomaticPayout = async (withdrawRequestId: string): Promise<{ success: boolean; message: string; payoutId?: string }> => {
+  try {
+    // Ambil data withdraw request dengan data affiliate
+    const withdrawRequest = await WithdrawRequest.findByPk(withdrawRequestId, {
+      include: [{
+        model: User,
+        as: 'affiliate',
+        attributes: ['id', 'fullname', 'email', 'phoneNumber', 'bankName', 'bankAccountNumber', 'bankAccountName']
+      }]
+    });
+    if (!withdrawRequest) {
+      return { success: false, message: 'Withdraw request tidak ditemukan' };
+    }
+
+    if (withdrawRequest.status !== 'approved') {
+      return { success: false, message: 'Withdraw request belum disetujui' };
+    }
+
+    const affiliate = withdrawRequest.affiliate;
+    if (!affiliate) {
+      return { success: false, message: 'Data affiliate tidak ditemukan' };
+    }
+
+    // Validasi data bank affiliate
+    if (!affiliate.bankName || !affiliate.bankAccountNumber || !affiliate.bankAccountName) {
+      return { success: false, message: 'Data bank affiliate tidak lengkap. Harap lengkapi data bank terlebih dahulu.' };
+    }
+
+    // Xendit API memerlukan autentikasi dengan API key dalam format Base64
+    const authHeader = Buffer.from(`${xenditConfig.apiKey}:`).toString('base64');
+
+    // Mapping bank code untuk Xendit (sesuaikan dengan bank yang didukung)
+    const getBankCode = (bankName: string): string => {
+      const bankMapping: { [key: string]: string } = {
+        'BCA': 'ID_BCA',
+        'BNI': 'ID_BNI',
+        'BRI': 'ID_BRI',
+        'MANDIRI': 'ID_MANDIRI',
+        'CIMB': 'ID_CIMB',
+        'PERMATA': 'ID_PERMATA',
+        'BTN': 'ID_BTN',
+        'DANAMON': 'ID_DANAMON',
+        'MAYBANK': 'ID_MAYBANK'
+      };
+      return bankMapping[bankName.toUpperCase()] || 'ID_BCA'; // Default ke BCA jika tidak ditemukan
+    };
+
+    // Payload untuk Xendit Payout API
+    const payload = {
+      reference_id: `WITHDRAW-${withdrawRequestId}-${Date.now()}`,
+      channel_code: getBankCode(affiliate.bankName),
+      channel_properties: {
+        account_number: affiliate.bankAccountNumber,
+        account_holder_name: affiliate.bankAccountName
+      },
+      amount: withdrawRequest.amount,
+      description: `Penarikan komisi affiliate - ${affiliate.fullname}`,
+      currency: 'IDR',
+      receipt_notification: {
+        email_to: [affiliate.email]
+      },
+      metadata: {
+        withdraw_request_id: withdrawRequestId,
+        affiliate_id: affiliate.id
+      }
+    };
+
+    console.log('Xendit Payout Payload:', JSON.stringify(payload, null, 2));
+
+    // Kirim request ke Xendit Payout API
+    const response = await axios.post(
+      `${xenditConfig.baseUrl}/v2/payouts`,
+      payload,
+      {
+        headers: {
+          'Authorization': `Basic ${authHeader}`,
+          'Content-Type': 'application/json',
+          'Idempotency-key': `withdraw-${withdrawRequestId}-${Date.now()}`
+        },
+      }
+    );
+
+    console.log('Xendit Payout Response:', response.data);
+
+    if (response.data && response.data.id) {
+      // Update withdraw request dengan payout ID dan status
+      await withdrawRequest.update({
+        status: 'processing',
+        processedAt: new Date(),
+        payoutId: response.data.id,
+        payoutStatus: response.data.status
+      });
+
+      return {
+        success: true,
+        message: `Payout berhasil diproses. ID: ${response.data.id}`,
+        payoutId: response.data.id
+      };
+    } else {
+      return { success: false, message: 'Gagal mendapatkan response dari Xendit' };
+    }
+  } catch (error: any) {
+    console.error('processAutomaticPayout error:', error.response?.data || error.message);
+    return {
+      success: false,
+      message: `Gagal memproses payout: ${error.response?.data?.message || error.message}`
+    };
+  }
+};
+
+// Webhook handler untuk status payout dari Xendit
+export const handlePayoutCallback = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      id: payoutId,
+      status,
+      reference_id,
+      failure_code,
+      updated
+    } = req.body;
+
+    console.log('Payout Callback received:', req.body);
+
+    // Cari withdraw request berdasarkan payout ID
+    const withdrawRequest = await WithdrawRequest.findOne({
+      where: { payoutId }
+    });
+
+    if (!withdrawRequest) {
+      console.log(`Withdraw request tidak ditemukan untuk payout ID: ${payoutId}`);
+      res.status(404).json({ message: 'Withdraw request tidak ditemukan' });
+      return;
+    }
+
+    // Update status berdasarkan callback dari Xendit
+    let newStatus = withdrawRequest.status;
+    
+    switch (status) {
+      case 'ACCEPTED':
+        newStatus = 'processing';
+        break;
+      case 'REQUESTED':
+        newStatus = 'processing';
+        break;
+      case 'COMPLETED':
+        newStatus = 'completed';
+        break;
+      case 'FAILED':
+        newStatus = 'failed';
+        break;
+      default:
+        newStatus = 'processing';
+    }
+
+    await withdrawRequest.update({
+      status: newStatus,
+      payoutStatus: status,
+      failureReason: failure_code || null,
+      updatedAt: updated ? new Date(updated) : new Date()
+    });
+
+    console.log(`Withdraw request ${withdrawRequest.id} status updated to: ${newStatus}`);
+    res.status(200).json({ message: 'Payout callback berhasil diproses' });
+  } catch (error: any) {
+    console.error('handlePayoutCallback error:', error);
+    res.status(500).json({ message: 'Gagal memproses payout callback', error: error.message });
   }
 };

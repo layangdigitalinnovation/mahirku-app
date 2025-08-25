@@ -9,6 +9,11 @@ import jwt from 'jsonwebtoken';
 import { sequelize } from '../config/database';
 import Package from './Package';
 
+interface Role {
+  id: number;
+  name: string;
+}
+
 interface UserAttributes {
   id: number;
   username: string;
@@ -21,6 +26,9 @@ interface UserAttributes {
   tokens: number;
   parentId?: number | null;
   packageId?: number | null;
+  bankName?: string | null;
+  bankAccountNumber?: string | null;
+  bankAccountName?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -39,6 +47,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public tokens!: number;
   public parentId?: number | null;
   public packageId?: number | null;
+  public bankName?: string | null;
+  public bankAccountNumber?: string | null;
+  public bankAccountName?: string | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -47,11 +58,13 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public readonly children?: User[]; // hasMany
   public readonly parent?: User;     // belongsTo
   public readonly package?: Package; // belongsTo
+  public readonly role?: Role;       // belongsTo
 
   public static associations: {
     children: Association<User, User>;
     parent: Association<User, User>;
     package: Association<User, Package>;
+    role: Association<User, any>;
   };
 
   // 🔐 Compare password
@@ -179,6 +192,18 @@ User.init(
       },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
+    },
+    bankName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    bankAccountNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    bankAccountName: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

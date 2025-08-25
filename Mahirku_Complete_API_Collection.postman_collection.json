@@ -1,0 +1,439 @@
+{
+	"info": {
+		"_postman_id": "mahirku-complete-api-collection",
+		"name": "Mahirku Complete API Collection",
+		"description": "Complete API collection for Mahirku project including all endpoints for authentication, user management, affiliate system, withdraw system, payment integration, testing system, and admin features",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "mahirku-team"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"fullname\": \"John Doe\",\n  \"address\": \"Jl. Contoh No. 123\",\n  \"phoneNumber\": \"081234567890\",\n  \"parentId\": null\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/auth/register", "host": ["{{base_url}}"], "path": ["api", "auth", "register"]}
+					}
+				},
+				{
+					"name": "Login User",
+					"event": [{
+						"listen": "test",
+						"script": {
+							"exec": ["if (pm.response.code === 200) {", "    const response = pm.response.json();", "    if (response.token) {", "        pm.environment.set('auth_token', response.token);", "        pm.environment.set('user_id', response.user.id);", "    }", "}"],
+							"type": "text/javascript"
+						}
+					}],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"},
+						"url": {"raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"]}
+					}
+				},
+				{
+					"name": "Register Affiliator",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"affiliator1\",\n  \"email\": \"affiliator@example.com\",\n  \"password\": \"password123\",\n  \"fullname\": \"John Affiliator\",\n  \"address\": \"Jakarta, Indonesia\",\n  \"phoneNumber\": \"+628123456789\",\n  \"bankName\": \"BCA\",\n  \"bankAccountNumber\": \"1234567890\",\n  \"bankAccountName\": \"John Affiliator\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/auth/register-affiliator", "host": ["{{base_url}}"], "path": ["api", "auth", "register-affiliator"]}
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/auth/profile", "host": ["{{base_url}}"], "path": ["api", "auth", "profile"]}
+					}
+				}
+			]
+		},
+		{
+			"name": "👥 User Management",
+			"item": [
+				{
+					"name": "Get All Users (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/users?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "users"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"fullname\": \"John Doe Updated\",\n  \"address\": \"Jl. Baru No. 456\",\n  \"phoneNumber\": \"081234567891\",\n  \"bankName\": \"BCA\",\n  \"bankAccountNumber\": \"1234567890\",\n  \"bankAccountName\": \"John Doe\"\n}"},
+						"url": {"raw": "{{base_url}}/api/users/profile", "host": ["{{base_url}}"], "path": ["api", "users", "profile"]}
+					}
+				}
+			]
+		},
+		{
+			"name": "📦 Packages",
+			"item": [
+				{
+					"name": "Get All Packages",
+					"request": {
+						"method": "GET",
+						"url": {"raw": "{{base_url}}/api/packages", "host": ["{{base_url}}"], "path": ["api", "packages"]}
+					}
+				},
+				{
+					"name": "Create Package (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"name\": \"Premium Package\",\n  \"description\": \"Premium package with 1000 tokens\",\n  \"price\": 100000,\n  \"tokens\": 1000,\n  \"isActive\": true\n}"},
+						"url": {"raw": "{{base_url}}/api/packages", "host": ["{{base_url}}"], "path": ["api", "packages"]}
+					}
+				}
+			]
+		},
+		{
+			"name": "🪙 Token Management",
+			"item": [
+				{
+					"name": "Purchase Token",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"packageId\": 1,\n  \"quantity\": 10\n}"},
+						"url": {"raw": "{{base_url}}/api/token/purchase", "host": ["{{base_url}}"], "path": ["api", "token", "purchase"]}
+					}
+				},
+				{
+					"name": "Add Child User",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"name\": \"Child User Name\",\n  \"email\": \"child@example.com\",\n  \"password\": \"password123\",\n  \"dateOfBirth\": \"2010-01-01\"\n}"},
+						"url": {"raw": "{{base_url}}/api/token/add-child", "host": ["{{base_url}}"], "path": ["api", "token", "add-child"]}
+					}
+				},
+				{
+					"name": "Get Children Users",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/token/children", "host": ["{{base_url}}"], "path": ["api", "token", "children"]}
+					}
+				},
+				{
+					"name": "Switch Active User",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"childUserId\": 2\n}"},
+						"url": {"raw": "{{base_url}}/api/token/switch-user", "host": ["{{base_url}}"], "path": ["api", "token", "switch-user"]}
+					}
+				},
+				{
+					"name": "Transfer Token to Child",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"childUserId\": 2,\n  \"amount\": 5\n}"},
+						"url": {"raw": "{{base_url}}/api/token/transfer-token", "host": ["{{base_url}}"], "path": ["api", "token", "transfer-token"]}
+					}
+				}
+			]
+		},
+		{
+			"name": "💳 Payment & Xendit",
+			"item": [
+				{
+					"name": "Create Payment",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"packageId\": 1,\n  \"voucherCode\": \"DISCOUNT10\",\n  \"affiliateCode\": \"AFFILIATE123\"\n}"},
+						"url": {"raw": "{{base_url}}/api/payment/xendit", "host": ["{{base_url}}"], "path": ["api", "payment", "xendit"]}
+					}
+				},
+				{
+					"name": "Payment Callback",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"id\": \"invoice_test_123\",\n  \"status\": \"PAID\",\n  \"paid_amount\": 100000,\n  \"external_id\": \"invoice_123\"\n}"},
+						"url": {"raw": "{{base_url}}/api/payment/xendit/callback", "host": ["{{base_url}}"], "path": ["api", "payment", "xendit", "callback"]}
+					}
+				},
+				{
+					"name": "Payout Callback",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"id\": \"payout_test_123\",\n  \"status\": \"COMPLETED\",\n  \"amount\": 150000,\n  \"reference_id\": \"withdraw_123\",\n  \"failure_reason\": null,\n  \"created\": \"2025-01-15T10:00:00Z\",\n  \"completed_at\": \"2025-01-15T10:05:00Z\"\n}"},
+						"url": {"raw": "{{base_url}}/api/payment/xendit/payout-callback", "host": ["{{base_url}}"], "path": ["api", "payment", "xendit", "payout-callback"]}
+					}
+				}
+			]
+		},
+		{
+			"name": "🤝 Affiliate System",
+			"item": [
+				{
+					"name": "Get Affiliate Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/affiliate/dashboard", "host": ["{{base_url}}"], "path": ["api", "affiliate", "dashboard"]}
+					}
+				},
+				{
+					"name": "Get Affiliate Commissions",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/affiliate/commissions?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "affiliate", "commissions"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+					}
+				},
+				{
+					"name": "Get Referrals",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/affiliate/referrals?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "affiliate", "referrals"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+					}
+				}
+			]
+		},
+		{
+			"name": "💰 Withdraw System",
+			"item": [
+				{
+					"name": "Request Withdraw",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"amount\": 150000,\n  \"bankName\": \"BCA\",\n  \"accountNumber\": \"1234567890\",\n  \"accountName\": \"John Doe\",\n  \"notes\": \"Withdraw komisi bulan ini\"\n}"},
+						"url": {"raw": "{{base_url}}/api/withdraw/request", "host": ["{{base_url}}"], "path": ["api", "withdraw", "request"]}
+					}
+				},
+				{
+					"name": "Get Withdraw History",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/withdraw/history?page=1&limit=10&status=pending", "host": ["{{base_url}}"], "path": ["api", "withdraw", "history"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "status", "value": "pending"}]}
+					}
+				},
+				{
+					"name": "Approve Withdraw (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"notes\": \"Withdraw disetujui\"\n}"},
+						"url": {"raw": "{{base_url}}/api/withdraw/approve/{{withdraw_id}}", "host": ["{{base_url}}"], "path": ["api", "withdraw", "approve", "{{withdraw_id}}"]}
+					}
+				},
+				{
+					"name": "Reject Withdraw (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"reason\": \"Data bank tidak valid\"\n}"},
+						"url": {"raw": "{{base_url}}/api/withdraw/reject/{{withdraw_id}}", "host": ["{{base_url}}"], "path": ["api", "withdraw", "reject", "{{withdraw_id}}"]}
+					}
+				},
+				{
+					"name": "Get Pending Withdraws (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/withdraw/admin/pending?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "withdraw", "admin", "pending"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+					}
+				}
+			]
+		},
+		{
+			"name": "📝 Testing System",
+			"item": [
+				{
+					"name": "Get All Tests",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/tests", "host": ["{{base_url}}"], "path": ["api", "tests"]}
+					}
+				},
+				{
+					"name": "Start Test",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"testId\": 1\n}"},
+						"url": {"raw": "{{base_url}}/api/tests/start", "host": ["{{base_url}}"], "path": ["api", "tests", "start"]}
+					}
+				},
+				{
+					"name": "Submit Test Answer",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"sessionId\": \"session_123\",\n  \"questionId\": 1,\n  \"answer\": \"A\"\n}"},
+						"url": {"raw": "{{base_url}}/api/tests/submit", "host": ["{{base_url}}"], "path": ["api", "tests", "submit"]}
+					}
+				},
+				{
+					"name": "Complete Test",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"sessionId\": \"session_123\"\n}"},
+						"url": {"raw": "{{base_url}}/api/tests/complete", "host": ["{{base_url}}"], "path": ["api", "tests", "complete"]}
+					}
+				},
+				{
+					"name": "Get Test Results",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/tests/results?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "tests", "results"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+					}
+				}
+			]
+		},
+		{
+			"name": "🛠️ Admin Management",
+			"item": [
+				{
+					"name": "Get All Transactions (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/admin/transactions?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "admin", "transactions"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+					}
+				},
+				{
+					"name": "Get Dashboard Stats (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/admin/dashboard", "host": ["{{base_url}}"], "path": ["api", "admin", "dashboard"]}
+					}
+				}
+			]
+		},
+		{
+			"name": "🧠 Thinking Style Management (Admin)",
+			"item": [
+				{
+					"name": "Get All Thinking Styles",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/admin/thinking-styles?page=1&limit=10&search=&isActive=true", "host": ["{{base_url}}"], "path": ["api", "admin", "thinking-styles"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "search", "value": ""}, {"key": "isActive", "value": "true"}]}
+					}
+				},
+				{
+					"name": "Get Thinking Style Stats",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/admin/thinking-styles/stats", "host": ["{{base_url}}"], "path": ["api", "admin", "thinking-styles", "stats"]}
+					}
+				},
+				{
+					"name": "Get Thinking Style by ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/admin/thinking-styles/1", "host": ["{{base_url}}"], "path": ["api", "admin", "thinking-styles", "1"]}
+					}
+				},
+				{
+					"name": "Create Thinking Style",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"digit\": 10,\n  \"type\": \"New Style\",\n  \"code\": \"NEW-01\",\n  \"description\": \"Deskripsi gaya berpikir baru\",\n  \"theory\": \"Landasan teori gaya berpikir baru\",\n  \"isActive\": true\n}"},
+						"url": {"raw": "{{base_url}}/api/admin/thinking-styles", "host": ["{{base_url}}"], "path": ["api", "admin", "thinking-styles"]}
+					}
+				},
+				{
+					"name": "Update Thinking Style",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"type\": \"Updated Style\",\n  \"description\": \"Deskripsi yang telah diperbarui\",\n  \"theory\": \"Teori yang telah diperbarui\"\n}"},
+						"url": {"raw": "{{base_url}}/api/admin/thinking-styles/1", "host": ["{{base_url}}"], "path": ["api", "admin", "thinking-styles", "1"]}
+					}
+				},
+				{
+					"name": "Delete Thinking Style",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/admin/thinking-styles/1", "host": ["{{base_url}}"], "path": ["api", "admin", "thinking-styles", "1"]}
+					}
+				},
+				{
+					"name": "Restore Thinking Style",
+					"request": {
+						"method": "PATCH",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/admin/thinking-styles/1/restore", "host": ["{{base_url}}"], "path": ["api", "admin", "thinking-styles", "1", "restore"]}
+					}
+				},
+				{
+					"name": "Bulk Update Thinking Styles",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"updates\": [\n    {\n      \"id\": 1,\n      \"description\": \"Updated description 1\"\n    },\n    {\n      \"id\": 2,\n      \"theory\": \"Updated theory 2\"\n    }\n  ]\n}"},
+						"url": {"raw": "{{base_url}}/api/admin/thinking-styles/bulk-update", "host": ["{{base_url}}"], "path": ["api", "admin", "thinking-styles", "bulk-update"]}
+					}
+				}
+			]
+		},
+		{
+			"name": "🎫 Vouchers",
+			"item": [
+				{
+					"name": "Get All Vouchers",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}],
+						"url": {"raw": "{{base_url}}/api/vouchers", "host": ["{{base_url}}"], "path": ["api", "vouchers"]}
+					}
+				},
+				{
+					"name": "Create Voucher (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+						"body": {"mode": "raw", "raw": "{\n  \"code\": \"DISCOUNT10\",\n  \"description\": \"Diskon 10%\",\n  \"discountType\": \"percentage\",\n  \"discountValue\": 10,\n  \"maxUsage\": 100,\n  \"validFrom\": \"2025-01-01\",\n  \"validTo\": \"2025-12-31\",\n  \"isActive\": true\n}"},
+						"url": {"raw": "{{base_url}}/api/vouchers", "host": ["{{base_url}}"], "path": ["api", "vouchers"]}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://localhost:5000", "type": "string"},
+		{"key": "auth_token", "value": "", "type": "string"},
+		{"key": "user_id", "value": "", "type": "string"},
+		{"key": "withdraw_id", "value": "", "type": "string"},
+		{"key": "package_id", "value": "1", "type": "string"},
+		{"key": "test_id", "value": "1", "type": "string"},
+		{"key": "session_id", "value": "", "type": "string"},
+		{"key": "voucher_code", "value": "DISCOUNT10", "type": "string"},
+		{"key": "affiliate_code", "value": "AFFILIATE123", "type": "string"}
+	]
+}
