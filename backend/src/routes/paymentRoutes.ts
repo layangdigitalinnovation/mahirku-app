@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
   xenditPayment,
   handlePaymentCallback,
+  handlePayoutCallback,
 } from '../controllers/xenditController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
@@ -20,5 +21,12 @@ router.post('/xendit', authMiddleware, xenditPayment);
  * @access  Public (Xendit tidak mengirim token auth)
  */
 router.post('/xendit/callback', handlePaymentCallback);
+
+/**
+ * @route   POST /api/payment/xendit/payout-callback
+ * @desc    Callback dari Xendit untuk update status payout
+ * @access  Public (Xendit tidak mengirim token auth)
+ */
+router.post('/xendit/payout-callback', handlePayoutCallback);
 
 export default router;

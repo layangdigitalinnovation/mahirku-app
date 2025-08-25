@@ -61,7 +61,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
 // Endpoint khusus untuk affiliator (landing page berbeda)
 export const registerAffiliator = async (req: Request, res: Response): Promise<void> => {
-  await registerUserWithRole(req, res, 3); // roleId 3 = affiliator
+  await registerUserWithRole(req, res, 2); // roleId 2 = affiliator
 };
 
 // Login
