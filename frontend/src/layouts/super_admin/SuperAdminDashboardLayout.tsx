@@ -8,7 +8,8 @@ export default function SuperAdminDashboardLayout() {
     { label: "Users", path: "/admin/dashboard/users", icon: Users, title : "Users Management" },
     { label : "Manajemen Paket", path: "/admin/dashboard/packages", icon: Brain, title : "Packages Management" },
     { label : "Manajemen Voucher", path: "/admin/dashboard/voucher", icon: Brain, title : "Voucher Management" },
-    { label : "Manajemen Transaksi", path: "/admin/dashboard/transactions", icon: Brain, title : "Transactions Management" },
+    { label : "Manajemen Withdraw", path: "/admin/dashboard/withdraw", icon: Brain, title : "Withdraw Management" },
+    { label : "Manajemen Thinking Style", path: "/admin/dashboard/thinking-style", icon: Brain, title : "Thinking Style Management" },
   ];
 
   return (

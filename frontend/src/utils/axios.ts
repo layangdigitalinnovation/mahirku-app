@@ -30,8 +30,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Unauthorized, bisa redirect ke login atau hapus token
       console.warn('Unauthorized, redirecting to login...');
-      localStorage.removeItem('neuroscan-token');
-      window.location.href = '/login'; // Atau gunakan navigate() jika di React component
+      localStorage.removeItem('neuroscan-token');// Atau gunakan navigate() jika di React component
     }
 
     // Tambahkan log error lainnya jika perlu

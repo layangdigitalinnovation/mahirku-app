@@ -16,8 +16,15 @@ export const getReferralLink = async (req: AuthRequest, res: Response): Promise<
   }
 
   try {
-    const referralCode = `aff${userId}`;
-    const link = `https://mahirku.com/?ref=${referralCode}`;
+
+     const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://mahirku.com"
+        : "http://localhost:5173"; // ganti sesuai URL frontend dev kamu
+
+           const referralCode = `aff${userId}`;
+    const link = `${baseUrl}/?ref=${referralCode}`;
+
     res.status(200).json({ referralLink: link });
   } catch (error: any) {
     console.error('getReferralLink error:', error);

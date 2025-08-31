@@ -21,7 +21,7 @@ export const HeroSection = () => {
             Temukan Gaya Berpikir Anda Sekarang
           </h1>
           <p className="text-body1 text-neutral-900 max-w-2xl mx-auto font-body">
-            Ungkap rahasia pola pikir Anda melalui tes numerologi dan sistem
+            Ungkap rahasia pola pikir Anda melalui tes dan sistem
             verifikasi biometrik kami yang canggih.
           </p>
           <Button size="lg" variant="secondary">

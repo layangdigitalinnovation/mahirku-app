@@ -125,7 +125,7 @@ export const getWithdrawHistory = async (req: AuthRequest, res: Response): Promi
       include: [
         {
           model: User,
-          as: 'processedByUser',
+          as: 'processor',
           attributes: ['id', 'fullname', 'email']
         }
       ],
@@ -184,7 +184,7 @@ export const getAllWithdrawRequests = async (req: AuthRequest, res: Response): P
         },
         {
           model: User,
-          as: 'processedByUser',
+          as: 'processor',
           attributes: ['id', 'fullname', 'email']
         }
       ],
@@ -446,7 +446,7 @@ export const getWithdrawRequestDetail = async (req: AuthRequest, res: Response):
         },
         {
           model: User,
-          as: 'processedByUser',
+          as: 'processor',
           attributes: ['id', 'fullname', 'email']
         }
       ]

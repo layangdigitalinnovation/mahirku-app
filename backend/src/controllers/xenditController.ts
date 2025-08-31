@@ -6,10 +6,11 @@ import User from '../models/User';
 import Package from '../models/Package';
 import { validateVoucher, calculateDiscount } from '../utils/voucherUtils';
 import WithdrawRequest from '../models/WithdrawRequest';
+import { addTokenPurchaseCommission } from '../utils/affiliateUtils';
 
 export const xenditPayment = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, packageId, voucherCode } = req.body;
+    const { userId, packageId, voucherCode, referralCode } = req.body;
 
     const user = await User.findByPk(userId);
     if (!user) {
@@ -42,6 +43,7 @@ export const xenditPayment = async (req: Request, res: Response): Promise<void> 
       tokenAmount,
       voucherId,
       voucherCode,
+      referralCode: referralCode || null,
       status: 'PENDING',
     });
 
@@ -108,6 +110,9 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
       paid_at
     } = req.body;
 
+
+    console.log("CALLBACK HITTED :", req.body)
+
     // Ekstrak ID invoice dari external_id (format: INV-{id})
     const invoiceId = external_id.replace('INV-', '');
 
@@ -145,6 +150,37 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
       { tokens: invoice.tokenAmount },
       { where: { id: invoice.userId } }
     );
+
+    await User.update(
+      {packageId : invoice.packageId},
+      {where : {id : invoice.userId}}
+    )
+
+    // Tambahkan komisi referral jika ada
+    try {
+      const user = await User.findByPk(invoice.userId);
+      if (user && user.parentId) {
+        // Ambil data package untuk mendapatkan total amount
+const packageData = await Package.findByPk(invoice.packageId || undefined);
+        const totalAmount = packageData ? packageData.price : 0;
+        
+        if (totalAmount > 0) {
+          await addTokenPurchaseCommission(
+            invoice.id, // tokenPurchaseId (menggunakan invoice ID)
+            user.parentId, // referrerId
+            invoice.userId, // userId
+            totalAmount // totalAmount dari package price
+          );
+          
+          console.log(`Komisi referral ditambahkan untuk referrer ID: ${user.parentId}, amount: ${totalAmount}`);
+        }
+      }
+    } catch (commissionError: any) {
+      // Log error tapi jangan gagalkan proses pembayaran
+      console.error('Error menambahkan komisi referral:', commissionError.message);
+    }
+
+    console.log("Callback Sukses")
 
     res.status(200).json({ message: 'Pembayaran berhasil & token ditambahkan ke user' });
   } catch (error: any) {

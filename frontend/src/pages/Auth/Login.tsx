@@ -30,7 +30,10 @@ export const Login: React.FC = () => {
             navigate("/admin/dashboard");
             break;
           case "user":
-            navigate("/user/dashboard");
+            navigate("/customer/dashboard");
+            break;
+          case "affiliator":
+            navigate("/affiliator/dashboard");
             break;
           default:
             navigate("/");

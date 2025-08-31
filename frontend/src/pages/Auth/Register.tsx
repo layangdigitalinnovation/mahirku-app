@@ -67,7 +67,7 @@ export const Register: React.FC = () => {
         phoneNumber: values.phoneNumber,
       });
 
-      navigate("/user/dashboard");
+      navigate("/customer/dashboard");
     } catch (err: any) {
       setError(err.message || "Pendaftaran gagal. Silakan coba lagi.");
     }

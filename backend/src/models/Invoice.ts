@@ -15,6 +15,7 @@ interface InvoiceAttributes {
   packageId?: number | null;
   voucherId?: number | null;
   voucherCode?: string | null;
+  referralCode?: string | null;
   status: 'PENDING' | 'PAID' | 'FAILED';
   paymentDate?: Date | null;
   xenditInvoiceId?: string | null;
@@ -23,7 +24,7 @@ interface InvoiceAttributes {
 }
 
 interface InvoiceCreationAttributes
-  extends Optional<InvoiceAttributes, 'id' | 'voucherId' | 'packageId' | 'voucherCode' | 'status' | 'paymentDate' | 'xenditInvoiceId' | 'createdAt' | 'updatedAt'> {}
+  extends Optional<InvoiceAttributes, 'id' | 'voucherId' | 'packageId' | 'voucherCode' | 'referralCode' | 'status' | 'paymentDate' | 'xenditInvoiceId' | 'createdAt' | 'updatedAt'> {}
 
 
 class Invoice
@@ -35,6 +36,7 @@ class Invoice
   public packageId!: number | null;
   public voucherId!: number | null;
   public voucherCode!: string | null;
+  public referralCode!: string | null;
   public status!: 'PENDING' | 'PAID' | 'FAILED';
   public paymentDate!: Date | null;
   public xenditInvoiceId!: string | null;
@@ -67,6 +69,10 @@ Invoice.init(
       allowNull: true,
     },
     voucherCode: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    referralCode: {
       type: DataTypes.STRING,
       allowNull: true,
     },

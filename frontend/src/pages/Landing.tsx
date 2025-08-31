@@ -62,10 +62,10 @@ export const Landing: React.FC = () => {
       cta: "/register",
     },
     {
-      name: "Family",
-      price: "Rp 399.000",
+      name: "Group",
+      price: "Rp 499.000",
       benefits: [
-        "Tes hingga 10+ orang anggota keluarga",
+        "Tes hingga 3 orang member",
         "Sertifikat & Map untuk tiap peserta",
         "Konsultasi singkat bersama keluarga",
         "Akses grup Telegram keluarga",

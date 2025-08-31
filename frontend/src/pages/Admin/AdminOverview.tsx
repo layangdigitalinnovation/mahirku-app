@@ -9,14 +9,13 @@ export default function OverviewPage() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard Overview</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 space-y-6">
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="container mx-auto py-20 grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.map((item, index) => (
-          <Card key={index}>
+          <Card className="bg-primary-100!" key={index}>
             <CardContent className="p-6">
-              <p className="text-gray-600 text-sm">{item.label}</p>
+              <p className="text-primary-900 font-bold font-heading">{item.label}</p>
               <p className="text-2xl font-bold mt-1">{item.value}</p>
             </CardContent>
           </Card>

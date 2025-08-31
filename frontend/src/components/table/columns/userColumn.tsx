@@ -25,5 +25,9 @@ export const columns: ColumnDef<UserColumn>[] = [
   {
     accessorKey: "role",
     header: "Role",
+    cell: ({ row }) => {
+      const roleName = row.original.role.name
+      return roleName
+    }
   },
 ]

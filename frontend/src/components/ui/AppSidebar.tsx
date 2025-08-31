@@ -1,11 +1,11 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -15,16 +15,14 @@ import {
 
 import logo from "@/assets/Logo (1).png"
 import { Link } from "react-router-dom";
+import { LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { MenuItem } from "@/layouts/DashboardLayout";
 
 // Menu items.
 
 
-export interface MenuItem {
-  label : string;
-  path : string;
-  icon : React.ElementType;
-  title?: string;
-}
+
 
 export interface AppSidebarProps {
   menuItems : MenuItem[];
@@ -35,9 +33,11 @@ export default function AppSidebar({menuItems} : AppSidebarProps) {
 
   const { state } = useSidebar() // state: "expanded" | "collapsed"
 
+  const { logout } = useAuth();
+
   return (
     <Sidebar collapsible="icon">
- <SidebarHeader className="">
+ <SidebarHeader className="font-body">
   <div className="flex w-fit items-center justify-center gap-2 pt-2 pb-12 px-1">
     <img
       src={logo}
@@ -59,18 +59,25 @@ export default function AppSidebar({menuItems} : AppSidebarProps) {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton size={"lg"} className="text-primary-900 font-semibold" asChild>
                     <Link to={item.path}>
-                      <item.icon />
+                      
                       <span>{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+                  <SidebarFooter>
+              <SidebarMenuButton onClick={logout}>
+                <LogOut/>
+                Logout
+              </SidebarMenuButton>
+            </SidebarFooter>
     </Sidebar>
   )
 }

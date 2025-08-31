@@ -86,7 +86,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullname: details?.fullname || '',
         address: details?.address || '',
         phoneNumber: details?.phoneNumber || '',
-        roleId
+        roleId,
+        referrerId
       });
 
       await login(email, password);

@@ -10,6 +10,8 @@ export const TestResult: React.FC = () => {
   const [showQR, setShowQR] = useState(false);
   const testResult = location.state?.testResult;
 
+  console.log(testResult)
+
   useEffect(() => {
     if (!testResult) {
       // Redirect if no test result
@@ -23,7 +25,7 @@ export const TestResult: React.FC = () => {
 
   const qrData = JSON.stringify({
     id: testResult.id,
-    cognitiveStyle: testResult.cognitiveStyle.name,
+    cognitiveStyle: testResult.resultType,
     birthDate: testResult.birthDate,
     timestamp: new Date().toISOString()
   });
@@ -57,7 +59,7 @@ export const TestResult: React.FC = () => {
       try {
         await navigator.share({
           title: 'My Mahirku Results',
-          text: `I discovered my cognitive style: ${testResult.cognitiveStyle.name}`,
+          text: `I discovered my cognitive style: ${testResult.resultType}`,
           url: window.location.origin
         });
       } catch (error) {
@@ -66,7 +68,7 @@ export const TestResult: React.FC = () => {
     } else {
       // Fallback to clipboard
       navigator.clipboard.writeText(
-        `I just discovered my cognitive style with Mahirku: ${testResult.cognitiveStyle.name}. ${testResult.cognitiveStyle.description} Check it out at ${window.location.origin}`
+        `I just discovered my cognitive style with Mahirku: ${testResult.resultType}. ${testResult.description} Check it out at ${window.location.origin}`
       );
       alert('Result copied to clipboard!');
     }
@@ -87,14 +89,13 @@ export const TestResult: React.FC = () => {
             <CardHeader className="text-center">
               <div 
                 className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center"
-                style={{ backgroundColor: testResult.cognitiveStyle.color + '20' }}
               >
-                <Brain size={48} style={{ color: testResult.cognitiveStyle.color }} />
+                <Brain size={48} />
               </div>
-              <h2 className="text-3xl font-bold" style={{ color: testResult.cognitiveStyle.color }}>
-                {testResult.cognitiveStyle.name}
+              <h2 className="text-3xl font-bold">
+                {testResult.resultType}
               </h2>
-              <p className="text-gray-600 mt-2">{testResult.cognitiveStyle.description}</p>
+              <p className="text-gray-600 mt-2">{testResult.description}</p>
             </CardHeader>
             
             <CardContent>
@@ -102,18 +103,12 @@ export const TestResult: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">Key Traits:</h3>
                   <div className="flex flex-wrap gap-2">
-                    {testResult.cognitiveStyle.traits.map((trait: string, index: number) => (
                       <span 
-                        key={index}
+
                         className="px-3 py-1 text-sm rounded-full"
-                        style={{ 
-                          backgroundColor: testResult.cognitiveStyle.color + '20',
-                          color: testResult.cognitiveStyle.color 
-                        }}
                       >
-                        {trait}
+                        {testResult.resultCode}
                       </span>
-                    ))}
                   </div>
                 </div>
                 
@@ -134,7 +129,7 @@ export const TestResult: React.FC = () => {
             </CardContent>
             
             <CardFooter className="space-y-3">
-              <Button onClick={shareResult} variant="outline" className="w-full" icon={Share2}>
+              <Button onClick={shareResult} variant="outline" className="w-full">
                 Share Results
               </Button>
               <Button onClick={() => setShowQR(!showQR)} variant="secondary" className="w-full">
@@ -153,7 +148,7 @@ export const TestResult: React.FC = () => {
                 </CardHeader>
                 <CardContent className="text-center">
                   <div className="bg-white p-4 rounded-lg inline-block">
-                    <QRCodeSVG
+                    {/* <QRCodeSVG
                       id="qr-code"
                       value={qrData}
                       size={200}
@@ -161,11 +156,11 @@ export const TestResult: React.FC = () => {
                       fgColor="#000000"
                       level="L"
                       includeMargin={false}
-                    />
+                    /> */}
                   </div>
-                  <Button onClick={downloadQR} variant="outline" className="mt-4" icon={Download}>
+                  {/* <Button onClick={downloadQR} variant="outline" className="mt-4">
                     Download QR Code
-                  </Button>
+                  </Button> */}
                 </CardContent>
               </Card>
             )}
@@ -176,7 +171,7 @@ export const TestResult: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  <Link to="/user/dashboard" className="block">
+                  <Link to="/customer/dashboard" className="block">
                     <Button variant="outline" className="w-full">
                       View Dashboard
                     </Button>

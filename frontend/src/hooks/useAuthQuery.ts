@@ -1,6 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { login, registerUser, registerAffiliator } from '../services/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { login, registerUser, registerAffiliator, getMe } from '../services/api';
 import { CreateUserPayload, LoginPayload } from '../services/api/types';
+import { toast } from 'sonner';
 
 // Key untuk query cache
 export const authKeys = {
@@ -17,6 +18,7 @@ export const useLogin = () => {
     onSuccess: () => {
       // Invalidate dan refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
+      toast.success("Login successful");
     },
   });
 };
@@ -30,6 +32,7 @@ export const useRegisterUser = () => {
     onSuccess: () => {
       // Invalidate dan refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
+      toast.success("User registered successfully");
     },
   });
 };
@@ -43,6 +46,14 @@ export const useRegisterAffiliator = () => {
     onSuccess: () => {
       // Invalidate dan refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
+      toast.success("Affiliator registered successfully");
     },
   });
 };
+
+export const useMeQuery = () => {
+  return useQuery({
+    queryKey: authKeys.me(),
+    queryFn: () => getMe(),
+  });
+}

@@ -6,7 +6,7 @@ const router = Router();
 
 // Route untuk submit tes gaya berpikir
 router.post('/submit', authMiddleware, submitThinkingStyleTest);
-router.get('/history/:userId', authMiddleware, getThinkingStyleHistory);
+router.get('/history', authMiddleware, getThinkingStyleHistory);
 router.get('/pdf/:resultId', authMiddleware, downloadThinkingStylePDF);
 
 export default router;
