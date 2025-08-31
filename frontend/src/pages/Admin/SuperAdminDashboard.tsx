@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Users, Brain, DollarSign, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Card, CardContent } from '../../components/ui/Card';
+import { getAllUsers } from '../../services/api';
 
 interface UserData {
   id: number;
@@ -34,11 +34,8 @@ export const SuperAdminDashboard: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('neuroscan-token');
-      const res = await axios.get<UserData[]>('http://localhost:5000/api/users', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUsers(res.data);
+      const data = await getAllUsers();
+      setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -49,7 +46,7 @@ export const SuperAdminDashboard: React.FC = () => {
   const renderTabContent = () => {
     if (activeTab === 'overview') {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
           <Card>
             <CardContent className="p-6">
               <p className="text-gray-600 text-sm">Total Users</p>
@@ -79,40 +76,37 @@ export const SuperAdminDashboard: React.FC = () => {
     }
 
     if (activeTab === 'users') {
-  return (
-    <div className="overflow-x-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
-      {users.length === 0 ? (
-        <p className="text-gray-600 p-4">No users found.</p>
-      ) : (
-        <table className="min-w-full divide-y divide-gray-200 bg-white">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {users.map((u, index) => (
-              <tr key={u.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{index + 1}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {u.fullname || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{u.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{u.username}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-700">{u.role.name}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
-  );
-}
-
+      return (
+        <div className="overflow-x-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
+          {users.length === 0 ? (
+            <p className="text-gray-600 p-4">No users found.</p>
+          ) : (
+            <table className="min-w-full divide-y divide-gray-200 bg-white">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {users.map((u, index) => (
+                  <tr key={u.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{index + 1}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{u.fullname || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{u.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{u.username}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-700">{u.role.name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      );
+    }
 
     if (activeTab === 'tests') {
       return (

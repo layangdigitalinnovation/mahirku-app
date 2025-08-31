@@ -1,135 +1,254 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Brain, User } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { useAuth } from '../../hooks/useAuth';
-import { getReferralId } from '../../utils/referral';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserPlus, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/Input";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from "@/hooks/useAuth";
+import { getReferralId } from "@/utils/referral";
+import { AuthLayout } from "@/layouts/AuthLayout";
+
+const formSchema = z
+  .object({
+    fullname: z.string().min(2, "Nama lengkap wajib diisi"),
+    username: z.string().min(3, "Username minimal 3 karakter"),
+    phoneNumber: z.string().min(8, "Nomor HP tidak valid"),
+    address: z.string().min(5, "Alamat wajib diisi"),
+    email: z.string().email("Email tidak valid"),
+    password: z.string().min(6, "Password minimal 6 karakter"),
+    confirmPassword: z.string().min(6, "Konfirmasi password minimal 6 karakter"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Kata sandi dan konfirmasi tidak cocok",
+    path: ["confirmPassword"],
+  });
+
+type RegisterForm = z.infer<typeof formSchema>;
 
 export const Register: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [fullname, setFullname] = useState('');
-  const [username, setUsername] = useState('');
-  const [address, setAddress] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'user' | 'affiliator'>('user');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register: registerUser } = useAuth();
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+  const form = useForm<RegisterForm>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      fullname: "",
+      username: "",
+      phoneNumber: "",
+      address: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
-
+  const onSubmit = async (values: RegisterForm) => {
+    setError("");
     try {
       const referrerId = getReferralId();
 
-      await register(email, password, role, referrerId, {
-        username,
-        fullname,
-        address,
-        phoneNumber,
+      await registerUser(values.email, values.password, "user", referrerId, {
+        username: values.username,
+        fullname: values.fullname,
+        address: values.address,
+        phoneNumber: values.phoneNumber,
       });
 
-      navigate(role === 'affiliator' ? '/affiliator/dashboard' : '/user/dashboard');
-    } catch (error: any) {
-      setError(error.message || 'Registration failed');
-    } finally {
-      setLoading(false);
+      navigate("/customer/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Pendaftaran gagal. Silakan coba lagi.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <Card>
-          <CardHeader className="text-center">
-            <Brain className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-            <h2 className="text-3xl font-bold text-gray-900">Join Mahirku</h2>
-            <p className="text-gray-600">Create your account to get started</p>
-          </CardHeader>
+    <AuthLayout title="">
+      <div className="relative w-full max-w-xl p-2 bg-white/80">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Daftar Akun Baru</h2>
+          <p className="text-gray-600 text-sm">
+            Gabung dan mulai belajar bersama Mahirku
+          </p>
+        </div>
 
-          <CardContent>
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                {error}
-              </div>
-            )}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input label="Full Name" value={fullname} onChange={setFullname} required />
-              <Input label="Username" value={username} onChange={setUsername} required />
-              <Input label="Address" value={address} onChange={setAddress} required />
-              <Input label="Phone Number" value={phoneNumber} onChange={setPhoneNumber} required />
-              <Input label="Email" type="email" value={email} onChange={setEmail} required />
-              <Input label="Password" type="password" value={password} onChange={setPassword} required />
-              <Input
-                label="Confirm Password"
-                type="password"
-                value={confirmPassword}
-                onChange={setConfirmPassword}
-                required
-              />
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="fullname"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Nama Lengkap</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan nama lengkap" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Account Type <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setRole('user')}
-                    className={`p-3 border-2 rounded-lg text-center transition-all ${
-                      role === 'user'
-                        ? 'border-blue-600 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <User className="h-6 w-6 mx-auto mb-1" />
-                    <div className="text-sm font-medium">User</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole('affiliator')}
-                    className={`p-3 border-2 rounded-lg text-center transition-all ${
-                      role === 'affiliator'
-                        ? 'border-blue-600 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <UserPlus className="h-6 w-6 mx-auto mb-1" />
-                    <div className="text-sm font-medium">Affiliator</div>
-                  </button>
-                </div>
-              </div>
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Username unik" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <Button type="submit" className="w-full" disabled={loading} icon={loading ? undefined : UserPlus}>
-                {loading ? 'Creating Account...' : 'Create Account'}
-              </Button>
-            </form>
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>No. HP</FormLabel>
+                  <FormControl>
+                    <Input placeholder="08xxxxxxxxxx" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="mt-6 text-center">
-              <p className="text-gray-600">
-                Already have an account?{' '}
-                <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Sign in here
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Alamat</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Alamat lengkap" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="you@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Password with toggle */}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kata Sandi</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="******"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-2 top-2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Confirm Password with toggle */}
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Konfirmasi Sandi</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showConfirm ? "text" : "password"}
+                        placeholder="******"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm((prev) => !prev)}
+                        className="absolute right-2 top-2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showConfirm ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="sm:col-span-2 mt-2"
+              disabled={form.formState.isSubmitting}
+            >
+              <UserPlus className="w-5 h-5 mr-2" />
+              {form.formState.isSubmitting ? "Mendaftarkan..." : "Daftar Sekarang"}
+            </Button>
+          </form>
+        </Form>
+
+        <p className="text-center text-sm text-gray-600 mt-6">
+          Sudah punya akun?{" "}
+          <Link
+            to="/login"
+            className="text-blue-600 hover:text-blue-800 font-semibold"
+          >
+            Masuk di sini
+          </Link>
+        </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 };

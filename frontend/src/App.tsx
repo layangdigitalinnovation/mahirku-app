@@ -1,16 +1,31 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './components/AuthProvider';
-import { Layout } from './components/Layout';
+import { AuthProvider } from './context/AuthProvider';
+import { LandingLayout } from './layouts/LandingLayout';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
 import { CognitiveTest } from './pages/Test/CognitiveTest';
 import { TestResult } from './pages/Test/TestResult';
-import { UserDashboard } from './pages/User/UserDashboard';
-import { AffiliatorDashboard } from './pages/Affiliator/AffiliatorDashboard';
-import { SuperAdminDashboard } from './pages/Admin/SuperAdminDashboard';
+import Contact from './pages/Contact';
+import Faq from './pages/Faq';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import PaymentSuccess from './pages/Payment/PaymentSuccess';
 import { useAuth } from './hooks/useAuth';
+import SuperAdminDashboardLayout from './layouts/super_admin/SuperAdminDashboardLayout';
+import Overview from './pages/Admin/AdminOverview';
+import ManageUsers from './pages/Admin/ManageUsers';
+import ManagePackages from './pages/Admin/ManagePackage';
+import ManageVouchers from './pages/Admin/ManageVoucher';
+import { AffiliatorDashboard } from './pages/Affiliator/AffiliatorDashboard';
+import CustomerDashboardLayout from './layouts/customer/CustomerLayout';
+import { UserDashboard } from './pages/User/UserDashboard';
+import CustomerChilds from './pages/User/CustomerChilds';
+import AffiliatorDashboardLayout from './layouts/affiliator/AffiliatorDashboardLayout';
+import AffiliateWithdrawPage from './pages/Affiliator/AffiliateWithdrawPage';
+import AdminWithdrawManagement from './pages/Admin/ManageWithdraw';
+import ThinkingStylesManagement from './pages/Admin/ManageThinkingStyle';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ 
@@ -49,40 +64,96 @@ function AppContent() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        {/* Landing layout routes */}
+        <Route path="/" element={<LandingLayout />}>
           <Route index element={<Landing />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="test" element={<CognitiveTest />} />
-          <Route path="test/result" element={<TestResult />} />
-          
-          <Route 
-            path="user/dashboard" 
+          <Route path="kontak" element={<Contact />} />
+          <Route path="faq" element={<Faq />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="terms" element={<Terms />} />
+          <Route path="payment-success" element={<PaymentSuccess />} />
+        </Route>
+
+        {/* Auth */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Dashboard layout untuk semua role
+        <Route element={<DashboardLayout />}>
+          <Route
+            path="user/dashboard"
             element={
               <ProtectedRoute requiredRole="user">
                 <UserDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          
-          <Route 
-            path="affiliator/dashboard" 
+          <Route
+            path="affiliator/dashboard"
             element={
               <ProtectedRoute requiredRole="affiliator">
                 <AffiliatorDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-
-          <Route 
-            path="admin/dashboard" 
+          <Route
+            path="admin/dashboard"
             element={
               <ProtectedRoute requiredRole="super_admin">
                 <SuperAdminDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
+        </Route> */}
+
+           <Route
+          path="/admin/dashboard/*"
+          element={
+            <ProtectedRoute requiredRole="super_admin">
+              <SuperAdminDashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* Child routes untuk super admin */}
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<Overview />} />
+          <Route path="users" element={<ManageUsers />} />
+          <Route path="packages" element={<ManagePackages />} />
+          <Route path="voucher" element={<ManageVouchers />} />
+          <Route path="affiliator" element={<AffiliatorDashboard/>}/>
+          <Route path='withdraw' element={<AdminWithdrawManagement/>} />
+          <Route path='thinking-style' element={<ThinkingStylesManagement/>} />
         </Route>
+
+        <Route
+          path="/customer/dashboard/*"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <CustomerDashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* Child routes untuk customer */}
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<UserDashboard />} />
+          <Route path="users" element={<CustomerChilds />} />
+         
+        {/* Test */}
+        <Route path="test" element={<CognitiveTest />} />
+        <Route path="test/result" element={<TestResult />} />
+        {/* <Route path="history" element={<TestHistory />} /> */}
+        </Route>
+
+        <Route path='affiliator/dashboard/*' element={
+          <ProtectedRoute requiredRole='affiliator'>
+            <AffiliatorDashboardLayout/>
+          </ProtectedRoute>
+        }>
+           <Route index element={<Navigate to="overview" replace />} />
+           <Route path='overview' element={<AffiliatorDashboard/>}/>
+           <Route path='withdraw' element={<AffiliateWithdrawPage/>} />
+        </Route>
+
       </Routes>
     </Router>
   );

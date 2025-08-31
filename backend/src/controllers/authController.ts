@@ -1,84 +1,134 @@
-import { Request, Response } from 'express';
-import models from '../models';
-import User from '../models/User';
+import { Request, Response } from "express";
+import models from "../models";
+import User from "../models/User";
 
 interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
-export const register = async (req: Request, res: Response) => {
+// Fungsi reusable untuk register user berdasarkan role
+const registerUserWithRole = async (
+  req: Request,
+  res: Response,
+  roleId: number
+): Promise<void> => {
   try {
-    const {
+    const { username, email, password, fullname, address, phoneNumber, referrerId } =
+      req.body;
+
+    // Validasi email dan password dasar
+    if (!email || !password) {
+      res.status(400).json({ message: "Email and password are required." });
+      return;
+    }
+
+    // Cek apakah user sudah terdaftar
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      res.status(409).json({ message: "Email already registered." });
+      return;
+    }
+
+    // Proses referrerId menjadi parentId
+    let parentId = null;
+    if (referrerId) {
+      // Ekstrak user ID dari referral code (format: aff{userId})
+      const referrerUserId = referrerId.replace('aff', '');
+      if (referrerUserId && !isNaN(Number(referrerUserId))) {
+        // Verifikasi bahwa referrer exists dan merupakan affiliator
+        const referrer = await User.findOne({ 
+          where: { 
+            id: Number(referrerUserId),
+            roleId: 2 // pastikan referrer adalah affiliator
+          } 
+        });
+        if (referrer) {
+          parentId = Number(referrerUserId);
+          console.log(`User baru akan direferensikan ke affiliator ID: ${parentId}`);
+        } else {
+          console.log(`Referrer ID ${referrerUserId} tidak valid atau bukan affiliator`);
+        }
+      }
+    }
+
+    // Buat user baru
+    const user = await models.User.create({
       username,
       email,
       password,
       fullname,
       address,
       phoneNumber,
-      roleId
-    } = req.body;
+      roleId,
+      parentId,
+    });
 
-    // Batasi self-register hanya untuk Affiliator dan User (roleId 2 dan 3)
-    const allowedRoles = [2, 3];
-    if (!allowedRoles.includes(Number(roleId))) {
-      res.status(403).json({ message: 'Forbidden role for self-registration' });
-    } else {
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        res.status(409).json({ message: 'Email already registered.' });
-      } else {
-        const user = await models.User.create({
-          username,
-          email,
-          password,
-          fullname,
-          address,
-          phoneNumber,
-          roleId
-        });
-
-        res.status(201).json({ message: 'User registered successfully', user });
-      }
-    }
+    res.status(201).json({ message: "User registered successfully", user });
   } catch (err) {
-    console.error('Register error:', err);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Register error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Endpoint khusus untuk user biasa (publik)
+export const registerUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const roleId = req.body.roleId || 3; // default ke 3 jika tidak dikirim
+  await registerUserWithRole(req, res, roleId);
+};
 
-export const login = async (req: Request, res: Response) => {
+// Endpoint khusus untuk affiliator (landing page berbeda)
+export const registerAffiliator = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  await registerUserWithRole(req, res, 2); // roleId 2 = affiliator
+};
+
+// Login
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      res.status(400).json({ message: "Email and password are required." });
+      return;
+    }
+
     const user = await models.User.findByEmail(email);
     if (!user || !(await user.comparePassword(password))) {
-      res.status(401).json({ message: 'Invalid email or password' });
+      res.status(401).json({ message: "Invalid email or password" });
       return;
     }
 
     const token = user.generateAuthToken();
-    res.json({ token, user });
+    res.status(200).json({ token, user });
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const getMe = async (req: AuthenticatedRequest, res: Response) => {
+// Get current user info
+export const getMe = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     const user = await models.User.findByPk(req.user.userId, {
-      include: ['roles']
+      include: ["role"], // Pastikan relasi 'roles' tersedia di model
     });
 
     if (!user) {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: "User not found" });
       return;
     }
 
-    res.json({ user });
+    res.status(200).json({ user });
   } catch (err) {
-    console.error('GetMe error:', err);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("GetMe error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

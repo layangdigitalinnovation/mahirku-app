@@ -1,95 +1,147 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Brain, TrendingUp, Shield, Zap, Eye } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Card, CardContent } from '../components/ui/Card';
-import { getReferralId } from '../utils/referral';
+import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+import fingerPrint from "@/assets/fingerprint 1.png";
+import report from "@/assets/image 3.png"
+import consult from "@/assets/image 4.png"
+import carrerRecom from "@/assets/image 5.png"
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { getReferralId } from "@/utils/referral";
+
+import { HeroSection } from "@/components/section/HeroSection";
+import FiturSection from "@/components/section/FiturSection";
+import dots from "@/assets/Dots.png"
+import cta from "@/assets/Problem_Solving_3-removebg-preview 1.png"
+import { CheckIcon } from "lucide-react";
+import { useSectionObserver } from "@/hooks/useSectionObserver";
 
 export const Landing: React.FC = () => {
   useEffect(() => {
-    // Track referral if present in URL
     getReferralId();
   }, []);
 
-  const features = [
+  useSectionObserver(["beranda", "layanan", "paket", "kontak"]);
+
+
+
+  const services = [
     {
-      icon: Brain,
-      title: 'Cognitive Style Analysis',
-      description: 'Discover your unique thinking patterns through advanced numerology-based assessment.'
+      title: "Tes Sidik Jari",
+      description: "Menggunakan teknologi biometrik untuk hasil akurat.",
+      icon: fingerPrint,
     },
     {
-      icon: Shield,
-      title: 'Biometric Security',
-      description: 'Secure your results with fingerprint scanning technology for verified authenticity.'
+      title: "Laporan Gaya Berpikir",
+      description: "Laporan lengkap dalam bentuk digital & cetak.",
+      icon: report,
     },
     {
-      icon: TrendingUp,
-      title: 'Referral System',
-      description: 'Earn commissions by sharing NeuroScan with others as a verified affiliator.'
+      title: "Konsultasi Hasil",
+      description: "Dibimbing oleh konsultan untuk memahami hasil tes.",
+      icon: consult,
+
     },
     {
-      icon: Eye,
-      title: 'Deep Insights',
-      description: 'Get detailed analysis of your cognitive strengths and behavioral patterns.'
-    }
+      title: "Rekomendasi Karier",
+      description: "Temukan bidang pekerjaan paling sesuai.",
+      icon: carrerRecom,
+    },
+  ];
+
+  const testPackages = [
+    {
+      name: "Personal",
+      price: "Rp250.000",
+      benefits: [
+        "Tes berbasis sidik jari",
+        "Sertifikat hasil tes + Map",
+        "Penjelasan hasil secara umum",
+        "E-book penjelasan hasil tes",
+        "Buku saku gaya berpikir",
+      ],
+      cta: "/register",
+    },
+    {
+      name: "Group",
+      price: "Rp 499.000",
+      benefits: [
+        "Tes hingga 3 orang member",
+        "Sertifikat & Map untuk tiap peserta",
+        "Konsultasi singkat bersama keluarga",
+        "Akses grup Telegram keluarga",
+        "Buku saku & e-book untuk masing-masing",
+      ],
+      cta: "/register",
+    },
+    {
+      name: "Enterprise",
+      price: "Rp 1.499.000",
+      benefits: [
+        "Untuk 10+ peserta (tim / kantor)",
+        "Laporan grup + individu",
+        "Sesi penjelasan live (Zoom/Offline)",
+        "Lisensi laporan untuk HR/Trainer",
+        "Tempat tes sesuai permintaan",
+      ],
+      cta: "/contact",
+    },
   ];
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20">
+<HeroSection />
+
+      {/* Fitur Utama */}
+<FiturSection/>
+
+      {/* Statistik */}
+      <section  className="py-20 bg-secondary-50/10">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <Brain className="h-20 w-20 text-blue-300" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-heading1 font-heading text-primary-700 font-bold">
+                10.000+
+              </div>
+              <div className="text-heading6 font-heading">Tes Telah Dilakukan</div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Discover Your
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-white">
-                Cognitive Style
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-              Unlock the secrets of your thinking patterns with our advanced numerology-based assessment 
-              and biometric verification system.
-            </p>
-            <div className="space-x-4">
-              <Link to="/test">
-                <Button size="lg" className="bg-slate-300 text-blue-600 hover:bg-blue-50">
-                  <Zap className="mr-2" />
-                  Take the Test
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                  Join as Affiliator
-                </Button>
-              </Link>
+            <div>
+              <div className="text-heading1 font-heading text-primary-700 font-bold">200+</div>
+              <div className="text-heading6 font-heading">Institusi Terdaftar</div>
+            </div>
+            <div>
+              <div className="text-heading1 font-heading text-primary-700 font-bold">98%</div>
+              <div className="text-heading6 font-heading">Tingkat Akurasi</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-white">
+      {/* Layanan Kami */}
+      <section id="layanan" key="layanan" className="py-20 bg-white">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Mahirku?
+            <h2 className="text-heading1 font-heading font-bold text-primary-800 mb-4">
+              Layanan Kami
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Experience the most advanced cognitive assessment platform with cutting-edge technology 
-              and proven methodologies.
+            <p className="text-heading6 font-body text-gray-600 max-w-2xl mx-auto">
+              Mahirku menyediakan berbagai layanan untuk memahami gaya berpikir
+              dan membantu Anda mencapai potensi maksimal.
             </p>
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="text-center p-6 hover:scale-105 transition-transform">
+            {services.map((service, index) => (
+              <Card
+                key={index}
+                className="p-6 hover:shadow-lg hover:scale-105 transition-transform text-center"
+              >
                 <CardContent>
-                  <feature.icon className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-3 text-gray-900">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <img src={service.icon} className="h-12 w-12 mx-auto mb-4" />
+                  <h3 className="text-heading5 font-heading font-semibold mb-3 text-primary-900">
+                    {service.title}
+                  </h3>
+                  <p className="font-body ">{service.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -97,40 +149,89 @@ export const Landing: React.FC = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gray-50">
+      {/* Pilihan Paket */}
+      <section id="paket" key="paket" className="py-20">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">10,000+</div>
-              <div className="text-gray-600">Tests Completed</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">500+</div>
-              <div className="text-gray-600">Active Affiliators</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">98%</div>
-              <div className="text-gray-600">Accuracy Rate</div>
-            </div>
+          <div className="text-center mb-16">
+            <h2 className="text-heading2 font-heading font-bold text-primary-900 mb-4">
+              Pilihan Paket Tes
+            </h2>
+            <p className="text-heading6 font-body text-gray-600 max-w-2xl mx-auto">
+
+              Pilih paket tes yang sesuai untuk Anda, keluarga, atau organisasi.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {testPackages.map((pkg, index) => (
+              <Card
+                key={index}
+                className="p-6 shadow-lg hover:shadow-2xl transition-all rounded-2xl flex flex-col text-left"
+              >
+                <CardHeader>
+                  <h3 className="text-heading3 font-bold text-primary-900 mb-1">
+                    {pkg.name}
+                  </h3>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col justify-between">
+                  <div className="text-heading1 font-heading font-bold text-secondary-300 mb-6">
+                    {pkg.price}
+                  </div>
+                  <ul className="space-y-3 bg-white border border-neutral-200 p-6 rounded-xs">
+                    {pkg.benefits.map((benefit, i) => (
+                      <li key={i} className="text-body2 font-body flex items-center gap-4">
+                        <CheckIcon className="w-4 text-primary-300 mr-2" />
+                        <span className="w-full">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link to={pkg.cta}>
+                    <Button
+                      variant="secondary"
+                      className="w-full mt-8"
+                    >
+                      Pilih Paket
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-blue-600">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Ready to Discover Your Cognitive Style?
+      {/* CTA */}
+      <section id="kontak" key="kontak" className="py-20"
+
+        style={{ 
+          background: `url(${dots})`,
+          backgroundSize: "cover",
+
+         }}
+      >
+        <div className="contianer max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between gap-10">
+          <div>
+            <img src={cta} alt="Call To Action" className="bg-cover aspect-square" />
+          </div>
+          <div className="flex-1">
+     <h2 className="text-heading1 font-heading font-bold text-primary-900 max-w-3xl mb-6">
+            Siap Menemukan Gaya Berpikir Anda?
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join thousands of users who have unlocked their potential with Mahirku.
+          <p className="text-heading6 font-body text-primary-900 max-w-xl mb-8">
+            Bergabunglah bersama ribuan orang yang telah menemukan potensinya
+            bersama Mahirku.
           </p>
-          <Link to="/test">
-            <Button size="lg" className="bg-orange-500 text-blue-600 hover:bg-blue-50">
-              Start Your Journey
+          <Link to="/register">
+            <Button
+              size="lg"
+              variant="secondary"
+            >
+              Mulai Sekarang
             </Button>
           </Link>
+          </div>
+     
         </div>
       </section>
     </div>

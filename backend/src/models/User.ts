@@ -1,11 +1,18 @@
 import {
   Model,
   DataTypes,
-  Optional
+  Optional,
+  Association,
 } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sequelize } from '../config/database';
+import Package from './Package';
+
+interface Role {
+  id: number;
+  name: string;
+}
 
 interface UserAttributes {
   id: number;
@@ -16,11 +23,17 @@ interface UserAttributes {
   fullname: string;
   address: string;
   phoneNumber: string;
+  tokens: number;
+  parentId?: number | null;
+  packageId?: number | null;
+  bankName?: string | null;
+  bankAccountNumber?: string | null;
+  bankAccountName?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'tokens' | 'parentId' | 'packageId'> {}
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
@@ -31,9 +44,28 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public fullname!: string;
   public address!: string;
   public phoneNumber!: string;
+  public tokens!: number;
+  public parentId?: number | null;
+  public packageId?: number | null;
+  public bankName?: string | null;
+  public bankAccountNumber?: string | null;
+  public bankAccountName?: string | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Relations
+  public readonly children?: User[]; // hasMany
+  public readonly parent?: User;     // belongsTo
+  public readonly package?: Package; // belongsTo
+  public readonly role?: Role;       // belongsTo
+
+  public static associations: {
+    children: Association<User, User>;
+    parent: Association<User, User>;
+    package: Association<User, Package>;
+    role: Association<User, any>;
+  };
 
   // 🔐 Compare password
   async comparePassword(inputPassword: string): Promise<boolean> {
@@ -67,8 +99,23 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
       foreignKey: 'roleId',
       as: 'role',
     });
-  }
 
+    // 🔁 Parent-child relationship
+    User.belongsTo(models.User, {
+      foreignKey: 'parentId',
+      as: 'parent',
+    });
+
+    User.hasMany(models.User, {
+      foreignKey: 'parentId',
+      as: 'children',
+    });
+
+    User.belongsTo(models.Package, {
+      foreignKey: 'packageId',
+      as: 'package',
+    });
+  }
 }
 
 User.init(
@@ -120,6 +167,43 @@ User.init(
       validate: {
         is: /^\+?[0-9]+$/,
       },
+    },
+    tokens: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+    },
+    parentId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+    },
+    packageId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'packages',
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+    },
+    bankName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    bankAccountNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    bankAccountName: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {
