@@ -2,7 +2,6 @@
 import { Router } from 'express';
 import { 
   getReferralLink, 
-  addCommissionOnTestComplete, 
   getAffiliateStats,
   getAffiliateBalanceDetail,
   getCommissionBreakdown
@@ -13,9 +12,6 @@ const router = Router();
 
 // Mendapatkan link referral (hanya untuk user yang login)
 router.get('/referral-link', authMiddleware, getReferralLink);
-
-// Menambahkan komisi ketika tes selesai
-router.post('/add-commission', authMiddleware, addCommissionOnTestComplete);
 
 // Mendapatkan statistik affiliate (hanya untuk user yang login)
 router.get('/stats', authMiddleware, getAffiliateStats);

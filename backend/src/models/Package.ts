@@ -8,6 +8,7 @@ interface PackageAttributes {
   description: string;
   defaultTokenAmount: number;
   price: number;
+  commissionRate: number; // percentage for affiliate commission (0-100)
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -20,6 +21,7 @@ class Package extends Model<PackageAttributes, PackageCreationAttributes> implem
   public description!: string;
   public defaultTokenAmount!: number;
   public price!: number;
+  public commissionRate!: number;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -48,6 +50,15 @@ Package.init(
     price: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    commissionRate: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+        max: 100,
+      },
     },
   },
   {
