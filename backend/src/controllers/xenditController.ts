@@ -6,7 +6,7 @@ import User from '../models/User';
 import Package from '../models/Package';
 import { validateVoucher, calculateDiscount } from '../utils/voucherUtils';
 import WithdrawRequest from '../models/WithdrawRequest';
-import { addTokenPurchaseCommission } from '../utils/affiliateUtils';
+import { calculateTokenCommission, addTokenPurchaseCommission, updateAffiliateBalance } from '../utils/affiliateUtils';
 
 export const xenditPayment = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -159,20 +159,21 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
     // Tambahkan komisi referral jika ada
     try {
       const user = await User.findByPk(invoice.userId);
-      if (user && user.parentId) {
-        // Ambil data package untuk mendapatkan total amount
-const packageData = await Package.findByPk(invoice.packageId || undefined);
-        const totalAmount = packageData ? packageData.price : 0;
+      if (user && user.parentId && invoice.packageId) {
+        // Hitung komisi berdasarkan total tokens yang dibeli
+        const commissionAmount = await calculateTokenCommission(invoice.packageId, invoice.tokenAmount);
         
-        if (totalAmount > 0) {
+        if (commissionAmount > 0) {
+          // Buat record komisi
           await addTokenPurchaseCommission(
-            invoice.id, // tokenPurchaseId (menggunakan invoice ID)
+            invoice.id, // tokenPurchaseId
             user.parentId, // referrerId
             invoice.userId, // userId
-            totalAmount // totalAmount dari package price
+            commissionAmount, // commissionAmount yang sudah dihitung
+            invoice.packageId // packageId
           );
           
-          console.log(`Komisi referral ditambahkan untuk referrer ID: ${user.parentId}, amount: ${totalAmount}`);
+          console.log(`Komisi referral ditambahkan untuk referrer ID: ${user.parentId}, amount: ${commissionAmount}, tokens: ${invoice.tokenAmount}, packageId: ${invoice.packageId}`);
         }
       }
     } catch (commissionError: any) {

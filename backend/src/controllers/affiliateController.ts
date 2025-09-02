@@ -3,7 +3,7 @@ import AffiliateCommission from '../models/AffiliateCommission';
 import WithdrawRequest from '../models/WithdrawRequest';
 import User from '../models/User';
 import { AuthRequest } from '../middlewares/authMiddleware';
-import { getAffiliateBalance, addTestCompletionCommission } from '../utils/affiliateUtils';
+import { getAffiliateBalance } from '../utils/affiliateUtils';
 import { sequelize } from '../config/database';
 
 // 1. Generate referral link
@@ -28,31 +28,6 @@ export const getReferralLink = async (req: AuthRequest, res: Response): Promise<
   } catch (error: any) {
     console.error('getReferralLink error:', error);
     res.status(500).json({ error: 'Gagal membuat link referral' });
-  }
-};
-
-// 2. Catat komisi saat tes selesai
-export const addCommissionOnTestComplete = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { userId, referrerId, testId } = req.body;
-
-    if (!userId || typeof userId !== 'number') {
-      res.status(400).json({ message: 'userId wajib dikirim dan berupa number' });
-      return;
-    }
-
-    if (!referrerId) {
-      res.status(200).json({ message: 'Tidak ada referral, komisi tidak ditambahkan' });
-      return;
-    }
-
-    // Gunakan utility function yang baru
-    const commission = await addTestCompletionCommission(referrerId, userId, testId);
-
-    res.status(201).json({ message: 'Komisi berhasil ditambahkan', commission });
-  } catch (error: any) {
-    console.error('addCommissionOnTestComplete error:', error);
-    res.status(500).json({ error: 'Gagal menambahkan komisi' });
   }
 };
 
