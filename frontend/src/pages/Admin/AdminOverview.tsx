@@ -2,10 +2,10 @@ import { Card, CardContent } from "@/components/ui/Card";
 
 export default function OverviewPage() {
   const data = [
-    { label: "Total Users", value: 1200 },
-    { label: "Total Tests", value: 350 },
-    { label: "Total Commissions", value: `Rp ${new Intl.NumberFormat('id-ID').format(5000000)}` },
-    { label: "Pending Commissions", value: `Rp ${new Intl.NumberFormat('id-ID').format(1200000)}` },
+    { label: "Total Pengguna", value: 1200 },
+    { label: "Total Tes", value: 350 },
+    { label: "Total Komisi", value: `Rp ${new Intl.NumberFormat('id-ID').format(5000000)}` },
+    { label: "Komisi Tertunda", value: `Rp ${new Intl.NumberFormat('id-ID').format(1200000)}` },
   ];
 
   return (

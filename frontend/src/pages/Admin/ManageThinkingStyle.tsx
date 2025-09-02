@@ -206,14 +206,14 @@ const ThinkingStylesManagement = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
               >
                 <Upload className="w-4 h-4" />
-                Bulk Update
+                Pembaruan Massal
               </button>
               <button
                 onClick={() => openModal('create')}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                Add New Style
+                Tambah Gaya Baru
               </button>
             </div>
           </div>
@@ -274,12 +274,12 @@ const ThinkingStylesManagement = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {modalType === 'create' ? 'Add New Thinking Style' : 'Edit Thinking Style'}
+              {modalType === 'create' ? 'Tambah Gaya Berpikir Baru' : 'Ubah Gaya Berpikir'}
             </DialogTitle>
             <DialogDescription>
               {modalType === 'create' 
-                ? 'Create a new thinking style with the details below.'
-                : 'Update the thinking style information.'
+                ? 'Buat gaya berpikir baru dengan detail di bawah ini.'
+                : 'Perbarui informasi gaya berpikir.'
               }
             </DialogDescription>
           </DialogHeader>
@@ -353,11 +353,11 @@ const ThinkingStylesManagement = () => {
             
             <DialogFooter>
               <Button type="button" variant="outline" onClick={closeModal}>
-                Cancel
+                Batal
               </Button>
               <Button type="submit">
                 <Save className="w-4 h-4 mr-2" />
-                {modalType === 'create' ? 'Create' : 'Update'}
+                {modalType === 'create' ? 'Buat' : 'Perbarui'}
               </Button>
             </DialogFooter>
           </form>
@@ -425,9 +425,9 @@ const ThinkingStylesManagement = () => {
       <Dialog open={showModal && modalType === 'bulk'} onOpenChange={closeModal}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Bulk Update Thinking Styles</DialogTitle>
+            <DialogTitle>Pembaruan Massal Gaya Berpikir</DialogTitle>
             <DialogDescription>
-              Update multiple thinking styles at once. You can modify the status and basic information for each style.
+              Perbarui beberapa gaya berpikir sekaligus. Anda dapat mengubah status dan informasi dasar untuk setiap gaya.
             </DialogDescription>
           </DialogHeader>
           
@@ -488,11 +488,11 @@ const ThinkingStylesManagement = () => {
           
           <DialogFooter>
             <Button type="button" variant="outline" onClick={closeModal}>
-              Cancel
+              Batal
             </Button>
             <Button onClick={handleBulkUpdate}>
               <Save className="w-4 h-4 mr-2" />
-              Apply Bulk Updates
+              Terapkan Pembaruan Massal
             </Button>
           </DialogFooter>
         </DialogContent>

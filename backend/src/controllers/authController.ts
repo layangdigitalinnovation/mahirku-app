@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import models from "../models";
 import User from "../models/User";
+import { getReferralFromCookie, clearReferralCookie } from '../middlewares/referralMiddleware';
 
 interface AuthenticatedRequest extends Request {
   user?: any;
@@ -13,8 +14,11 @@ const registerUserWithRole = async (
   roleId: number
 ): Promise<void> => {
   try {
-    const { username, email, password, fullname, address, phoneNumber, referrerId } =
+    const { username, email, password, fullname, address, phoneNumber } =
       req.body;
+    
+    // Ambil referral dari cookie alih-alih dari request body
+    const referrerId = getReferralFromCookie(req);
 
     // Validasi email dan password dasar
     if (!email || !password) {
@@ -62,6 +66,11 @@ const registerUserWithRole = async (
       roleId,
       parentId,
     });
+
+    // Clear referral cookie setelah registrasi berhasil
+    if (referrerId) {
+      clearReferralCookie(res);
+    }
 
     res.status(201).json({ message: "User registered successfully", user });
   } catch (err) {

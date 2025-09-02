@@ -20,7 +20,7 @@ export const TestResult: React.FC = () => {
   }, [testResult]);
 
   if (!testResult) {
-    return <div>Loading...</div>;
+    return <div>Memuat...</div>;
   }
 
   const qrData = JSON.stringify({
@@ -79,8 +79,8 @@ export const TestResult: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Your Cognitive Style Results</h1>
-          <p className="text-gray-600">Discover your unique thinking patterns</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Hasil Gaya Kognitif Anda</h1>
+          <p className="text-gray-600">Temukan pola berpikir unik Anda</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -101,7 +101,7 @@ export const TestResult: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Key Traits:</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">Ciri Utama:</h3>
                   <div className="flex flex-wrap gap-2">
                       <span 
 
@@ -113,14 +113,14 @@ export const TestResult: React.FC = () => {
                 </div>
                 
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">Test Details:</h3>
+                  <h3 className="font-semibold mb-2">Detail Tes:</h3>
                   <div className="text-sm space-y-1">
-                    <p><span className="font-medium">Birth Date:</span> {testResult.birthDate}</p>
-                    <p><span className="font-medium">Numerology Result:</span> {testResult.numerologyResult}</p>
+                    <p><span className="font-medium">Tanggal Lahir:</span> {testResult.birthdate}</p>
+                    <p><span className="font-medium">Hasil Numerologi:</span> {testResult.description}</p>
                     {testResult.fingerprintId && (
                       <p className="flex items-center">
                         <Shield size={16} className="mr-1 text-green-500" />
-                        <span className="font-medium">Biometric Verified</span>
+                        <span className="font-medium">Terverifikasi Biometrik</span>
                       </p>
                     )}
                   </div>
@@ -130,10 +130,10 @@ export const TestResult: React.FC = () => {
             
             <CardFooter className="space-y-3">
               <Button onClick={shareResult} variant="outline" className="w-full">
-                Share Results
+                Bagikan Hasil
               </Button>
               <Button onClick={() => setShowQR(!showQR)} variant="secondary" className="w-full">
-                {showQR ? 'Hide QR Code' : 'Show QR Code'}
+                {showQR ? 'Sembunyikan QR Code' : 'Tampilkan QR Code'}
               </Button>
             </CardFooter>
           </Card>
@@ -143,8 +143,8 @@ export const TestResult: React.FC = () => {
             {showQR && (
               <Card>
                 <CardHeader className="text-center">
-                  <h3 className="text-xl font-semibold">QR Code Access</h3>
-                  <p className="text-gray-600">Scan to view your results anytime</p>
+                  <h3 className="text-xl font-semibold">Akses QR Code</h3>
+                  <p className="text-gray-600">Pindai untuk melihat hasil Anda kapan saja</p>
                 </CardHeader>
                 <CardContent className="text-center">
                   <div className="bg-white p-4 rounded-lg inline-block">
@@ -167,25 +167,25 @@ export const TestResult: React.FC = () => {
 
             <Card>
               <CardHeader>
-                <h3 className="text-xl font-semibold">What's Next?</h3>
+                <h3 className="text-xl font-semibold">Apa Selanjutnya?</h3>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <Link to="/customer/dashboard" className="block">
                     <Button variant="outline" className="w-full">
-                      View Dashboard
+                      Lihat Dashboard
                     </Button>
                   </Link>
                   <Link to="/test" className="block">
                     <Button variant="ghost" className="w-full">
-                      Take Another Test
+                      Ambil Tes Lain
                     </Button>
                   </Link>
                 </div>
                 
                 <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                  <p className="font-medium mb-1">💡 Pro Tip:</p>
-                  <p>Understanding your cognitive style can help you make better decisions, communicate more effectively, and optimize your learning approach.</p>
+                  <p className="font-medium mb-1">💡 Tips Pro:</p>
+                  <p>Memahami gaya kognitif Anda dapat membantu membuat keputusan yang lebih baik, berkomunikasi lebih efektif, dan mengoptimalkan pendekatan belajar Anda.</p>
                 </div>
               </CardContent>
             </Card>

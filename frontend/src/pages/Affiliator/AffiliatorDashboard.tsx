@@ -48,10 +48,10 @@ export const AffiliatorDashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Dashboard</h2>
-          <p className="text-gray-600 mb-4">There was an error loading your affiliator dashboard. Please try again later.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Kesalahan Memuat Dashboard</h2>
+          <p className="text-gray-600 mb-4">Terjadi kesalahan saat memuat dashboard afiliator Anda. Silakan coba lagi nanti.</p>
           <Button onClick={() => window.location.reload()}>
-            Reload Page
+            Muat Ulang Halaman
           </Button>
         </div>
       </div>

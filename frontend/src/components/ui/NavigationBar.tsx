@@ -207,12 +207,12 @@ export const NavigationBar: React.FC = () => {
                   <div className="space-x-2">
                     <Link to="/login">
                       <Button variant="secondary">
-                        Login
+                        Masuk
                       </Button>
                     </Link>
                     <Link to="/register">
                       <Button>
-                        Register
+                        Daftar
                       </Button>
                     </Link>
                   </div>

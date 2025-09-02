@@ -8,7 +8,7 @@ export interface CreateUserPayload {
   phoneNumber: string;
   address: string;
   roleId?: number;
-  referrerId?: string | null;
+  // referrerId dihapus karena backend menggunakan cookie
 }
 
 export interface LoginPayload {

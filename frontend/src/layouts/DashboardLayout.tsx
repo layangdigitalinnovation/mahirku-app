@@ -40,7 +40,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
     logout();
 
     navigate("/login");
-    toast.success("Logout successful");
+    toast.success("Logout berhasil");
   };
 
   return (

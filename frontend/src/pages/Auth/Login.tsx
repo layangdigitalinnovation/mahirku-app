@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useAuth } from "@/hooks/useAuth";
 import { AuthLayout } from "@/layouts/AuthLayout";
+import { useLogin } from "@/hooks/useAuthQuery";
 
 
 export const Login: React.FC = () => {
@@ -12,8 +11,7 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const { mutateAsync : login } = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,24 +19,8 @@ export const Login: React.FC = () => {
     setError("");
 
     try {
-      await login(email, password);
-      const storedUser = localStorage.getItem("neuroscan-user");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        switch (parsedUser.role) {
-          case "super_admin":
-            navigate("/admin/dashboard");
-            break;
-          case "user":
-            navigate("/customer/dashboard");
-            break;
-          case "affiliator":
-            navigate("/affiliator/dashboard");
-            break;
-          default:
-            navigate("/");
-        }
-      }
+      await login({email, password});
+      // AuthProvider akan otomatis redirect ke dashboard yang sesuai
     } catch (error: any) {
       setError(error.message || "Gagal masuk. Silakan coba lagi.");
     } finally {

@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { referralMiddleware } from './middlewares/referralMiddleware';
 import userRoutes from './routes/userRoutes';
 import authRoutes from './routes/authRoutes';
 import tokenRoutes from './routes/tokenRoutes';
@@ -15,6 +17,10 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
+
+// Middleware untuk menangani referral links
+app.use(referralMiddleware);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

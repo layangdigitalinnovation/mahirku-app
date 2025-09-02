@@ -196,7 +196,7 @@ export default function TokenPackages({
               className="w-full"
               size="sm"
             >
-              Purchase Now
+              Beli Sekarang
             </Button>
           </div>
         ))}

@@ -44,7 +44,7 @@ export const UserDashboard: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
-        <p>Loading...</p>
+        <p>Memuat...</p>
       </div>
     );
   }

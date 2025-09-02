@@ -50,7 +50,7 @@ export const Landing: React.FC = () => {
 
   const testPackages = [
     {
-      name: "Personal",
+      name: "Pribadi",
       price: "Rp250.000",
       benefits: [
         "Tes berbasis sidik jari",
@@ -62,7 +62,7 @@ export const Landing: React.FC = () => {
       cta: "/register",
     },
     {
-      name: "Group",
+      name: "Grup",
       price: "Rp 499.000",
       benefits: [
         "Tes hingga 3 orang member",
@@ -74,7 +74,7 @@ export const Landing: React.FC = () => {
       cta: "/register",
     },
     {
-      name: "Enterprise",
+      name: "Perusahaan",
       price: "Rp 1.499.000",
       benefits: [
         "Untuk 10+ peserta (tim / kantor)",

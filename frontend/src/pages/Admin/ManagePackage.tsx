@@ -41,9 +41,9 @@ export default function ManagePackages() {
   if (isError) {
     return (
       <Alert variant="destructive">
-        <AlertTitle>Error</AlertTitle>
+        <AlertTitle>Kesalahan</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : "Failed to load packages."}
+          {error instanceof Error ? error.message : "Gagal memuat paket."}
         </AlertDescription>
       </Alert>
     );
@@ -105,12 +105,12 @@ export default function ManagePackages() {
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" onClick={() => setEditingPkg(pkg)}>
-                    Edit
+                    Ubah
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Edit Package</DialogTitle>
+                    <DialogTitle>Ubah Paket</DialogTitle>
                   </DialogHeader>
                   <PackageForm
                     defaultValues={editingPkg || undefined}
@@ -132,7 +132,7 @@ export default function ManagePackages() {
                   setDeletingId(null);
                 }}
               >
-                {deletingId === pkg.id ? "Deleting..." : "Delete"}
+                {deletingId === pkg.id ? "Menghapus..." : "Hapus"}
               </Button>
             </CardFooter>
           </Card>

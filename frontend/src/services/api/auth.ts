@@ -26,7 +26,9 @@ export const registerAffiliator = async (payload: CreateUserPayload) => {
 export const login = async (payload: LoginPayload) => {
   try {
     const response = await api.post('/auth/login', payload);
-    return response.data;
+
+    const { password, ...res } = response.data;
+    return res;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Login failed');
   }

@@ -5,6 +5,7 @@ import { LandingLayout } from './layouts/LandingLayout';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
+import PublicRoute from './components/PublicRoute';
 import { CognitiveTest } from './pages/Test/CognitiveTest';
 import { TestResult } from './pages/Test/TestResult';
 import Contact from './pages/Contact';
@@ -47,25 +48,31 @@ const ProtectedRoute: React.FC<{
   }
 
   if (requiredRole && user.role !== requiredRole) {
-    // Redirect based on user role
-    if (user.role === 'super_admin') {
-      return <Navigate to="/admin/dashboard" replace />;
-    } else if (user.role === 'affiliator') {
-      return <Navigate to="/affiliator/dashboard" replace />;
-    } else {
-      return <Navigate to="/user/dashboard" replace />;
+    // Redirect based on user role to their appropriate dashboard
+    switch (user.role) {
+      case 'super_admin':
+        return <Navigate to="/admin/dashboard" replace />;
+      case 'affiliator':
+        return <Navigate to="/affiliator/dashboard" replace />;
+      case 'user':
+        return <Navigate to="/customer/dashboard" replace />;
+      default:
+        return <Navigate to="/login" replace />;
     }
   }
 
   return <>{children}</>;
 };
 
-function AppContent() {
+function AppRoutes() {
   return (
-    <Router>
-      <Routes>
-        {/* Landing layout routes */}
-        <Route path="/" element={<LandingLayout />}>
+    <Routes>
+        {/* Landing layout routes - hanya untuk user yang belum login */}
+        <Route path="/" element={
+          <PublicRoute>
+            <LandingLayout />
+          </PublicRoute>
+        }>
           <Route index element={<Landing />} />
           <Route path="kontak" element={<Contact />} />
           <Route path="faq" element={<Faq />} />
@@ -74,9 +81,17 @@ function AppContent() {
           <Route path="payment-success" element={<PaymentSuccess />} />
         </Route>
 
-        {/* Auth */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* Auth - hanya untuk user yang belum login */}
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+        <Route path="/register" element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } />
 
         {/* Dashboard layout untuk semua role
         <Route element={<DashboardLayout />}>
@@ -154,16 +169,17 @@ function AppContent() {
            <Route path='withdraw' element={<AffiliateWithdrawPage/>} />
         </Route>
 
-      </Routes>
-    </Router>
+    </Routes>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
   );
 }
 

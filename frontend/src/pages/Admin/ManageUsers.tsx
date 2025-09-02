@@ -31,9 +31,9 @@ export default function ManageUsers() {
   if (isError) {
     return (
       <Alert variant="destructive">
-        <AlertTitle>Error</AlertTitle>
+        <AlertTitle>Kesalahan</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : "Failed to load users."}
+          {error instanceof Error ? error.message : "Gagal memuat pengguna."}
         </AlertDescription>
       </Alert>
     );
@@ -42,10 +42,14 @@ export default function ManageUsers() {
   if (!data || data.length === 0) {
     return (
       <div className="text-center text-gray-500 py-10">
-        No users found.
+        Tidak ada pengguna ditemukan.
       </div>
     );
   }
 
-  return <DataTable columns={columns} data={data} />;
+  return (
+    <div className="container max-w-screen-xl py-10 mx-auto px-4">
+      <DataTable columns={columns} data={data} />
+    </div>
+  )
 }
