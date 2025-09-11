@@ -51,8 +51,26 @@ export default function ManagePackages() {
 
   if (!data || data.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-10">
-        No packages found.
+      <div className="flex flex-col items-center text-gray-500 py-10">
+        <p className="text-lg font-medium">Belum ada paket. Tambahkan paket baru di bawah ini.</p>
+      <div>
+          <Dialog>
+          <DialogTrigger asChild>
+            <Button>Tambah Paket</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Package</DialogTitle>
+            </DialogHeader>
+            <PackageForm
+              onSubmit={(values: PackageFormValues) =>
+                createPackage.mutate(values as PackagePayload)
+              }
+              loading={createPackage.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
       </div>
     );
   }

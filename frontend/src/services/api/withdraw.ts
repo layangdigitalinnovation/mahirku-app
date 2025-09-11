@@ -59,7 +59,7 @@ export const getAllWithdrawRequests = async (params?: {
   endDate?: string;
 }) => {
   const response = await api.get('/withdraw/admin/all', { params });
-  return response.data;
+  return response.data.data.withdrawRequests;
 };
 
 export const getWithdrawStatistics = async () => {
@@ -68,17 +68,17 @@ export const getWithdrawStatistics = async () => {
 };
 
 export const approveWithdrawRequest = async (id: number, payload: ApproveWithdrawPayload) => {
-  const response = await api.put(`/withdraw/admin/${id}/approve`, payload);
+  const response = await api.put(`/withdraw/admin/approve/${id}`, payload);
   return response.data;
 };
 
 export const rejectWithdrawRequest = async (id: number, payload: RejectWithdrawPayload) => {
-  const response = await api.put(`/withdraw/admin/${id}/reject`, payload);
+  const response = await api.put(`/withdraw/admin/reject/${id}`, payload);
   return response.data;
 };
 
 export const markAsProcessed = async (id: number) => {
-  const response = await api.put(`/withdraw/admin/${id}/process`);
+  const response = await api.put(`/withdraw/admin/process/${id}`);
   return response.data;
 };
 

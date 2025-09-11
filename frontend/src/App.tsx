@@ -27,6 +27,8 @@ import AffiliatorDashboardLayout from './layouts/affiliator/AffiliatorDashboardL
 import AffiliateWithdrawPage from './pages/Affiliator/AffiliateWithdrawPage';
 import AdminWithdrawManagement from './pages/Admin/ManageWithdraw';
 import ThinkingStylesManagement from './pages/Admin/ManageThinkingStyle';
+import ThinkingStyleDetailPage from './pages/Test/ThinkingStyleDetailPage';
+import EditDetailThinkingStylePage from './pages/Admin/EditDetailThinkingStylePage';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ 
@@ -138,6 +140,7 @@ function AppRoutes() {
           <Route path="affiliator" element={<AffiliatorDashboard/>}/>
           <Route path='withdraw' element={<AdminWithdrawManagement/>} />
           <Route path='thinking-style' element={<ThinkingStylesManagement/>} />
+          <Route path='thinking-style/edit/:id' element={<EditDetailThinkingStylePage/>} />
         </Route>
 
         <Route
@@ -156,7 +159,7 @@ function AppRoutes() {
         {/* Test */}
         <Route path="test" element={<CognitiveTest />} />
         <Route path="test/result" element={<TestResult />} />
-        {/* <Route path="history" element={<TestHistory />} /> */}
+       
         </Route>
 
         <Route path='affiliator/dashboard/*' element={
@@ -168,6 +171,8 @@ function AppRoutes() {
            <Route path='overview' element={<AffiliatorDashboard/>}/>
            <Route path='withdraw' element={<AffiliateWithdrawPage/>} />
         </Route>
+
+        <Route path="/thinking-style/:id" element={<ThinkingStyleDetailPage />} />
 
     </Routes>
   );

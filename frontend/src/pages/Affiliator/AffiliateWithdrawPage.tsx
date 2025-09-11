@@ -359,6 +359,7 @@ const AffiliateWithdrawPage = () => {
           <h3 className="font-semibold text-blue-900 mb-2">Informasi Penting:</h3>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• Minimum penarikan adalah Rp 100.000</li>
+            <li>• Minimal saldo mengendap </li>
             <li>• Penarikan akan diproses dalam 1-3 hari kerja</li>
             <li>• Pastikan data rekening bank sudah benar</li>
             <li>• Penarikan hanya bisa dilakukan ke rekening atas nama yang sama dengan akun affiliate</li>

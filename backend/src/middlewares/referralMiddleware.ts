@@ -6,9 +6,13 @@ import { Request, Response, NextFunction } from 'express';
  */
 export const referralMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   try {
+    console.log('Referral middleware called for:', req.method, req.path);
+    
     const referralCode = req.query.ref as string;
     
     if (referralCode) {
+      console.log('Processing referral code:', referralCode);
+      
       // Validasi format referral code (harus dimulai dengan 'aff' diikuti angka)
       const referralPattern = /^aff\d+$/;
       
@@ -43,12 +47,16 @@ export const referralMiddleware = (req: Request, res: Response, next: NextFuncti
 export const getReferralFromCookie = (req: Request): string | null => {
   try {
     const referralCode = req.cookies?.mahirku_referral;
+    console.log('getReferralFromCookie - referralCode:', referralCode);
     
     if (referralCode && typeof referralCode === 'string') {
       // Validasi format sebelum return
       const referralPattern = /^aff\d+$/;
       if (referralPattern.test(referralCode)) {
+        console.log('Valid referral code found:', referralCode);
         return referralCode;
+      } else {
+        console.log('Invalid referral code format:', referralCode);
       }
     }
     

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, Users, DollarSign } from 'lucide-react';
+import { TrendingUp, Users, Wallet } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
 import { useAffiliateStats, useReferralLink } from '@/hooks/useAffiliator';
@@ -83,7 +83,7 @@ export const AffiliatorDashboard: React.FC = () => {
           <Card className='bg-white'>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <DollarSign className="h-10 w-10 text-purple-600" />
+                <Wallet className="h-10 w-10 text-purple-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Earnings</p>
                   <p className="text-2xl font-bold text-gray-900">
@@ -97,7 +97,7 @@ export const AffiliatorDashboard: React.FC = () => {
           <Card className='bg-white'>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <DollarSign className="h-10 w-10 text-orange-600" />
+                <Wallet className="h-10 w-10 text-orange-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Available Balance</p>
                   <p className="text-2xl font-bold text-gray-900">
@@ -176,7 +176,7 @@ export const AffiliatorDashboard: React.FC = () => {
           <CardContent>
             {!stats?.recentCommissions || stats.recentCommissions.length === 0 ? (
               <div className="text-center py-8">
-                <DollarSign className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <Wallet className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No commissions yet</h3>
                 <p className="text-gray-600 mb-4">Share your referral link to start earning</p>
                 <Button onClick={shareReferralLink}>
@@ -189,7 +189,7 @@ export const AffiliatorDashboard: React.FC = () => {
                   <div key={commission.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
-                        <DollarSign className="h-8 w-8 text-green-600" />
+                        <Wallet className="h-8 w-8 text-green-600" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
@@ -203,7 +203,7 @@ export const AffiliatorDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
+                      <span className={`px-2 py-1 capitalize text-xs rounded-full ${
                         commission.status === 'paid' 
                           ? 'bg-green-100 text-green-800' 
                           : commission.status === 'pending'
@@ -232,7 +232,7 @@ export const AffiliatorDashboard: React.FC = () => {
                   <div key={withdraw.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
-                        <DollarSign className="h-8 w-8 text-blue-600" />
+                        <Wallet className="h-8 w-8 text-blue-600" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
@@ -245,8 +245,8 @@ export const AffiliatorDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        withdraw.status === 'approved' 
+                      <span className={`px-2 py-1 capitalize text-xs rounded-full ${
+                        withdraw.status === 'completed' 
                           ? 'bg-green-100 text-green-800' 
                           : withdraw.status === 'pending'
                           ? 'bg-yellow-100 text-yellow-800'

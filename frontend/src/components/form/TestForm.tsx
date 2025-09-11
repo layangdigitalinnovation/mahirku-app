@@ -24,6 +24,9 @@ const testFormSchema = z.object({
       /^(\d{2}[-/]\d{2}[-/]\d{4}|\d{4}[-/]\d{2}[-/]\d{2})$/,
       "Format tanggal harus DD-MM-YYYY atau YYYY-MM-DD"
     ),
+    bloodtype: z
+    .string()
+    .optional()
 });
 
 type TestFormValues = z.infer<typeof testFormSchema>;
@@ -53,7 +56,7 @@ export function TestForm({ onSubmit, defaultValues }: TestFormProps) {
           name="fullname"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Fullname</FormLabel>
+              <FormLabel>Nama Lengkap</FormLabel>
               <FormControl>
                 <Input
                   placeholder="e.g., John Doe"
@@ -70,7 +73,7 @@ export function TestForm({ onSubmit, defaultValues }: TestFormProps) {
           name="birthdate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Birth Date</FormLabel>
+              <FormLabel>Tanggal Lahir</FormLabel>
               <FormControl>
                 <Input
                   placeholder="DD-MM-YYYY or YYYY-MM-DD"
@@ -82,8 +85,25 @@ export function TestForm({ onSubmit, defaultValues }: TestFormProps) {
           )}
         />
 
+          <FormField
+          control={form.control}
+          name="bloodtype"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Golongan Darah</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="A, B, AB, atau O"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button type="submit" className="w-full" size="lg">
-          Analyze My Style
+          Analisa Sidik Jari Anda
         </Button>
       </form>
     </Form>

@@ -20,6 +20,7 @@ export interface PackagePayload {
   name: string;
   description : string;
   defaultTokenAmount: number;
+  commissionRate: number;
   price: number;
 }
 

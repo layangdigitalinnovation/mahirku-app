@@ -29,13 +29,6 @@ router.post('/request', authMiddleware, createWithdrawRequest);
  */
 router.get('/history', authMiddleware, getWithdrawHistory);
 
-/**
- * @route GET /api/withdraw/:id
- * @desc Mendapatkan detail withdraw request
- * @access Private (Affiliator/Admin)
- */
-router.get('/:id', authMiddleware, getWithdrawRequestDetail);
-
 // Routes untuk admin
 /**
  * @route GET /api/withdraw/admin/all
@@ -45,31 +38,38 @@ router.get('/:id', authMiddleware, getWithdrawRequestDetail);
 router.get('/admin/all', authMiddleware, checkRole(1), getAllWithdrawRequests);
 
 /**
+ * @route GET /api/withdraw/admin/statistics
+ * @desc Mendapatkan statistik withdraw untuk dashboard admin
+ * @access Private (Admin)
+ */
+router.get('/admin/statistics', authMiddleware, checkRole(1), getWithdrawStatistics);
+
+/**
  * @route PUT /api/withdraw/admin/:id/approve
  * @desc Approve withdraw request
  * @access Private (Admin)
  */
-router.put('/admin/:id/approve', authMiddleware, checkRole(1), approveWithdrawRequest);
+router.put('/admin/approve/:id', authMiddleware, checkRole(1), approveWithdrawRequest);
 
 /**
  * @route PUT /api/withdraw/admin/:id/reject
  * @desc Reject withdraw request
  * @access Private (Admin)
  */
-router.put('/admin/:id/reject', authMiddleware, checkRole(1), rejectWithdrawRequest);
+router.put('/admin/reject/:id', authMiddleware, checkRole(1), rejectWithdrawRequest);
 
 /**
  * @route PUT /api/withdraw/admin/:id/process
  * @desc Mark withdraw request as processed
  * @access Private (Admin)
  */
-router.put('/admin/:id/process', authMiddleware, checkRole(1), markAsProcessed);
+router.put('/admin/process/:id', authMiddleware, checkRole(1), markAsProcessed);
 
 /**
- * @route GET /api/withdraw/admin/statistics
- * @desc Mendapatkan statistik withdraw untuk dashboard admin
- * @access Private (Admin)
+ * @route GET /api/withdraw/admin/detail/:id
+ * @desc Mendapatkan detail withdraw request
+ * @access Private (Affiliator/Admin)
  */
-router.get('/admin/statistics', authMiddleware, checkRole(1), getWithdrawStatistics);
+router.get('/admin/detail/:id', authMiddleware, getWithdrawRequestDetail);
 
 export default router;

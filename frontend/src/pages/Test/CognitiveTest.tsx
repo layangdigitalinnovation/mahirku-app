@@ -58,22 +58,24 @@ export const CognitiveTest: React.FC = () => {
 
     const fingerprintId = await scanFingerprint();
     // Delay 2 menit untuk simulasi proses scan fingerprint
-    await new Promise(resolve => setTimeout(resolve, 2 * 60 * 1000)); // 2 menit
+    await new Promise(resolve => setTimeout(resolve, 1000)); // 2 menit
     
     
 
     const referrerId = getReferralId();
+    const referrerIdNumber = referrerId?.split('aff')[1]
+
     const testData: ThinkingStyleRequest = {
       fullname,
       birthdate: birthDate,
       fingerPrintId: fingerprintId as string, 
-      referrerId,
+      referrerId : referrerIdNumber,
     };
 
     // ⬇️ Ambil langsung result dari API
     const result = await submitTest(testData);
 
- 
+    console.log(result.data)
 
     // ⬇️ Arahkan ke result page
     navigate("/customer/dashboard/test/result", {

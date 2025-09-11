@@ -16,11 +16,11 @@ import {
   useMarkAsProcessed
 } from '@/hooks/useWithdraw';
 import { WithdrawRequest } from '@/services/api/withdraw';
+import formatCurrency from '@/utils/formatCurrency';
 
 const AdminWithdrawManagement = () => {
   // Backend hooks
   const { data: withdrawRequests = [], isLoading } = useGetAllWithdrawRequests();
-  const { data: statistics } = useGetWithdrawStatistics();
   const approveWithdrawMutation = useApproveWithdrawRequest();
   const rejectWithdrawMutation = useRejectWithdrawRequest();
   const markAsProcessedMutation = useMarkAsProcessed();
@@ -92,13 +92,7 @@ const AdminWithdrawManagement = () => {
     setNotes('');
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+
 
   // Create columns for DataTable
   const columns = createWithdrawColumns({
@@ -124,9 +118,9 @@ const AdminWithdrawManagement = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Diproses</p>
+                <p className="text-sm font-medium text-gray-600">Total withdraw berhasil</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {statistics ? formatCurrency(statistics.totalProcessedAmount || 0) : formatCurrency(0)}
+                  {withdrawRequests && withdrawRequests.filter((request : any) => request.status === 'completed').length}
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
@@ -140,7 +134,7 @@ const AdminWithdrawManagement = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Jumlah Tertunda</p>
                 <p className="text-2xl font-bold text-yellow-600">
-                  {statistics ? formatCurrency(statistics.totalPendingAmount || 0) : formatCurrency(0)}
+                  {withdrawRequests && withdrawRequests.filter((request : any) => request.status === 'pending').length}
                 </p>
               </div>
               <div className="bg-yellow-100 p-3 rounded-lg">
@@ -154,25 +148,11 @@ const AdminWithdrawManagement = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Permintaan</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {statistics ? statistics.totalRequests || 0 : 0}
+                  {withdrawRequests && withdrawRequests.length}
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <TrendingUp className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Permintaan Tertunda</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {statistics ? statistics.totalPendingRequests || 0 : 0}
-                </p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </div>

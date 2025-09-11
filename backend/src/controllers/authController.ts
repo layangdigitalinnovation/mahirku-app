@@ -68,14 +68,15 @@ const registerUserWithRole = async (
     });
 
     // Clear referral cookie setelah registrasi berhasil
-    if (referrerId) {
-      clearReferralCookie(res);
-    }
+    // if (referrerId) {
+    //   clearReferralCookie(res);
+    // }
 
     res.status(201).json({ message: "User registered successfully", user });
   } catch (err) {
     console.error("Register error:", err);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error stack:", err instanceof Error ? err.stack : 'Unknown error');
+    res.status(500).json({ message: "Internal server error", error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
 

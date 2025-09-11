@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/Button';
 import { Eye, Edit, Trash2, RotateCcw } from 'lucide-react';
 import { ThinkingStyle } from '@/services/api/thinkingStylesAdmin';
+import { Link } from 'react-router-dom';
 
 interface ThinkingStyleColumnProps {
   onView: (thinkingStyle: ThinkingStyle) => void;
@@ -43,6 +44,26 @@ export const createThinkingStyleColumns = ({
         {row.getValue('code')}
       </div>
     ),
+  },
+  {
+    accessorKey: 'detailPage',
+    header: 'Detail Page',
+    cell: ({ row }) => {
+  
+      console.log(row.original)
+
+    return  (
+
+
+      <div className="font-mono text-xs bg-gray-100">
+        <Button variant={'link'}>
+          <Link to={`edit/${row.original.id}`}>
+            Detail Page
+          </Link>
+        </Button>
+      </div>
+      )
+    },
   },
   {
     accessorKey: 'description',

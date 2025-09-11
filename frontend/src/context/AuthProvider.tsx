@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createdAt: new Date(backendUser.createdAt),
       };
 
-      localStorage.setItem('neuroscan-token', token);
+      localStorage.setItem('token', token);
       localStorage.setItem('neuroscan-user', JSON.stringify(frontendUser));
 
       setUser(frontendUser);
@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     localStorage.removeItem('neuroscan-user');
-    localStorage.removeItem('neuroscan-token');
+    localStorage.removeItem('token');
     setUser(null);
   };
 

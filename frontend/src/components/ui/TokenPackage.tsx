@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TokenPackage } from "@/types";
 import { useValidateVoucher } from "@/hooks/useVouchers";
 import { usePurchaseToken } from "@/hooks/useTokenTest";
+import formatCurrency from "@/utils/formatCurrency";
 
 // Types for API responses
 interface VoucherResponse {
@@ -176,7 +177,7 @@ export default function TokenPackages({
               <h3 className="font-semibold text-gray-900">{pkg.name}</h3>
               <div className="flex items-center justify-center space-x-2 mt-1">
                 <span className="text-2xl font-bold text-gray-900">
-                  Rp {pkg.price}
+                  {formatCurrency(pkg.price)}
                 </span>
               </div>
               <div className="flex items-center justify-center space-x-1 mt-1">
@@ -206,9 +207,9 @@ export default function TokenPackages({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Purchase {selectedPackage?.name}</DialogTitle>
+            <DialogTitle>Beli Paket {selectedPackage?.name}</DialogTitle>
             <DialogDescription>
-              Confirm your purchase and apply a voucher if you have one.
+              Konfirmasi pembelian Anda dan gunakan voucher jika Anda memilikinya.
             </DialogDescription>
           </DialogHeader>
 
@@ -217,13 +218,13 @@ export default function TokenPackages({
               {/* Package Details */}
               <div className="bg-gray-50 p-3 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">Package Price:</span>
+                  <span className="font-medium">Harga Paket:</span>
                   <span className="text-lg font-semibold">
-                    Rp {selectedPackage.price}
+                    {formatCurrency(selectedPackage.price)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-medium">Tokens:</span>
+                  <span className="font-medium">Jumlah Token:</span>
                   <span className="text-yellow-600 font-semibold">
                     {selectedPackage.defaultTokenAmount}
                   </span>
@@ -233,7 +234,7 @@ export default function TokenPackages({
               {/* Voucher Section */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-gray-700">
-                  Have a voucher code?
+                  Apakah Anda memiliki kode voucher?
                 </label>
 
                 <div className="flex space-x-2">
@@ -241,7 +242,7 @@ export default function TokenPackages({
                     type="text"
                     value={voucherCode}
                     onChange={(e) => setVoucherCode(e.target.value)}
-                    placeholder="Enter voucher code"
+                    placeholder="Masukkan kode voucher"
                     disabled={isApplyingVoucher || !!appliedVoucher || isProcessingPayment}
                   />
                   {!appliedVoucher && (
@@ -254,7 +255,7 @@ export default function TokenPackages({
                       {isApplyingVoucher ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        "Apply"
+                        "Gunakan"
                       )}
                     </Button>
                   )}
@@ -269,7 +270,7 @@ export default function TokenPackages({
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-green-800">
-                          Voucher Applied!
+                          Voucher Dipakai!
                         </p>
                         <p className="text-xs text-green-600">
                           Code:{" "}
@@ -289,47 +290,34 @@ export default function TokenPackages({
                         className="text-xs"
                         disabled={isProcessingPayment}
                       >
-                        Remove
+                        Hapus
                       </Button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Referral Code Section */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-700">
-                  Have a referral code? (Optional)
-                </label>
-
-                <Input
-                  type="text"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value)}
-                  placeholder="Enter referral code"
-                  disabled={isProcessingPayment}
-                />
-              </div>
+            
 
               {/* Price Summary */}
               <div className="bg-blue-50 p-3 rounded-lg">
                 <div className="space-y-1">
                   <div className="flex justify-between text-sm">
-                    <span>Original Price:</span>
-                    <span>Rp {selectedPackage.price}</span>
+                    <span>Harga Paket:</span>
+                    <span>{formatCurrency(selectedPackage.price)}</span>
                   </div>
 
                   {appliedVoucher && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount:</span>
-                      <span>-Rp {calculateDiscount()}</span>
+                      <span>-{formatCurrency(calculateDiscount())}</span>
                     </div>
                   )}
 
                   <hr className="my-1" />
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total:</span>
-                    <span>Rp {calculateFinalPrice()}</span>
+                    <span>{formatCurrency(calculateFinalPrice())}</span>
                   </div>
                 </div>
               </div>
@@ -363,6 +351,7 @@ export default function TokenPackages({
             <Button 
               onClick={handlePurchasePackage} 
               disabled={isPurchasing || isProcessingPayment}
+
             >
               {isPurchasing || isProcessingPayment ? (
                 <>
@@ -370,7 +359,7 @@ export default function TokenPackages({
                   Processing...
                 </>
               ) : (
-                `Pay Rp ${calculateFinalPrice()}`
+                `Bayar ${formatCurrency(calculateFinalPrice())}`
               )}
             </Button>
           </DialogFooter>

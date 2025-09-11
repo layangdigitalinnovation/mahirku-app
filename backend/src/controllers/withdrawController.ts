@@ -219,19 +219,23 @@ export const getAllWithdrawRequests = async (req: AuthRequest, res: Response): P
  * Approve withdraw request (untuk admin)
  */
 export const approveWithdrawRequest = async (req: AuthRequest, res: Response): Promise<void> => {
+
   try {
-    const { id } = req.params;
+    const { id : withdrawRequestId } = req.params;
     const { notes } = req.body;
-    const adminId = req.user?.id;
+    console.log('DEBUG: req.user in approveWithdrawRequest:', req.user);
+    const adminId = req.user?.userId;
+    console.log('DEBUG: adminId extracted:', adminId);
 
     if (!adminId) {
       res.status(401).json({
         success: false,
         message: 'User not authenticated'
       });
+      return;
     }
 
-    const withdrawRequest = await WithdrawRequest.findByPk(id);
+    const withdrawRequest = await WithdrawRequest.findByPk(withdrawRequestId);
     
     if (!withdrawRequest) {
       res.status(404).json({
@@ -256,6 +260,8 @@ export const approveWithdrawRequest = async (req: AuthRequest, res: Response): P
     try {
       const payoutResult = await processAutomaticPayout(withdrawRequest.id.toString());
       
+      console.log('Payout Result In Approve Withdraw Request:', payoutResult);
+
       if (payoutResult.success) {
         res.status(200).json({
           success: true,
@@ -263,7 +269,7 @@ export const approveWithdrawRequest = async (req: AuthRequest, res: Response): P
           data: {
             withdrawRequest,
             payout: {
-              id: payoutResult.payoutId,
+              id: payoutResult.id,
               message: payoutResult.message
             }
           }
@@ -272,7 +278,7 @@ export const approveWithdrawRequest = async (req: AuthRequest, res: Response): P
         // Jika payout gagal, tetap approve tapi beri informasi
         res.status(200).json({
           success: true,
-          message: 'Withdraw request approved but automatic payout failed. Manual processing required.',
+          message: `Approval Status OK, Payout Status : ${payoutResult.message}`,
           data: {
             withdrawRequest,
             payoutError: payoutResult.message
@@ -308,13 +314,14 @@ export const rejectWithdrawRequest = async (req: AuthRequest, res: Response): Pr
   try {
     const { id } = req.params;
     const { rejectionReason } = req.body;
-    const adminId = req.user?.id;
+    const adminId = req.user?.userId;
 
     if (!adminId) {
       res.status(401).json({
         success: false,
         message: 'User not authenticated'
       });
+      return;
     }
 
     if (!rejectionReason) {
@@ -322,6 +329,7 @@ export const rejectWithdrawRequest = async (req: AuthRequest, res: Response): Pr
         success: false,
         message: 'Rejection reason is required'
       });
+      return;
     }
 
     const withdrawRequest = await WithdrawRequest.findByPk(id);
@@ -367,13 +375,14 @@ export const markAsProcessed = async (req: AuthRequest, res: Response): Promise<
   try {
     const { id } = req.params;
     const { notes } = req.body;
-    const adminId = req.user?.id;
+    const adminId = req.user?.userId;
 
     if (!adminId) {
       res.status(401).json({
         success: false,
         message: 'User not authenticated'
       });
+      return;
     }
 
     const withdrawRequest = await WithdrawRequest.findByPk(id);
@@ -399,9 +408,9 @@ export const markAsProcessed = async (req: AuthRequest, res: Response): Promise<
       where: { affiliateId: withdrawRequest.affiliateId }
     });
 
-    if (affiliateBalance) {
-      await affiliateBalance.withdraw(withdrawRequest.amount);
-    }
+    // if (affiliateBalance) {
+    //   await affiliateBalance.withdraw(withdrawRequest.amount);
+    // }
 
     // Mark as processed
     await withdrawRequest.markAsProcessed(adminId, notes);
@@ -427,14 +436,15 @@ export const markAsProcessed = async (req: AuthRequest, res: Response): Promise<
 export const getWithdrawRequestDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
+    const userId = req.user?.userId;
+    const userRole = req.user?.roleId;
 
     if (!userId) {
       res.status(401).json({
         success: false,
         message: 'User not authenticated'
       });
+      return;
     }
 
     const withdrawRequest = await WithdrawRequest.findByPk(id, {
@@ -461,7 +471,7 @@ export const getWithdrawRequestDetail = async (req: AuthRequest, res: Response):
     }
 
     // Check authorization - user can only see their own requests, admin can see all
-    if (userRole !== 'admin' && withdrawRequest.affiliateId !== userId) {
+    if (userRole !== 1 && withdrawRequest.affiliateId !== userId) {
       res.status(403).json({
         success: false,
         message: 'Access denied'

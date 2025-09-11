@@ -72,7 +72,7 @@ export const getThinkingStyleById = async (req: Request, res: Response): Promise
 // Create new thinking style
 export const createThinkingStyle = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { digit, type, code, description, theory, isActive = true } = req.body;
+    const { digit, type, code, description, theory, isActive = true, detailPage } = req.body;
 
     // Validasi input
     if (!digit || !type || !code || !description || !theory) {
@@ -99,7 +99,8 @@ export const createThinkingStyle = async (req: Request, res: Response): Promise<
       code,
       description,
       theory,
-      isActive
+      isActive,
+      detailPage
     });
 
     res.status(201).json({
@@ -116,7 +117,7 @@ export const createThinkingStyle = async (req: Request, res: Response): Promise<
 export const updateThinkingStyle = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { digit, type, code, description, theory, isActive } = req.body;
+    const { digit, type, code, description, theory, isActive, detailPage } = req.body;
 
     const thinkingStyle = await ThinkingStyle.findByPk(id);
     if (!thinkingStyle) {
@@ -151,6 +152,7 @@ export const updateThinkingStyle = async (req: Request, res: Response): Promise<
     if (description !== undefined) updateData.description = description;
     if (theory !== undefined) updateData.theory = theory;
     if (isActive !== undefined) updateData.isActive = isActive;
+    if (detailPage !== undefined) updateData.detailPage = detailPage;
 
     await thinkingStyle.update(updateData);
 

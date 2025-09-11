@@ -29,10 +29,10 @@ const formatDate = (dateString: string) => {
 
 const getStatusBadge = (status: string) => {
   const statusConfig = {
-    pending: { color: 'bg-yellow-100 text-yellow-800', text: 'Pending' },
-    approved: { color: 'bg-blue-100 text-blue-800', text: 'Approved' },
-    processed: { color: 'bg-green-100 text-green-800', text: 'Processed' },
-    rejected: { color: 'bg-red-100 text-red-800', text: 'Rejected' }
+    pending: { color: 'bg-yellow-100 text-yellow-800', text: 'Tertunda' },
+    completed: { color: 'bg-green-100 text-green-800', text: 'Selesai' },
+    processing: { color: 'bg-blue-100 text-blue-800', text: 'Diproses' },
+    rejected: { color: 'bg-red-100 text-red-800', text: 'Ditolak' }
   };
 
   const config = statusConfig[status as keyof typeof statusConfig] || { color: 'bg-gray-100 text-gray-800', text: status };

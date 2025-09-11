@@ -11,6 +11,7 @@ export interface ThinkingStyle {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  detailPage: string;
 }
 
 export interface ThinkingStyleStatistics {
@@ -29,6 +30,7 @@ export interface CreateThinkingStylePayload {
   description: string;
   theory: string;
   isActive: boolean;
+  detailPage?: string;
 }
 
 export interface UpdateThinkingStylePayload {
@@ -39,6 +41,7 @@ export interface UpdateThinkingStylePayload {
   description?: string;
   theory?: string;
   isActive?: boolean;
+  detailPage?: string;
 }
 
 export interface BulkUpdatePayload {

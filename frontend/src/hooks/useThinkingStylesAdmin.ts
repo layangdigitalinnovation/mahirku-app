@@ -35,10 +35,10 @@ export const useGetAllThinkingStyles = (params: GetAllThinkingStylesParams = {})
 };
 
 // Get Thinking Style by ID
-export const useGetThinkingStyleById = (id: number) => {
+export const useGetThinkingStyleById = (id: number | string) => {
   return useQuery({
-    queryKey: thinkingStylesKeys.detail(id),
-    queryFn: () => getThinkingStyleById(id),
+    queryKey: thinkingStylesKeys.detail(Number(id)),
+    queryFn: () => getThinkingStyleById(Number(id)),
     enabled: !!id,
   });
 };

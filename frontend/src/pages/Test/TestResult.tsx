@@ -116,7 +116,7 @@ export const TestResult: React.FC = () => {
                   <h3 className="font-semibold mb-2">Detail Tes:</h3>
                   <div className="text-sm space-y-1">
                     <p><span className="font-medium">Tanggal Lahir:</span> {testResult.birthdate}</p>
-                    <p><span className="font-medium">Hasil Numerologi:</span> {testResult.description}</p>
+                    <p><span className="font-medium">Hasil Test:</span> {testResult.description}</p>
                     {testResult.fingerprintId && (
                       <p className="flex items-center">
                         <Shield size={16} className="mr-1 text-green-500" />
@@ -128,12 +128,14 @@ export const TestResult: React.FC = () => {
               </div>
             </CardContent>
             
-            <CardFooter className="space-y-3">
-              <Button onClick={shareResult} variant="outline" className="w-full">
-                Bagikan Hasil
+            <CardFooter className="space-y-3 flex flex-col">
+              <Button asChild  variant="outline" className="w-full">
+                <Link to={`/think-style/${testResult.thinkingStyleId}`}>
+                       Lihat Penjelasan Hasil Test
+                </Link>
               </Button>
               <Button onClick={() => setShowQR(!showQR)} variant="secondary" className="w-full">
-                {showQR ? 'Sembunyikan QR Code' : 'Tampilkan QR Code'}
+                Download Sertifikat
               </Button>
             </CardFooter>
           </Card>
@@ -176,7 +178,7 @@ export const TestResult: React.FC = () => {
                       Lihat Dashboard
                     </Button>
                   </Link>
-                  <Link to="/test" className="block">
+                  <Link to="/customer/dashboard/test" className="block">
                     <Button variant="ghost" className="w-full">
                       Ambil Tes Lain
                     </Button>

@@ -81,7 +81,10 @@ submitThinkingStyleTest = async (
 
     res.status(201).json({
       message: "Tes gaya berpikir berhasil",
-      data: result,
+      data: {
+        thinkingStyleId : style.id,
+        ...result.toJSON(),
+      },
     });
   } catch (err: any) {
     console.error("submitThinkingStyleTest error:", err);
