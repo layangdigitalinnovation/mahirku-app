@@ -9,9 +9,8 @@ export function lexicalStateToHtml(serialized: string): string {
     )
 
     let html = ""
-    editor.setEditorState(editorState)
-    editor.update(() => {
-      html = $generateHtmlFromNodes(editor, null)
+    editorState.read(() => {
+      html = $generateHtmlFromNodes(editor) // ✅ cukup editor saja
     })
 
     return html

@@ -269,13 +269,14 @@ const AffiliateWithdrawPage = () => {
                     Jumlah Penarikan
                   </label>
                   <input
-                    type="number"
-                    value={withdrawAmount}
-                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    type="text"
+                    value={Number(withdrawAmount).toLocaleString('id-ID').replace(/\./g, ',')}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setWithdrawAmount(value);
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="100000"
-                    min="100000"
-                    max={balanceData?.effectiveAvailableBalance}
+                    placeholder="100.000"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -283,53 +284,7 @@ const AffiliateWithdrawPage = () => {
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nama Bank
-                  </label>
-                  <select
-                    value={bankDetails.bankName}
-                    onChange={(e) => setBankDetails({...bankDetails, bankName: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Pilih Bank</option>
-                    <option value="BCA">BCA</option>
-                    <option value="Mandiri">Mandiri</option>
-                    <option value="BNI">BNI</option>
-                    <option value="BRI">BRI</option>
-                    <option value="CIMB Niaga">CIMB Niaga</option>
-                    <option value="Danamon">Danamon</option>
-                  </select>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nomor Rekening
-                  </label>
-                  <input
-                    type="text"
-                    value={bankDetails.accountNumber}
-                    onChange={(e) => setBankDetails({...bankDetails, accountNumber: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="1234567890"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nama Pemegang Rekening
-                  </label>
-                  <input
-                    type="text"
-                    value={bankDetails.accountName}
-                    onChange={(e) => setBankDetails({...bankDetails, accountName: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="John Doe"
-                    required
-                  />
-                </div>
 
                 <div className="flex space-x-3 mt-6">
                   <button

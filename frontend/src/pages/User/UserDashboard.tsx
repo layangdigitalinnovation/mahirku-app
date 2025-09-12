@@ -12,23 +12,10 @@ import { useMeQuery } from '@/hooks/useAuthQuery';
 import { DashboardQuickActions } from '@/components/ui/DashboardQuickAction';
 import { useGetAllTest } from '@/hooks/useThinkingStyleTest';
 import ErrorFetch from '@/components/ui/Error';
+import { ThinkingStyleResult } from '@/services/api';
 
 
-interface TestResult {
-   id: number;
-  userId: number;
-  fullname: string;
-  birthdate: string;
-  resultDigit: number;
-  resultType: string;
-  resultCode: string;
-  description: string;
-  theory: string;
-  fingerprintId: string;
-  referrerId: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
+
 
 
 export const UserDashboard: React.FC = () => {
@@ -53,15 +40,19 @@ export const UserDashboard: React.FC = () => {
     return <ErrorFetch/>
   }
 
-    const filteredResults = numerologyResults.filter((result : TestResult) => 
-    result.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    result.birthdate.includes(searchQuery)
-  );
+    const filteredResults = numerologyResults?.filter((result: ThinkingStyleResult) => {
+      const searchQueryLower = searchQuery.toLowerCase().trim();
+      const fullnameLower = result.fullname.toLowerCase();
+      const birthdateFormatted = new Date(result.birthdate).toLocaleDateString('id-ID');
+      
+      return fullnameLower.includes(searchQueryLower) || 
+             birthdateFormatted.includes(searchQueryLower);
+    }) ?? [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-24 pb-12">
       <div className="container max-w-scren-lg mx-auto px-4">
-        <DashboardQuickActions results={numerologyResults} user={user}/>
+        <DashboardQuickActions results={numerologyResults as ThinkingStyleResult[]} user={user}/>
         <Card className='bg-white'>
           <CardHeader className="border-b">
             <div className="flex justify-between items-center">
@@ -85,7 +76,7 @@ export const UserDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="divide-y">
-                {filteredResults.map((result : TestResult) => {
+                {filteredResults.map((result : ThinkingStyleResult) => {
                   const birthDate = new Date(result.birthdate);
                   const createdAt = new Date(result.createdAt);
 
@@ -105,10 +96,10 @@ export const UserDashboard: React.FC = () => {
 
                           <div className="mt-3">
                             <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                              {result.resultType}
+                              {result.thinkingStyle.type}
                             </span>
-                            <p className="mt-2 text-gray-700 text-sm">{result.description}</p>
-                            <p className="mt-1 text-gray-500 text-xs italic">Teori: {result.theory}</p>
+                            <p className="mt-2 text-gray-700 text-sm">{result.thinkingStyle.description}</p>
+                            <p className="mt-1 text-gray-500 text-xs italic">Teori: {result.thinkingStyle.theory}</p>
                           </div>
                         </div>
 

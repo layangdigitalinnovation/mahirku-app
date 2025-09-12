@@ -9,46 +9,65 @@ import { useGetThinkingStyleById, useUpdateThinkingStyle } from "@/hooks/useThin
 
 export default function EditDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const [loading, setLoading] = useState(true)
+  const numericId = Number(id);
 
-  const { data  } = useGetThinkingStyleById(Number(id))
-  const { detailPage } = data?.data || {}
-  const [detailPageState, setDetailPageState] = useState<SerializedEditorState | null>(null)
+  // undefined = belum di-init; null = ter-init tapi kosong; object = terisi
+  const [detailPageState, setDetailPageState] = useState<
+    SerializedEditorState | null | undefined
+  >(undefined)
+
+  const { data, isLoading, isFetched } = useGetThinkingStyleById(numericId)
   const updateDetailPage = useUpdateThinkingStyle()
-useEffect(() => {
-  if (detailPage && detailPageState === null) { // ✅ hanya saat pertama kali
-    try {
-      setDetailPageState(JSON.parse(detailPage))
-    } catch {
+
+  const detailPage = data?.data?.detailPage as string | undefined
+
+  // Hanya lakukan inisialisasi sekali: saat data sudah fetched dan state masih undefined
+  useEffect(() => {
+    if (!isFetched) return
+    if (detailPageState !== undefined) return // sudah di-init sebelumnya
+
+    if (detailPage) {
+      try {
+        setDetailPageState(JSON.parse(detailPage) as SerializedEditorState)
+      } catch (err) {
+        console.error("Failed to parse detailPage JSON:", err)
+        setDetailPageState(null) // treat corrupted JSON as empty
+      }
+    } else {
+      // kalau null/undefined dari DB -> init sebagai kosong (null)
       setDetailPageState(null)
     }
-    setLoading(false)
-  }
-}, [detailPage, detailPageState])
+  }, [isFetched, detailPage, detailPageState])
 
-
-
-
-  const handleSave = async () => {
-    if (!detailPageState) return
-    updateDetailPage.mutate({
-      id: Number(id),
-      payload: {
-        detailPage: JSON.stringify(detailPageState),
-      }
-    })
+  const handleSave = () => {
+    // jangan blok save jika state === null (artinya kosong tapi valid)
+    if (detailPageState === undefined) return // belum siap
+    updateDetailPage.mutate(
+      {
+        id: numericId,
+        payload: {
+          detailPage: JSON.stringify(detailPageState),
+        },
+      },
+    )
   }
 
-  if (loading) return <p>Loading...</p>
+  // Tampilkan loading sampai state sudah di-init (bukan undefined)
+  if (isLoading || detailPageState === undefined) {
+    return <p>Loading...</p>
+  }
 
   return (
     <div className="space-y-4">
       <Editor
+        // library menerima undefined untuk editor kosong; kita pakai undefined ketika null => convert
         editorSerializedState={detailPageState ?? undefined}
         onSerializedChange={(value) => setDetailPageState(value)}
       />
 
-      <Button onClick={handleSave}>Save</Button>
+      <Button disabled={updateDetailPage.isPending} onClick={handleSave}>
+        Save
+      </Button>
     </div>
   )
 }

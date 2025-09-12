@@ -2,9 +2,16 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('thinking_styles', {
-      id: {
+  async up (queryInterface, Sequelize) {
+    /**
+     * Add altering commands here.
+     *
+     * Example:
+     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
+     */
+
+    await queryInterface.createTable("thinking_styles", {
+     id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -57,24 +64,17 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     });
-
-    // Menambahkan index untuk performa
-    await queryInterface.addIndex('thinking_styles', ['digit'], {
-      unique: true,
-      name: 'thinking_styles_digit_unique'
-    });
-
-    await queryInterface.addIndex('thinking_styles', ['isActive'], {
-      name: 'thinking_styles_is_active_index'
-    });
   },
 
-  async down(queryInterface, Sequelize) {
-    // Menghapus index terlebih dahulu
-    await queryInterface.removeIndex('thinking_styles', 'thinking_styles_digit_unique');
-    await queryInterface.removeIndex('thinking_styles', 'thinking_styles_is_active_index');
-    
-    // Menghapus tabel
-    await queryInterface.dropTable('thinking_styles');
+  async down (queryInterface, Sequelize) {
+    /**
+     * Add reverting commands here.
+     *
+     * Example:
+     * await queryInterface.dropTable('users');
+     */
+
+    await queryInterface.dropTable("thinking_styles");
+
   }
 };

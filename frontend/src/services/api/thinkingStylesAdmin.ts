@@ -82,6 +82,11 @@ export const getAllThinkingStyles = async (params: GetAllThinkingStylesParams = 
   return response.data;
 };
 
+export const getAllCountThinkingStyleTest = async (): Promise<{ message: string; data: { total: number } }> => {
+  const response = await api.get('/admin/thinking-styles/test-stats');
+  return response.data;
+};
+
 export const getThinkingStyleById = async (id: number): Promise<{ message: string; data: ThinkingStyle }> => {
   const response = await api.get(`/admin/thinking-styles/${id}`);
   return response.data;

@@ -83,9 +83,9 @@ export const createWithdrawColumns = ({
     accessorKey: 'bankName',
     header: 'Bank Details',
     cell: ({ row }) => {
-      const bankName = row.getValue('bankName') as string;
-      const accountNumber = row.original.accountNumber;
-      const accountName = row.original.accountName;
+      const bankName = row.original.affiliate.bankName;
+      const accountNumber = row.original.affiliate.bankAccountNumber;
+      const accountName = row.original.affiliate.bankAccountName;
       return (
         <div>
           <div className="text-sm font-medium text-gray-900">{bankName}</div>

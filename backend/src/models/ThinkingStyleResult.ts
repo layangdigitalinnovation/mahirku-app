@@ -1,6 +1,7 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import { sequelize } from '../config/database';
 import User from './User';
+import ThinkingStyle from './ThinkingStyle';
 
 interface ThinkingStyleResultAttributes {
   id: number;
@@ -8,10 +9,7 @@ interface ThinkingStyleResultAttributes {
   fullname: string;
   birthdate: Date;
   resultDigit: number;
-  resultType: string;
-  resultCode: string;
-  description: string;
-  theory: string;
+  thinkingStyleId : number;
   fingerprintId?: string | null;
   referrerId?: number | null;
   createdAt?: Date;
@@ -30,10 +28,7 @@ class ThinkingStyleResult extends Model<
   public fullname!: string;
   public birthdate!: Date;
   public resultDigit!: number;
-  public resultType!: string;
-  public resultCode!: string;
-  public description!: string;
-  public theory!: string;
+  public thinkingStyleId!: number;
   public fingerprintId!: string | null;
   public referrerId!: number | null;
 
@@ -64,20 +59,8 @@ ThinkingStyleResult.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    resultType: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    resultCode: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    theory: {
-      type: DataTypes.TEXT,
+    thinkingStyleId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     fingerprintId: {
@@ -91,13 +74,15 @@ ThinkingStyleResult.init(
   },
   {
     sequelize,
-    tableName: 'thinking_style_results',
-    modelName: 'ThinkingStyleResult',
+    tableName: "thinking_style_results",
+    modelName: "ThinkingStyleResult",
     timestamps: true,
   }
 );
 
 ThinkingStyleResult.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(ThinkingStyleResult, { foreignKey: 'userId' });
+ThinkingStyleResult.belongsTo(ThinkingStyle, { foreignKey: 'thinkingStyleId', as : 'thinkingStyle' });
+ThinkingStyle.hasMany(ThinkingStyleResult, { foreignKey: 'thinkingStyleId' , as : 'thinkingStyle' });
 
 export default ThinkingStyleResult;

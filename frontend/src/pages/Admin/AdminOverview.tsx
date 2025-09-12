@@ -1,16 +1,18 @@
 import { Card, CardContent } from "@/components/ui/Card";
+import { useGetAllCountTest } from "@/hooks/useThinkingStyleTest";
 import { useUsers } from "@/hooks/useUsers";
 import formatCurrency from "@/utils/formatCurrency";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line} from 'recharts';
 
 export default function OverviewPage() {
     const { data: users } = useUsers();
+    const { data: testCount } = useGetAllCountTest();
   const totalUsers = users?.length || 0;
 
 
   const data = [
     { label: "Total Pengguna", value: totalUsers },
-    { label: "Total Tes", value: 200 },
+    { label: "Total Tes", value: testCount?.data.total || 0 },
   ];
 
 
@@ -33,7 +35,7 @@ export default function OverviewPage() {
   const CustomTooltip = ({ active, payload, label } : any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border">
+        <div className="w-full bg-white p-3 rounded-lg shadow-lg border">
           <p className="font-semibold text-gray-800">{`Bulan: ${label}`}</p>
           {payload.map((entry : any, index : any) => (
             <p key={index} style={{ color: entry.color }}>
@@ -49,8 +51,8 @@ export default function OverviewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
-      <div className="container max-w-screen-lg mx-auto space-y-8">
+    <div className="min-h-screen  p-6">
+      <div className="container w-full mx-auto space-y-8">
         
         {/* Header */}
         <div className="text-center py-8">

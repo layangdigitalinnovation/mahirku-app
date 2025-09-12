@@ -60,9 +60,10 @@ export default function AppSidebar({menuItems} : AppSidebarProps) {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton size={"lg"} className="text-primary-900 font-semibold" asChild>
-                    <Link to={item.path}>
-                      
-                      <span>{item.label}</span>
+ 
+                    <Link className={`${state === "collapsed" && "flex justify-center items-center"}`} to={item.path}>
+                      {item.icon && <item.icon className="w-5 h-5" />}
+                      {state === "expanded" && <span>{item.label}</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -4,9 +4,6 @@ export interface WithdrawRequest {
   id: number;
   amount: number;
   status: 'pending' | 'approved' | 'rejected' | 'processed';
-  bankName: string;
-  accountNumber: string;
-  accountName: string;
   notes?: string;
   rejectionReason?: string;
   createdAt: string;
@@ -15,6 +12,9 @@ export interface WithdrawRequest {
     id: number;
     fullname: string;
     email: string;
+    bankName: string;
+    bankAccountNumber: string;
+    bankAccountName: string;
   };
   processor?: {
     id: number;

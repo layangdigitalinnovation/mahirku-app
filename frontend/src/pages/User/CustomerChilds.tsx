@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, User, CreditCard, Search } from 'lucide-react';
+import { Plus, User,  Search } from 'lucide-react';
 import { DataTable } from '@/components/table/DataTable';
 import { useAddChildUser, useGetAllChildUser, useTransferTokenToChild, useUserTokenBalance } from '@/hooks/useTokenTest';
 import { ChildUser, getColumns } from '@/components/table/columns/childUserColumn';
@@ -23,7 +23,7 @@ export default function CustomerChilds() {
   const addChildMutation = useAddChildUser();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterPackage, setFilterPackage] = useState('All');
+  const [filterPackage, ] = useState('All');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 

@@ -1,5 +1,7 @@
 // src/services/api/types.ts
 
+import { ThinkingStyle } from "./thinkingStylesAdmin";
+
 export interface CreateUserPayload {
   username: string;
   email: string;
@@ -42,10 +44,8 @@ export interface ThinkingStyleResult {
   fullname: string;
   birthdate: string; // ISO date string
   resultDigit: number;
-  resultType: string;
-  resultCode: string;
-  description: string;
-  theory: string;
+  thinkingStyleId : number;
+  thinkingStyle : ThinkingStyle
   fingerprintId: string;
   referrerId: number | null;
   updatedAt: string; // ISO datetime

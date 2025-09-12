@@ -7,7 +7,8 @@ import {
   deleteThinkingStyle,
   restoreThinkingStyle,
   getThinkingStyleStats,
-  bulkUpdateThinkingStyles
+  bulkUpdateThinkingStyles,
+  getAllCountThinkingStyleTest
 } from '../controllers/adminThinkingStyleController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { checkRole } from '../middlewares/roleMiddleware';
@@ -23,6 +24,7 @@ router.get('/', getAllThinkingStyles);
 
 // GET /api/admin/thinking-styles/stats - Get thinking style statistics
 router.get('/stats', getThinkingStyleStats);
+router.get('/test-stats', getAllCountThinkingStyleTest);
 
 // GET /api/admin/thinking-styles/:id - Get thinking style by ID
 router.get('/:id', getThinkingStyleById);
@@ -41,5 +43,6 @@ router.patch('/:id/restore', restoreThinkingStyle);
 
 // POST /api/admin/thinking-styles/bulk-update - Bulk update thinking styles
 router.post('/bulk-update', bulkUpdateThinkingStyles);
+
 
 export default router;

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import ThinkingStyle from '../models/ThinkingStyle';
 import { Op } from 'sequelize';
+import ThinkingStyleResult from '../models/ThinkingStyleResult';
 
 // Get all thinking styles (with pagination and search)
 export const getAllThinkingStyles = async (req: Request, res: Response): Promise<void> => {
@@ -246,6 +247,22 @@ export const getThinkingStyleStats = async (req: Request, res: Response): Promis
     res.status(500).json({ message: 'Terjadi kesalahan', error: err.message });
   }
 };
+
+
+export const getAllCountThinkingStyleTest = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const totalStylesTest = await ThinkingStyleResult.count();
+    res.status(200).json({
+      message: 'Statistik thinking style berhasil diambil',
+      data: {
+        total: totalStylesTest
+      }
+    });
+  } catch (err: any) {
+    console.error('getThinkingStyleStats error:', err);
+    res.status(500).json({ message: 'Terjadi kesalahan', error: err.message });
+  }
+}
 
 // Bulk update thinking styles
 export const bulkUpdateThinkingStyles = async (req: Request, res: Response): Promise<void> => {

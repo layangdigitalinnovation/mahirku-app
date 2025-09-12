@@ -1,14 +1,20 @@
 // hooks/useTest.ts
-import { getAllThinkingStyleTest, submitThinkingStyleTest, ThinkingStyleRequest } from "@/services/api";
+import { 
+  downloadPDFTest, 
+  getAllThinkingStyleTest, 
+  submitThinkingStyleTest, 
+  ThinkingStyleRequest 
+} from "@/services/api";
+import { getAllCountThinkingStyleTest } from "@/services/api/thinkingStylesAdmin";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
 
 export const testKeys = {
   all: ["tests"] as const,
   lists: () => [...testKeys.all, "list"] as const,
   details: () => [...testKeys.all, "detail"] as const,
   detail: (id: number) => [...testKeys.details(), id] as const,
+  download: (id: number) => [...testKeys.all, "download", id] as const,
 };
 
 // Hook untuk submit test
@@ -32,8 +38,24 @@ export const useSubmitTest = () => {
 };
 
 export const useGetAllTest = () => {
-    return useQuery({
-        queryKey : testKeys.all,
-        queryFn : getAllThinkingStyleTest
-    })
-}
+  return useQuery({
+    queryKey: testKeys.all,
+    queryFn: getAllThinkingStyleTest,
+  });
+};
+
+export const useGetAllCountTest = () => {
+  return useQuery({
+    queryKey: testKeys.all,
+    queryFn: getAllCountThinkingStyleTest,
+  });
+};
+
+// ✅ Perbaikan: terima id sebagai parameter
+export const useDownloadPDFTest = (id: number) => {
+  return useQuery({
+    queryKey: testKeys.download(id),
+    queryFn: () => downloadPDFTest(id),
+    enabled: !!id, // hanya jalan kalau id ada
+  });
+};

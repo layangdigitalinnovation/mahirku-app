@@ -3,20 +3,17 @@ import {
   Clock, 
   DollarSign, 
   TrendingUp, 
-  Users,
   X
 } from 'lucide-react';
 import { DataTable } from '@/components/table/DataTable';
 import { createWithdrawColumns } from '@/components/table/columns/withdrawColumn';
 import {
   useGetAllWithdrawRequests,
-  useGetWithdrawStatistics,
   useApproveWithdrawRequest,
   useRejectWithdrawRequest,
   useMarkAsProcessed
 } from '@/hooks/useWithdraw';
 import { WithdrawRequest } from '@/services/api/withdraw';
-import formatCurrency from '@/utils/formatCurrency';
 
 const AdminWithdrawManagement = () => {
   // Backend hooks
@@ -235,9 +232,9 @@ const AdminWithdrawManagement = () => {
                         </div>
                         <div className="col-span-2">
                           <span className="font-medium text-gray-500">Detail Bank:</span>
-                          <p className="text-gray-900">{currentRequest.bankName}</p>
-                          <p className="text-gray-900">{currentRequest.accountNumber}</p>
-                          <p className="text-gray-900">{currentRequest.accountName}</p>
+                          <p className="text-gray-900">{currentRequest.affiliate.bankName}</p>
+                          <p className="text-gray-900">{currentRequest.affiliate.bankAccountNumber}</p>
+                          <p className="text-gray-900">{currentRequest.affiliate.bankAccountName}</p>
                         </div>
                         {currentRequest.notes && (
                           <div className="col-span-2">

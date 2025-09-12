@@ -12,7 +12,7 @@ import { processAutomaticPayout } from './xenditController';
  */
 export const createWithdrawRequest = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { amount, bankName, accountNumber, accountName, notes } = req.body;
+    const { amount, notes } = req.body;
     const affiliateId = req.user?.userId; // Assuming user is authenticated
 
     if (!affiliateId) {
@@ -23,14 +23,6 @@ export const createWithdrawRequest = async (req: AuthRequest, res: Response): Pr
       return;
     }
 
-    // Validasi input
-    if (!amount || !bankName || !accountNumber || !accountName) {
-      res.status(400).json({
-        success: false,
-        message: 'Amount, bank name, account number, and account name are required'
-      });
-      return;
-    }
 
     if (amount <= 0) {
       res.status(400).json({
@@ -75,9 +67,6 @@ export const createWithdrawRequest = async (req: AuthRequest, res: Response): Pr
     const withdrawRequest = await WithdrawRequest.create({
       affiliateId,
       amount,
-      bankName,
-      accountNumber,
-      accountName,
       notes: notes || null,
       status: 'pending'
     });
@@ -180,7 +169,7 @@ export const getAllWithdrawRequests = async (req: AuthRequest, res: Response): P
         {
           model: User,
           as: 'affiliate',
-          attributes: ['id', 'fullname', 'email']
+          attributes: ['id', 'fullname', 'email', 'bankName', 'bankAccountNumber', 'bankAccountName']
         },
         {
           model: User,
