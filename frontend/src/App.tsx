@@ -29,6 +29,9 @@ import AdminWithdrawManagement from './pages/Admin/ManageWithdraw';
 import ThinkingStylesManagement from './pages/Admin/ManageThinkingStyle';
 import ThinkingStyleDetailPage from './pages/Test/ThinkingStyleDetailPage';
 import EditDetailThinkingStylePage from './pages/Admin/EditDetailThinkingStylePage';
+import { AffiliatorLanding } from './pages/AffiliatorLanding';
+import { AffiliatorLandingLayout } from './layouts/AffiliatorLandingLayout';
+// import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ 
@@ -83,6 +86,14 @@ function AppRoutes() {
           <Route path="payment-success" element={<PaymentSuccess />} />
         </Route>
 
+        <Route path="/affiliator" element={
+          <PublicRoute>
+            <AffiliatorLandingLayout />
+          </PublicRoute>
+        } >
+          <Route index element={<AffiliatorLanding />} />
+          </Route>
+
         {/* Auth - hanya untuk user yang belum login */}
         <Route path="/login" element={
           <PublicRoute>
@@ -94,6 +105,11 @@ function AppRoutes() {
             <Register />
           </PublicRoute>
         } />
+        {/* <Route path="/affiliator/register" element={
+          <PublicRoute>
+            <AffiliatorRegister />
+          </PublicRoute>
+        } /> */}
 
         {/* Dashboard layout untuk semua role
         <Route element={<DashboardLayout />}>

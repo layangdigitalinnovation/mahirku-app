@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Coins, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import {
   Dialog,
@@ -25,8 +25,6 @@ interface VoucherResponse {
   isActive: boolean;
   valid: boolean;
 }
-
-
 
 export default function TokenPackages({
   tokenPackages,
@@ -85,9 +83,7 @@ export default function TokenPackages({
         setAppliedVoucher(null);
       }
     } catch (err) {
-      setVoucherError(
-       "Voucher Tidak Ditemukan"
-      );
+      setVoucherError("Voucher Tidak Ditemukan");
       setAppliedVoucher(null);
     } finally {
       setIsApplyingVoucher(false);
@@ -209,7 +205,8 @@ export default function TokenPackages({
           <DialogHeader>
             <DialogTitle>Beli Paket {selectedPackage?.name}</DialogTitle>
             <DialogDescription>
-              Konfirmasi pembelian Anda dan gunakan voucher jika Anda memilikinya.
+              Konfirmasi pembelian Anda dan gunakan voucher jika Anda
+              memilikinya.
             </DialogDescription>
           </DialogHeader>
 
@@ -243,14 +240,22 @@ export default function TokenPackages({
                     value={voucherCode}
                     onChange={(e) => setVoucherCode(e.target.value)}
                     placeholder="Masukkan kode voucher"
-                    disabled={isApplyingVoucher || !!appliedVoucher || isProcessingPayment}
+                    disabled={
+                      isApplyingVoucher ||
+                      !!appliedVoucher ||
+                      isProcessingPayment
+                    }
                   />
                   {!appliedVoucher && (
                     <Button
                       type="button"
                       size="sm"
                       onClick={handleApplyVoucher}
-                      disabled={isApplyingVoucher || !voucherCode.trim() || isProcessingPayment}
+                      disabled={
+                        isApplyingVoucher ||
+                        !voucherCode.trim() ||
+                        isProcessingPayment
+                      }
                     >
                       {isApplyingVoucher ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -296,8 +301,6 @@ export default function TokenPackages({
                   </div>
                 )}
               </div>
-
-            
 
               {/* Price Summary */}
               <div className="bg-blue-50 p-3 rounded-lg">
@@ -348,10 +351,9 @@ export default function TokenPackages({
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handlePurchasePackage} 
+            <Button
+              onClick={handlePurchasePackage}
               disabled={isPurchasing || isProcessingPayment}
-
             >
               {isPurchasing || isProcessingPayment ? (
                 <>

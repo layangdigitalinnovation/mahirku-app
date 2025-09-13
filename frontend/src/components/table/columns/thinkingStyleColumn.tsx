@@ -1,9 +1,9 @@
-import { ColumnDef } from '@tanstack/react-table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/Button';
-import { Eye, Edit, Trash2, RotateCcw } from 'lucide-react';
-import { ThinkingStyle } from '@/services/api/thinkingStylesAdmin';
-import { Link } from 'react-router-dom';
+import { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Eye, Edit, Trash2, RotateCcw } from "lucide-react";
+import { ThinkingStyle } from "@/services/api/thinkingStylesAdmin";
+import { Link } from "react-router-dom";
 
 interface ThinkingStyleColumnProps {
   onView: (thinkingStyle: ThinkingStyle) => void;
@@ -19,57 +19,48 @@ export const createThinkingStyleColumns = ({
   onRestore,
 }: ThinkingStyleColumnProps): ColumnDef<ThinkingStyle>[] => [
   {
-    accessorKey: 'digit',
-    header: 'Digit',
+    accessorKey: "digit",
+    header: "Digit",
     cell: ({ row }) => (
-      <div className="font-medium text-center">
-        {row.getValue('digit')}
-      </div>
+      <div className="font-medium text-center">{row.getValue("digit")}</div>
     ),
   },
   {
-    accessorKey: 'type',
-    header: 'Type',
+    accessorKey: "type",
+    header: "Type",
     cell: ({ row }) => (
-      <div className="font-medium">
-        {row.getValue('type')}
-      </div>
+      <div className="font-medium">{row.getValue("type")}</div>
     ),
   },
   {
-    accessorKey: 'code',
-    header: 'Code',
+    accessorKey: "code",
+    header: "Code",
     cell: ({ row }) => (
       <div className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
-        {row.getValue('code')}
+        {row.getValue("code")}
       </div>
     ),
   },
   {
-    accessorKey: 'detailPage',
-    header: 'Detail Page',
+    accessorKey: "detailPage",
+    header: "Detail Page",
     cell: ({ row }) => {
-  
-      console.log(row.original)
+      console.log(row.original);
 
-    return  (
-
-
-      <div className="font-mono text-xs bg-gray-100">
-        <Button variant={'link'}>
-          <Link to={`edit/${row.original.id}`}>
-            Detail Page
-          </Link>
-        </Button>
-      </div>
-      )
+      return (
+        <div className="font-mono text-xs bg-gray-100">
+          <Button variant={"link"}>
+            <Link to={`edit/${row.original.id}`}>Detail Page</Link>
+          </Button>
+        </div>
+      );
     },
   },
   {
-    accessorKey: 'description',
-    header: 'Description',
+    accessorKey: "description",
+    header: "Description",
     cell: ({ row }) => {
-      const description = row.getValue('description') as string;
+      const description = row.getValue("description") as string;
       return (
         <div className="max-w-xs truncate" title={description}>
           {description}
@@ -78,10 +69,10 @@ export const createThinkingStyleColumns = ({
     },
   },
   {
-    accessorKey: 'theory',
-    header: 'Theory',
+    accessorKey: "theory",
+    header: "Theory",
     cell: ({ row }) => {
-      const theory = row.getValue('theory') as string;
+      const theory = row.getValue("theory") as string;
       return (
         <div className="max-w-xs truncate" title={theory}>
           {theory}
@@ -90,36 +81,36 @@ export const createThinkingStyleColumns = ({
     },
   },
   {
-    accessorKey: 'isActive',
-    header: 'Status',
+    accessorKey: "isActive",
+    header: "Status",
     cell: ({ row }) => {
-      const isActive = row.getValue('isActive') as boolean;
+      const isActive = row.getValue("isActive") as boolean;
       return (
-        <Badge variant={isActive ? 'default' : 'secondary'}>
-          {isActive ? 'Active' : 'Inactive'}
+        <Badge variant={isActive ? "default" : "secondary"}>
+          {isActive ? "Active" : "Inactive"}
         </Badge>
       );
     },
   },
   {
-    accessorKey: 'createdAt',
-    header: 'Created At',
+    accessorKey: "createdAt",
+    header: "Created At",
     cell: ({ row }) => {
-      const date = new Date(row.getValue('createdAt'));
+      const date = new Date(row.getValue("createdAt"));
       return (
         <div className="text-sm text-gray-600">
-          {date.toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+          {date.toLocaleDateString("id-ID", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
           })}
         </div>
       );
     },
   },
   {
-    id: 'actions',
-    header: 'Actions',
+    id: "actions",
+    header: "Actions",
     cell: ({ row }) => {
       const thinkingStyle = row.original;
       const isActive = thinkingStyle.isActive;
@@ -134,7 +125,7 @@ export const createThinkingStyleColumns = ({
           >
             <Eye className="h-4 w-4" />
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -143,7 +134,7 @@ export const createThinkingStyleColumns = ({
           >
             <Edit className="h-4 w-4" />
           </Button>
-          
+
           {isActive ? (
             <Button
               variant="ghost"

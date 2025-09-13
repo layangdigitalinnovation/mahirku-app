@@ -1,10 +1,18 @@
-import { useState } from 'react';
-import { Plus, User,  Search } from 'lucide-react';
-import { DataTable } from '@/components/table/DataTable';
-import { useAddChildUser, useGetAllChildUser, useTransferTokenToChild, useUserTokenBalance } from '@/hooks/useTokenTest';
-import { ChildUser, getColumns } from '@/components/table/columns/childUserColumn';
-import { Button } from '@/components/ui/Button'; // lowercase!
-import ErrorFetch from '@/components/ui/Error';
+import { useState } from "react";
+import { Plus, User, Search } from "lucide-react";
+import { DataTable } from "@/components/table/DataTable";
+import {
+  useAddChildUser,
+  useGetAllChildUser,
+  useTransferTokenToChild,
+  useUserTokenBalance,
+} from "@/hooks/useTokenTest";
+import {
+  ChildUser,
+  getColumns,
+} from "@/components/table/columns/childUserColumn";
+import { Button } from "@/components/ui/button"; // lowercase!
+import ErrorFetch from "@/components/ui/Error";
 
 import {
   Dialog,
@@ -13,8 +21,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import ChildrenForm, {ChildFormValues} from '@/components/form/ChildrenForm';
+} from "@/components/ui/dialog";
+import ChildrenForm, { ChildFormValues } from "@/components/form/ChildrenForm";
 
 export default function CustomerChilds() {
   const { data: children = [], isLoading, error } = useGetAllChildUser();
@@ -22,25 +30,21 @@ export default function CustomerChilds() {
   const transferMutation = useTransferTokenToChild();
   const addChildMutation = useAddChildUser();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterPackage, ] = useState('All');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterPackage] = useState("All");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-
 
   const columns = getColumns(transferMutation.mutateAsync, () => {});
 
-
-
-  const filteredChildren = children?.filter(child => {
+  const filteredChildren = children?.filter((child) => {
     if (!child) return false;
     const matchesSearch =
       child.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
       child.username.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter =
-      filterPackage === 'All' ||
-      (filterPackage === 'With Package' && child.packageId !== null) ||
-      (filterPackage === 'No Package' && child.packageId === null);
+      filterPackage === "All" ||
+      (filterPackage === "With Package" && child.packageId !== null) ||
+      (filterPackage === "No Package" && child.packageId === null);
     return matchesSearch && matchesFilter;
   });
 
@@ -58,8 +62,8 @@ export default function CustomerChilds() {
   }
 
   const handleSubmit = async (values: ChildFormValues) => {
-     // TODO: panggil API POST add child di sini
-  await addChildMutation.mutateAsync(values)
+    // TODO: panggil API POST add child di sini
+    await addChildMutation.mutateAsync(values);
     setIsDialogOpen(false);
   };
 
@@ -68,8 +72,12 @@ export default function CustomerChilds() {
       <div className="max-w-screen-xl md:px-10 mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Kelola Member</h1>
-          <p className="text-gray-600">Kelola data member dan informasi akun mereka</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            Kelola Member
+          </h1>
+          <p className="text-gray-600">
+            Kelola data member dan informasi akun mereka
+          </p>
         </div>
 
         {/* Controls */}
@@ -92,9 +100,12 @@ export default function CustomerChilds() {
             {/* Add Button with Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button disabled={tokenBalance <= 1} variant={tokenBalance <= 1 ? 'ghost' : 'secondary'}>
-                  { tokenBalance >= 1 ? <Plus className="h-4 w-4" /> : null }
-                  {tokenBalance <= 1 ? 'Minimal 2 Token' : 'Tambah Member'}
+                <Button
+                  disabled={tokenBalance <= 1}
+                  variant={tokenBalance <= 1 ? "ghost" : "secondary"}
+                >
+                  {tokenBalance >= 1 ? <Plus className="h-4 w-4" /> : null}
+                  {tokenBalance <= 1 ? "Minimal 2 Token" : "Tambah Member"}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-lg">
@@ -116,7 +127,9 @@ export default function CustomerChilds() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm">Total Anak</p>
-                <p className="text-2xl font-bold text-gray-800">{children?.length || 0}</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {children?.length || 0}
+                </p>
               </div>
               <User className="h-8 w-8 text-blue-500" />
             </div>
@@ -138,7 +151,11 @@ export default function CustomerChilds() {
         </div>
 
         {/* Table */}
-        <DataTable columns={columns} isLoading={isLoading} data={filteredChildren as ChildUser[]} />
+        <DataTable
+          columns={columns}
+          isLoading={isLoading}
+          data={filteredChildren as ChildUser[]}
+        />
       </div>
     </div>
   );

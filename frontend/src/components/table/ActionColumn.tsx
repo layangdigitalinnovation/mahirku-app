@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,15 @@ import { Input } from "@/components/ui/Input";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 
 type Action = {
   label: string;
@@ -56,14 +64,17 @@ export default function ActionColumn({ actions }: ActionColumnProps) {
     }
   }, [formAction, form]);
 
-  const handleFormSubmit = form.handleSubmit((values) => {
-    formAction?.onClick?.(values);
-    setFormAction(null);
-    form.reset();
-  }, (errors) => {
-    console.log("errors", errors);
-    console.log("Values", form.getValues());
-  });
+  const handleFormSubmit = form.handleSubmit(
+    (values) => {
+      formAction?.onClick?.(values);
+      setFormAction(null);
+      form.reset();
+    },
+    (errors) => {
+      console.log("errors", errors);
+      console.log("Values", form.getValues());
+    }
+  );
 
   return (
     <>
@@ -128,37 +139,35 @@ export default function ActionColumn({ actions }: ActionColumnProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{formAction?.label}</DialogTitle>
-            <DialogDescription>
-              {formAction?.description}
-            </DialogDescription>
+            <DialogDescription>{formAction?.description}</DialogDescription>
           </DialogHeader>
 
-           <Form {...form}>
-      <form onSubmit={handleFormSubmit} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="tokenAmount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Jumlah Token</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Masukkan jumlah token"
-                 value={field.value ?? ""}
-          onChange={(e) => field.onChange(e.target.value)}
-                />
-              </FormControl>
-              <FormDescription>
-                Masukkan jumlah token yang ingin ditambahkan.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+          <Form {...form}>
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="tokenAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jumlah Token</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Masukkan jumlah token"
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Masukkan jumlah token yang ingin ditambahkan.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Submit</Button>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </>

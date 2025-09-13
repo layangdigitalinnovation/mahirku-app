@@ -1,7 +1,11 @@
-import { useVouchers, useDeleteVoucher, useCreateVoucher } from "@/hooks/useVouchers";
+import {
+  useVouchers,
+  useDeleteVoucher,
+  useCreateVoucher,
+} from "@/hooks/useVouchers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
   Dialog,
@@ -37,9 +41,7 @@ export default function ManageVouchers() {
   }
 
   if (isError) {
-    return (
-     <ErrorFetch error={error} />
-    );
+    return <ErrorFetch error={error} />;
   }
 
   return (
@@ -66,7 +68,7 @@ export default function ManageVouchers() {
         </Dialog>
       </div>
 
-      {(!data || data.length === 0) ? (
+      {!data || data.length === 0 ? (
         <div className="text-center text-gray-500 py-10">
           No vouchers found.
         </div>
@@ -80,7 +82,7 @@ export default function ManageVouchers() {
                   {/* Decorative circles */}
                   <div className="absolute -top-4 -left-4 w-8 h-8 bg-purple-500 rounded-full opacity-20"></div>
                   <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-pink-500 rounded-full opacity-20"></div>
-                  
+
                   {/* Voucher Header */}
                   <div className="text-center mb-4">
                     <div className="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-2">
@@ -99,7 +101,9 @@ export default function ManageVouchers() {
                         : formatCurrency(voucher.value)}
                     </div>
                     <div className="text-sm text-gray-500 uppercase tracking-wide">
-                      {voucher.type === "percentage" ? "DISCOUNT" : "CASH VALUE"}
+                      {voucher.type === "percentage"
+                        ? "DISCOUNT"
+                        : "CASH VALUE"}
                     </div>
                   </div>
 
@@ -107,15 +111,19 @@ export default function ManageVouchers() {
                   <div className="border-t border-dashed border-gray-300 pt-4 mb-4">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-600">Type:</span>
-                      <span className="font-medium capitalize">{voucher.type}</span>
+                      <span className="font-medium capitalize">
+                        {voucher.type}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-2">
                       <span className="text-gray-600">Status:</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        voucher.isActive 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          voucher.isActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
                         {voucher.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
@@ -134,7 +142,9 @@ export default function ManageVouchers() {
                       }}
                       className="w-full"
                     >
-                      {deletingId === voucher.id ? "Menghapus..." : "Hapus Voucher"}
+                      {deletingId === voucher.id
+                        ? "Menghapus..."
+                        : "Hapus Voucher"}
                     </Button>
                   </div>
 

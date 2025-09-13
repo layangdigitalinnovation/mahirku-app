@@ -1,8 +1,18 @@
-import { usePackages, useDeletePackage, useCreatePackage, useUpdatePackage } from "@/hooks/usePackage";
+import {
+  usePackages,
+  useDeletePackage,
+  useCreatePackage,
+  useUpdatePackage,
+} from "@/hooks/usePackage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardHeader , CardContent, CardFooter } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/Card";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import formatCurrency from "@/utils/formatCurrency";
 import {
@@ -11,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import PackageForm, { PackageFormValues } from "@/components/form/PackageForm";
 import { PackagePayload } from "@/services/api";
 
@@ -52,25 +62,27 @@ export default function ManagePackages() {
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center text-gray-500 py-10">
-        <p className="text-lg font-medium">Belum ada paket. Tambahkan paket baru di bawah ini.</p>
-      <div>
+        <p className="text-lg font-medium">
+          Belum ada paket. Tambahkan paket baru di bawah ini.
+        </p>
+        <div>
           <Dialog>
-          <DialogTrigger asChild>
-            <Button>Tambah Paket</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Package</DialogTitle>
-            </DialogHeader>
-            <PackageForm
-              onSubmit={(values: PackageFormValues) =>
-                createPackage.mutate(values as PackagePayload)
-              }
-              loading={createPackage.isPending}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
+            <DialogTrigger asChild>
+              <Button>Tambah Paket</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Package</DialogTitle>
+              </DialogHeader>
+              <PackageForm
+                onSubmit={(values: PackageFormValues) =>
+                  createPackage.mutate(values as PackagePayload)
+                }
+                loading={createPackage.isPending}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     );
   }
@@ -101,18 +113,21 @@ export default function ManagePackages() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.map((pkg: any) => (
-          <Card key={pkg.id} className="flex flex-col justify-between font-body">
+          <Card
+            key={pkg.id}
+            className="flex flex-col justify-between font-body"
+          >
             <CardHeader>
-              <h1 className="text-heading5 font-heading font-bold">{pkg.name}</h1>
+              <h1 className="text-heading5 font-heading font-bold">
+                {pkg.name}
+              </h1>
             </CardHeader>
 
             <CardContent>
               <p className="text-heading5 font-semibold mb-8">
                 {formatCurrency(pkg.price)}
               </p>
-              <p className="text-body1 ">
-                {pkg.description}
-              </p>
+              <p className="text-body1 ">{pkg.description}</p>
               <p className="text-sm text-muted-foreground">
                 Jumlah Token : {pkg.defaultTokenAmount}
               </p>
@@ -122,7 +137,11 @@ export default function ManagePackages() {
               {/* Edit Dialog */}
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={() => setEditingPkg(pkg)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingPkg(pkg)}
+                  >
                     Ubah
                   </Button>
                 </DialogTrigger>
@@ -133,7 +152,10 @@ export default function ManagePackages() {
                   <PackageForm
                     defaultValues={editingPkg || undefined}
                     onSubmit={(values: PackageFormValues) =>
-                      updatePackage.mutate({ id: pkg.id, data: values as PackagePayload })
+                      updatePackage.mutate({
+                        id: pkg.id,
+                        data: values as PackagePayload,
+                      })
                     }
                     loading={updatePackage.isPending}
                   />

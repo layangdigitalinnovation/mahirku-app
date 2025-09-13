@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { UserPlus, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -26,7 +26,9 @@ const formSchema = z
     address: z.string().min(5, "Alamat wajib diisi"),
     email: z.string().email("Email tidak valid"),
     password: z.string().min(6, "Password minimal 6 karakter"),
-    confirmPassword: z.string().min(6, "Konfirmasi password minimal 6 karakter"),
+    confirmPassword: z
+      .string()
+      .min(6, "Konfirmasi password minimal 6 karakter"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Kata sandi dan konfirmasi tidak cocok",
@@ -155,7 +157,11 @@ export const Register: React.FC = () => {
                 <FormItem className="sm:col-span-2">
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="anda@contoh.com" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="anda@contoh.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -232,7 +238,9 @@ export const Register: React.FC = () => {
               disabled={form.formState.isSubmitting}
             >
               <UserPlus className="w-5 h-5 mr-2" />
-              {form.formState.isSubmitting ? "Mendaftarkan..." : "Daftar Sekarang"}
+              {form.formState.isSubmitting
+                ? "Mendaftarkan..."
+                : "Daftar Sekarang"}
             </Button>
           </form>
         </Form>

@@ -15,6 +15,10 @@ import { checkRole } from '../middlewares/roleMiddleware';
 
 const router = Router();
 
+
+// GET /api/admin/thinking-styles/:id - Get thinking style by ID
+router.get('/:id', getThinkingStyleById);
+
 // Semua routes memerlukan autentikasi dan role admin (SUPER_ADMIN)
 router.use(authMiddleware);
 router.use(checkRole(1)); // SUPER_ADMIN only
@@ -26,8 +30,7 @@ router.get('/', getAllThinkingStyles);
 router.get('/stats', getThinkingStyleStats);
 router.get('/test-stats', getAllCountThinkingStyleTest);
 
-// GET /api/admin/thinking-styles/:id - Get thinking style by ID
-router.get('/:id', getThinkingStyleById);
+
 
 // POST /api/admin/thinking-styles - Create new thinking style
 router.post('/', createThinkingStyle);

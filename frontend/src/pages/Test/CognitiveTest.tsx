@@ -9,7 +9,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { scanFingerprint } from "@/utils/fingerprint";
 import { getReferralId } from "@/utils/referral";
@@ -33,9 +33,7 @@ export const CognitiveTest: React.FC = () => {
 
   const token = data?.user?.tokens || 0;
   const { data: tokenPackages } = usePackages();
-  const {
-    mutateAsync: submitTest,
-  } = useSubmitTest();
+  const { mutateAsync: submitTest } = useSubmitTest();
 
   const handleStartTest = () => {
     if (!user) {
@@ -51,46 +49,47 @@ export const CognitiveTest: React.FC = () => {
     setStep("birthdate");
   };
 
- const handleFingerprintScan = async () => {
-  setStep("processing");
+  const handleFingerprintScan = async () => {
+    setStep("processing");
 
-  try {
+    try {
+      const fingerprintId = await scanFingerprint();
+      // Delay 2 menit untuk simulasi proses scan fingerprint
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 2 menit
 
-    const fingerprintId = await scanFingerprint();
-    // Delay 2 menit untuk simulasi proses scan fingerprint
-    await new Promise(resolve => setTimeout(resolve, 1000)); // 2 menit
-    
-    
+      const referrerId = getReferralId();
+      const referrerIdNumber = referrerId?.split("aff")[1];
 
-    const referrerId = getReferralId();
-    const referrerIdNumber = referrerId?.split('aff')[1]
+      const testData: ThinkingStyleRequest = {
+        fullname,
+        birthdate: birthDate,
+        fingerPrintId: fingerprintId as string,
+        referrerId: referrerIdNumber,
+      };
 
-    const testData: ThinkingStyleRequest = {
-      fullname,
-      birthdate: birthDate,
-      fingerPrintId: fingerprintId as string, 
-      referrerId : referrerIdNumber,
-    };
+      // ⬇️ Ambil langsung result dari API
+      const result = await submitTest(testData);
 
-    // ⬇️ Ambil langsung result dari API
-    const result = await submitTest(testData);
+      console.log(result.data);
 
-    console.log(result.data)
-
-    // ⬇️ Arahkan ke result page
-    navigate("/customer/dashboard/test/result", {
-      state: { testResult: result?.data },
-    });
-  } catch (error) {
-    console.error("Error saving test result:", error);
-    navigate("/test/result", {
-      state: {
-        testResult: { id: "temp", fullname, birthdate: birthDate, fingerprintId: null },
-      },
-    });
-  }
-};
-
+      // ⬇️ Arahkan ke result page
+      navigate("/customer/dashboard/test/result", {
+        state: { testResult: result?.data },
+      });
+    } catch (error) {
+      console.error("Error saving test result:", error);
+      navigate("/test/result", {
+        state: {
+          testResult: {
+            id: "temp",
+            fullname,
+            birthdate: birthDate,
+            fingerprintId: null,
+          },
+        },
+      });
+    }
+  };
 
   if (step === "processing") {
     return (
@@ -101,10 +100,14 @@ export const CognitiveTest: React.FC = () => {
             <h3 className="text-xl font-semibold mb-2">
               Memproses Hasil Tes Anda
             </h3>
-            <p className="text-gray-600 mb-4">Sedang menganalisis gaya kognitif Anda...</p>
+            <p className="text-gray-600 mb-4">
+              Sedang menganalisis gaya kognitif Anda...
+            </p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <p className="text-sm text-blue-700">
-                <strong>Catatan:</strong> Proses ini membutuhkan waktu sekitar 2 menit untuk memastikan akurasi hasil analisis fingerprint dan gaya berpikir Anda.
+                <strong>Catatan:</strong> Proses ini membutuhkan waktu sekitar 2
+                menit untuk memastikan akurasi hasil analisis fingerprint dan
+                gaya berpikir Anda.
               </p>
             </div>
           </CardContent>
@@ -152,7 +155,7 @@ export const CognitiveTest: React.FC = () => {
                     Tes Gaya Kognitif
                   </h1>
                   <p className="text-gray-600">
-                    Temukan pola berpikir unik Anda 
+                    Temukan pola berpikir unik Anda
                   </p>
                 </CardHeader>
 
@@ -165,15 +168,17 @@ export const CognitiveTest: React.FC = () => {
                       <ol className="text-sm text-blue-800 space-y-1">
                         <li>1. Satu token diperlukan untuk setiap tes</li>
                         <li>
-                          2. Masukkan tanggal lahir Anda dalam format apa pun (DD-MM-YYYY,
-                          MM/DD/YYYY, dll.)
+                          2. Masukkan tanggal lahir Anda dalam format apa pun
+                          (DD-MM-YYYY, MM/DD/YYYY, dll.)
+                        </li>
+                        <li>3. Sistem kami memproses data anda</li>
+                        <li>
+                          4. Kami memetakan ini ke salah satu dari beberapa gaya
+                          kognitif
                         </li>
                         <li>
-                          3. Sistem kami memproses data anda
-                        </li>
-                        <li>4. Kami memetakan ini ke salah satu dari beberapa gaya kognitif</li>
-                        <li>
-                          5. Opsional: Verifikasi dengan pemindaian sidik jari biometrik
+                          5. Opsional: Verifikasi dengan pemindaian sidik jari
+                          biometrik
                         </li>
                       </ol>
                     </div>
@@ -285,11 +290,12 @@ export const CognitiveTest: React.FC = () => {
 
                   <div className="text-xs text-gray-500 text-center">
                     <p>
-                      • Data sidik jari diproses dengan aman dan tidak disimpan sebagai
-                      gambar
+                      • Data sidik jari diproses dengan aman dan tidak disimpan
+                      sebagai gambar
                     </p>
                     <p>
-                      • Hanya pengenal unik yang disimpan untuk tujuan verifikasi
+                      • Hanya pengenal unik yang disimpan untuk tujuan
+                      verifikasi
                     </p>
                   </div>
                 </CardContent>
@@ -302,9 +308,7 @@ export const CognitiveTest: React.FC = () => {
             <Card className="top-4 bg-white">
               <CardHeader className="text-center pb-4">
                 <ShoppingCart className="h-12 w-12 text-green-600 mx-auto mb-2" />
-                <h2 className="text-xl font-bold text-gray-900">
-                  Beli Token
-                </h2>
+                <h2 className="text-xl font-bold text-gray-900">Beli Token</h2>
                 <p className="text-sm text-gray-600">
                   Pilih paket yang sesuai dengan kebutuhan Anda
                 </p>

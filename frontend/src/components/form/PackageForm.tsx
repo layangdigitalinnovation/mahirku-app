@@ -10,13 +10,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 const packageSchema = z.object({
   name: z.string().min(2, "Nama paket diperlukan"),
   price: z.number().min(1, "Harga harus lebih besar dari 0"),
   description: z.string().optional(),
-  commissionRate: z.number().min(0, "Tingkat komisi minimal 0").max(100, "Tingkat komisi maksimal 100"),
+  commissionRate: z
+    .number()
+    .min(0, "Tingkat komisi minimal 0")
+    .max(100, "Tingkat komisi maksimal 100"),
   defaultTokenAmount: z.number().min(1, "Token minimal 1"),
 });
 
@@ -28,7 +31,11 @@ interface Props {
   loading?: boolean;
 }
 
-export default function PackageForm({ defaultValues, onSubmit, loading }: Props) {
+export default function PackageForm({
+  defaultValues,
+  onSubmit,
+  loading,
+}: Props) {
   const form = useForm<PackageFormValues>({
     resolver: zodResolver(packageSchema),
     defaultValues: {
@@ -43,10 +50,7 @@ export default function PackageForm({ defaultValues, onSubmit, loading }: Props)
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="name"
@@ -71,7 +75,7 @@ export default function PackageForm({ defaultValues, onSubmit, loading }: Props)
                 <Input
                   type="number"
                   {...field}
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onChange={(e) => field.onChange(Number(e.target.value) || 0)}
                 />
               </FormControl>
@@ -90,7 +94,7 @@ export default function PackageForm({ defaultValues, onSubmit, loading }: Props)
                 <Input
                   type="number"
                   {...field}
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onChange={(e) => field.onChange(Number(e.target.value) || 0)}
                 />
               </FormControl>
@@ -123,7 +127,7 @@ export default function PackageForm({ defaultValues, onSubmit, loading }: Props)
                 <Input
                   type="number"
                   {...field}
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onChange={(e) => field.onChange(Number(e.target.value) || 0)}
                 />
               </FormControl>

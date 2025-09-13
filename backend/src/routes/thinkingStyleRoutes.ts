@@ -9,4 +9,6 @@ router.post('/submit', authMiddleware, submitThinkingStyleTest);
 router.get('/history', authMiddleware, getThinkingStyleHistory);
 router.get('/pdf/:resultId', authMiddleware, downloadThinkingStylePDF);
 
+
+
 export default router;
