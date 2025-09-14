@@ -22,15 +22,13 @@ services:
       - PORT=5000
       - DB_HOST=db
       - JWT_SECRET=675ffe2d468fece7fa614e942b65c44611e63993de0789fe5249c9344cea833698d404b2b957c6fbe54fc88d3c46c52e957be30d98d822533045dde5df0452f5
-      - XENDIT_API_KEY=xnd_development_7fdg8SoKlaSaV0LJeeXeyMaBQ1u1LBnk2cBiPGL8sTBuySaouYvg77A9I742R
-      - XENDIT_PUBLIC_KEY=xnd_public_development_WUeKcEE3PXFnnsorGep2EQPoZaVoK4gvJxWX1cpTs4qQIKRicoMEj8wHP9OmFTU
-      - XENDIT_API_KEY=xnd_development_7fdg8SoKlaSaV0LJeeXeyMaBQ1u1LBnk2cBiPGL8sTBuySaouYvg77A9I742R
-      - XENDIT_PUBLIC_KEY=xnd_public_development_WUeKcEE3PXFnnsorGep2EQPoZaVoK4gvJxWX1cpTs4qQIKRicoMEj8wHP9OmFTU
+      - XENDIT_API_KEY=xnd_production_lYDUN855uViCro9u25cRH9M3vSHgMQRzaTei2Y6RnV48cY0UbeC6tyD05nEN
+      - XENDIT_PUBLIC_KEY=xnd_public_production_vf34AtLlXwlWJzrORt0uzkJOl4NVBx78HZ7L_MwKbmwaVMwa6lu8eha1AkGjbN0N
       - XENDIT_BASE_URL=https://api.xendit.co   # URL API Xendit
-      - XENDIT_CALLBACK_URL=http://localhost:5000/api/payment/callback
-      - XENDIT_SUCCESS_REDIRECT_URL=http://localhost:5173/payment-success
-      - XENDIT_FAILURE_REDIRECT_URL=http://localhost:5173/payment-failed
-      - XENDIT_CALLBACK_TOKEN=nmjnE1accOVHE8xSQxJzxqd7exxCxnsTvydKtiv6ArRgQfAZ
+      - XENDIT_CALLBACK_URL=http://backend:5000/api/payment/callback
+      - XENDIT_SUCCESS_REDIRECT_URL=http://frontend:3000/payment-success
+      - XENDIT_FAILURE_REDIRECT_URL=http://frontend:3000/payment-failed
+      - XENDIT_CALLBACK_TOKEN=yyI0FqtmZBd1yczzKHZ0dzF2bwfzabmq8cx2N03KwiqJHgox
     depends_on:
       - db
   db:
