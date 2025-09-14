@@ -3,10 +3,10 @@ version: "3.9"
 services:
   frontend:
     build: ./frontend
+    environment:
+      - VITE_API_URL=http://backend:5000/api
     ports:
       - "3000:80"
-    environment:
-      - VITE_API_URL=http://backend:5000
     depends_on:
       - backend
 
