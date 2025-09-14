@@ -13,7 +13,8 @@ import { useDownloadPDFTest } from "@/hooks/useThinkingStyleTest";
 export const TestResult: React.FC = () => {
   const location = useLocation();
   const testResult = location.state?.testResult;
-
+ // Hook download PDF
+  const { refetch, isFetching } = useDownloadPDFTest(testResult?.id);
   console.log(testResult);
 
   useEffect(() => {
@@ -27,8 +28,7 @@ export const TestResult: React.FC = () => {
     return <div>Memuat...</div>;
   }
 
-  // Hook download PDF
-  const { refetch, isFetching } = useDownloadPDFTest(testResult?.id);
+ 
 
   // Kalau pdfBlob ada, trigger download
 
