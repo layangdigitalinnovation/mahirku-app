@@ -10,6 +10,9 @@ export interface CreateUserPayload {
   phoneNumber: string;
   address: string;
   roleId?: number;
+  bankAccountName?: string;
+  bankAccountNumber?: string;
+  bankName?: string;
   // referrerId dihapus karena backend menggunakan cookie
 }
 
@@ -31,6 +34,17 @@ export interface VoucherPayload {
   type : "percentage" | "fixed";
   value: number;
   isActive: boolean;
+}
+
+export interface AffiliatorRegisterPayload {
+  email: string;
+  password: string;
+  fullname: string;
+  phoneNumber: string;
+  address: string;
+  bankAccountName: string;
+  bankAccountNumber: string;
+  bankName: string;
 }
 
 export interface ThinkingStyleTestResponse {

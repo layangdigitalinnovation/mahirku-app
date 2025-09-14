@@ -31,6 +31,7 @@ import ThinkingStyleDetailPage from './pages/Test/ThinkingStyleDetailPage';
 import EditDetailThinkingStylePage from './pages/Admin/EditDetailThinkingStylePage';
 import { AffiliatorLanding } from './pages/AffiliatorLanding';
 import { AffiliatorLandingLayout } from './layouts/AffiliatorLandingLayout';
+import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
 // import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
 
 // Protected Route Component
@@ -105,11 +106,11 @@ function AppRoutes() {
             <Register />
           </PublicRoute>
         } />
-        {/* <Route path="/affiliator/register" element={
+        <Route path="/affiliator/register" element={
           <PublicRoute>
             <AffiliatorRegister />
           </PublicRoute>
-        } /> */}
+        } />
 
         {/* Dashboard layout untuk semua role
         <Route element={<DashboardLayout />}>

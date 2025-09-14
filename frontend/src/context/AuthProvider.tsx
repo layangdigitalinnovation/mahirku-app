@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { User } from '../types';// gunakan axios instance yang sudah dibuat
 import {  login, registerUser } from '../services/api';
+import { string } from 'zod';
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +18,19 @@ interface AuthContextType {
       fullname: string;
       address: string;
       phoneNumber: string;
+    }
+  ) => Promise<void>;
+  affiliatorRegister: (
+    email: string,
+    password: string,
+    details: {
+      username: string;
+      fullname: string;
+      address: string;
+      phoneNumber: string;
+      bankAccountName: string;
+      bankAccountNumber: string;
+      bankName: string;
     }
   ) => Promise<void>;
   logout: () => Promise<void>;
@@ -93,10 +107,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     role: 'user' | 'affiliator',
     referrerId?: string | null, // Parameter ini tetap ada untuk backward compatibility tapi tidak digunakan
     details?: {
-      username: string;
+      username: string; 
       fullname: string;
       address: string;
       phoneNumber: string;
+      bankAccountName: string;
+      bankAccountNumber: string;
+      bankName: string;
     }
   ) => {
     try {
@@ -110,6 +127,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullname: details?.fullname || '',
         address: details?.address || '',
         phoneNumber: details?.phoneNumber || '',
+        bankAccountName: details?.bankAccountName || '',
+        bankAccountNumber: details?.bankAccountNumber || '',
+        bankName: details?.bankName || '',
         roleId
         // referrerId dihapus karena backend menggunakan cookie
       });
@@ -121,6 +141,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const affiliatorRegister = async (
+    email: string,
+    password: string,
+    details: {
+      username: string;
+      fullname: string;
+      address: string;
+      phoneNumber: string;
+      bankAccountName: string;
+      bankAccountNumber: string;
+      bankName: string;
+    }
+  ) => {
+    try {
+      await register(email, password, 'affiliator', null, details);
+    } catch (err) {
+      console.error('Affiliator register error:', err);
+      throw new Error('Affiliator registration failed');
+    }
+  };
+
   const logout = async () => {
     localStorage.removeItem('neuroscan-user');
     localStorage.removeItem('token');
@@ -128,7 +169,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginUser, register, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      loginUser, 
+      register: register as AuthContextType['register'], 
+      affiliatorRegister,
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
