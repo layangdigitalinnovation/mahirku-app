@@ -2,11 +2,12 @@ version: "3.9"
 
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://backend:5000   # API URL untuk React build
     ports:
       - "3000:80"
-    environment:
-      - VITE_API_URL=http://backend:5000
     depends_on:
       - backend
 
