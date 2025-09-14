@@ -72,3 +72,25 @@ export interface BackendUser {
   createdAt: string;
   updatedAt: string;
 }
+
+export type SectionName = 'beranda' | 'layanan' | 'paket' |  'kontak';
+
+export type UserColumn = {
+  id: number;
+  email: string;
+  fullname: string;
+  address: string;
+  phoneNumber: string;
+  role: BackendRole;
+}
+
+// types/package.ts
+export interface TokenPackage {
+  id: number;
+  name: string;
+  description: string;
+  defaultTokenAmount: number;
+  price: number;
+  createdAt: string;
+  updatedAt: string;
+}

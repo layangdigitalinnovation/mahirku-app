@@ -1,154 +1,125 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Brain, Calendar, History, Plus, Eye } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
-import { Button } from '../../components/ui/Button';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Clock, Eye } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { useMeQuery } from "@/hooks/useAuthQuery";
+import { DashboardQuickActions } from "@/components/ui/DashboardQuickAction";
+import { useGetAllTest } from "@/hooks/useThinkingStyleTest";
+import ErrorFetch from "@/components/ui/Error";
+import { ThinkingStyleResult } from "@/services/api";
 
 export const UserDashboard: React.FC = () => {
-  const { user } = useAuth();
-  const [testResults, setTestResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data } = useMeQuery();
+  const { user } = data || {};
+  const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    if (user) {
-      fetchTestResults();
-    }
-  }, [user]);
+  const { data: numerologyResults, isLoading, isError } = useGetAllTest();
 
-  const fetchTestResults = async () => {
-    if (!user) return;
-    
-    try {
-      // Get test results from localStorage (mock database)
-      const allResults = JSON.parse(localStorage.getItem('neuroscan-test-results') || '[]');
-      const userResults = allResults.filter((result: any) => result.userId === user.uid);
-      
-      // Sort by timestamp (newest first)
-      userResults.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      
-      setTestResults(userResults);
-    } catch (error) {
-      console.error('Error fetching test results:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center pt-20">
+        <p>Memuat...</p>
       </div>
     );
   }
 
+  if (isError) {
+    return <ErrorFetch />;
+  }
+
+  const filteredResults =
+    numerologyResults?.filter((result: ThinkingStyleResult) => {
+      const searchQueryLower = searchQuery.toLowerCase().trim();
+      const fullnameLower = result.fullname.toLowerCase();
+      const birthdateFormatted = new Date(result.birthdate).toLocaleDateString(
+        "id-ID"
+      );
+
+      return (
+        fullnameLower.includes(searchQueryLower) ||
+        birthdateFormatted.includes(searchQueryLower)
+      );
+    }) ?? [];
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back!</h1>
-          <p className="text-gray-600">Track your cognitive assessments and insights</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Brain className="h-10 w-10 text-blue-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Tests</p>
-                  <p className="text-2xl font-bold text-gray-900">{testResults.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Calendar className="h-10 w-10 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Last Test</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {testResults.length > 0 
-                      ? new Date(testResults[0].timestamp).toLocaleDateString()
-                      : 'None'
-                    }
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <History className="h-10 w-10 text-purple-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Most Recent Style</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {testResults.length > 0 ? testResults[0].cognitiveStyle : 'N/A'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mb-8">
-          <Link to="/test">
-            <Button size="lg" icon={Plus}>
-              Take New Test
-            </Button>
-          </Link>
-        </div>
-
-        {/* Test History */}
-        <Card>
-          <CardHeader>
-            <h2 className="text-xl font-semibold">Test History</h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-24 pb-12">
+      <div className="container max-w-scren-lg mx-auto px-4">
+        <DashboardQuickActions
+          results={numerologyResults as ThinkingStyleResult[]}
+          user={user}
+        />
+        <Card className="bg-white">
+          <CardHeader className="border-b">
+            <div className="flex justify-between items-center">
+              <h2 className="font-heading text-xl font-semibold flex items-center">
+                <Clock className="h-5 w-5 mr-2 text-primary-600" />
+                Riwayat Test
+              </h2>
+              <input
+                type="text"
+                placeholder="Cari nama atau tanggal..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-3 py-2 border rounded-md text-sm"
+              />
+            </div>
           </CardHeader>
-          <CardContent>
-            {testResults.length === 0 ? (
-              <div className="text-center py-8">
-                <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No tests yet</h3>
-                <p className="text-gray-600 mb-4">Take your first cognitive style assessment</p>
-                <Link to="/test">
-                  <Button icon={Plus}>Take Your First Test</Button>
-                </Link>
+          <CardContent className="p-0">
+            {filteredResults.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-gray-500">Belum ada hasil analisis</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {testResults.map((result) => (
-                  <div key={result.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <Brain className="h-8 w-8 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{result.cognitiveStyle}</p>
-                        <p className="text-sm text-gray-600">
-                          Tested on {new Date(result.timestamp).toLocaleDateString()} • 
-                          Birth Date: {result.birthDate}
-                        </p>
+              <div className="divide-y">
+                {filteredResults.map((result: ThinkingStyleResult) => {
+                  const birthDate = new Date(result.birthdate);
+                  const createdAt = new Date(result.createdAt);
+
+                  return (
+                    <div
+                      key={result.id}
+                      className="p-6 rounded hover:bg-gray-50 transition"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div>
+                          <h3 className="font-heading text-lg font-semibold text-gray-900">
+                            {result.fullname}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Lahir: {birthDate.toLocaleDateString("id-ID")}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Analisis: {createdAt.toLocaleDateString("id-ID")}
+                          </p>
+
+                          <div className="mt-3">
+                            <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                              {result.thinkingStyle.type}
+                            </span>
+                            <p className="mt-2 text-gray-700 text-sm">
+                              {result.thinkingStyle.description}
+                            </p>
+                            <p className="mt-1 text-gray-500 text-xs italic">
+                              Teori: {result.thinkingStyle.theory}
+                            </p>
+                          </div>
+                        </div>
+
+                        <Link
+                          to={`/numerology/detail/${result.id}`}
+                          className="mt-4 md:mt-0"
+                        >
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4 mr-1" />
+                            Detail
+                          </Button>
+                        </Link>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      {result.fingerprintId && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                          Verified
-                        </span>
-                      )}
-                      <Button variant="ghost" size="sm" icon={Eye}>
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>

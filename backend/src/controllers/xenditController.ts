@@ -6,10 +6,16 @@ import User from '../models/User';
 import Package from '../models/Package';
 import { validateVoucher, calculateDiscount } from '../utils/voucherUtils';
 import WithdrawRequest from '../models/WithdrawRequest';
+import { calculateTokenCommission, addTokenPurchaseCommission, updateAffiliateBalance } from '../utils/affiliateUtils';
+import { MockPayoutService } from '../services/mockPayoutService';
+import { PayoutRequest, PayoutResponse } from '../types/xendit';
+import AffiliateBalance from '../models/AffiliateBalance';
+import { sequelize } from '../models';
+import { markAsProcessed } from './withdrawController';
 
 export const xenditPayment = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, packageId, voucherCode } = req.body;
+    const { userId, packageId, voucherCode, referralCode } = req.body;
 
     const user = await User.findByPk(userId);
     if (!user) {
@@ -42,6 +48,7 @@ export const xenditPayment = async (req: Request, res: Response): Promise<void> 
       tokenAmount,
       voucherId,
       voucherCode,
+      referralCode: referralCode || null,
       status: 'PENDING',
     });
 
@@ -108,6 +115,9 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
       paid_at
     } = req.body;
 
+
+    console.log("CALLBACK HITTED :", req.body)
+
     // Ekstrak ID invoice dari external_id (format: INV-{id})
     const invoiceId = external_id.replace('INV-', '');
 
@@ -146,6 +156,62 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
       { where: { id: invoice.userId } }
     );
 
+    await User.update(
+      {packageId : invoice.packageId},
+      {where : {id : invoice.userId}}
+    )
+
+    // Tambahkan komisi referral jika ada
+    try {
+      // Ambil kode referral dari invoice yang sudah disimpan saat pembuatan
+      const referralCode = invoice.referralCode;
+      console.log('Referral code from invoice:', referralCode);
+      
+      if (referralCode && invoice.packageId) {
+        // Ekstrak user ID dari referral code (format: aff{userId})
+        const referrerUserId = referralCode.replace('aff', '');
+        
+        if (referrerUserId && !isNaN(Number(referrerUserId))) {
+          // Cari user berdasarkan ID yang diekstrak dari referral code
+          const referrer = await User.findOne({
+            where: { 
+              id: Number(referrerUserId),
+              roleId: 2 // pastikan referrer adalah affiliator
+            }
+          });
+          
+          if (referrer) {
+          // Hitung komisi berdasarkan total tokens yang dibeli
+          const commissionAmount = await calculateTokenCommission(invoice.packageId, invoice.tokenAmount);
+          
+          if (commissionAmount > 0) {
+            // Buat record komisi
+            await addTokenPurchaseCommission(
+              invoice.id, // tokenPurchaseId
+              referrer.id, // referrerId
+              invoice.userId, // userId
+              commissionAmount, // commissionAmount yang sudah dihitung
+              invoice.packageId // packageId
+            );
+            
+            console.log(`Komisi referral ditambahkan untuk referrer: ${referrer.fullname} (${referralCode}), amount: ${commissionAmount}, tokens: ${invoice.tokenAmount}, packageId: ${invoice.packageId}`);
+           }
+         } else {
+           console.log(`Referrer tidak ditemukan atau bukan affiliator untuk ID: ${referrerUserId}`);
+         }
+       } else {
+         console.log(`Format referral code tidak valid: ${referralCode}`);
+       }
+      } else {
+        console.log('Tidak ada kode referral dalam cookie atau packageId tidak ada');
+      }
+    } catch (commissionError: any) {
+      // Log error tapi jangan gagalkan proses pembayaran
+      console.error('Error menambahkan komisi referral:', commissionError.message);
+    }
+
+    console.log("Callback Sukses")
+
     res.status(200).json({ message: 'Pembayaran berhasil & token ditambahkan ke user' });
   } catch (error: any) {
     console.error('handlePaymentCallback error:', error);
@@ -154,8 +220,10 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
 };
 
 // Fungsi untuk melakukan payout otomatis menggunakan Xendit
-export const processAutomaticPayout = async (withdrawRequestId: string): Promise<{ success: boolean; message: string; payoutId?: string }> => {
+export const processAutomaticPayout = async (withdrawRequestId: string): Promise<PayoutResponse> => {
   try {
+
+    console.log('Process automatic payout for withdraw request:', withdrawRequestId);
     // Ambil data withdraw request dengan data affiliate
     const withdrawRequest = await WithdrawRequest.findByPk(withdrawRequestId, {
       include: [{
@@ -165,14 +233,28 @@ export const processAutomaticPayout = async (withdrawRequestId: string): Promise
       }]
     });
     if (!withdrawRequest) {
-      return { success: false, message: 'Withdraw request tidak ditemukan' };
+      return { success: false, message: 'Withdraw request tidak ditemukan', amount: 0 };
     }
 
     if (withdrawRequest.status !== 'approved') {
-      return { success: false, message: 'Withdraw request belum disetujui' };
+      return { 
+        success: false, 
+        message: 'Withdraw request belum disetujui',
+        amount: 0,
+        id: '',
+        external_id: '',
+        status: 'FAILED',
+        created: new Date().toISOString(),  
+        metadata: {}
+      };
     }
 
+
+
     const affiliate = withdrawRequest.affiliate;
+
+
+
     if (!affiliate) {
       return { success: false, message: 'Data affiliate tidak ditemukan' };
     }
@@ -202,7 +284,7 @@ export const processAutomaticPayout = async (withdrawRequestId: string): Promise
     };
 
     // Payload untuk Xendit Payout API
-    const payload = {
+    const payload: PayoutRequest = {
       reference_id: `WITHDRAW-${withdrawRequestId}-${Date.now()}`,
       channel_code: getBankCode(affiliate.bankName),
       channel_properties: {
@@ -211,30 +293,37 @@ export const processAutomaticPayout = async (withdrawRequestId: string): Promise
       },
       amount: withdrawRequest.amount,
       description: `Penarikan komisi affiliate - ${affiliate.fullname}`,
-      currency: 'IDR',
-      receipt_notification: {
-        email_to: [affiliate.email]
-      },
-      metadata: {
-        withdraw_request_id: withdrawRequestId,
-        affiliate_id: affiliate.id
-      }
+      currency: 'IDR'
     };
 
     console.log('Xendit Payout Payload:', JSON.stringify(payload, null, 2));
 
-    // Kirim request ke Xendit Payout API
-    const response = await axios.post(
-      `${xenditConfig.baseUrl}/v2/payouts`,
-      payload,
-      {
-        headers: {
-          'Authorization': `Basic ${authHeader}`,
-          'Content-Type': 'application/json',
-          'Idempotency-key': `withdraw-${withdrawRequestId}-${Date.now()}`
-        },
-      }
-    );
+    // Check if we should use mock service (development mode or API key limitations)
+    // const isDevelopment = process.env.NODE_ENV === 'development' || xenditConfig.apiKey.startsWith('xnd_development_');
+    
+    let response: any;
+    
+console.log('🚀 Using Xendit Payout API (Test Mode)');
+response = await axios.post(
+  `${xenditConfig.baseUrl}/v2/payouts`,
+  {
+    ...payload,
+    receipt_notification: {
+      email_to: [affiliate.email]
+    },
+    metadata: {
+      withdraw_request_id: withdrawRequestId,
+      affiliate_id: affiliate.id
+    }
+  },
+  {
+    headers: {
+      'Authorization': `Basic ${authHeader}`,
+      'Content-Type': 'application/json',
+      'Idempotency-key': `withdraw-${withdrawRequestId}-${Date.now()}`
+    },
+  }
+);
 
     console.log('Xendit Payout Response:', response.data);
 
@@ -249,14 +338,20 @@ export const processAutomaticPayout = async (withdrawRequestId: string): Promise
 
       return {
         success: true,
-        message: `Payout berhasil diproses. ID: ${response.data.id}`,
-        payoutId: response.data.id
+        message: `Payout berhasil dibuat, menunggu konfirmasi dari xendit`,
+        id: response.data.id,
+        external_id: response.data.external_id,
+        amount: response.data.amount,
+        status: response.data.status,
+        reference_id: response.data.reference_id,
+        metadata: response.data.metadata,
       };
     } else {
       return { success: false, message: 'Gagal mendapatkan response dari Xendit' };
     }
   } catch (error: any) {
     console.error('processAutomaticPayout error:', error.response?.data || error.message);
+    console.error('Error stack:', error.stack);
     return {
       success: false,
       message: `Gagal memproses payout: ${error.response?.data?.message || error.message}`
@@ -265,60 +360,161 @@ export const processAutomaticPayout = async (withdrawRequestId: string): Promise
 };
 
 // Webhook handler untuk status payout dari Xendit
-export const handlePayoutCallback = async (req: Request, res: Response): Promise<void> => {
+export const handlePayoutCallback = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
-    const {
-      id: payoutId,
-      status,
-      reference_id,
-      failure_code,
-      updated
-    } = req.body;
-
-    console.log('Payout Callback received:', req.body);
-
-    // Cari withdraw request berdasarkan payout ID
-    const withdrawRequest = await WithdrawRequest.findOne({
-      where: { payoutId }
-    });
-
-    if (!withdrawRequest) {
-      console.log(`Withdraw request tidak ditemukan untuk payout ID: ${payoutId}`);
-      res.status(404).json({ message: 'Withdraw request tidak ditemukan' });
+    // Security check
+    if (req.headers["x-callback-token"] !== process.env.XENDIT_CALLBACK_TOKEN) {
+      res.status(403).json({ message: "Invalid callback token" });
       return;
     }
 
-    // Update status berdasarkan callback dari Xendit
-    let newStatus = withdrawRequest.status;
-    
-    switch (status) {
-      case 'ACCEPTED':
-        newStatus = 'processing';
-        break;
-      case 'REQUESTED':
-        newStatus = 'processing';
-        break;
-      case 'COMPLETED':
-        newStatus = 'completed';
-        break;
-      case 'FAILED':
-        newStatus = 'failed';
-        break;
-      default:
-        newStatus = 'processing';
+    const { data } = req.body;
+
+    // Ambil data dari payload
+    const payoutId = data.id;
+    const status = data.status; // SUCCEEDED, FAILED, PENDING
+    const reference_id = data.reference_id;
+    const metadata = data.metadata;
+    const updated = data.updated;
+    const failure_code = data.failure_code;
+    const failure_reason = data.failure_reason;
+
+    console.log("Payout Callback received:", req.body);
+
+    let withdrawRequest: WithdrawRequest | null = null;
+
+    // 1. Cari berdasarkan metadata
+    if (metadata?.withdraw_request_id) {
+      withdrawRequest = await WithdrawRequest.findOne({
+        where: { id: metadata.withdraw_request_id },
+      });
+      if (withdrawRequest && !withdrawRequest.payoutId) {
+        await withdrawRequest.update({ payoutId });
+      }
     }
 
-    await withdrawRequest.update({
-      status: newStatus,
-      payoutStatus: status,
-      failureReason: failure_code || null,
-      updatedAt: updated ? new Date(updated) : new Date()
+    // 2. Fallback: reference_id
+    if (!withdrawRequest && reference_id) {
+      const referenceMatch = reference_id.match(/WITHDRAW-(\d+)-/);
+      if (referenceMatch) {
+        withdrawRequest = await WithdrawRequest.findByPk(
+          parseInt(referenceMatch[1], 10)
+        );
+        if (withdrawRequest && !withdrawRequest.payoutId) {
+          await withdrawRequest.update({ payoutId });
+        }
+      }
+    }
+
+    // 3. Fallback: payoutId
+    if (!withdrawRequest && payoutId) {
+      withdrawRequest = await WithdrawRequest.findOne({ where: { payoutId } });
+    }
+
+    if (!withdrawRequest) {
+      console.log(`Withdraw request tidak ditemukan untuk payoutId: ${payoutId}`);
+      res.status(404).json({ message: "Withdraw request tidak ditemukan" });
+      return;
+    }
+
+    // Mapping status dari Xendit ke sistem internal
+    let newStatus: typeof withdrawRequest.status;
+    switch (status) {
+      case "PENDING":
+      case "ACCEPTED":
+      case "REQUESTED":
+        newStatus = "processing";
+        break;
+      case "SUCCEEDED":
+      case "COMPLETED":
+        newStatus = "completed";
+        break;
+      case "FAILED":
+        newStatus = "failed";
+        break;
+      default:
+        newStatus = "processing";
+    }
+
+    // Idempotency: jangan downgrade status
+    if (withdrawRequest.status === "completed" && newStatus !== "completed") {
+      console.log(
+        `Skip update, withdraw ${withdrawRequest.id} sudah completed`
+      );
+      res.status(200).json({ message: "Already completed" });
+      return;
+    }
+
+    // Jalankan semua dalam 1 transaksi
+    await sequelize.transaction(async (t) => {
+      await withdrawRequest.update(
+        {
+          status: newStatus,
+          payoutId,
+          payoutStatus: status,
+          failureReason: failure_code || failure_reason || null,
+          updatedAt: updated ? new Date(updated) : new Date(),
+        },
+        { transaction: t }
+      );
+
+      // Kurangi saldo affiliate hanya kalau berhasil
+      if (newStatus === "completed" && metadata?.affiliate_id) {
+        const affiliate = await AffiliateBalance.findOne({
+          where: { affiliateId: Number(metadata.affiliate_id) },
+          transaction: t,
+          lock: t.LOCK.UPDATE,
+        });
+
+        if (affiliate) {
+          const currentBalance = Number(affiliate.availableBalance) || 0;
+          const withdrawAmount = Number(withdrawRequest.amount) || 0;
+            console.log("Affiliate Balance (before):", currentBalance);
+          if (currentBalance >= withdrawAmount) {
+            affiliate.withdrawnAmount += Number(withdrawRequest.amount);
+            await affiliate.save({ transaction: t });
+
+            
+            console.log("Withdraw Request Amount:", withdrawAmount);
+            console.log("Affiliate Balance (after):", affiliate.availableBalance);
+          } else {
+            console.warn(
+              `Saldo tidak cukup. Saldo: ${currentBalance}, Withdraw: ${withdrawAmount}`
+            );
+          }
+        } else {
+          console.warn(
+            `Affiliate balance record not found for affiliateId=${metadata.affiliate_id}`
+          );
+        }
+      }
     });
 
-    console.log(`Withdraw request ${withdrawRequest.id} status updated to: ${newStatus}`);
-    res.status(200).json({ message: 'Payout callback berhasil diproses' });
+    // Query ulang setelah transaksi biar yakin ke-update
+    if (metadata?.affiliate_id) {
+      const freshAffiliate = await AffiliateBalance.findOne({
+        where: { affiliateId: Number(metadata.affiliate_id) },
+      });
+      console.log(
+        "Affiliate Balance (DB after commit):",
+        freshAffiliate?.availableBalance
+      );
+    }
+
+    console.log(`✓ Withdraw ${withdrawRequest.id} updated to: ${newStatus}`);
+    res
+      .status(200)
+      .json({ message: "Payout callback berhasil diproses", status: newStatus });
   } catch (error: any) {
-    console.error('handlePayoutCallback error:', error);
-    res.status(500).json({ message: 'Gagal memproses payout callback', error: error.message });
+    console.error("handlePayoutCallback error:", error);
+    res.status(500).json({
+      message: "Gagal memproses payout callback",
+      error: error.message,
+    });
   }
 };
+
+

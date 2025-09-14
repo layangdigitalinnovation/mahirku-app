@@ -10,6 +10,7 @@ interface ThinkingStyleAttributes {
   description: string;
   theory: string;
   isActive: boolean;
+  detailPage: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -25,6 +26,7 @@ class ThinkingStyle extends Model<ThinkingStyleAttributes, ThinkingStyleCreation
   public code!: string;
   public description!: string;
   public theory!: string;
+  public detailPage!: string;
   public isActive!: boolean;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -87,6 +89,11 @@ ThinkingStyle.init(
       type: DataTypes.TEXT,
       allowNull: false,
       comment: 'Landasan teori gaya berpikir'
+    },
+    detailPage: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: 'Detail halaman gaya berpikir'
     },
     isActive: {
       type: DataTypes.BOOLEAN,

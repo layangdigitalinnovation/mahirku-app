@@ -8,6 +8,7 @@ import {
   transferTokenToChild,
 } from '../controllers/tokenController';
 import { authMiddleware } from '../middlewares/authMiddleware';
+import { referralMiddleware } from '../middlewares/referralMiddleware';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ const router = Router();
  * @desc    Buat invoice dan proses pembelian token
  * @access  Protected
  */
-router.post('/purchase', authMiddleware, purchaseToken);
+router.post('/purchase', authMiddleware, referralMiddleware, purchaseToken);
 
 /**
  * @route   POST /api/token/add-child

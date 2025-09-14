@@ -1,10 +1,9 @@
 import { Response } from 'express';
 import AffiliateCommission from '../models/AffiliateCommission';
-import AffiliateBalance from '../models/AffiliateBalance';
 import WithdrawRequest from '../models/WithdrawRequest';
 import User from '../models/User';
 import { AuthRequest } from '../middlewares/authMiddleware';
-import { getAffiliateBalance, addTestCompletionCommission } from '../utils/affiliateUtils';
+import { getAffiliateBalance } from '../utils/affiliateUtils';
 import { sequelize } from '../config/database';
 
 // 1. Generate referral link
@@ -16,37 +15,19 @@ export const getReferralLink = async (req: AuthRequest, res: Response): Promise<
   }
 
   try {
-    const referralCode = `aff${userId}`;
-    const link = `https://mahirku.com/?ref=${referralCode}`;
+
+     const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://mahirku.com"
+        : "http://localhost:5173"; // ganti sesuai URL frontend dev kamu
+
+           const referralCode = `aff${userId}`;
+    const link = `${baseUrl}/?ref=${referralCode}`;
+
     res.status(200).json({ referralLink: link });
   } catch (error: any) {
     console.error('getReferralLink error:', error);
     res.status(500).json({ error: 'Gagal membuat link referral' });
-  }
-};
-
-// 2. Catat komisi saat tes selesai
-export const addCommissionOnTestComplete = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { userId, referrerId, testId } = req.body;
-
-    if (!userId || typeof userId !== 'number') {
-      res.status(400).json({ message: 'userId wajib dikirim dan berupa number' });
-      return;
-    }
-
-    if (!referrerId) {
-      res.status(200).json({ message: 'Tidak ada referral, komisi tidak ditambahkan' });
-      return;
-    }
-
-    // Gunakan utility function yang baru
-    const commission = await addTestCompletionCommission(referrerId, userId, testId);
-
-    res.status(201).json({ message: 'Komisi berhasil ditambahkan', commission });
-  } catch (error: any) {
-    console.error('addCommissionOnTestComplete error:', error);
-    res.status(500).json({ error: 'Gagal menambahkan komisi' });
   }
 };
 

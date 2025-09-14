@@ -39,7 +39,12 @@ export const validateVoucher = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    res.status(200).json({ message: 'Voucher valid.', data: voucher });
+    const payload = {
+      ...voucher,
+      valid : true
+    }
+
+    res.status(200).json({ message: 'Voucher valid.', data: payload});
   } catch (err: any) {
     console.error('ValidateVoucher error:', err);
     res.status(500).json({ message: 'Gagal validasi voucher.', error: err.message });

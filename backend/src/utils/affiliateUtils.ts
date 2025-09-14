@@ -1,40 +1,29 @@
 import AffiliateCommission from '../models/AffiliateCommission';
 import AffiliateBalance from '../models/AffiliateBalance';
 import User from '../models/User';
-import TokenPurchase from '../models/TokenPurchase';
+import Package from '../models/Package';
 
-// Konfigurasi persentase komisi
+// Konfigurasi default
 const COMMISSION_CONFIG = {
-  TOKEN_PURCHASE_PERCENTAGE: 10, // 10% dari total amount token purchase
-  TEST_COMPLETION_AMOUNT: 10000, // Fixed amount untuk test completion
+  DEFAULT_COMMISSION_RATE: 0, // Default rate jika package tidak ditemukan (0% = tidak ada komisi)
 };
 
 /**
- * Menghitung komisi dari token purchase
- * @param totalAmount - Total amount dari token purchase
- * @returns Jumlah komisi yang akan diberikan
- */
-export const calculateTokenPurchaseCommission = (totalAmount: number): number => {
-  return Math.floor((totalAmount * COMMISSION_CONFIG.TOKEN_PURCHASE_PERCENTAGE) / 100);
-};
-
-/**
- * Menambahkan komisi dari token purchase
+ * Menambahkan komisi dari token purchase dengan dynamic commission rate
  * @param tokenPurchaseId - ID dari token purchase
  * @param referrerId - ID affiliator yang mendapat komisi
  * @param userId - ID user yang melakukan purchase
  * @param totalAmount - Total amount dari token purchase
+ * @param packageId - ID package untuk menentukan commission rate
  */
 export const addTokenPurchaseCommission = async (
   tokenPurchaseId: number,
   referrerId: number,
   userId: number,
-  totalAmount: number
+  commissionAmount: number,
+  packageId: number
 ): Promise<AffiliateCommission | null> => {
   try {
-    // Hitung komisi
-    const commissionAmount = calculateTokenPurchaseCommission(totalAmount);
-    
     if (commissionAmount <= 0) {
       return null;
     }
@@ -45,7 +34,7 @@ export const addTokenPurchaseCommission = async (
       referredUserId: userId,
       testCompleted: false, // Tidak relevan untuk token purchase
       amount: commissionAmount,
-      status: 'pending',
+      status: 'paid',
       source: 'token_purchase',
       sourceId: tokenPurchaseId,
     });
@@ -61,35 +50,29 @@ export const addTokenPurchaseCommission = async (
 };
 
 /**
- * Menambahkan komisi dari test completion
- * @param referrerId - ID affiliator yang mendapat komisi
- * @param userId - ID user yang menyelesaikan test
- * @param testId - ID dari test (opsional)
+ * Menghitung komisi berdasarkan total tokens yang dibeli
+ * @param packageId - ID package
+ * @param totalTokens - Total tokens yang dibeli
+ * @returns Jumlah komisi yang akan diberikan
  */
-export const addTestCompletionCommission = async (
-  referrerId: number,
-  userId: number,
-  testId?: number
-): Promise<AffiliateCommission> => {
+export const calculateTokenCommission = async (packageId: number, totalTokens: number): Promise<number> => {
   try {
-    // Buat record komisi
-    const commission = await AffiliateCommission.create({
-      referrerId,
-      referredUserId: userId,
-      testCompleted: true,
-      amount: COMMISSION_CONFIG.TEST_COMPLETION_AMOUNT,
-      status: 'pending',
-      source: 'test_completion',
-      sourceId: testId || null,
-    });
-
-    // Update atau buat affiliate balance
-    await updateAffiliateBalance(referrerId, COMMISSION_CONFIG.TEST_COMPLETION_AMOUNT);
-
-    return commission;
+    const packageData = await Package.findByPk(packageId);
+    if (!packageData) {
+      console.warn(`Package with ID ${packageId} not found, no commission will be calculated`);
+      return 0;
+    }
+    
+    // Rumus: price_per_token = package.price / package.defaultTokenAmount
+    const pricePerToken = packageData.price / packageData.defaultTokenAmount;
+    
+    // Rumus: commission = total_tokens × price_per_token × commission_rate
+    const commissionAmount = totalTokens * pricePerToken * (packageData.commissionRate / 100);
+    
+    return Math.floor(commissionAmount);
   } catch (error) {
-    console.error('Error adding test completion commission:', error);
-    throw error;
+    console.error('Error calculating token commission:', error);
+    return 0;
   }
 };
 
