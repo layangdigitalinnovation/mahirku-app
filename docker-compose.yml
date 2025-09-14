@@ -26,8 +26,8 @@ services:
       - XENDIT_PUBLIC_KEY=xnd_public_production_vf34AtLlXwlWJzrORt0uzkJOl4NVBx78HZ7L_MwKbmwaVMwa6lu8eha1AkGjbN0N
       - XENDIT_BASE_URL=https://api.xendit.co   # URL API Xendit
       - XENDIT_CALLBACK_URL=http://backend:5000/api/payment/callback
-      - XENDIT_SUCCESS_REDIRECT_URL=http://frontend:3000/payment-success
-      - XENDIT_FAILURE_REDIRECT_URL=http://frontend:3000/payment-failed
+      - XENDIT_SUCCESS_REDIRECT_URL=http://frontend:8080/payment-success
+      - XENDIT_FAILURE_REDIRECT_URL=http://frontend:8080/payment-failed
       - XENDIT_CALLBACK_TOKEN=yyI0FqtmZBd1yczzKHZ0dzF2bwfzabmq8cx2N03KwiqJHgox
     depends_on:
       - db
