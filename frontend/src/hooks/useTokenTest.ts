@@ -59,6 +59,7 @@ export const useGetAllChildUser = () => {
   return useQuery({
     queryKey: tokenKeys.children(),
     queryFn: getUserChilds,
+    staleTime: 0,
   });
 }
 

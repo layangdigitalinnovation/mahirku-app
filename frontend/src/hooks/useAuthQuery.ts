@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { login, registerUser, registerAffiliator, getMe } from '../services/api';
-import { CreateUserPayload, LoginPayload } from '../services/api/types';
+import {  registerUser, registerAffiliator, getMe } from '../services/api'; 
+  import { CreateUserPayload, LoginPayload } from '../services/api/types';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthProvider';
 
 // Key untuk query cache
 export const authKeys = {
@@ -12,9 +13,9 @@ export const authKeys = {
 // Hook untuk login
 export const useLogin = () => {
   const queryClient = useQueryClient();
-  
+  const { loginUser } = useAuth();  
   return useMutation({
-    mutationFn: (credentials: LoginPayload) => login(credentials),
+    mutationFn: (credentials: LoginPayload) => loginUser(credentials.email, credentials.password),
     onSuccess: () => {
       // Invalidate dan refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });

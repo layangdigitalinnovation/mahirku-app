@@ -67,10 +67,7 @@ submitThinkingStyleTest = async (
       fullname,
       birthdate,
       resultDigit,
-      resultType: style.type,
-      resultCode: style.code,
-      description: style.description,
-      theory: style.theory,
+      thinkingStyleId: style.id,
       fingerprintId,
       referrerId,
     });
@@ -81,7 +78,17 @@ submitThinkingStyleTest = async (
 
     res.status(201).json({
       message: "Tes gaya berpikir berhasil",
-      data: result,
+      data: {
+        ...result.toJSON(),
+        thinkingStyle: {
+          id: style.id,
+          type: style.type,
+          code: style.code,
+          description: style.description,
+          theory: style.theory,
+          detailPage : style.detailPage
+        },
+      },
     });
   } catch (err: any) {
     console.error("submitThinkingStyleTest error:", err);
@@ -105,6 +112,11 @@ export const getThinkingStyleHistory = async (
     const history = await ThinkingStyleResult.findAll({
       where: { userId },
       order: [["createdAt", "DESC"]],
+      include: [{
+        model: ThinkingStyle,
+        as : 'thinkingStyle',
+        attributes: ['id', 'type', 'code', 'description', 'theory', 'detailPage']
+      }]
     });
 
     res.status(200).json({
@@ -124,13 +136,20 @@ export const downloadThinkingStylePDF = async (
   try {
     const { resultId } = req.params;
 
-    const result = await ThinkingStyleResult.findByPk(resultId);
+    const result = await ThinkingStyleResult.findByPk(resultId, {
+      include: [{
+        model: ThinkingStyle,
+        as : 'thinkingStyle',
+      }],
+    });
     if (!result) {
       res.status(404).json({ message: "Hasil tes tidak ditemukan" });
       return;
     }
 
-    const accessUrl = `https://mahirku.com/thinking-style/${resultId}`;
+    const style = result.get('thinkingStyle') as ThinkingStyle;
+
+    const accessUrl = `https://localhost:5173/thinking-style/${resultId}`;
     const qrDataUrl = await QRCode.toDataURL(accessUrl);
 
     // Set header supaya browser langsung download
@@ -154,15 +173,15 @@ export const downloadThinkingStylePDF = async (
     doc.fontSize(12).text(`Nama: ${result.fullname}`);
     doc.text(`Tanggal Lahir: ${result.birthdate}`);
     doc
-      .text(`Gaya Berpikir: ${result.resultType} (${result.resultCode})`)
+      .text(`Gaya Berpikir: ${style.type} (${style.code})`)
       .moveDown();
 
     // Deskripsi & teori
     doc.fontSize(12).text("Deskripsi:", { underline: true });
-    doc.text(result.description, { align: "justify" }).moveDown();
+    doc.text(style.description, { align: "justify" }).moveDown();
 
     doc.text("Landasan Teori:", { underline: true });
-    doc.text(result.theory, { align: "justify" }).moveDown(2);
+    doc.text(style.theory, { align: "justify" }).moveDown(2);
 
     // QR Code
     const qrImageBuffer = Buffer.from(qrDataUrl.split(",")[1], "base64");

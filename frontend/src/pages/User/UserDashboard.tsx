@@ -1,68 +1,56 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  Clock, 
-  Eye, 
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Clock, Eye } from "lucide-react";
 
-} from 'lucide-react';
-
-import { Button } from '@/components/ui/Button';
-import { Card, CardHeader, CardContent } from '@/components/ui/Card';
-import { useMeQuery } from '@/hooks/useAuthQuery';
-import { DashboardQuickActions } from '@/components/ui/DashboardQuickAction';
-import { useGetAllTest } from '@/hooks/useThinkingStyleTest';
-import ErrorFetch from '@/components/ui/Error';
-
-
-interface TestResult {
-   id: number;
-  userId: number;
-  fullname: string;
-  birthdate: string;
-  resultDigit: number;
-  resultType: string;
-  resultCode: string;
-  description: string;
-  theory: string;
-  fingerprintId: string;
-  referrerId: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { useMeQuery } from "@/hooks/useAuthQuery";
+import { DashboardQuickActions } from "@/components/ui/DashboardQuickAction";
+import { useGetAllTest } from "@/hooks/useThinkingStyleTest";
+import ErrorFetch from "@/components/ui/Error";
+import { ThinkingStyleResult } from "@/services/api";
 
 export const UserDashboard: React.FC = () => {
   const { data } = useMeQuery();
   const { user } = data || {};
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: numerologyResults, isLoading, isError  } = useGetAllTest()
-
-
-
+  const { data: numerologyResults, isLoading, isError } = useGetAllTest();
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
-        <p>Loading...</p>
+        <p>Memuat...</p>
       </div>
     );
   }
 
-  if(isError){
-    return <ErrorFetch/>
+  if (isError) {
+    return <ErrorFetch />;
   }
 
-    const filteredResults = numerologyResults.filter((result : TestResult) => 
-    result.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    result.birthdate.includes(searchQuery)
-  );
+  const filteredResults =
+    numerologyResults?.filter((result: ThinkingStyleResult) => {
+      const searchQueryLower = searchQuery.toLowerCase().trim();
+      const fullnameLower = result.fullname.toLowerCase();
+      const birthdateFormatted = new Date(result.birthdate).toLocaleDateString(
+        "id-ID"
+      );
+
+      return (
+        fullnameLower.includes(searchQueryLower) ||
+        birthdateFormatted.includes(searchQueryLower)
+      );
+    }) ?? [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-24 pb-12">
       <div className="container max-w-scren-lg mx-auto px-4">
-        <DashboardQuickActions results={numerologyResults} user={user}/>
-        <Card className='bg-white'>
+        <DashboardQuickActions
+          results={numerologyResults as ThinkingStyleResult[]}
+          user={user}
+        />
+        <Card className="bg-white">
           <CardHeader className="border-b">
             <div className="flex justify-between items-center">
               <h2 className="font-heading text-xl font-semibold flex items-center">
@@ -85,12 +73,15 @@ export const UserDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="divide-y">
-                {filteredResults.map((result : TestResult) => {
+                {filteredResults.map((result: ThinkingStyleResult) => {
                   const birthDate = new Date(result.birthdate);
                   const createdAt = new Date(result.createdAt);
 
                   return (
-                    <div key={result.id} className="p-6 rounded hover:bg-gray-50 transition">
+                    <div
+                      key={result.id}
+                      className="p-6 rounded hover:bg-gray-50 transition"
+                    >
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
                           <h3 className="font-heading text-lg font-semibold text-gray-900">
@@ -105,14 +96,21 @@ export const UserDashboard: React.FC = () => {
 
                           <div className="mt-3">
                             <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                              {result.resultType}
+                              {result.thinkingStyle.type}
                             </span>
-                            <p className="mt-2 text-gray-700 text-sm">{result.description}</p>
-                            <p className="mt-1 text-gray-500 text-xs italic">Teori: {result.theory}</p>
+                            <p className="mt-2 text-gray-700 text-sm">
+                              {result.thinkingStyle.description}
+                            </p>
+                            <p className="mt-1 text-gray-500 text-xs italic">
+                              Teori: {result.thinkingStyle.theory}
+                            </p>
                           </div>
                         </div>
 
-                        <Link to={`/numerology/detail/${result.id}`} className="mt-4 md:mt-0">
+                        <Link
+                          to={`/numerology/detail/${result.id}`}
+                          className="mt-4 md:mt-0"
+                        >
                           <Button variant="outline" size="sm">
                             <Eye className="h-4 w-4 mr-1" />
                             Detail

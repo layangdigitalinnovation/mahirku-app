@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 // ✅ Schema untuk validasi
 const testFormSchema = z.object({
@@ -24,6 +24,7 @@ const testFormSchema = z.object({
       /^(\d{2}[-/]\d{2}[-/]\d{4}|\d{4}[-/]\d{2}[-/]\d{2})$/,
       "Format tanggal harus DD-MM-YYYY atau YYYY-MM-DD"
     ),
+  bloodtype: z.string().optional(),
 });
 
 type TestFormValues = z.infer<typeof testFormSchema>;
@@ -44,21 +45,15 @@ export function TestForm({ onSubmit, defaultValues }: TestFormProps) {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="fullname"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Fullname</FormLabel>
+              <FormLabel>Nama Lengkap</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="e.g., John Doe"
-                  {...field}
-                />
+                <Input placeholder="e.g., John Doe" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -70,12 +65,23 @@ export function TestForm({ onSubmit, defaultValues }: TestFormProps) {
           name="birthdate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Birth Date</FormLabel>
+              <FormLabel>Tanggal Lahir</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="DD-MM-YYYY or YYYY-MM-DD"
-                  {...field}
-                />
+                <Input placeholder="DD-MM-YYYY or YYYY-MM-DD" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="bloodtype"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Golongan Darah</FormLabel>
+              <FormControl>
+                <Input placeholder="A, B, AB, atau O" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -83,7 +89,7 @@ export function TestForm({ onSubmit, defaultValues }: TestFormProps) {
         />
 
         <Button type="submit" className="w-full" size="lg">
-          Analyze My Style
+          Analisa Sidik Jari Anda
         </Button>
       </form>
     </Form>

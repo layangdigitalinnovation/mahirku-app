@@ -34,7 +34,7 @@ export const addTokenPurchaseCommission = async (
       referredUserId: userId,
       testCompleted: false, // Tidak relevan untuk token purchase
       amount: commissionAmount,
-      status: 'pending',
+      status: 'paid',
       source: 'token_purchase',
       sourceId: tokenPurchaseId,
     });

@@ -49,25 +49,25 @@ export const SuperAdminDashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
           <Card>
             <CardContent className="p-6">
-              <p className="text-gray-600 text-sm">Total Users</p>
+              <p className="text-gray-600 text-sm">Total Pengguna</p>
               <p className="text-2xl font-bold">{users.length}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
-              <p className="text-gray-600 text-sm">Total Tests</p>
+              <p className="text-gray-600 text-sm">Total Tes</p>
               <p className="text-2xl font-bold">12</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
-              <p className="text-gray-600 text-sm">Total Commissions</p>
+              <p className="text-gray-600 text-sm">Total Komisi</p>
               <p className="text-2xl font-bold">Rp 320.000</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
-              <p className="text-gray-600 text-sm">Pending Commissions</p>
+              <p className="text-gray-600 text-sm">Komisi Tertunda</p>
               <p className="text-2xl font-bold">Rp 70.000</p>
             </CardContent>
           </Card>
@@ -79,16 +79,16 @@ export const SuperAdminDashboard: React.FC = () => {
       return (
         <div className="overflow-x-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
           {users.length === 0 ? (
-            <p className="text-gray-600 p-4">No users found.</p>
+            <p className="text-gray-600 p-4">Tidak ada pengguna ditemukan.</p>
           ) : (
             <table className="min-w-full divide-y divide-gray-200 bg-white">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Lengkap</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Peran</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -141,20 +141,20 @@ export const SuperAdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container w-full  mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Super Admin Dashboard</h1>
-          <p className="text-gray-600">Manage all users, affiliators, and system data</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Super Admin</h1>
+          <p className="text-gray-600">Kelola semua pengguna, afiliator, dan data sistem</p>
         </div>
 
         {/* Tab Navigation */}
         <div className="mb-8">
           <nav className="flex space-x-8">
             {[
-              { id: 'overview', label: 'Overview', icon: TrendingUp },
-              { id: 'users', label: 'Users', icon: Users },
-              { id: 'tests', label: 'Tests', icon: Brain },
-              { id: 'commissions', label: 'Commissions', icon: DollarSign },
+              { id: 'overview', label: 'Ringkasan', icon: TrendingUp },
+              { id: 'users', label: 'Pengguna', icon: Users },
+              { id: 'tests', label: 'Tes', icon: Brain },
+              { id: 'commissions', label: 'Komisi', icon: DollarSign },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}

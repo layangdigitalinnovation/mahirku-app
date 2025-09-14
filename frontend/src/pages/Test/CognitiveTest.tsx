@@ -9,7 +9,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { scanFingerprint } from "@/utils/fingerprint";
 import { getReferralId } from "@/utils/referral";
@@ -33,76 +33,63 @@ export const CognitiveTest: React.FC = () => {
 
   const token = data?.user?.tokens || 0;
   const { data: tokenPackages } = usePackages();
-  const {
-    data: testResult,
-    isPending: isPendingTest,
-    mutateAsync: submitTest,
-  } = useSubmitTest();
+  const { mutateAsync: submitTest } = useSubmitTest();
 
   const handleStartTest = () => {
     if (!user) {
-      alert("Please login to take the test");
+      alert("Silakan login untuk mengikuti tes");
       return;
     }
 
     if (token <= 0) {
-      alert("Insufficient tokens. Please purchase tokens to take the test.");
+      alert("Token tidak mencukupi. Silakan beli token untuk mengikuti tes.");
       return;
     }
 
     setStep("birthdate");
   };
 
- const handleFingerprintScan = async () => {
-  setStep("processing");
+  const handleFingerprintScan = async () => {
+    setStep("processing");
 
-  try {
-    const fingerprintId = await scanFingerprint();
+    try {
+      const fingerprintId = await scanFingerprint();
+      // Delay 2 menit untuk simulasi proses scan fingerprint
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 2 menit
 
-    const referrerId = getReferralId();
-    const testData: ThinkingStyleRequest = {
-      fullname,
-      birthdate: birthDate,
-      fingerPrintId: fingerprintId as string, 
-      referrerId,
-    };
+      const referrerId = getReferralId();
+      const referrerIdNumber = referrerId?.split("aff")[1];
 
-    // ⬇️ Ambil langsung result dari API
-    const result = await submitTest(testData);
+      const testData: ThinkingStyleRequest = {
+        fullname,
+        birthdate: birthDate,
+        fingerPrintId: fingerprintId as string,
+        referrerId: referrerIdNumber,
+      };
 
-    // Simpan referral commission (mock)
-    if (referrerId && user) {
-      const mockCommissions = JSON.parse(
-        localStorage.getItem("neuroscan-commissions") || "[]"
-      );
-      mockCommissions.push({
-        id: `commission-${Date.now()}`,
-        affiliatorId: referrerId,
-        userId: user.uid,
-        amount: 10000,
-        timestamp: new Date(),
-        status: "pending",
+      // ⬇️ Ambil langsung result dari API
+      const result = await submitTest(testData);
+
+      console.log(result.data);
+
+      // ⬇️ Arahkan ke result page
+      navigate("/customer/dashboard/test/result", {
+        state: { testResult: result?.data },
       });
-      localStorage.setItem(
-        "neuroscan-commissions",
-        JSON.stringify(mockCommissions)
-      );
+    } catch (error) {
+      console.error("Error saving test result:", error);
+      navigate("/test/result", {
+        state: {
+          testResult: {
+            id: "temp",
+            fullname,
+            birthdate: birthDate,
+            fingerprintId: null,
+          },
+        },
+      });
     }
-
-    // ⬇️ Arahkan ke result page
-    navigate("/customer/dashboard/test/result", {
-      state: { testResult: result?.data },
-    });
-  } catch (error) {
-    console.error("Error saving test result:", error);
-    navigate("/test/result", {
-      state: {
-        testResult: { id: "temp", fullname, birthdate: birthDate, fingerprintId: null },
-      },
-    });
-  }
-};
-
+  };
 
   if (step === "processing") {
     return (
@@ -111,9 +98,18 @@ export const CognitiveTest: React.FC = () => {
           <CardContent className="text-center p-8">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <h3 className="text-xl font-semibold mb-2">
-              Processing Your Results
+              Memproses Hasil Tes Anda
             </h3>
-            <p className="text-gray-600">Analyzing your cognitive style...</p>
+            <p className="text-gray-600 mb-4">
+              Sedang menganalisis gaya kognitif Anda...
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+              <p className="text-sm text-blue-700">
+                <strong>Catatan:</strong> Proses ini membutuhkan waktu sekitar 2
+                menit untuk memastikan akurasi hasil analisis fingerprint dan
+                gaya berpikir Anda.
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -134,10 +130,10 @@ export const CognitiveTest: React.FC = () => {
                     <Coins className="h-8 w-8 text-yellow-500" />
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        Your Test Tokens
+                        Token Tes Anda
                       </h3>
                       <p className="text-sm text-gray-600">
-                        Each test requires 1 token
+                        Setiap tes membutuhkan 1 token
                       </p>
                     </div>
                   </div>
@@ -145,7 +141,7 @@ export const CognitiveTest: React.FC = () => {
                     <div className="text-3xl font-bold text-yellow-600">
                       {token}
                     </div>
-                    <p className="text-sm text-gray-500">Available</p>
+                    <p className="text-sm text-gray-500">Tersedia</p>
                   </div>
                 </div>
               </CardContent>
@@ -156,11 +152,10 @@ export const CognitiveTest: React.FC = () => {
                 <CardHeader className="text-center">
                   <Brain className="h-16 w-16 text-blue-600 mx-auto mb-4" />
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Cognitive Style Test
+                    Tes Gaya Kognitif
                   </h1>
                   <p className="text-gray-600">
-                    Discover your unique thinking patterns through our advanced
-                    numerology-based assessment
+                    Temukan pola berpikir unik Anda
                   </p>
                 </CardHeader>
 
@@ -168,20 +163,22 @@ export const CognitiveTest: React.FC = () => {
                   <div className="space-y-6">
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <h3 className="font-semibold text-blue-900 mb-2">
-                        How it works:
+                        Cara kerja:
                       </h3>
                       <ol className="text-sm text-blue-800 space-y-1">
-                        <li>1. One token is required for each test</li>
+                        <li>1. Satu token diperlukan untuk setiap tes</li>
                         <li>
-                          2. Enter your birth date in any format (DD-MM-YYYY,
-                          MM/DD/YYYY, etc.)
+                          2. Masukkan tanggal lahir Anda dalam format apa pun
+                          (DD-MM-YYYY, MM/DD/YYYY, dll.)
+                        </li>
+                        <li>3. Sistem kami memproses data anda</li>
+                        <li>
+                          4. Kami memetakan ini ke salah satu dari beberapa gaya
+                          kognitif
                         </li>
                         <li>
-                          3. Our system calculates your numerological signature
-                        </li>
-                        <li>4. We map this to one of 5 cognitive styles</li>
-                        <li>
-                          5. Optional: Verify with biometric fingerprint scan
+                          5. Opsional: Verifikasi dengan pemindaian sidik jari
+                          biometrik
                         </li>
                       </ol>
                     </div>
@@ -190,15 +187,15 @@ export const CognitiveTest: React.FC = () => {
                       <div className="flex items-center space-x-2 mb-2">
                         <CheckCircle className="h-5 w-5 text-green-500" />
                         <h3 className="font-semibold text-green-900">
-                          Test Benefits:
+                          Manfaat Tes:
                         </h3>
                       </div>
                       <ul className="text-sm text-green-800 space-y-1">
-                        <li>• Personalized cognitive style analysis</li>
-                        <li>• Detailed personality insights</li>
-                        <li>• Career and relationship recommendations</li>
-                        <li>• Secure biometric verification</li>
-                        <li>• Shareable results certificate</li>
+                        <li>• Analisis gaya kognitif yang dipersonalisasi</li>
+                        <li>• Wawasan kepribadian yang detail</li>
+                        <li>• Rekomendasi karier dan hubungan</li>
+                        <li>• Verifikasi biometrik yang aman</li>
+                        <li>• Sertifikat hasil yang dapat dibagikan</li>
                       </ul>
                     </div>
 
@@ -209,15 +206,15 @@ export const CognitiveTest: React.FC = () => {
                       disabled={!user || token <= 0}
                     >
                       {!user
-                        ? "Please Login First"
+                        ? "Silakan Login Terlebih Dahulu"
                         : token <= 0
-                        ? "Insufficient Tokens"
-                        : "Start Test (1 Token)"}
+                        ? "Token Tidak Mencukupi"
+                        : "Mulai Tes (1 Token)"}
                     </Button>
 
                     {!user && (
                       <p className="text-center text-sm text-gray-500">
-                        Please login to your account to take the test
+                        Silakan login ke akun Anda untuk mengikuti tes
                       </p>
                     )}
                   </div>
@@ -230,10 +227,10 @@ export const CognitiveTest: React.FC = () => {
                 <CardHeader className="text-center">
                   <Brain className="h-16 w-16 text-blue-600 mx-auto mb-4" />
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Cognitive Style Test
+                    Tes Gaya Kognitif
                   </h1>
                   <p className="text-gray-600">
-                    Enter your birth date to begin the analysis
+                    Masukkan tanggal lahir Anda untuk memulai analisis
                   </p>
                 </CardHeader>
 
@@ -254,10 +251,10 @@ export const CognitiveTest: React.FC = () => {
                 <CardHeader className="text-center">
                   <Fingerprint className="h-16 w-16 text-blue-600 mx-auto mb-4" />
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Biometric Verification
+                    Verifikasi Biometrik
                   </h2>
                   <p className="text-gray-600">
-                    Secure your test results with fingerprint authentication
+                    Amankan hasil tes Anda dengan autentikasi sidik jari
                   </p>
                 </CardHeader>
 
@@ -266,18 +263,18 @@ export const CognitiveTest: React.FC = () => {
                     <div className="flex items-center space-x-2 mb-2">
                       <CheckCircle className="h-5 w-5 text-green-500" />
                       <span className="font-semibold text-green-900">
-                        Token Used Successfully
+                        Token Berhasil Digunakan
                       </span>
                     </div>
                     <p className="text-sm text-green-800">
-                      Your test analysis is complete. Remaining tokens: {token}
+                      Analisis tes Anda telah selesai. Sisa token: {token}
                     </p>
                   </div>
 
                   <div className="text-center space-y-4">
                     <p className="text-gray-600">
-                      Would you like to secure your results with biometric
-                      verification?
+                      Apakah Anda ingin mengamankan hasil dengan verifikasi
+                      biometrik?
                     </p>
 
                     <div className="space-y-3">
@@ -286,19 +283,19 @@ export const CognitiveTest: React.FC = () => {
                         className="w-full"
                         size="lg"
                       >
-                        Scan
+                        Pindai
                       </Button>
                     </div>
                   </div>
 
                   <div className="text-xs text-gray-500 text-center">
                     <p>
-                      • Fingerprint data is securely processed and not stored as
-                      images
+                      • Data sidik jari diproses dengan aman dan tidak disimpan
+                      sebagai gambar
                     </p>
                     <p>
-                      • Only a unique identifier is saved for verification
-                      purposes
+                      • Hanya pengenal unik yang disimpan untuk tujuan
+                      verifikasi
                     </p>
                   </div>
                 </CardContent>
@@ -311,11 +308,9 @@ export const CognitiveTest: React.FC = () => {
             <Card className="top-4 bg-white">
               <CardHeader className="text-center pb-4">
                 <ShoppingCart className="h-12 w-12 text-green-600 mx-auto mb-2" />
-                <h2 className="text-xl font-bold text-gray-900">
-                  Purchase Tokens
-                </h2>
+                <h2 className="text-xl font-bold text-gray-900">Beli Token</h2>
                 <p className="text-sm text-gray-600">
-                  Choose a package that fits your needs
+                  Pilih paket yang sesuai dengan kebutuhan Anda
                 </p>
               </CardHeader>
 
@@ -326,14 +321,14 @@ export const CognitiveTest: React.FC = () => {
                   <div className="flex items-center space-x-2 mb-2">
                     <AlertCircle className="h-4 w-4 text-blue-500" />
                     <h4 className="font-medium text-blue-900 text-sm">
-                      Why buy tokens?
+                      Mengapa beli token?
                     </h4>
                   </div>
                   <ul className="text-xs text-blue-800 space-y-1">
-                    <li>• Take multiple tests anytime</li>
-                    <li>• No expiration date</li>
-                    <li>• Better value with bundles</li>
-                    <li>• Instant activation</li>
+                    <li>• Ambil beberapa tes kapan saja</li>
+                    <li>• Tidak ada tanggal kedaluwarsa</li>
+                    <li>• Nilai lebih baik dengan paket bundel</li>
+                    <li>• Aktivasi instan</li>
                   </ul>
                 </div>
               </CardContent>

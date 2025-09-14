@@ -7,9 +7,6 @@ interface WithdrawRequestAttributes {
   affiliateId: number; // referensi ke User dengan role affiliator
   amount: number; // jumlah yang diminta untuk di-withdraw
   status: 'pending' | 'approved' | 'rejected' | 'processed' | 'processing' | 'completed' | 'failed'; // status permintaan
-  bankName?: string | null; // nama bank untuk transfer
-  accountNumber?: string | null; // nomor rekening
-  accountName?: string | null; // nama pemilik rekening
   notes?: string | null; // catatan dari admin atau affiliator
   processedAt?: Date | null; // tanggal diproses
   processedBy?: number | null; // admin yang memproses
@@ -25,7 +22,7 @@ interface WithdrawRequestAttributes {
 }
 
 interface WithdrawRequestCreationAttributes
-  extends Optional<WithdrawRequestAttributes, 'id' | 'status' | 'bankName' | 'accountNumber' | 'accountName' | 'notes' | 'processedAt' | 'processedBy' | 'rejectionReason' | 'payoutId' | 'payoutStatus' | 'failureReason' | 'createdAt' | 'updatedAt'> {}
+  extends Optional<WithdrawRequestAttributes, 'id' | 'status' | 'notes' | 'processedAt' | 'processedBy' | 'rejectionReason' | 'payoutId' | 'payoutStatus' | 'failureReason' | 'createdAt' | 'updatedAt'> {}
 
 class WithdrawRequest
   extends Model<WithdrawRequestAttributes, WithdrawRequestCreationAttributes>
@@ -34,9 +31,6 @@ class WithdrawRequest
   public affiliateId!: number;
   public amount!: number;
   public status!: 'pending' | 'approved' | 'rejected' | 'processed' | 'processing' | 'completed' | 'failed';
-  public bankName?: string | null;
-  public accountNumber?: string | null;
-  public accountName?: string | null;
   public notes?: string | null;
   public processedAt?: Date | null;
   public processedBy?: number | null;
@@ -101,18 +95,6 @@ WithdrawRequest.init(
       type: DataTypes.ENUM('pending', 'approved', 'rejected', 'processed', 'processing', 'completed', 'failed'),
       allowNull: false,
       defaultValue: 'pending',
-    },
-    bankName: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    accountNumber: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    accountName: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
     notes: {
       type: DataTypes.TEXT,

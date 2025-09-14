@@ -5,6 +5,7 @@ import { LandingLayout } from './layouts/LandingLayout';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
+import PublicRoute from './components/PublicRoute';
 import { CognitiveTest } from './pages/Test/CognitiveTest';
 import { TestResult } from './pages/Test/TestResult';
 import Contact from './pages/Contact';
@@ -26,6 +27,12 @@ import AffiliatorDashboardLayout from './layouts/affiliator/AffiliatorDashboardL
 import AffiliateWithdrawPage from './pages/Affiliator/AffiliateWithdrawPage';
 import AdminWithdrawManagement from './pages/Admin/ManageWithdraw';
 import ThinkingStylesManagement from './pages/Admin/ManageThinkingStyle';
+import ThinkingStyleDetailPage from './pages/Test/ThinkingStyleDetailPage';
+import EditDetailThinkingStylePage from './pages/Admin/EditDetailThinkingStylePage';
+import { AffiliatorLanding } from './pages/AffiliatorLanding';
+import { AffiliatorLandingLayout } from './layouts/AffiliatorLandingLayout';
+import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
+// import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ 
@@ -47,25 +54,31 @@ const ProtectedRoute: React.FC<{
   }
 
   if (requiredRole && user.role !== requiredRole) {
-    // Redirect based on user role
-    if (user.role === 'super_admin') {
-      return <Navigate to="/admin/dashboard" replace />;
-    } else if (user.role === 'affiliator') {
-      return <Navigate to="/affiliator/dashboard" replace />;
-    } else {
-      return <Navigate to="/user/dashboard" replace />;
+    // Redirect based on user role to their appropriate dashboard
+    switch (user.role) {
+      case 'super_admin':
+        return <Navigate to="/admin/dashboard" replace />;
+      case 'affiliator':
+        return <Navigate to="/affiliator/dashboard" replace />;
+      case 'user':
+        return <Navigate to="/customer/dashboard" replace />;
+      default:
+        return <Navigate to="/login" replace />;
     }
   }
 
   return <>{children}</>;
 };
 
-function AppContent() {
+function AppRoutes() {
   return (
-    <Router>
-      <Routes>
-        {/* Landing layout routes */}
-        <Route path="/" element={<LandingLayout />}>
+    <Routes>
+        {/* Landing layout routes - hanya untuk user yang belum login */}
+        <Route path="/" element={
+          <PublicRoute>
+            <LandingLayout />
+          </PublicRoute>
+        }>
           <Route index element={<Landing />} />
           <Route path="kontak" element={<Contact />} />
           <Route path="faq" element={<Faq />} />
@@ -74,9 +87,30 @@ function AppContent() {
           <Route path="payment-success" element={<PaymentSuccess />} />
         </Route>
 
-        {/* Auth */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/affiliator" element={
+          <PublicRoute>
+            <AffiliatorLandingLayout />
+          </PublicRoute>
+        } >
+          <Route index element={<AffiliatorLanding />} />
+          </Route>
+
+        {/* Auth - hanya untuk user yang belum login */}
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+        <Route path="/register" element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } />
+        <Route path="/affiliator/register" element={
+          <PublicRoute>
+            <AffiliatorRegister />
+          </PublicRoute>
+        } />
 
         {/* Dashboard layout untuk semua role
         <Route element={<DashboardLayout />}>
@@ -123,6 +157,7 @@ function AppContent() {
           <Route path="affiliator" element={<AffiliatorDashboard/>}/>
           <Route path='withdraw' element={<AdminWithdrawManagement/>} />
           <Route path='thinking-style' element={<ThinkingStylesManagement/>} />
+          <Route path='thinking-style/edit/:id' element={<EditDetailThinkingStylePage/>} />
         </Route>
 
         <Route
@@ -141,7 +176,7 @@ function AppContent() {
         {/* Test */}
         <Route path="test" element={<CognitiveTest />} />
         <Route path="test/result" element={<TestResult />} />
-        {/* <Route path="history" element={<TestHistory />} /> */}
+       
         </Route>
 
         <Route path='affiliator/dashboard/*' element={
@@ -154,16 +189,19 @@ function AppContent() {
            <Route path='withdraw' element={<AffiliateWithdrawPage/>} />
         </Route>
 
-      </Routes>
-    </Router>
+        <Route path="/thinking-style/:id" element={<ThinkingStyleDetailPage />} />
+
+    </Routes>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
   );
 }
 

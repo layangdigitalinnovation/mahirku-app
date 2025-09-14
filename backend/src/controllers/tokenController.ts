@@ -2,6 +2,7 @@ import { Response } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/User";
 import { AuthRequest } from "../middlewares/authMiddleware";
+import { getReferralFromCookie } from "../middlewares/referralMiddleware";
 
 export const purchaseToken = async (
   req: AuthRequest,
@@ -14,7 +15,7 @@ export const purchaseToken = async (
   }
 
   try {
-    const { packageId, voucherCode, referralCode } = req.body;
+    const { packageId, voucherCode } = req.body;
 
     // Validasi input
     if (!packageId || typeof packageId !== "number") {
@@ -24,6 +25,10 @@ export const purchaseToken = async (
       return;
     }
 
+    // Ambil referralCode dari cookie
+    const referralCode = getReferralFromCookie(req);
+    console.log('Referral code from cookie in purchaseToken:', referralCode);
+
     // Panggil endpoint pembayaran Xendit via axios (loopback HTTP call)
     const axios = require("axios");
     const paymentRes = await axios.post(
@@ -32,7 +37,9 @@ export const purchaseToken = async (
       {
         headers: {
           Authorization: req.headers.authorization || "",
+          Cookie: req.headers.cookie || "", // Teruskan cookies
         },
+        withCredentials: true, // Penting untuk cookies
       }
     );
 

@@ -1,7 +1,11 @@
-import { useVouchers, useDeleteVoucher, useCreateVoucher } from "@/hooks/useVouchers";
+import {
+  useVouchers,
+  useDeleteVoucher,
+  useCreateVoucher,
+} from "@/hooks/useVouchers";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
   Dialog,
@@ -37,9 +41,7 @@ export default function ManageVouchers() {
   }
 
   if (isError) {
-    return (
-     <ErrorFetch error={error} />
-    );
+    return <ErrorFetch error={error} />;
   }
 
   return (
@@ -66,48 +68,92 @@ export default function ManageVouchers() {
         </Dialog>
       </div>
 
-      {(!data || data.length === 0) ? (
+      {!data || data.length === 0 ? (
         <div className="text-center text-gray-500 py-10">
           No vouchers found.
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {data.map((voucher: any) => (
-            <Card key={voucher.id} className="flex flex-col justify-between font-body bg-secondary-200!">
-              <CardHeader>
-                <h1 className="text-heading5 font-heading font-bold">{voucher.code}</h1>
-              </CardHeader>
+            <div key={voucher.id} className="relative">
+              {/* Voucher Card */}
+              <div className="bg-gradient-to-r shadow-lg">
+                <div className="bg-white rounded-lg p-6 relative overflow-hidden">
+                  {/* Decorative circles */}
+                  <div className="absolute -top-4 -left-4 w-8 h-8 bg-purple-500 rounded-full opacity-20"></div>
+                  <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-pink-500 rounded-full opacity-20"></div>
 
-              <CardContent className="space-y-1">
-                <p className="text-sm text-muted-foreground">
-                  Type: <span className="font-medium">{voucher.type}</span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Value:{" "}
-                  {voucher.type === "percentage"
-                    ? `${voucher.value}%`
-                    : formatCurrency(voucher.value)}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Status: {voucher.isActive ? "Active" : "Inactive"}
-                </p>
-              </CardContent>
+                  {/* Voucher Header */}
+                  <div className="text-center mb-4">
+                    <div className="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-2">
+                      VOUCHER
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 tracking-wider">
+                      {voucher.code}
+                    </h2>
+                  </div>
 
-              <CardFooter className="flex justify-between">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  disabled={deletingId === voucher.id}
-                  onClick={async () => {
-                    setDeletingId(voucher.id);
-                    await deleteVoucher.mutateAsync(voucher.id);
-                    setDeletingId(null);
-                  }}
-                >
-                  {deletingId === voucher.id ? "Deleting..." : "Delete"}
-                </Button>
-              </CardFooter>
-            </Card>
+                  {/* Voucher Value */}
+                  <div className="text-center mb-4">
+                    <div className="text-3xl font-bold text-purple-600">
+                      {voucher.type === "percentage"
+                        ? `${voucher.value}%`
+                        : formatCurrency(voucher.value)}
+                    </div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wide">
+                      {voucher.type === "percentage"
+                        ? "DISCOUNT"
+                        : "CASH VALUE"}
+                    </div>
+                  </div>
+
+                  {/* Voucher Details */}
+                  <div className="border-t border-dashed border-gray-300 pt-4 mb-4">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Type:</span>
+                      <span className="font-medium capitalize">
+                        {voucher.type}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm mt-2">
+                      <span className="text-gray-600">Status:</span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          voucher.isActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {voucher.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="text-center">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={deletingId === voucher.id}
+                      onClick={async () => {
+                        setDeletingId(voucher.id);
+                        await deleteVoucher.mutateAsync(voucher.id);
+                        setDeletingId(null);
+                      }}
+                      className="w-full"
+                    >
+                      {deletingId === voucher.id
+                        ? "Menghapus..."
+                        : "Hapus Voucher"}
+                    </Button>
+                  </div>
+
+                  {/* Perforated edge effect */}
+                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-100 rounded-full"></div>
+                  <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-gray-100 rounded-full"></div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}

@@ -1,9 +1,9 @@
 // hooks/useSectionObserver.ts
 import { useEffect } from "react";
 import { useActiveSection } from "@/context/ActiveSectionContext";
-import type { SectionName } from "@/types";
+import type { AffiliatorSectionName, SectionName } from "@/types";
 
-export const useSectionObserver = (ids: SectionName[]) => {
+export const useSectionObserver = (ids: SectionName[] | AffiliatorSectionName[]) => {
   const { setActive } = useActiveSection();
 
   useEffect(() => {

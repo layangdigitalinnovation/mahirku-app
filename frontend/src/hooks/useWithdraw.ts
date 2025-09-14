@@ -26,15 +26,14 @@ export const useGetAllWithdrawRequests = (params?: {
   return useQuery({
     queryKey: ['withdraw-requests', params],
     queryFn: () => getAllWithdrawRequests(params),
-    staleTime: 30000, // 30 seconds
+      refetchInterval: 5000, // 30 seconds
   });
 };
 
 export const useGetWithdrawStatistics = () => {
   return useQuery({
     queryKey: ['withdraw-statistics'],
-    queryFn: getWithdrawStatistics,
-    staleTime: 60000, // 1 minute
+    queryFn: getWithdrawStatistics, // 1 minute
   });
 };
 

@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import AffiliateCommission from '../models/AffiliateCommission';
-import AffiliateBalance from '../models/AffiliateBalance';
 import WithdrawRequest from '../models/WithdrawRequest';
 import User from '../models/User';
 import { AuthRequest } from '../middlewares/authMiddleware';

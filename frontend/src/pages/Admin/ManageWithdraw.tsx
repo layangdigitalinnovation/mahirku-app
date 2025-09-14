@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   Clock, 
   DollarSign, 
   TrendingUp, 
-  Users,
-  Download
+  X
 } from 'lucide-react';
 import { DataTable } from '@/components/table/DataTable';
 import { createWithdrawColumns } from '@/components/table/columns/withdrawColumn';
 import {
   useGetAllWithdrawRequests,
-  useGetWithdrawStatistics,
   useApproveWithdrawRequest,
   useRejectWithdrawRequest,
   useMarkAsProcessed
@@ -20,7 +18,6 @@ import { WithdrawRequest } from '@/services/api/withdraw';
 const AdminWithdrawManagement = () => {
   // Backend hooks
   const { data: withdrawRequests = [], isLoading } = useGetAllWithdrawRequests();
-  const { data: statistics } = useGetWithdrawStatistics();
   const approveWithdrawMutation = useApproveWithdrawRequest();
   const rejectWithdrawMutation = useRejectWithdrawRequest();
   const markAsProcessedMutation = useMarkAsProcessed();
@@ -58,11 +55,11 @@ const AdminWithdrawManagement = () => {
   const handleConfirmApprove = () => {
     if (currentRequest) {
       approveWithdrawMutation.mutate(
-        { id: currentRequest.id, notes: actionNote },
+        { id: currentRequest.id, payload: { notes } },
         {
           onSuccess: () => {
             setShowModal(false);
-            setActionNote('');
+            setNotes('');
             setCurrentRequest(null);
           }
         }
@@ -73,7 +70,7 @@ const AdminWithdrawManagement = () => {
   const handleConfirmReject = () => {
     if (currentRequest) {
       rejectWithdrawMutation.mutate(
-        { id: currentRequest.id, reason: rejectionReason },
+        { id: currentRequest.id, payload : { rejectionReason } },
         {
           onSuccess: () => {
             setShowModal(false);
@@ -92,13 +89,7 @@ const AdminWithdrawManagement = () => {
     setNotes('');
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+
 
   // Create columns for DataTable
   const columns = createWithdrawColumns({
@@ -115,8 +106,8 @@ const AdminWithdrawManagement = () => {
       <div className=" mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Withdraw Management</h1>
-          <p className="text-gray-600">Manage affiliate withdrawal requests</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Manajemen Penarikan</h1>
+          <p className="text-gray-600">Kelola permintaan penarikan afiliasi</p>
         </div>
 
         {/* Statistics Cards */}
@@ -124,9 +115,9 @@ const AdminWithdrawManagement = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Processed</p>
+                <p className="text-sm font-medium text-gray-600">Total withdraw berhasil</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {statistics ? formatCurrency(statistics.totalProcessedAmount || 0) : formatCurrency(0)}
+                  {withdrawRequests && withdrawRequests.filter((request : any) => request.status === 'completed').length}
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
@@ -138,9 +129,9 @@ const AdminWithdrawManagement = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Pending Amount</p>
+                <p className="text-sm font-medium text-gray-600">Jumlah Tertunda</p>
                 <p className="text-2xl font-bold text-yellow-600">
-                  {statistics ? formatCurrency(statistics.totalPendingAmount || 0) : formatCurrency(0)}
+                  {withdrawRequests && withdrawRequests.filter((request : any) => request.status === 'pending').length}
                 </p>
               </div>
               <div className="bg-yellow-100 p-3 rounded-lg">
@@ -152,27 +143,13 @@ const AdminWithdrawManagement = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Requests</p>
+                <p className="text-sm font-medium text-gray-600">Total Permintaan</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {statistics ? statistics.totalRequests || 0 : 0}
+                  {withdrawRequests && withdrawRequests.length}
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <TrendingUp className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Pending Requests</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {statistics ? statistics.totalPendingRequests || 0 : 0}
-                </p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </div>
@@ -182,7 +159,7 @@ const AdminWithdrawManagement = () => {
         <div className="bg-white rounded-xl shadow-sm">
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Withdraw Requests</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Permintaan Penarikan</h2>
             </div>
           </div>
           
@@ -190,7 +167,6 @@ const AdminWithdrawManagement = () => {
             <DataTable
               columns={columns}
               data={withdrawRequests}
-              searchKey="affiliate.fullname"
               title=""
               description=""
               showPagination={true}
@@ -207,9 +183,9 @@ const AdminWithdrawManagement = () => {
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {modalType === 'view' && 'Request Details'}
-                  {modalType === 'approve' && 'Approve Request'}
-                  {modalType === 'reject' && 'Reject Request'}
+                  {modalType === 'view' && 'Detail Permintaan'}
+                  {modalType === 'approve' && 'Setujui Permintaan'}
+                  {modalType === 'reject' && 'Tolak Permintaan'}
                 </h3>
                 <button
                   onClick={closeModal}
@@ -225,7 +201,7 @@ const AdminWithdrawManagement = () => {
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="font-medium text-gray-500">Request ID:</span>
+                          <span className="font-medium text-gray-500">ID Permintaan:</span>
                           <p className="text-gray-900">#{currentRequest.id}</p>
                         </div>
                         <div>
@@ -242,33 +218,33 @@ const AdminWithdrawManagement = () => {
                           </div>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-500">Amount:</span>
+                          <span className="font-medium text-gray-500">Jumlah:</span>
                           <p className="text-gray-900 font-semibold">Rp {currentRequest.amount.toLocaleString('id-ID')}</p>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-500">Date:</span>
+                          <span className="font-medium text-gray-500">Tanggal:</span>
                           <p className="text-gray-900">{new Date(currentRequest.createdAt).toLocaleDateString('id-ID')}</p>
                         </div>
                         <div className="col-span-2">
-                          <span className="font-medium text-gray-500">Affiliate:</span>
+                          <span className="font-medium text-gray-500">Afiliasi:</span>
                           <p className="text-gray-900">{currentRequest.affiliate.fullname}</p>
                           <p className="text-gray-500 text-sm">{currentRequest.affiliate.email}</p>
                         </div>
                         <div className="col-span-2">
-                          <span className="font-medium text-gray-500">Bank Details:</span>
-                          <p className="text-gray-900">{currentRequest.bankName}</p>
-                          <p className="text-gray-900">{currentRequest.accountNumber}</p>
-                          <p className="text-gray-900">{currentRequest.accountName}</p>
+                          <span className="font-medium text-gray-500">Detail Bank:</span>
+                          <p className="text-gray-900">{currentRequest.affiliate.bankName}</p>
+                          <p className="text-gray-900">{currentRequest.affiliate.bankAccountNumber}</p>
+                          <p className="text-gray-900">{currentRequest.affiliate.bankAccountName}</p>
                         </div>
                         {currentRequest.notes && (
                           <div className="col-span-2">
-                            <span className="font-medium text-gray-500">Notes:</span>
+                            <span className="font-medium text-gray-500">Catatan:</span>
                             <p className="text-gray-900">{currentRequest.notes}</p>
                           </div>
                         )}
                         {currentRequest.rejectionReason && (
                           <div className="col-span-2">
-                            <span className="font-medium text-gray-500">Rejection Reason:</span>
+                            <span className="font-medium text-gray-500">Alasan Penolakan:</span>
                             <p className="text-red-600">{currentRequest.rejectionReason}</p>
                           </div>
                         )}
@@ -279,14 +255,14 @@ const AdminWithdrawManagement = () => {
                   {modalType === 'approve' && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Notes (Optional)
+                        Catatan (Opsional)
                       </label>
                       <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Add notes for this approval..."
+                        placeholder="Tambahkan catatan untuk persetujuan ini..."
                       />
                     </div>
                   )}
@@ -294,14 +270,14 @@ const AdminWithdrawManagement = () => {
                   {modalType === 'reject' && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Rejection Reason *
+                        Alasan Penolakan *
                       </label>
                       <textarea
                         value={rejectionReason}
                         onChange={(e) => setRejectionReason(e.target.value)}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Please provide a reason for rejection..."
+                        placeholder="Silakan berikan alasan penolakan..."
                         required
                       />
                     </div>
@@ -313,29 +289,21 @@ const AdminWithdrawManagement = () => {
               <div className="flex gap-3 mt-6">
                 {modalType === 'approve' && (
                   <button
-                    onClick={() => {
-                      if (currentRequest) {
-                        handleApprove(currentRequest.id, notes);
-                      }
-                    }}
+                    onClick={handleConfirmApprove}
                     disabled={approveWithdrawMutation.isPending}
                     className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
                   >
-                    {approveWithdrawMutation.isPending ? 'Approving...' : 'Approve Request'}
+                    {approveWithdrawMutation.isPending ? 'Menyetujui...' : 'Setujui Permintaan'}
                   </button>
                 )}
                 
                 {modalType === 'reject' && (
                   <button
-                    onClick={() => {
-                      if (currentRequest && rejectionReason.trim()) {
-                        handleReject(currentRequest.id, rejectionReason);
-                      }
-                    }}
+                    onClick={handleConfirmReject}
                     disabled={rejectWithdrawMutation.isPending || !rejectionReason.trim()}
                     className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
                   >
-                    {rejectWithdrawMutation.isPending ? 'Rejecting...' : 'Reject Request'}
+                    {rejectWithdrawMutation.isPending ? 'Menolak...' : 'Tolak Permintaan'}
                   </button>
                 )}
                 
@@ -343,7 +311,7 @@ const AdminWithdrawManagement = () => {
                   onClick={closeModal}
                   className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
                 >
-                  {modalType === 'view' ? 'Close' : 'Cancel'}
+                  {modalType === 'view' ? 'Tutup' : 'Batal'}
                 </button>
               </div>
             </div>

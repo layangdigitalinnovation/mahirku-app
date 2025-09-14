@@ -4,17 +4,18 @@ import axios from 'axios';
 const api = axios.create({
   baseURL:
     import.meta.env.MODE === 'production'
-      ? 'https://mahirku-production.up.railway.app/api'
+      ? import.meta.env.VITE_API_URL
       : 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // PENTING: Untuk mengirim cookies
 });
 
 // Interceptor request: inject token otomatis
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('neuroscan-token');
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,7 +31,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Unauthorized, bisa redirect ke login atau hapus token
       console.warn('Unauthorized, redirecting to login...');
-      localStorage.removeItem('neuroscan-token');// Atau gunakan navigate() jika di React component
+      localStorage.removeItem('token');// Atau gunakan navigate() jika di React component
     }
 
     // Tambahkan log error lainnya jika perlu

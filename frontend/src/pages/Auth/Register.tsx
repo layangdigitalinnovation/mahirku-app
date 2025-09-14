@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { UserPlus, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
-import { getReferralId } from "@/utils/referral";
+// import { getReferralId } from "@/utils/referral"; // Tidak diperlukan lagi karena backend menggunakan cookie
 import { AuthLayout } from "@/layouts/AuthLayout";
 
 const formSchema = z
@@ -26,7 +26,9 @@ const formSchema = z
     address: z.string().min(5, "Alamat wajib diisi"),
     email: z.string().email("Email tidak valid"),
     password: z.string().min(6, "Password minimal 6 karakter"),
-    confirmPassword: z.string().min(6, "Konfirmasi password minimal 6 karakter"),
+    confirmPassword: z
+      .string()
+      .min(6, "Konfirmasi password minimal 6 karakter"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Kata sandi dan konfirmasi tidak cocok",
@@ -36,7 +38,6 @@ const formSchema = z
 type RegisterForm = z.infer<typeof formSchema>;
 
 export const Register: React.FC = () => {
-  const navigate = useNavigate();
   const { register: registerUser } = useAuth();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -58,16 +59,15 @@ export const Register: React.FC = () => {
   const onSubmit = async (values: RegisterForm) => {
     setError("");
     try {
-      const referrerId = getReferralId();
-
-      await registerUser(values.email, values.password, "user", referrerId, {
+      // Tidak perlu ambil referrerId karena backend akan ambil dari cookie
+      await registerUser(values.email, values.password, "user", null, {
         username: values.username,
         fullname: values.fullname,
         address: values.address,
         phoneNumber: values.phoneNumber,
       });
 
-      navigate("/customer/dashboard");
+      // AuthProvider akan otomatis redirect ke dashboard yang sesuai
     } catch (err: any) {
       setError(err.message || "Pendaftaran gagal. Silakan coba lagi.");
     }
@@ -157,7 +157,11 @@ export const Register: React.FC = () => {
                 <FormItem className="sm:col-span-2">
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="you@example.com" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="anda@contoh.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -234,7 +238,9 @@ export const Register: React.FC = () => {
               disabled={form.formState.isSubmitting}
             >
               <UserPlus className="w-5 h-5 mr-2" />
-              {form.formState.isSubmitting ? "Mendaftarkan..." : "Daftar Sekarang"}
+              {form.formState.isSubmitting
+                ? "Mendaftarkan..."
+                : "Daftar Sekarang"}
             </Button>
           </form>
         </Form>

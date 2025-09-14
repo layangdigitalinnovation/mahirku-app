@@ -6,6 +6,7 @@ import {
   Sparkles,
   PlusCircle
 } from 'lucide-react';
+import { ThinkingStyleResult } from '@/services/api';
 
 // Card components defined inline
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -21,25 +22,11 @@ const CardContent = ({ children, className = "" }: { children: React.ReactNode; 
   </div>
 );
 
-interface TestResult {
-  id: number;
-  userId: number;
-  fullname: string;
-  birthdate: string;
-  resultDigit: number;
-  resultType: string;
-  resultCode: string;
-  description: string;
-  theory: string;
-  fingerprintId: string;
-  referrerId: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
+
 
 interface DashboardQuickActionsProps {
   user?: { fullname: string; email?: string; };
-  results: TestResult[];
+  results: ThinkingStyleResult[];
 }
 
 export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ user, results }) => {
