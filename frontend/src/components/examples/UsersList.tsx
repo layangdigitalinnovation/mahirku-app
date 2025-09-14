@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useUsers, useCreateUser } from '../../hooks/useUsers';
 import { CreateUserPayload } from '../../services/api/types';

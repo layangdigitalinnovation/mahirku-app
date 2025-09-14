@@ -10,7 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +41,7 @@ const formSchema = z
 type AffiliatorRegisterForm = z.infer<typeof formSchema>;
 
 export const AffiliatorRegister: React.FC = () => {
-  const { affiliatorRegister : registerAffiliator } = useAuth();
+  const { affiliatorRegister: registerAffiliator } = useAuth();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -66,7 +66,7 @@ export const AffiliatorRegister: React.FC = () => {
     setError("");
     try {
       // Tidak perlu ambil referrerId karena backend akan ambil dari cookie
-      await registerAffiliator(values.email, values.password,  {
+      await registerAffiliator(values.email, values.password, {
         username: values.username,
         fullname: values.fullname,
         address: values.address,
@@ -85,7 +85,6 @@ export const AffiliatorRegister: React.FC = () => {
   return (
     <AuthLayout title="Daftar Akun Affiliator">
       <div className="relative w-full max-w-xl p-2 bg-white/80">
-
         {error && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 text-sm">
             {error}
@@ -281,11 +280,7 @@ export const AffiliatorRegister: React.FC = () => {
                   <FormLabel>Nama Bank</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Input
-                        type="text"
-                        placeholder="Nama bank"
-                        {...field}
-                      />
+                      <Input type="text" placeholder="Nama bank" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
