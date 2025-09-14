@@ -4,7 +4,7 @@ import axios from 'axios';
 const api = axios.create({
   baseURL:
     import.meta.env.MODE === 'production'
-      ? 'https://mahirku-production.up.railway.app/api'
+      ? import.meta.env.VITE_API_URL
       : 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',

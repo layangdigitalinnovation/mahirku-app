@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/mydb
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=mahirku
+      - PORT=5000
+      - DB_HOST=localhost
+      - JWT_SECRET=675ffe2d468fece7fa614e942b65c44611e63993de0789fe5249c9344cea833698d404b2b957c6fbe54fc88d3c46c52e957be30d98d822533045dde5df0452f5
+      - XENDIT_API_KEY=xnd_development_7fdg8SoKlaSaV0LJeeXeyMaBQ1u1LBnk2cBiPGL8sTBuySaouYvg77A9I742R
+      - XENDIT_PUBLIC_KEY=xnd_public_development_WUeKcEE3PXFnnsorGep2EQPoZaVoK4gvJxWX1cpTs4qQIKRicoMEj8wHP9OmFTU
+      - XENDIT_API_KEY=xnd_development_7fdg8SoKlaSaV0LJeeXeyMaBQ1u1LBnk2cBiPGL8sTBuySaouYvg77A9I742R
+      - XENDIT_PUBLIC_KEY=xnd_public_development_WUeKcEE3PXFnnsorGep2EQPoZaVoK4gvJxWX1cpTs4qQIKRicoMEj8wHP9OmFTU
+      - XENDIT_BASE_URL=https://api.xendit.co   # URL API Xendit
+      - XENDIT_CALLBACK_URL=http://localhost:5000/api/payment/callback
+      - XENDIT_SUCCESS_REDIRECT_URL=http://localhost:5173/payment-success
+      - XENDIT_FAILURE_REDIRECT_URL=http://localhost:5173/payment-failed
+      - XENDIT_CALLBACK_TOKEN=nmjnE1accOVHE8xSQxJzxqd7exxCxnsTvydKtiv6ArRgQfAZ
+    depends_on:
+      - db
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
