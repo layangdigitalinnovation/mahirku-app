@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {  registerUser, registerAffiliator, getMe } from '../services/api'; 
-  import { CreateUserPayload, LoginPayload } from '../services/api/types';
+  import { AffiliatorRegisterPayload, CreateUserPayload, LoginPayload } from '../services/api/types';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthProvider';
 
@@ -43,7 +43,7 @@ export const useRegisterAffiliator = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (userData: CreateUserPayload) => registerAffiliator(userData),
+    mutationFn: (userData: AffiliatorRegisterPayload) => registerAffiliator(userData),
     onSuccess: () => {
       // Invalidate dan refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });

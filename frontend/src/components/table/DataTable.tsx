@@ -18,7 +18,7 @@ import {
   PaginationLink,
   PaginationPrevious,
   PaginationNext,
-  PaginationEllipsis,
+  // PaginationEllipsis,
 } from "../ui/pagination";
 
 interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {

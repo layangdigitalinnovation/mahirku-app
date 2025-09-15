@@ -1,4 +1,10 @@
 #!/bin/sh
+set -e
+
+if [ -f ./wait-for-it.sh ]; then
+  echo "Waiting for Postgres to be ready..."
+  ./wait-for-it.sh db:5432 --timeout=30 --strict -- echo "✅ Postgres is up!"
+fi
 
 # Run database migrations if needed
 if [ "$RUN_MIGRATIONS" = "true" ]; then
@@ -12,5 +18,6 @@ if [ "$RUN_MIGRATIONS" = "true" ]; then
   fi
 fi
 
-# Start the application
-exec "$@"
+# Jalankan backend
+echo "Starting backend..."
+exec npm run start:prod
