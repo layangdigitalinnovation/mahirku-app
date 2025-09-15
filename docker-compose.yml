@@ -3,15 +3,13 @@ version: "3.9"
 services:
   frontend:
     build: ./frontend
-    ports:
-      - "3000:80"
     depends_on:
       - backend
+    networks:
+      - app-network
 
   backend:
     build: ./backend
-    ports:
-      - "5000:5000"
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/mahirku
       - DB_USER=postgres
@@ -31,6 +29,8 @@ services:
       - RUN_SEEDS=true
     depends_on:
       - db
+    networks:
+      - app-network
   db:
     image: postgres:15-alpine
     restart: always
@@ -40,5 +40,10 @@ services:
       POSTGRES_DB: mahirku
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
 volumes:
   pgdata:
+
+networks:
+  app-network:
