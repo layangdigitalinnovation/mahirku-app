@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Mail, Phone, MapPin, EditIcon, DeleteIcon, Trash, SendHorizontal } from "lucide-react";
+import { Mail, Phone, MapPin, Trash, SendHorizontal } from "lucide-react";
 import ActionColumn from "../ActionColumn";
 import z from "zod";
 
@@ -23,6 +23,7 @@ export type ChildUser = {
 
 
 export const getColumns = ( onTransferToken: ({childUserId, tokenAmount}: {childUserId: number, tokenAmount: number}) => void,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _onDelete: (userId: number) => void) : ColumnDef<ChildUser>[] => [
   {
     accessorKey: "fullname",

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/services/api/users.ts
 import api from '../../utils/axios';
 import { CreateUserPayload } from './types';
@@ -7,8 +8,8 @@ export const getAllUsers = async () => {
   try {
     const response = await api.get('/users');
     return response.data;
-  } catch (error) {
-    throw new Error('Failed to fetch users');
+  } catch (e : any) {
+    throw new Error(e.response?.data?.message || 'Failed to fetch users');
   }
 };
 
@@ -17,7 +18,7 @@ export const createUser = async (payload: CreateUserPayload) => {
   try {
     const response = await api.post('/users/add', payload);
     return response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Failed to create user');
+  } catch (e : any) {
+    throw new Error(e.response?.data?.message || 'Failed to create user');
   }
 };

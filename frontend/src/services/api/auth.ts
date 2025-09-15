@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/services/api/auth.ts
 import api from '../../utils/axios';
 import { AffiliatorRegisterPayload, CreateUserPayload, LoginPayload } from './types';
@@ -27,7 +28,8 @@ export const login = async (payload: LoginPayload) => {
   try {
     const response = await api.post('/auth/login', payload);
 
-    const { password, ...res } = response.data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _password, ...res } = response.data;
     return res;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Login failed');

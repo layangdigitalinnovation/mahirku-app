@@ -1,8 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { User } from '../types';// gunakan axios instance yang sudah dibuat
 import {  login, registerUser } from '../services/api';
-import { string } from 'zod';
 
 interface AuthContextType {
   user: User | null;
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     email: string,
     password: string,
     role: 'user' | 'affiliator',
-    referrerId?: string | null, // Parameter ini tetap ada untuk backward compatibility tapi tidak digunakan
+    _referrerId?: string | null, // Parameter ini tetap ada untuk backward compatibility tapi tidak digunakan
     details?: {
       username: string; 
       fullname: string;
