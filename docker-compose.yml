@@ -3,10 +3,8 @@ version: "3.9"
 services:
   frontend:
     build: ./frontend
-    environment:
-      - VITE_API_URL=http://backend:5000/api
     ports:
-      - "3000:80"
+      - "80:80"
     depends_on:
       - backend
 
@@ -29,6 +27,8 @@ services:
       - XENDIT_SUCCESS_REDIRECT_URL=http://frontend:3000/payment-success
       - XENDIT_FAILURE_REDIRECT_URL=http://frontend:3000/payment-failed
       - XENDIT_CALLBACK_TOKEN=yyI0FqtmZBd1yczzKHZ0dzF2bwfzabmq8cx2N03KwiqJHgox
+      - RUN_MIGRATIONS=true
+      - RUN_SEEDS=true
     depends_on:
       - db
   db:

@@ -131,7 +131,7 @@ export const Landing: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {!isLoading &&
+            {!isLoading && testPackages?.length > 0 &&
               testPackages.map((pkg: PackagePayload, index: number) => (
                 <Card
                   key={index}

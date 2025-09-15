@@ -2,26 +2,21 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files first for better caching
+# Copy package.json & install deps
 COPY package*.json ./
-
-# Install all dependencies including devDependencies for TypeScript compilation
 RUN npm install
 
-# Copy the rest of the application code
+# Copy source code
 COPY . .
 
-# Compile TypeScript to JavaScript
+# Compile TypeScript
 RUN npm run build
 
-# Expose the port the app runs on
+# Install bash + convert line endings + chmod
+RUN apk add --no-cache bash dos2unix \
+    && dos2unix docker-entrypoint.sh \
+    && chmod +x docker-entrypoint.sh
+
 EXPOSE 5000
 
-# Make entrypoint script executable
-RUN chmod +x ./docker-entrypoint.sh
-
-# Set entrypoint script
-ENTRYPOINT ["./docker-entrypoint.sh"]
-
-# Start the application
-CMD ["npm", "run", "start:prod"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
