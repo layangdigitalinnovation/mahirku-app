@@ -10,6 +10,8 @@ services:
 
   backend:
     build: ./backend
+    ports:
+      - "5000:5000"
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/mahirku
       - DB_USER=postgres
