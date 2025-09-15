@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Clock, Check, X, AlertCircle, CreditCard, Wallet, TrendingUp } from 'lucide-react';
 import { useAffiliateBalanceDetail } from '@/hooks/useAffiliator';

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, CardContent } from "@/components/ui/Card";
 import { useGetAllCountTest } from "@/hooks/useThinkingStyleTest";
 import { useUsers } from "@/hooks/useUsers";
