@@ -82,7 +82,7 @@ export const AffiliatorLandingLayout: React.FC = () => {
                 Email: layanggroup@gmail.com
               </p>
               <p className="text-body2 font-body text-white">
-                WhatsApp: +62 857-5995-7956
+                WhatsApp: 0851-8232-2580
               </p>
             </div>
           </div>
