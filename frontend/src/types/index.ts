@@ -75,6 +75,7 @@ export interface BackendUser {
 }
 
 export type SectionName = 'beranda' | 'layanan' | 'paket' |  'kontak';
+export type AffiliatorSectionName = 'beranda' | 'cara-kerja' | 'daftar' | 'keuntungan' | 'komisi';
 
 export type UserColumn = {
   id: number;
