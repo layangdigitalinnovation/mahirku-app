@@ -171,7 +171,7 @@ export const Landing: React.FC = () => {
           backgroundSize: "cover",
         }}
       >
-        <div className="contianer max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between gap-10">
+        <div className="contianer max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between gap-10">
           <div>
             <img
               src={cta}

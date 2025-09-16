@@ -43,6 +43,7 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
     badge,
     to 
   }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     icon: any;
     title: string;
     description: string;
