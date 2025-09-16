@@ -4,7 +4,7 @@ import React from 'react';
 const faqItems = [
   {
     question: 'Apa itu Mahirku?',
-    answer: 'Mahirku adalah platform asesmen berbasis biometrik dan numerologi untuk menggali gaya berpikir dan potensi diri.'
+    answer: 'Mahirku adalah platform asesmen berbasis biometrik untuk menggali gaya berpikir dan potensi diri.'
   },
   {
     question: 'Bagaimana cara kerja tes di Mahirku?',
