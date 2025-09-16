@@ -20,8 +20,7 @@ export const AffiliatorLandingLayout: React.FC = () => {
             <div>
               <h3 className="text-2xl font-bold font-heading text-white mb-4">Mahirku</h3>
               <p className="text-body2 font-body text-white">
-                Platform tes minat bakat dan gaya berpikir berbasis biometrik &
-                numerologi untuk individu, keluarga, dan perusahaan.
+                Platform tes minat bakat dan gaya berpikir berbasis biometri untuk individu, keluarga, dan perusahaan.
               </p>
             </div>
 
@@ -82,7 +81,7 @@ export const AffiliatorLandingLayout: React.FC = () => {
                 Email: layanggroup@gmail.com
               </p>
               <p className="text-body2 font-body text-white">
-                WhatsApp: +62 857-5995-7956
+                WhatsApp: 0851-8232-2580
               </p>
             </div>
           </div>
