@@ -6,7 +6,6 @@ import { Request, Response, NextFunction } from 'express';
  */
 export const referralMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   try {
-    console.log('Referral middleware called for:', req.method, req.path);
     
     const referralCode = req.query.ref as string;
     

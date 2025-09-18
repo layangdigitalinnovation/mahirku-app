@@ -12,22 +12,17 @@ const ROLE = {
 export const checkRole = (...allowedRoles: number[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     const user = req.user;
-    console.log('DEBUG checkRole - Logged in user:', user); // ✅ Enhanced debug
-    console.log('DEBUG checkRole - Allowed roles:', allowedRoles);
 
     if (!user) {
-      console.log('DEBUG checkRole - No user found in request');
       res.status(401).json({ message: 'Unauthorized: No user found in request' });
       return;
     }
 
     if (!allowedRoles.includes(user.roleId)) {
-      console.log('DEBUG checkRole - roleId not allowed:', user.roleId, 'Expected:', allowedRoles);
       res.status(403).json({ message: 'Forbidden: You do not have access' });
       return;
     }
 
-    console.log('DEBUG checkRole - Role check passed, proceeding to next middleware');
     next();
   };
 };
