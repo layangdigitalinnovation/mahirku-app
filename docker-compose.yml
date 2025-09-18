@@ -30,8 +30,8 @@ services:
       - XENDIT_SUCCESS_REDIRECT_URL=https://mahirku.com/payment-success  # Update ke HTTPS dan domain
       - XENDIT_FAILURE_REDIRECT_URL=https://mahirku.com/payment-failed   # Update ke HTTPS dan domain
       - XENDIT_CALLBACK_TOKEN=yyI0FqtmZBd1yczzKHZ0dzF2bwfzabmq8cx2N03KwiqJHgox
-      - RUN_MIGRATIONS=true
-      - RUN_SEEDS=true
+      - RUN_MIGRATIONS=false
+      - RUN_SEEDS=false
     depends_on:
       - db
     networks:

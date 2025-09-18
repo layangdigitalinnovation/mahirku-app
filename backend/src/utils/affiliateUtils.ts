@@ -137,7 +137,7 @@ export const getAffiliateBalance = async (affiliateId: number) => {
         totalEarned: 0,
         availableBalance: 0,
         withdrawnAmount: 0,
-        minimumBalance: 100000,
+        minimumBalance: 0,
       });
     }
 

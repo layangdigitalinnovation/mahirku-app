@@ -14,7 +14,7 @@ const registerUserWithRole = async (
   roleId: number
 ): Promise<void> => {
   try {
-    const { username, email, password, fullname, address, phoneNumber } =
+    const { username, email, password, fullname, address, phoneNumber, bankAccountNumber, bankAccountName, bankName } =
       req.body;
     
     // Ambil referral dari cookie alih-alih dari request body
@@ -55,6 +55,11 @@ const registerUserWithRole = async (
       }
     }
 
+    if (roleId === 2 && (!bankAccountNumber || !bankAccountName || !bankName)) {
+      res.status(400).json({ message: "Bank account details are required for affiliators." });
+      return;
+    }
+
     // Buat user baru
     const user = await models.User.create({
       username,
@@ -64,6 +69,9 @@ const registerUserWithRole = async (
       address,
       phoneNumber,
       roleId,
+      bankAccountNumber,
+      bankAccountName,
+      bankName,
       parentId,
     });
 
