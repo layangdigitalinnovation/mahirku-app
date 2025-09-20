@@ -1,46 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useGetAllCountTest } from "@/hooks/useThinkingStyleTest";
 import { useUsers } from "@/hooks/useUsers";
 import formatCurrency from "@/utils/formatCurrency";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line} from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
 
 export default function OverviewPage() {
-    const { data: users } = useUsers();
-    const { data: testCount } = useGetAllCountTest();
+  const { data: users } = useUsers();
+  const { data: testCount } = useGetAllCountTest();
   const totalUsers = users?.length || 0;
-
 
   const data = [
     { label: "Total Pengguna", value: totalUsers },
     { label: "Total Tes", value: testCount?.data.total || 0 },
   ];
 
-
-
-
-
   // Data untuk berbagai chart
   const monthlyData = [
-    { bulan: 'Jan', pengguna: 800, tes: 200, keuntungan: 3200000 },
-    { bulan: 'Feb', pengguna: 850, tes: 220, keuntungan: 3500000 },
-    { bulan: 'Mar', pengguna: 920, tes: 280, keuntungan: 4100000 },
-    { bulan: 'Apr', pengguna: 980, tes: 300, keuntungan: 4300000 },
-    { bulan: 'May', pengguna: 1100, tes: 330, keuntungan: 4800000 },
-    { bulan: 'Jun', pengguna: 1200, tes: 350, keuntungan: 5000000 },
+    { bulan: "Jan", pengguna: 800, tes: 200, keuntungan: 3200000 },
+    { bulan: "Feb", pengguna: 850, tes: 220, keuntungan: 3500000 },
+    { bulan: "Mar", pengguna: 920, tes: 280, keuntungan: 4100000 },
+    { bulan: "Apr", pengguna: 980, tes: 300, keuntungan: 4300000 },
+    { bulan: "May", pengguna: 1100, tes: 330, keuntungan: 4800000 },
+    { bulan: "Jun", pengguna: 1200, tes: 350, keuntungan: 5000000 },
   ];
 
-
-
-
-  const CustomTooltip = ({ active, payload, label } : any) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="w-full bg-white p-3 rounded-lg shadow-lg border">
           <p className="font-semibold text-gray-800">{`Bulan: ${label}`}</p>
-          {payload.map((entry : any, index : any) => (
+          {payload.map((entry: any, index: any) => (
             <p key={index} style={{ color: entry.color }}>
-              {entry.dataKey === 'keuntungan' 
+              {entry.dataKey === "keuntungan"
                 ? `${entry.name}: ${formatCurrency(entry.value)}`
                 : `${entry.name}: ${entry.value}`}
             </p>
@@ -54,32 +56,49 @@ export default function OverviewPage() {
   return (
     <div className="min-h-screen  p-6">
       <div className="container w-full mx-auto space-y-8">
-        
         {/* Header */}
         <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Dashboard Overview</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            Dashboard Overview
+          </h1>
           <p className="text-gray-600">Ringkasan performa sistem testing</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {data.map((item, index) => (
-            <Card key={index} className="bg-white col-span-2 shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
+            <Card
+              key={index}
+              className="bg-white col-span-2 shadow-lg hover:shadow-xl transition-shadow duration-300 border-0"
+            >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 font-medium text-sm mb-1">{item.label}</p>
-                    <p className="text-2xl font-bold text-gray-800">{item.value}</p>
+                    <p className="text-gray-600 font-medium text-sm mb-1">
+                      {item.label}
+                    </p>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {item.value}
+                    </p>
                   </div>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    index === 0 ? 'bg-blue-100 text-blue-600' :
-                    index === 1 ? 'bg-green-100 text-green-600' :
-                    index === 2 ? 'bg-purple-100 text-purple-600' :
-                    'bg-orange-100 text-orange-600'
-                  }`}>
-                    {index === 0 ? '👥' : 
-                     index === 1 ? '📋' :
-                     index === 2 ? '💰' : '⏳'}
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      index === 0
+                        ? "bg-blue-100 text-blue-600"
+                        : index === 1
+                        ? "bg-green-100 text-green-600"
+                        : index === 2
+                        ? "bg-purple-100 text-purple-600"
+                        : "bg-orange-100 text-orange-600"
+                    }`}
+                  >
+                    {index === 0
+                      ? "👥"
+                      : index === 1
+                      ? "📋"
+                      : index === 2
+                      ? "💰"
+                      : "⏳"}
                   </div>
                 </div>
               </CardContent>
@@ -89,38 +108,32 @@ export default function OverviewPage() {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
           {/* Tren Bulanan */}
           <Card className="bg-white shadow-lg border-0">
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Tren Pertumbuhan Bulanan</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                Tren Pertumbuhan Bulanan
+              </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="bulan" 
-                    stroke="#666"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="#666"
-                    fontSize={12}
-                  />
+                  <XAxis dataKey="bulan" stroke="#666" fontSize={12} />
+                  <YAxis stroke="#666" fontSize={12} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="pengguna" 
-                    stroke="#3B82F6" 
+                  <Line
+                    type="monotone"
+                    dataKey="pengguna"
+                    stroke="#3B82F6"
                     strokeWidth={3}
-                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: "#3B82F6", strokeWidth: 2, r: 4 }}
                     name="Pengguna"
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="tes" 
-                    stroke="#10B981" 
+                  <Line
+                    type="monotone"
+                    dataKey="tes"
+                    stroke="#10B981"
                     strokeWidth={3}
-                    dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: "#10B981", strokeWidth: 2, r: 4 }}
                     name="Tes"
                   />
                 </LineChart>
@@ -169,27 +182,34 @@ export default function OverviewPage() {
           {/* Perbandingan Metrik */}
           <Card className="bg-white shadow-lg border-0">
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Perbandingan Pengguna vs Tes</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                Perbandingan Pengguna vs Tes
+              </h3>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <BarChart
+                  data={monthlyData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="bulan"
-                    stroke="#666"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="#666"
-                    fontSize={12}
-                  />
+                  <XAxis dataKey="bulan" stroke="#666" fontSize={12} />
+                  <YAxis stroke="#666" fontSize={12} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="pengguna" fill="#3B82F6" name="Pengguna" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="tes" fill="#10B981" name="Tes" radius={[2, 2, 0, 0]} />
+                  <Bar
+                    dataKey="pengguna"
+                    fill="#3B82F6"
+                    name="Pengguna"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="tes"
+                    fill="#10B981"
+                    name="Tes"
+                    radius={[2, 2, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
-
         </div>
 
         {/* Summary Stats */}
@@ -211,7 +231,6 @@ export default function OverviewPage() {
             </div>
           </CardContent>
         </Card> */}
-
       </div>
     </div>
   );

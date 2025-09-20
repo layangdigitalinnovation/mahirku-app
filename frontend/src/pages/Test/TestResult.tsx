@@ -7,13 +7,13 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
-} from "../../components/ui/Card";
+} from "../../components/ui/card";
 import { useDownloadPDFTest } from "@/hooks/useThinkingStyleTest";
 
 export const TestResult: React.FC = () => {
   const location = useLocation();
   const testResult = location.state?.testResult;
- // Hook download PDF
+  // Hook download PDF
   const { refetch, isFetching } = useDownloadPDFTest(testResult?.id);
   console.log(testResult);
 
@@ -27,8 +27,6 @@ export const TestResult: React.FC = () => {
   if (!testResult) {
     return <div>Memuat...</div>;
   }
-
- 
 
   // Kalau pdfBlob ada, trigger download
 

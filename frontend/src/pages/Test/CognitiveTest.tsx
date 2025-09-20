@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { scanFingerprint } from "@/utils/fingerprint";
 import { getReferralId } from "@/utils/referral";
 import { useMeQuery } from "@/hooks/useAuthQuery";

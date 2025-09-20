@@ -1,15 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DollarSign, TrendingUp, Target, Gift } from "lucide-react";
 import { useSectionObserver } from "@/hooks/useSectionObserver";
 import dots from "@/assets/Dots.png";
 import { ActiveSectionProvider } from "@/context/ActiveSectionContext";
 import { usePackages } from "@/hooks/usePackage";
 import { PackagePayload } from "@/services/api";
-
-
 
 export const AffiliatorLanding: React.FC = () => {
   useSectionObserver([
@@ -79,8 +77,7 @@ export const AffiliatorLanding: React.FC = () => {
     },
   ];
 
-  const  { data : packageCommission } = usePackages()
-
+  const { data: packageCommission } = usePackages();
 
   return (
     <div className="min-h-screen bg-white">
@@ -236,23 +233,25 @@ export const AffiliatorLanding: React.FC = () => {
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-             {packageCommission && packageCommission.length > 0 && packageCommission.map((pkg : PackagePayload, index : number) => (
-  <Card
-    key={index}
-    className={`p-8 text-center relative overflow-hidden`}
-  >
-    <CardHeader>
-      <h3 className="text-heading3 font-bold text-primary-900 mb-2">
-        {pkg.name}
-      </h3>
-    </CardHeader>
-    <CardContent>
-      <div className="text-heading1 font-heading font-bold text-secondary-300 mb-4">
-        {pkg.commissionRate}%
-      </div>
-    </CardContent>
-  </Card>
-))}
+              {packageCommission &&
+                packageCommission.length > 0 &&
+                packageCommission.map((pkg: PackagePayload, index: number) => (
+                  <Card
+                    key={index}
+                    className={`p-8 text-center relative overflow-hidden`}
+                  >
+                    <CardHeader>
+                      <h3 className="text-heading3 font-bold text-primary-900 mb-2">
+                        {pkg.name}
+                      </h3>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-heading1 font-heading font-bold text-secondary-300 mb-4">
+                        {pkg.commissionRate}%
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
             </div>
           </div>
         </section>

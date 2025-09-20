@@ -116,6 +116,11 @@ export const getWithdrawHistory = async (req: AuthRequest, res: Response): Promi
           model: User,
           as: 'processor',
           attributes: ['id', 'fullname', 'email']
+        },
+        {
+          model: User,
+          as: 'affiliate',
+          attributes: ['id', 'fullname', 'email', 'bankName', 'bankAccountNumber', 'bankAccountName']
         }
       ],
       order: [['createdAt', 'DESC']],
@@ -212,9 +217,8 @@ export const approveWithdrawRequest = async (req: AuthRequest, res: Response): P
   try {
     const { id : withdrawRequestId } = req.params;
     const { notes } = req.body;
-    console.log('DEBUG: req.user in approveWithdrawRequest:', req.user);
     const adminId = req.user?.userId;
-    console.log('DEBUG: adminId extracted:', adminId);
+
 
     if (!adminId) {
       res.status(401).json({

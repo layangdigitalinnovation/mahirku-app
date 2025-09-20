@@ -2,7 +2,7 @@
 import React from "react";
 import { TrendingUp, Users, Wallet } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import { Card, CardHeader, CardContent } from "../../components/ui/Card";
+import { Card, CardHeader, CardContent } from "../../components/ui/card";
 import { useAffiliateStats, useReferralLink } from "@/hooks/useAffiliator";
 
 export const AffiliatorDashboard: React.FC = () => {

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Clock, Eye } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { useMeQuery } from "@/hooks/useAuthQuery";
 import { DashboardQuickActions } from "@/components/ui/DashboardQuickAction";
 import { useGetAllTest } from "@/hooks/useThinkingStyleTest";
