@@ -13,7 +13,7 @@ export const HeroSection = () => {
         backgroundImage: `url(${dots})`,
       }}
     >
-      <div className="container max-w-screen-xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between">
+      <div className="container max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 flex flex-col md:flex-row justify-between">
         <div className="bg-white pt-40 pb-20 px-8 space-y-6 rounded-2xs border border-neutral-200">
           <h1 className="text-heading1 max-w-xl text-primary-900 font-bold font-heading">
             Temukan Gaya Berpikir Anda Sekarang

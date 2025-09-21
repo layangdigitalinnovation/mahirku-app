@@ -2,7 +2,7 @@
 import React from "react";
 import { TrendingUp, Users, Wallet } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import { Card, CardHeader, CardContent } from "../../components/ui/Card";
+import { Card, CardHeader, CardContent } from "../../components/ui/card";
 import { useAffiliateStats, useReferralLink } from "@/hooks/useAffiliator";
 
 export const AffiliatorDashboard: React.FC = () => {
@@ -20,9 +20,9 @@ export const AffiliatorDashboard: React.FC = () => {
   const copyReferralLink = async () => {
     try {
       await navigator.clipboard.writeText(referralData?.referralLink as string);
-      alert("Referral link copied to clipboard!");
+      alert("Tautan referral berhasil disalin!");
     } catch (error) {
-      console.error("Failed to copy link:", error);
+      console.error("Gagal menyalin tautan:", error);
     }
   };
 
@@ -30,12 +30,12 @@ export const AffiliatorDashboard: React.FC = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "NeuroScan - Discover Your Cognitive Style",
-          text: "Take this amazing cognitive style test and discover your unique thinking patterns!",
+          title: "NeuroScan - Temukan Gaya Kognitifmu",
+          text: "Ikuti tes gaya kognitif ini dan temukan pola berpikirmu yang unik!",
           url: referralData?.referralLink,
         });
       } catch (error) {
-        console.log("Error sharing:", error);
+        console.log("Gagal membagikan:", error);
       }
     } else {
       copyReferralLink();
@@ -74,12 +74,14 @@ export const AffiliatorDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Affiliator Dashboard
+            Dashboard Afiliator
           </h1>
-          <p className="text-gray-600">Track your referrals and earnings</p>
+          <p className="text-gray-600">
+            Pantau referal dan penghasilan Anda
+          </p>
         </div>
 
-        {/* Stats Cards */}
+        {/* Kartu Statistik */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="bg-white">
             <CardContent className="p-6">
@@ -87,7 +89,7 @@ export const AffiliatorDashboard: React.FC = () => {
                 <Users className="h-10 w-10 text-green-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">
-                    Tests Completed
+                    Tes Selesai
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {stats?.statistics?.totalTests || 0}
@@ -103,7 +105,7 @@ export const AffiliatorDashboard: React.FC = () => {
                 <Wallet className="h-10 w-10 text-purple-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">
-                    Total Earnings
+                    Total Penghasilan
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
                     Rp {stats?.balance?.totalEarned?.toLocaleString() || 0}
@@ -119,7 +121,7 @@ export const AffiliatorDashboard: React.FC = () => {
                 <Wallet className="h-10 w-10 text-orange-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">
-                    Available Balance
+                    Saldo Tersedia
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
                     Rp {stats?.balance?.availableBalance?.toLocaleString() || 0}
@@ -135,7 +137,7 @@ export const AffiliatorDashboard: React.FC = () => {
                 <TrendingUp className="h-10 w-10 text-blue-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">
-                    Token Purchases
+                    Pembelian Token
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {stats?.statistics?.totalTokenPurchaseCommissions || 0}
@@ -146,7 +148,7 @@ export const AffiliatorDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* WhatsApp Group Invitation */}
+        {/* Undangan Grup WhatsApp */}
         <Card className="mb-8 bg-white border border-green-200 shadow-sm">
           <CardHeader>
             <div className="flex items-center">
@@ -157,10 +159,10 @@ export const AffiliatorDashboard: React.FC = () => {
               />
               <div>
                 <h2 className="text-xl font-semibold text-green-800">
-                  Join Our Affiliator WhatsApp Group
+                  Bergabunglah dengan Grup WhatsApp Afiliator
                 </h2>
                 <p className="text-sm text-green-700">
-                  Stay connected and get the latest updates, tips, and support.
+                  Tetap terhubung dan dapatkan update terbaru, tips, serta dukungan.
                 </p>
               </div>
             </div>
@@ -172,15 +174,15 @@ export const AffiliatorDashboard: React.FC = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
             >
-              Join WhatsApp Group
+              Gabung Grup WhatsApp
             </a>
           </CardContent>
         </Card>
 
-        {/* Referral Link */}
+        {/* Tautan Referral */}
         <Card className="mb-8 bg-white">
           <CardHeader>
-            <h2 className="text-xl font-semibold">Your Referral Link</h2>
+            <h2 className="text-xl font-semibold">Tautan Referral Anda</h2>
           </CardHeader>
           <CardContent>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
@@ -189,18 +191,18 @@ export const AffiliatorDashboard: React.FC = () => {
               </p>
             </div>
             <div className="space-x-3">
-              <Button onClick={copyReferralLink}>Copy Link</Button>
+              <Button onClick={copyReferralLink}>Salin Tautan</Button>
               <Button onClick={shareReferralLink} variant="outline">
-                Share Link
+                Bagikan Tautan
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Commission History */}
+        {/* Riwayat Komisi */}
         <Card className="bg-white">
           <CardHeader>
-            <h2 className="text-xl font-semibold">Recent Commission History</h2>
+            <h2 className="text-xl font-semibold">Riwayat Komisi Terbaru</h2>
           </CardHeader>
           <CardContent>
             {!stats?.recentCommissions ||
@@ -208,12 +210,12 @@ export const AffiliatorDashboard: React.FC = () => {
               <div className="text-center py-8">
                 <Wallet className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No commissions yet
+                  Belum ada komisi
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Share your referral link to start earning
+                  Bagikan tautan referral Anda untuk mulai menghasilkan
                 </p>
-                <Button onClick={shareReferralLink}>Share Your Link</Button>
+                <Button onClick={shareReferralLink}>Bagikan Tautan Anda</Button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -234,8 +236,8 @@ export const AffiliatorDashboard: React.FC = () => {
                           {new Date(commission.createdAt).toLocaleDateString()}{" "}
                           •
                           {commission.source === "test_completion"
-                            ? "Test Completion"
-                            : "Token Purchase"}
+                            ? "Penyelesaian Tes"
+                            : "Pembelian Token"}
                           {commission.referredUser &&
                             ` • ${commission.referredUser.fullname}`}
                         </p>
@@ -251,7 +253,11 @@ export const AffiliatorDashboard: React.FC = () => {
                             : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {commission.status}
+                        {commission.status === "paid"
+                          ? "dibayar"
+                          : commission.status === "pending"
+                          ? "menunggu"
+                          : commission.status}
                       </span>
                     </div>
                   </div>
@@ -261,11 +267,11 @@ export const AffiliatorDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Recent Withdrawals */}
+        {/* Penarikan Terbaru */}
         {stats?.recentWithdraws && stats.recentWithdraws.length > 0 && (
           <Card className="bg-white mt-8">
             <CardHeader>
-              <h2 className="text-xl font-semibold">Recent Withdrawals</h2>
+              <h2 className="text-xl font-semibold">Penarikan Terbaru</h2>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -300,7 +306,13 @@ export const AffiliatorDashboard: React.FC = () => {
                             : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {withdraw.status}
+                        {withdraw.status === "completed"
+                          ? "selesai"
+                          : withdraw.status === "pending"
+                          ? "menunggu"
+                          : withdraw.status === "processed"
+                          ? "diproses"
+                          : withdraw.status}
                       </span>
                     </div>
                   </div>

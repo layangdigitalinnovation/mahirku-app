@@ -214,7 +214,7 @@ const ThinkingStylesManagement = () => {
       <div className="container w-full mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 Thinking Styles Management
@@ -223,7 +223,7 @@ const ThinkingStylesManagement = () => {
                 Kelola thinking styles untuk sistem assessment
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col mt-8 md:mt-0 md:flex-row gap-3">
               <button
                 onClick={() => openModal("bulk")}
                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"

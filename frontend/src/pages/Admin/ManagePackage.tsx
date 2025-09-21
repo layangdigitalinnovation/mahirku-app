@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
-} from "@/components/ui/Card";
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import formatCurrency from "@/utils/formatCurrency";

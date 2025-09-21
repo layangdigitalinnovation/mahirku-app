@@ -1,10 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface User {
-  uid: string;
+  id: number;
+  username: string;
   email: string;
-  role: 'user' | 'affiliator' | 'super_admin';
-  createdAt: Date;
-  referrerId?: string;
+  roleId: number;
+  fullname: string;
+  address: string;
+  phoneNumber: string;
+  tokens: number;
+  parentId: number | null;
+  packageId: number | null;
+  bankName: string | null;
+  bankAccountNumber: string | null;
+  bankAccountName: string | null;
+  createdAt: string;
+  updatedAt: string;
+  role: Role;
+}
+
+// Base Role interface
+export interface Role {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Role names enum for better type safety
+export enum RoleName {
+  SUPER_ADMIN = 'super_admin',
+  AFFILIATOR = 'affiliator',
+  USER = 'user'
 }
 
 export interface TestResult {
