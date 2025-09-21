@@ -17,6 +17,7 @@ import { useSectionObserver } from "@/hooks/useSectionObserver";
 import { usePackages } from "@/hooks/usePackage";
 import { PackagePayload } from "@/services/api";
 import formatCurrency from "@/utils/formatCurrency";
+import { CheckIcon } from "lucide-react";
 
 export const Landing: React.FC = () => {
   useEffect(() => {
@@ -130,35 +131,48 @@ export const Landing: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {!isLoading &&
-              testPackages?.length > 0 &&
-              testPackages.map((pkg: PackagePayload, index: number) => (
-                <Card
-                  key={index}
-                  className="p-6 shadow-lg hover:shadow-2xl transition-all rounded-2xl flex flex-col text-left"
-                >
-                  <CardHeader>
-                    <h3 className="text-heading3 font-bold text-primary-900 mb-1">
-                      {pkg.name}
-                    </h3>
-                  </CardHeader>
-                  <CardContent className="flex-1 flex flex-col justify-between">
-                    <div className="text-heading3 md:text-heading2 font-heading font-bold text-secondary-300 mb-6">
-                      {formatCurrency(pkg.price)}
-                    </div>
-                    <ul className="space-y-3 bg-white border border-neutral-200 p-6 rounded-xs">
-                      {pkg.description}
-                    </ul>
-                    <Link to={"/register"}>
-                      <Button variant="secondary" className="w-full mt-8">
-                        Pilih Paket
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+  {!isLoading &&
+    testPackages?.length > 0 &&
+    testPackages.map((pkg: PackagePayload, index: number) => {
+      // Ubah string deskripsi menjadi array list
+      const descriptions = pkg.description
+        ? pkg.description.split(",").map((item) => item.trim())
+        : [];
+
+      return (
+        <Card
+          key={index}
+          className="p-6 shadow-lg hover:shadow-2xl transition-all rounded-2xl flex flex-col text-left"
+        >
+          <CardHeader>
+            <h3 className="text-heading3 font-bold text-primary-900 mb-1">
+              {pkg.name}
+            </h3>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col justify-between">
+            <div className="text-heading3 md:text-heading2 font-heading font-bold text-secondary-300 mb-6">
+              {formatCurrency(pkg.price)}
+            </div>
+            <div className="space-y-3 bg-white border border-neutral-200 p-6 rounded-xs list-disc list-inside">
+              {descriptions.map((desc, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <CheckIcon className="inline-block w-5 h-5 text-blue-500 mr-2" />
+                  {desc}
+                </div>
               ))}
-          </div>
+            </div>
+            <Link to={"/register"}>
+              <Button variant="secondary" className="w-full mt-8">
+                Pilih Paket
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      );
+    })}
+</div>
+
         </div>
       </section>
 
