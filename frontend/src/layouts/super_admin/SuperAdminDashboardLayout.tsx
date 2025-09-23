@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Users,  TrendingUp, Package, Gift, Wallet, Lightbulb } from "lucide-react";
+import { Users,  TrendingUp, Package, Gift, Wallet, Lightbulb, List } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import AppSidebar from "@/components/ui/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -51,6 +51,12 @@ export default function SuperAdminDashboardLayout() {
       icon: Lightbulb,
       title: "Manajemen Thinking Style",
     },
+    {
+      label: "Manajemen Invoice",
+      path: "/admin/dashboard/invoice",
+      icon: List,
+      title: "Manajemen Invoice",
+    }
   ];
 
   // Get current page title based on location
