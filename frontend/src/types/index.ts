@@ -15,7 +15,28 @@ export interface User {
   bankAccountName: string | null;
   createdAt: string;
   updatedAt: string;
-  role: Role;
+  role: RoleName;
+}
+
+export interface PackagePayload {
+  id: number;
+  name: string;
+  description: string;
+  defaultTokenAmount: number;
+  price: number;
+  commissionRate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VoucherPayload {
+  id: number;
+  code: string;
+  type: string;
+  value: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Base Role interface
@@ -121,4 +142,22 @@ export interface TokenPackage {
   price: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface InvoicePayload {
+  id: number;
+  userId: number;
+  tokenAmount: number;
+  packageId: number;
+  voucherId: number | null;
+  voucherCode: string | null;
+  referralCode: string | null;
+  status: "PENDING" | "PAID" | "FAILED";
+  paymentDate: string | null;
+  xenditInvoiceId: string;
+  createdAt: string;
+  updatedAt: string;
+  User: User;
+  Package: PackagePayload;
+  Voucher: VoucherPayload | null;
 }

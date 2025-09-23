@@ -32,6 +32,9 @@ import EditDetailThinkingStylePage from './pages/Admin/EditDetailThinkingStylePa
 import { AffiliatorLanding } from './pages/AffiliatorLanding';
 import { AffiliatorLandingLayout } from './layouts/AffiliatorLandingLayout';
 import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
+import { UserInvoice } from './pages/User/UserInvoice';
+import { AdminInvoice } from './pages/Admin/AdminInvoice';
+import { RoleName } from './types';
 // import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
 
 // Protected Route Component
@@ -56,11 +59,11 @@ const ProtectedRoute: React.FC<{
   if (requiredRole && user.role !== requiredRole) {
     // Redirect based on user role to their appropriate dashboard
     switch (user.role) {
-      case 'super_admin':
+      case RoleName.SUPER_ADMIN:
         return <Navigate to="/admin/dashboard" replace />;
-      case 'affiliator':
+      case RoleName.AFFILIATOR:
         return <Navigate to="/affiliator/dashboard" replace />;
-      case 'user':
+      case RoleName.USER:
         return <Navigate to="/customer/dashboard" replace />;
       default:
         return <Navigate to="/login" replace />;
@@ -143,7 +146,7 @@ function AppRoutes() {
            <Route
           path="/admin/dashboard/*"
           element={
-            <ProtectedRoute requiredRole="super_admin">
+            <ProtectedRoute requiredRole={RoleName.SUPER_ADMIN}>
               <SuperAdminDashboardLayout />
             </ProtectedRoute>
           }
@@ -158,6 +161,7 @@ function AppRoutes() {
           <Route path='withdraw' element={<AdminWithdrawManagement/>} />
           <Route path='thinking-style' element={<ThinkingStylesManagement/>} />
           <Route path='thinking-style/edit/:id' element={<EditDetailThinkingStylePage/>} />
+          <Route path='invoice' element={<AdminInvoice/>} />
         </Route>
 
         <Route
@@ -172,6 +176,7 @@ function AppRoutes() {
           <Route index element={<Navigate to="overview" replace />} />
           <Route path="overview" element={<UserDashboard />} />
           <Route path="users" element={<CustomerChilds />} />
+          <Route path="invoice" element={<UserInvoice />} />
          
         {/* Test */}
         <Route path="test" element={<CognitiveTest />} />
@@ -180,7 +185,7 @@ function AppRoutes() {
         </Route>
 
         <Route path='affiliator/dashboard/*' element={
-          <ProtectedRoute requiredRole='affiliator'>
+          <ProtectedRoute requiredRole={RoleName.AFFILIATOR}>
             <AffiliatorDashboardLayout/>
           </ProtectedRoute>
         }>
