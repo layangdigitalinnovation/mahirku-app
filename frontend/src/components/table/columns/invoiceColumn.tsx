@@ -124,7 +124,7 @@ export const invoiceColumns: ColumnDef<InvoicePayload>[] = [
     size: 140,
   },
   {
-    accessorKey: "User.fullname",
+    accessorKey: "User",
     header: () => (
       <div className="flex items-center gap-2 font-medium">
         <User className="h-4 w-4" />
@@ -152,7 +152,7 @@ export const invoiceColumns: ColumnDef<InvoicePayload>[] = [
     size: 200,
   },
   {
-    accessorKey: "Package.name",
+    accessorKey: "Package",
     header: () => (
       <div className="flex items-center gap-2 font-medium">
         <Package className="h-4 w-4" />
@@ -163,7 +163,7 @@ export const invoiceColumns: ColumnDef<InvoicePayload>[] = [
       const pkg = row.original.Package;
       return (
         <div className="flex flex-col gap-1">
-          <span className="font-medium text-sm">{pkg.name}</span>
+          <span className="font-medium text-sm">{pkg?.name}</span>
           {pkg.price && (
             <span className="text-xs text-green-600 font-medium">
               {formatCurrency(pkg.price)}

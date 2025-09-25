@@ -15,7 +15,7 @@ export interface User {
   bankAccountName: string | null;
   createdAt: string;
   updatedAt: string;
-  role: RoleName;
+  role: Role;
 }
 
 export interface PackagePayload {

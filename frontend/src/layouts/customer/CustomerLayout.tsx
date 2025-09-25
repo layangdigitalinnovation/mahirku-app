@@ -6,7 +6,7 @@ export default function CustomerDashboardLayout (){
 
       const menuItems = [ 
     { label: "Beranda", path: "/customer/dashboard/overview", icon : HomeIcon },
-    { label: "Daftar User", path: "/customer/dashboard/users", icon : UserIcon },
+    { label: "Daftar Member", path: "/customer/dashboard/users", icon : UserIcon },
     { label : "Tes", path: "/customer/dashboard/test", icon : BookOpenCheck },
     { label : "Invoice", path: "/customer/dashboard/invoice", icon : ScrollText },
   ];

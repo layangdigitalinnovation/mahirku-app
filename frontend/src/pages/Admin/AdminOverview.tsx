@@ -1,50 +1,82 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Card, CardContent } from "@/components/ui/card";
-import { useGetAllCountTest } from "@/hooks/useThinkingStyleTest";
-import { useUsers } from "@/hooks/useUsers";
-import formatCurrency from "@/utils/formatCurrency";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts";
+import React from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { Users, FileText, Coins, TrendingUp, TrendingDown } from 'lucide-react';
+import { useDashboardStatistics, useRealtimeStats } from '@/hooks/useDashboard';
 
-export default function OverviewPage() {
-  const { data: users } = useUsers();
-  const { data: testCount } = useGetAllCountTest();
-  const totalUsers = users?.length || 0;
+const AdminOverview: React.FC = () => {
+  const { data: dashboardData, isLoading: isDashboardLoading, error: dashboardError } = useDashboardStatistics();
+  const { data: realtimeData, isLoading: isRealtimeLoading } = useRealtimeStats();
 
-  const data = [
-    { label: "Total Pengguna", value: totalUsers },
-    { label: "Total Tes", value: testCount?.data.total || 0 },
-  ];
+  // Loading state
+  if (isDashboardLoading || isRealtimeLoading) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="h-64 bg-gray-200 rounded-lg"></div>
+            <div className="h-64 bg-gray-200 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // Data untuk berbagai chart
-  const monthlyData = [
-    { bulan: "Jan", pengguna: 800, tes: 200, keuntungan: 3200000 },
-    { bulan: "Feb", pengguna: 850, tes: 220, keuntungan: 3500000 },
-    { bulan: "Mar", pengguna: 920, tes: 280, keuntungan: 4100000 },
-    { bulan: "Apr", pengguna: 980, tes: 300, keuntungan: 4300000 },
-    { bulan: "May", pengguna: 1100, tes: 330, keuntungan: 4800000 },
-    { bulan: "Jun", pengguna: 1200, tes: 350, keuntungan: 5000000 },
-  ];
+  // Error state
+  if (dashboardError) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 className="text-red-800 font-medium">Error loading dashboard data</h3>
+          <p className="text-red-600 text-sm mt-1">
+            {dashboardError instanceof Error ? dashboardError.message : 'An error occurred'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
+  const statistics = dashboardData?.data;
+  const realtime = realtimeData?.data;
+
+  if (!statistics) {
+    return <div className="p-6">No data available</div>;
+  }
+
+  // Process role chart data
+  const roleChartData = statistics.usersByRole.map(item => ({
+    name: item.role,
+    value: item.count,
+    color: item.role === 'super_admin' ? '#8B5CF6' : 
+           item.role === 'affiliator' ? '#3B82F6' : 
+           item.role === 'user' ? '#10B981' : '#F59E0B'
+  }));
+
+  // Process package chart data
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const packageChartData = Object.entries(statistics.packageStats).map(([_packageName, stats]) => ({
+    name: stats.packageName,
+    value: stats.count,
+    color: stats.packageName === 'Personal' ? '#8B5CF6' : 
+           stats.packageName === 'Basic' ? '#3B82F6' : 
+           stats.packageName === 'Pro' ? '#10B981' : '#F59E0B'
+  }));
+
+  // Custom tooltip components
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="w-full bg-white p-3 rounded-lg shadow-lg border">
-          <p className="font-semibold text-gray-800">{`Bulan: ${label}`}</p>
-          {payload.map((entry: any, index: any) => (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium">{`${label}`}</p>
+          {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }}>
-              {entry.dataKey === "keuntungan"
-                ? `${entry.name}: ${formatCurrency(entry.value)}`
-                : `${entry.name}: ${entry.value}`}
+              {`${entry.dataKey}: ${entry.value.toLocaleString()}`}
             </p>
           ))}
         </div>
@@ -53,185 +85,222 @@ export default function OverviewPage() {
     return null;
   };
 
+  const PieTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium">{data.name}</p>
+          <p style={{ color: data.payload.color }}>
+            {`Jumlah: ${data.value}`}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="min-h-screen  p-6">
-      <div className="container w-full mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Dashboard Overview
-          </h1>
-          <p className="text-gray-600">Ringkasan performa sistem testing</p>
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Admin Overview</h1>
+        <div className="text-sm text-gray-500">
+          Last updated: {new Date().toLocaleString()}
         </div>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {data.map((item, index) => (
-            <Card
-              key={index}
-              className="bg-white col-span-2 shadow-lg hover:shadow-xl transition-shadow duration-300 border-0"
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 font-medium text-sm mb-1">
-                      {item.label}
-                    </p>
-                    <p className="text-2xl font-bold text-gray-800">
-                      {item.value}
-                    </p>
-                  </div>
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      index === 0
-                        ? "bg-blue-100 text-blue-600"
-                        : index === 1
-                        ? "bg-green-100 text-green-600"
-                        : index === 2
-                        ? "bg-purple-100 text-purple-600"
-                        : "bg-orange-100 text-orange-600"
-                    }`}
-                  >
-                    {index === 0
-                      ? "👥"
-                      : index === 1
-                      ? "📋"
-                      : index === 2
-                      ? "💰"
-                      : "⏳"}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Tren Bulanan */}
-          <Card className="bg-white shadow-lg border-0">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">
-                Tren Pertumbuhan Bulanan
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="bulan" stroke="#666" fontSize={12} />
-                  <YAxis stroke="#666" fontSize={12} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line
-                    type="monotone"
-                    dataKey="pengguna"
-                    stroke="#3B82F6"
-                    strokeWidth={3}
-                    dot={{ fill: "#3B82F6", strokeWidth: 2, r: 4 }}
-                    name="Pengguna"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="tes"
-                    stroke="#10B981"
-                    strokeWidth={3}
-                    dot={{ fill: "#10B981", strokeWidth: 2, r: 4 }}
-                    name="Tes"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Distribusi Jenis Tes */}
-          {/* <Card className="bg-white shadow-lg border-0">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Distribusi Jenis Tes</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={tesTypeData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {tesTypeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value) => [`${value}%`, 'Persentase']}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="flex justify-center space-x-4 mt-4">
-                {tesTypeData.map((entry, index) => (
-                  <div key={index} className="flex items-center">
-                    <div 
-                      className="w-3 h-3 rounded-full mr-2"
-                      style={{ backgroundColor: entry.color }}
-                    ></div>
-                    <span className="text-sm text-gray-600">{entry.name}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card> */}
-
-          {/* Perbandingan Metrik */}
-          <Card className="bg-white shadow-lg border-0">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">
-                Perbandingan Pengguna vs Tes
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={monthlyData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="bulan" stroke="#666" fontSize={12} />
-                  <YAxis stroke="#666" fontSize={12} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar
-                    dataKey="pengguna"
-                    fill="#3B82F6"
-                    name="Pengguna"
-                    radius={[2, 2, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="tes"
-                    fill="#10B981"
-                    name="Tes"
-                    radius={[2, 2, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Summary Stats */}
-        {/* <Card className="bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg border-0">
-          <CardContent className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div>
-                <h4 className="text-lg font-semibold mb-2">Rata-rata Tes per Pengguna</h4>
-                <p className="text-3xl font-bold">{(350/1200).toFixed(2)}</p>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold mb-2">Pertumbuhan Pengguna</h4>
-                <p className="text-3xl font-bold text-green-300">+50%</p>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold mb-2">Keuntungan per Tes</h4>
-                <p className="text-3xl font-bold">{formatCurrency(5000000/350)}</p>
-              </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Users</p>
+              <p className="text-2xl font-bold text-gray-900">{statistics.overview?.totalTests}</p>
+              {realtime && (
+                <p className="text-sm text-green-600 flex items-center mt-1">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  +{realtime.todayUsers} today
+                </p>
+              )}
             </div>
-          </CardContent>
-        </Card> */}
+            <Users className="w-8 h-8 text-blue-500" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Tests</p>
+              <p className="text-2xl font-bold text-gray-900">{statistics.overview.totalTests.toLocaleString()}</p>
+              {realtime && (
+                <p className="text-sm text-green-600 flex items-center mt-1">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  +{realtime.todayTests} today
+                </p>
+              )}
+            </div>
+            <FileText className="w-8 h-8 text-green-500" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Tokens Sold</p>
+              <p className="text-2xl font-bold text-gray-900">{statistics.overview.totalTokensSold.toLocaleString()}</p>
+              {realtime && realtime.pendingWithdraws > 0 && (
+                <p className="text-sm text-orange-600 flex items-center mt-1">
+                  <TrendingDown className="w-4 h-4 mr-1" />
+                  {realtime.pendingWithdraws} pending withdraws
+                </p>
+              )}
+            </div>
+            <Coins className="w-8 h-8 text-purple-500" />
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* User Role Distribution */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribusi Peran Pengguna</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={roleChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${value}`}
+                >
+                  {roleChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<PieTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Package Purchase Distribution */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribusi Pembelian Paket</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={packageChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${value}`}
+                >
+                  {packageChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<PieTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Package Summary Table */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Ringkasan Paket</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Paket
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Jumlah Pembelian
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Total Tokens
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {Object.entries(statistics.packageStats).map(([packageName, stats]) => (
+                <tr key={packageName}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {stats?.packageName}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {stats?.count?.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {stats?.tokens?.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Monthly Growth Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Monthly Growth Trend */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Tren Pertumbuhan Bulanan</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={statistics.monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="bulan" />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="pengguna" 
+                  stroke="#3B82F6" 
+                  strokeWidth={2}
+                  name="Pengguna"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="tes" 
+                  stroke="#10B981" 
+                  strokeWidth={2}
+                  name="Tes"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Monthly Revenue */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Bulanan</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={statistics.monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="bulan" />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar 
+                  dataKey="keuntungan" 
+                  fill="#8B5CF6"
+                  name="Revenue"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default AdminOverview;

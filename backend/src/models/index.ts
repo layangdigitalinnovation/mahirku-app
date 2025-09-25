@@ -5,6 +5,8 @@ import Invoice from './Invoice';
 import Package from './Package';
 import ThinkingStyleResult from './ThinkingStyleResult';
 import AffiliateCommission from './AffiliateCommission';
+import TokenPurchase from './TokenPurchase';
+import WithdrawRequest from './WithdrawRequest';
 
 const models = {
   User,
@@ -14,6 +16,8 @@ const models = {
   Package,
   ThinkingStyleResult,
   AffiliateCommission,
+  TokenPurchase,
+  WithdrawRequest,
 };
 
 // Registrasi association

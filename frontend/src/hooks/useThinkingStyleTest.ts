@@ -2,6 +2,7 @@
 import { 
   downloadPDFTest, 
   getAllThinkingStyleTest, 
+  getThinkingStyleById, 
   submitThinkingStyleTest, 
   ThinkingStyleRequest 
 } from "@/services/api";
@@ -59,3 +60,11 @@ export const useDownloadPDFTest = (id: number) => {
     enabled: !!id, // hanya jalan kalau id ada
   });
 };
+
+export const useGetThinkingStyleById = (id: number) => {
+  return useQuery({
+    queryKey: testKeys.detail(id),
+    queryFn: () => getThinkingStyleById(id),
+    enabled: !!id, // hanya jalan kalau id ada
+  });
+}

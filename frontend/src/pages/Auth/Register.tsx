@@ -15,9 +15,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/hooks/useAuth";
-// import { getReferralId } from "@/utils/referral"; // Tidak diperlukan lagi karena backend menggunakan cookie
 import { AuthLayout } from "@/layouts/AuthLayout";
+import { useRegisterUser } from "@/hooks/useAuthQuery";
 
 const formSchema = z
   .object({
@@ -39,7 +38,7 @@ const formSchema = z
 type RegisterForm = z.infer<typeof formSchema>;
 
 export const Register: React.FC = () => {
-  const { register: registerUser } = useAuth();
+  const { mutateAsync: registerUser } = useRegisterUser();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -60,13 +59,16 @@ export const Register: React.FC = () => {
   const onSubmit = async (values: RegisterForm) => {
     setError("");
     try {
-      // Tidak perlu ambil referrerId karena backend akan ambil dari cookie
-      await registerUser(values.email, values.password, "user", null, {
+      const payload = {
         username: values.username,
         fullname: values.fullname,
         address: values.address,
         phoneNumber: values.phoneNumber,
-      });
+        email: values.email,
+        password: values.password,
+      };
+      // Tidak perlu ambil referrerId karena backend akan ambil dari cookie
+      await registerUser(payload);
 
       // AuthProvider akan otomatis redirect ke dashboard yang sesuai
     } catch (err: any) {

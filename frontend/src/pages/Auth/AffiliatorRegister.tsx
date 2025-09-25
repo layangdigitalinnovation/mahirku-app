@@ -15,9 +15,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/hooks/useAuth";
-// import { getReferralId } from "@/utils/referral"; // Tidak diperlukan lagi karena backend menggunakan cookie
 import { AuthLayout } from "@/layouts/AuthLayout";
+import { useRegisterAffiliator } from "@/hooks/useAuthQuery";
 
 const formSchema = z
   .object({
@@ -42,7 +41,7 @@ const formSchema = z
 type AffiliatorRegisterForm = z.infer<typeof formSchema>;
 
 export const AffiliatorRegister: React.FC = () => {
-  const { affiliatorRegister: registerAffiliator } = useAuth();
+  const { mutateAsync : registerAffiliator } = useRegisterAffiliator();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -67,15 +66,17 @@ export const AffiliatorRegister: React.FC = () => {
     setError("");
     try {
       // Tidak perlu ambil referrerId karena backend akan ambil dari cookie
-      await registerAffiliator(values.email, values.password, {
-        username: values.username,
-        fullname: values.fullname,
-        address: values.address,
-        phoneNumber: values.phoneNumber,
-        bankAccountName: values.bankAccountName,
-        bankAccountNumber: values.bankAccountNumber,
-        bankName: values.bankName,
-      });
+    await registerAffiliator({
+      email: values.email,
+      password: values.password,
+      username: values.username,
+      fullname: values.fullname,
+      address: values.address,
+      phoneNumber: values.phoneNumber,
+      bankAccountName: values.bankAccountName,
+      bankAccountNumber: values.bankAccountNumber,
+      bankName: values.bankName,
+    });
 
       // AuthProvider akan otomatis redirect ke dashboard yang sesuai
     } catch (err: any) {
