@@ -172,6 +172,20 @@ const AdminWithdrawManagement = () => {
               description=""
               showPagination={true}
               isLoading={isLoading}
+              enableFilters={true}
+              searchPlaceholder="Cari berdasarkan nama, email, atau ID..."
+              searchKeys={['id', 'affiliate.fullname', 'affiliate.email', 'affiliate.bankName', 'affiliate.bankAccountNumber']}
+              statusFilterOptions={[
+                { value: 'all', label: 'Semua Status' },
+                { value: 'pending', label: 'Tertunda' },
+                { value: 'approved', label: 'Disetujui' },
+                { value: 'completed', label: 'Selesai' },
+                { value: 'rejected', label: 'Ditolak' },
+                { value: 'processed', label: 'Diproses' }
+              ]}
+              statusFilterKey="status"
+              enableDateFilter={true}
+              dateFilterKey="createdAt"
             />
           </div>
         </div>

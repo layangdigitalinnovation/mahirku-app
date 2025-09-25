@@ -38,6 +38,7 @@ export interface VoucherPayload {
 
 export interface AffiliatorRegisterPayload {
   email: string;
+  username: string;
   password: string;
   fullname: string;
   phoneNumber: string;

@@ -1,37 +1,40 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User } from '../types';// gunakan axios instance yang sudah dibuat
-import {  login, registerUser } from '../services/api';
+import { login, registerUser, registerAffiliator } from '../services/api';
+import { clearAllCookies } from '@/utils/cookies';
+import { useCacheManager } from '@/hooks/useCacheManager';
+
+// Simplified User interface for frontend
+interface SimpleUser {
+  id: number;
+  email: string;
+  username: string;
+  fullname: string;
+  role: string;
+  createdAt: Date;
+}
+
+// Registration details interface
+interface RegisterDetails {
+  username?: string;
+  fullname?: string;
+  address?: string;
+  phoneNumber?: string;
+  bankAccountName?: string;
+  bankAccountNumber?: string;
+  bankName?: string;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: SimpleUser | null;
   loading: boolean;
   loginUser: (email: string, password: string) => Promise<void>;
   register: (
     email: string,
     password: string,
     role: 'user' | 'affiliator',
-    referrerId?: string | null,
-    details?: {
-      username: string;
-      fullname: string;
-      address: string;
-      phoneNumber: string;
-    }
-  ) => Promise<void>;
-  affiliatorRegister: (
-    email: string,
-    password: string,
-    details: {
-      username: string;
-      fullname: string;
-      address: string;
-      phoneNumber: string;
-      bankAccountName: string;
-      bankAccountNumber: string;
-      bankName: string;
-    }
+    details?: RegisterDetails
   ) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -39,144 +42,174 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SimpleUser | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { clearAllCache } = useCacheManager();
 
-  // Helper function untuk mendapatkan dashboard path berdasarkan role
+  // Dashboard routing based on user role
   const getDashboardPath = (role: string): string => {
-    switch (role) {
-      case 'super_admin':
-        return '/admin/dashboard';
-      case 'affiliator':
-        return '/affiliator/dashboard';
-      case 'user':
-        return '/customer/dashboard';
-      default:
-        return '/login';
-    }
+    const dashboardRoutes = {
+      super_admin: '/admin/dashboard',
+      affiliator: '/affiliator/dashboard',
+      user: '/customer/dashboard'
+    };
+    return dashboardRoutes[role as keyof typeof dashboardRoutes] || '/login';
   };
 
+  // Initialize user from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem('neuroscan-user');
-    if (stored) {
-      const parsed: User = JSON.parse(stored);
-      parsed.createdAt = new Date(parsed.createdAt);
-      setUser(parsed);
-      
-      // Auto-redirect jika user sudah login dan berada di halaman publik
-      const publicPaths = ['/', '/login', '/register', '/kontak', '/faq', '/privacy-policy', '/terms'];
-      if (publicPaths.includes(location.pathname)) {
-        navigate(getDashboardPath(parsed.role), { replace: true });
+    const initializeUser = () => {
+      try {
+        const storedUser = localStorage.getItem('neuroscan-user');
+        if (storedUser) {
+          const parsedUser: SimpleUser = JSON.parse(storedUser);
+          parsedUser.createdAt = new Date(parsedUser.createdAt);
+          setUser(parsedUser);
+          
+          // Auto-redirect from public pages if already logged in
+          const publicPaths = ['/', '/login', '/register', '/kontak', '/faq', '/privacy-policy', '/terms'];
+          if (publicPaths.includes(location.pathname)) {
+            navigate(getDashboardPath(parsedUser.role), { replace: true });
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        // Clear corrupted data
+        localStorage.removeItem('neuroscan-user');
+        localStorage.removeItem('token');
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    initializeUser();
   }, [navigate, location.pathname]);
 
-   const loginUser = async (email: string, password: string) => {
+  // Login function
+  const loginUser = async (email: string, password: string) => {
     try {
-     const res = await login({email, password});
+      const response = await login({ email, password });
+      const { token, user: backendUser } = response;
 
-      const { token, user: backendUser } = res;
-
-
-      const frontendUser: User = {
-        uid: `user-${backendUser.id}`,
+      // Create simplified user object
+      const simpleUser: SimpleUser = {
+        id: backendUser.id,
         email: backendUser.email,
+        username: backendUser.username,
+        fullname: backendUser.fullname,
         role: backendUser.role.name,
         createdAt: new Date(backendUser.createdAt),
       };
 
+      // Store in localStorage
       localStorage.setItem('token', token);
-      localStorage.setItem('neuroscan-user', JSON.stringify(frontendUser));
-
-      setUser(frontendUser);
+      localStorage.setItem('neuroscan-user', JSON.stringify(simpleUser));
       
-      // Auto-redirect ke dashboard setelah login berhasil
-      navigate(getDashboardPath(frontendUser.role), { replace: true });
-    } catch (err) {
-      console.error('Login error:', err);
-      throw new Error('Invalid email or password');
+      setUser(simpleUser);
+      
+      // Redirect to appropriate dashboard
+      navigate(getDashboardPath(simpleUser.role), { replace: true });
+    } catch (error) {
+      console.error('Login error:', error);
+      throw new Error('Email atau password tidak valid');
     }
   };
 
+  // Register function
   const register = async (
     email: string,
     password: string,
     role: 'user' | 'affiliator',
-    _referrerId?: string | null, // Parameter ini tetap ada untuk backward compatibility tapi tidak digunakan
-    details?: {
-      username: string; 
-      fullname: string;
-      address: string;
-      phoneNumber: string;
-      bankAccountName: string;
-      bankAccountNumber: string;
-      bankName: string;
-    }
+    details: RegisterDetails = {}
   ) => {
     try {
-      const roleId = role === 'affiliator' ? 2 : 3;
+      if (role === 'affiliator') {
+        // Gunakan endpoint khusus untuk affiliator
+        await registerAffiliator({
+          email,
+          password,
+          username: details.username || email.split('@')[0],
+          fullname: details.fullname || '',
+          address: details.address || '',
+          phoneNumber: details.phoneNumber || '',
+          bankAccountName: details.bankAccountName || '',
+          bankAccountNumber: details.bankAccountNumber || '',
+          bankName: details.bankName || '',
+        });
+      } else {
+        // Gunakan endpoint untuk user biasa
+        const roleId = 3; // User role ID
+        await registerUser({
+          email,
+          password,
+          username: details.username || email.split('@')[0],
+          fullname: details.fullname || '',
+          address: details.address || '',
+          phoneNumber: details.phoneNumber || '',
+          bankAccountName: details.bankAccountName || '',
+          bankAccountNumber: details.bankAccountNumber || '',
+          bankName: details.bankName || '',
+          roleId
+        });
+      }
 
-      // Tidak perlu kirim referrerId karena backend akan ambil dari cookie
-      await registerUser({
-        email,
-        password,
-        username: details?.username || email.split('@')[0],
-        fullname: details?.fullname || '',
-        address: details?.address || '',
-        phoneNumber: details?.phoneNumber || '',
-        bankAccountName: details?.bankAccountName || '',
-        bankAccountNumber: details?.bankAccountNumber || '',
-        bankName: details?.bankName || '',
-        roleId
-        // referrerId dihapus karena backend menggunakan cookie
+      // Auto-login after successful registration
+      await loginUser(email, password);
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw new Error('Registrasi gagal. Silakan coba lagi.');
+    }
+  };
+
+  // Enhanced logout with complete cache clearing
+  const logout = async () => {
+    try {
+      // Clear all React Query cache
+      clearAllCache();
+
+      // Clear all authentication-related data
+      const keysToRemove = [
+        'neuroscan-user',
+        'token',
+        'authToken',
+        'refreshToken',
+        'userSession',
+        'userPreferences'
+      ];
+
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
       });
 
-      await loginUser(email, password);
-    } catch (err) {
-      console.error('Register error:', err);
-      throw new Error('Registration failed');
+      // Clear cookies using utility function
+      clearAllCookies();
+
+      // Reset user state
+      setUser(null);
+      
+      // Navigate to login page
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force logout even if there's an error
+      setUser(null);
+      navigate('/login', { replace: true });
     }
   };
 
-  const affiliatorRegister = async (
-    email: string,
-    password: string,
-    details: {
-      username: string;
-      fullname: string;
-      address: string;
-      phoneNumber: string;
-      bankAccountName: string;
-      bankAccountNumber: string;
-      bankName: string;
-    }
-  ) => {
-    try {
-      await register(email, password, 'affiliator', null, details);
-    } catch (err) {
-      console.error('Affiliator register error:', err);
-      throw new Error('Affiliator registration failed');
-    }
-  };
-
-  const logout = async () => {
-    localStorage.removeItem('neuroscan-user');
-    localStorage.removeItem('token');
-    setUser(null);
+  const contextValue: AuthContextType = {
+    user,
+    loading,
+    loginUser,
+    register,
+    logout
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      loginUser, 
-      register: register as AuthContextType['register'], 
-      affiliatorRegister,
-      logout 
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
@@ -184,6 +217,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
   return context;
 };

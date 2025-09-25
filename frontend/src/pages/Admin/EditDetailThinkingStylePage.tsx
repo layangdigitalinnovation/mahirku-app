@@ -67,7 +67,7 @@ export default function EditDetailPage() {
   // Handle editor changes
   const handleEditorChange = () => {
     // Jangan track changes sebelum fully initialized
-    if (!isInitialized) return;
+    // if (!isInitialized) return;
     
     try {
       const currentBlocks = editor.document;
