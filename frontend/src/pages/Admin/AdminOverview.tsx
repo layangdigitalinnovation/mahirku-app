@@ -115,7 +115,7 @@ const AdminOverview: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">{statistics.overview?.totalTests}</p>
+              <p className="text-2xl font-bold text-gray-900">{statistics.overview?.totalUsers}</p>
               {realtime && (
                 <p className="text-sm text-green-600 flex items-center mt-1">
                   <TrendingUp className="w-4 h-4 mr-1" />
