@@ -133,15 +133,23 @@ export const invoiceColumns: ColumnDef<InvoicePayload>[] = [
     ),
     cell: ({ row }) => {
       const user = row.original.User;
+      
+      if (!user) {
+        return <span className="text-gray-400 text-sm">No user data</span>;
+      }
+
+      const fullname = user.fullname || 'Unknown User';
+      const initials = fullname.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      
       return (
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
             <span className="text-sm font-medium text-blue-700">
-              {user.fullname.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+              {initials}
             </span>
           </div>
           <div>
-            <div className="font-medium text-sm">{user.fullname}</div>
+            <div className="font-medium text-sm">{fullname}</div>
             {user.email && (
               <div className="text-xs text-gray-500">{user.email}</div>
             )}
@@ -161,10 +169,15 @@ export const invoiceColumns: ColumnDef<InvoicePayload>[] = [
     ),
     cell: ({ row }) => {
       const pkg = row.original.Package;
+      
+      if (!pkg) {
+        return <span className="text-gray-400 text-sm">No package</span>;
+      }
+
       return (
         <div className="flex flex-col gap-1">
-          <span className="font-medium text-sm">{pkg?.name}</span>
-          {pkg.price && (
+          <span className="font-medium text-sm">{pkg.name || 'Unknown Package'}</span>
+          {pkg.price && typeof pkg.price === 'number' && (
             <span className="text-xs text-green-600 font-medium">
               {formatCurrency(pkg.price)}
             </span>
@@ -185,7 +198,7 @@ export const invoiceColumns: ColumnDef<InvoicePayload>[] = [
     cell: ({ row }) => {
       const voucher = row.original.Voucher;
       
-      if (!voucher?.code) {
+      if (!voucher || !voucher.code) {
         return <span className="text-gray-400 text-sm">No voucher</span>;
       }
 
@@ -207,16 +220,24 @@ export const invoiceColumns: ColumnDef<InvoicePayload>[] = [
         Token
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <div className="h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
-          <Coins className="h-3 w-3 text-yellow-600" />
+    cell: ({ row }) => {
+      const tokenAmount = row.original.tokenAmount;
+      
+      if (tokenAmount === null || tokenAmount === undefined || typeof tokenAmount !== 'number') {
+        return <span className="text-gray-400 text-sm">0</span>;
+      }
+
+      return (
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
+            <Coins className="h-3 w-3 text-yellow-600" />
+          </div>
+          <span className="font-semibold text-yellow-600">
+            {tokenAmount.toLocaleString()}
+          </span>
         </div>
-        <span className="font-semibold text-yellow-600">
-          {row.original.tokenAmount.toLocaleString()}
-        </span>
-      </div>
-    ),
+      );
+    },
     size: 100,
   },
   {
