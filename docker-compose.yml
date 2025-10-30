@@ -4,7 +4,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"  # Map port 80 container ke port 3000 host
+      - "3001:80"  # Map port 80 container ke port 3000 host
     depends_on:
       - backend
     networks:
