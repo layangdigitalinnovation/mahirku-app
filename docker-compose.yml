@@ -51,6 +51,7 @@ services:
 
 volumes:
   pgdata:
+    external: true
 
 networks:
   app-network:
