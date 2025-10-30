@@ -52,6 +52,7 @@ services:
 volumes:
   pgdata:
     external: true
+    name : mahirku_pgdata
 
 networks:
   app-network:
