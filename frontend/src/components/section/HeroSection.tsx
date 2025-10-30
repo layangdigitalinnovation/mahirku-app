@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import dots from "@/assets/Dots.png";
 
 import heroImg from "@/assets/Online Learning 5.png";
+import { Link } from "react-router-dom";
 
 export const HeroSection = () => {
   return (
@@ -13,7 +14,7 @@ export const HeroSection = () => {
         backgroundImage: `url(${dots})`,
       }}
     >
-      <div className="container max-w-screen-xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between">
+      <div className="container max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 flex flex-col md:flex-row justify-between">
         <div className="bg-white pt-40 pb-20 px-8 space-y-6 rounded-2xs border border-neutral-200">
           <h1 className="text-heading1 max-w-xl text-primary-900 font-bold font-heading">
             Temukan Gaya Berpikir Anda Sekarang
@@ -22,8 +23,8 @@ export const HeroSection = () => {
             Ungkap rahasia pola pikir Anda melalui tes dan sistem verifikasi
             biometrik kami yang canggih.
           </p>
-          <Button size="lg" variant="secondary">
-            Mulai Tes Sekarang
+          <Button asChild size="lg" variant="secondary">
+            <Link to="/register">Mulai Tes Sekarang</Link>
           </Button>
         </div>
         <div className="bg-white pt-40 pb-20 px-8 border border-neutral-200 rounded-2xs">

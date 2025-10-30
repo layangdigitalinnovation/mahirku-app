@@ -1,9 +1,57 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface User {
-  uid: string;
+  id: number;
+  username: string;
   email: string;
-  role: 'user' | 'affiliator' | 'super_admin';
-  createdAt: Date;
-  referrerId?: string;
+  roleId: number;
+  fullname: string;
+  address: string;
+  phoneNumber: string;
+  tokens: number;
+  parentId: number | null;
+  packageId: number | null;
+  bankName: string | null;
+  bankAccountNumber: string | null;
+  bankAccountName: string | null;
+  createdAt: string;
+  updatedAt: string;
+  role: Role;
+}
+
+export interface PackagePayload {
+  id: number;
+  name: string;
+  description: string;
+  defaultTokenAmount: number;
+  price: number;
+  commissionRate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VoucherPayload {
+  id: number;
+  code: string;
+  type: string;
+  value: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Base Role interface
+export interface Role {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Role names enum for better type safety
+export enum RoleName {
+  SUPER_ADMIN = 'super_admin',
+  AFFILIATOR = 'affiliator',
+  USER = 'user'
 }
 
 export interface TestResult {
@@ -74,6 +122,7 @@ export interface BackendUser {
 }
 
 export type SectionName = 'beranda' | 'layanan' | 'paket' |  'kontak';
+export type AffiliatorSectionName = 'beranda' | 'cara-kerja' | 'daftar' | 'keuntungan' | 'komisi';
 
 export type UserColumn = {
   id: number;
@@ -93,4 +142,22 @@ export interface TokenPackage {
   price: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface InvoicePayload {
+  id: number;
+  userId: number;
+  tokenAmount: number;
+  packageId: number;
+  voucherId: number | null;
+  voucherCode: string | null;
+  referralCode: string | null;
+  status: "PENDING" | "PAID" | "FAILED";
+  paymentDate: string | null;
+  xenditInvoiceId: string;
+  createdAt: string;
+  updatedAt: string;
+  User: User;
+  Package: PackagePayload;
+  Voucher: VoucherPayload | null;
 }

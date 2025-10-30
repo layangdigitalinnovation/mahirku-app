@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // context/ActiveSectionContext.tsx
 import { SectionName } from "@/types";
 import React, { createContext, useContext, useState } from "react";

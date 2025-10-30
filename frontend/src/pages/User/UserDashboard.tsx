@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Clock, Eye } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { useMeQuery } from "@/hooks/useAuthQuery";
 import { DashboardQuickActions } from "@/components/ui/DashboardQuickAction";
 import { useGetAllTest } from "@/hooks/useThinkingStyleTest";
@@ -17,6 +17,9 @@ export const UserDashboard: React.FC = () => {
 
   const { data: numerologyResults, isLoading, isError } = useGetAllTest();
 
+  // Additional safety check untuk memastikan data valid
+  const isDataReady = !isLoading && numerologyResults !== undefined && user !== undefined;
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
@@ -27,6 +30,15 @@ export const UserDashboard: React.FC = () => {
 
   if (isError) {
     return <ErrorFetch />;
+  }
+
+  // Safety check - prevent rendering if data is not ready
+  if (!isDataReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-20">
+        <p>Menyiapkan data dashboard...</p>
+      </div>
+    );
   }
 
   const filteredResults =
@@ -108,7 +120,7 @@ export const UserDashboard: React.FC = () => {
                         </div>
 
                         <Link
-                          to={`/numerology/detail/${result.id}`}
+                          to={`/thinking-style/${result.thinkingStyle.id}`}
                           className="mt-4 md:mt-0"
                         >
                           <Button variant="outline" size="sm">

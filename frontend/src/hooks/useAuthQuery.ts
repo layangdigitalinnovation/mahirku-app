@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {  registerUser, registerAffiliator, getMe } from '../services/api'; 
-  import { CreateUserPayload, LoginPayload } from '../services/api/types';
+import { getMe } from '../services/api'; 
+import { AffiliatorRegisterPayload, CreateUserPayload, LoginPayload } from '../services/api/types';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthProvider';
 
@@ -19,35 +19,72 @@ export const useLogin = () => {
     onSuccess: () => {
       // Invalidate dan refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
-      toast.success("Login successful");
+      toast.success("Login berhasil");
     },
   });
 };
 
-// Hook untuk registrasi user
+// Hook untuk registrasi user - menggunakan AuthProvider untuk auto-login
 export const useRegisterUser = () => {
   const queryClient = useQueryClient();
+  const { register } = useAuth();
   
   return useMutation({
-    mutationFn: (userData: CreateUserPayload) => registerUser(userData),
+    mutationFn: async (userData: CreateUserPayload) => {
+      // Menggunakan AuthProvider register yang sudah ada auto-login
+      await register(
+        userData.email,
+        userData.password,
+        'user',
+        {
+          username: userData.username,
+          fullname: userData.fullname,
+          address: userData.address,
+          phoneNumber: userData.phoneNumber,
+        }
+      );
+    },
     onSuccess: () => {
       // Invalidate dan refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
-      toast.success("User registered successfully");
+      toast.success("Registrasi berhasil! Anda telah login otomatis.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Registrasi gagal");
     },
   });
 };
 
-// Hook untuk registrasi affiliator
+// Hook untuk registrasi affiliator - menggunakan AuthProvider untuk auto-login
 export const useRegisterAffiliator = () => {
   const queryClient = useQueryClient();
+  const { register } = useAuth();
   
   return useMutation({
-    mutationFn: (userData: CreateUserPayload) => registerAffiliator(userData),
+    mutationFn: async (userData: AffiliatorRegisterPayload) => {
+      // Menggunakan AuthProvider register yang sudah ada auto-login
+      await register(
+        userData.email,
+        userData.password,
+        'affiliator',
+        {
+          username: userData.username,
+          fullname: userData.fullname,
+          address: userData.address,
+          phoneNumber: userData.phoneNumber,
+          bankAccountName: userData.bankAccountName,
+          bankAccountNumber: userData.bankAccountNumber,
+          bankName: userData.bankName,
+        }
+      );
+    },
     onSuccess: () => {
       // Invalidate dan refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
-      toast.success("Affiliator registered successfully");
+      toast.success("Registrasi affiliator berhasil! Anda telah login otomatis.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Registrasi affiliator gagal");
     },
   });
 };

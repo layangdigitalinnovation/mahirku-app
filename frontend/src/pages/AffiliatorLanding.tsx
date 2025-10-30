@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { DollarSign, TrendingUp, Target, Gift, Star } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DollarSign, TrendingUp, Target, Gift } from "lucide-react";
 import { useSectionObserver } from "@/hooks/useSectionObserver";
 import dots from "@/assets/Dots.png";
 import { ActiveSectionProvider } from "@/context/ActiveSectionContext";
+import { usePackages } from "@/hooks/usePackage";
+import { PackagePayload } from "@/services/api";
 
 export const AffiliatorLanding: React.FC = () => {
   useSectionObserver([
@@ -75,26 +77,7 @@ export const AffiliatorLanding: React.FC = () => {
     },
   ];
 
-  const commissionTiers = [
-    {
-      level: "Bronze",
-      sales: "1-10 Penjualan",
-      commission: "15%",
-      bonus: "Materi Marketing",
-    },
-    {
-      level: "Silver",
-      sales: "11-25 Penjualan",
-      commission: "20%",
-      bonus: "Bonus Bulanan + Support",
-    },
-    {
-      level: "Gold",
-      sales: "26+ Penjualan",
-      commission: "30%",
-      bonus: "Bonus Tahunan + Priority Support",
-    },
-  ];
+  const { data: packageCommission } = usePackages();
 
   return (
     <div className="min-h-screen bg-white">
@@ -250,46 +233,25 @@ export const AffiliatorLanding: React.FC = () => {
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {commissionTiers.map((tier, index) => (
-                <Card
-                  key={index}
-                  className={`p-8 text-center relative overflow-hidden ${
-                    index === 1
-                      ? "border-2 border-primary-500 shadow-xl scale-105"
-                      : ""
-                  }`}
-                >
-                  {index === 1 && (
-                    <div className="absolute top-0 left-0 right-0 bg-primary-500 text-white py-2 text-sm font-semibold">
-                      MOST POPULAR
-                    </div>
-                  )}
-                  <CardHeader className={index === 1 ? "pt-8" : ""}>
-                    <div
-                      className={`text-${
-                        index === 0 ? "orange" : index === 1 ? "gray" : "yellow"
-                      }-400 text-6xl mb-4`}
-                    >
-                      {index === 0 ? "🥉" : index === 1 ? "🥈" : "🥇"}
-                    </div>
-                    <h3 className="text-heading3 font-bold text-primary-900 mb-2">
-                      {tier.level}
-                    </h3>
-                    <p className="text-gray-600 mb-4">{tier.sales}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-heading1 font-heading font-bold text-secondary-300 mb-4">
-                      {tier.commission}
-                    </div>
-                    <p className="font-body text-gray-600 mb-6">{tier.bonus}</p>
-                    <div className="flex items-center justify-center gap-1 text-yellow-400">
-                      {Array.from({ length: index + 3 }).map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-current" />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {packageCommission &&
+                packageCommission.length > 0 &&
+                packageCommission.map((pkg: PackagePayload, index: number) => (
+                  <Card
+                    key={index}
+                    className={`p-8 text-center relative overflow-hidden`}
+                  >
+                    <CardHeader>
+                      <h3 className="text-heading3 font-bold text-primary-900 mb-2">
+                        {pkg.name}
+                      </h3>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-heading1 font-heading font-bold text-secondary-300 mb-4">
+                        {pkg.commissionRate}%
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
             </div>
           </div>
         </section>
@@ -317,7 +279,7 @@ export const AffiliatorLanding: React.FC = () => {
                   Daftar Gratis Sekarang
                 </Button>
               </Link>
-              <Link to="/contact">
+              <Link to="/kontak">
                 <Button
                   size="lg"
                   variant="outline"

@@ -13,7 +13,7 @@ const features = [
     id: 1,
     title: "Analisis Gaya Berpikir",
     description:
-      "Temukan pola berpikir unik dan karakteristik pribadi Anda melalui tes komprehensif yang menggabungkan teknologi biometrik modern dan analisis numerologi mendalam. Hasil tes akan memberikan wawasan berharga tentang cara Anda memproses informasi dan membuat keputusan. Dengan pemahaman mendalam tentang gaya berpikir Anda, Anda dapat mengoptimalkan potensi diri dan meningkatkan efektivitas dalam pembelajaran dan pengambilan keputusan sehari-hari.",
+      "Temukan pola berpikir unik dan karakteristik pribadi Anda melalui tes komprehensif yang menggabungkan teknologi biometrik modern dan analisis mendalam. Hasil tes akan memberikan wawasan berharga tentang cara Anda memproses informasi dan membuat keputusan. Dengan pemahaman mendalam tentang gaya berpikir Anda, Anda dapat mengoptimalkan potensi diri dan meningkatkan efektivitas dalam pembelajaran dan pengambilan keputusan sehari-hari.",
     icon: brain,
   },
   {
@@ -52,13 +52,13 @@ export default function FiturSection() {
   return (
     <section className="py-20 bg-white">
 
-      <div className="container max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container max-w-screen-xl mx-auto px-10">
         <div className="text-center mb-16">
-          <h2 className="text-heading1 font-heading font-bold text-primary-900 mb-4">
+          <h2 className="text-heading3 md:text-heading2 lg:text-heading1 font-heading font-bold text-primary-900 mb-4">
             Mengapa Memilih{" "}
             <span className="text-secondary-300">Mahirku</span>?
           </h2>
-          <p className="text-heading6 text-neutral-900 font-body max-w-2xl mx-auto">
+          <p className="text-body md:text-heading6 text-neutral-900 font-body max-w-2xl mx-auto">
             Platform asesmen kognitif paling mutakhir dengan teknologi terkini
             dan metode terpercaya.
           </p>
@@ -81,7 +81,7 @@ export default function FiturSection() {
                       src={feature.icon}
                       alt={feature.title}
                     />
-                    <h3 className="text-heading4 font-heading font-bold text-primary-900">
+                    <h3 className="text-heading6 md:text-heading4 font-heading font-bold text-primary-900">
                       {feature.title}
                     </h3>
                   </div>
@@ -98,7 +98,7 @@ export default function FiturSection() {
                     openId === feature.id ? "max-h-40 mt-3" : "max-h-0"
                   }`}
                 >
-                  <p className="text-body1 my-4 font-body text-neutral-900 max-w-xl">
+                  <p className="text-body2 md:text-body1 my-4 font-body text-neutral-900 max-w-xl">
                     {feature.description}
                   </p>
                 </div>

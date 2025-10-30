@@ -14,14 +14,13 @@ export const LandingLayout: React.FC = () => {
       </main>
           {/* Footer */}
       <footer className="bg-primary-200 pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl container mx-auto px-10 sm:px-10 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             {/* Logo & Intro */}
             <div>
               <h3 className="text-2xl font-bold font-heading text-white mb-4">Mahirku</h3>
               <p className="text-body2 font-body text-white">
-                Platform tes minat bakat dan gaya berpikir berbasis biometrik &
-                numerologi untuk individu, keluarga, dan perusahaan.
+                Platform tes minat bakat dan gaya berpikir berbasis biometrik untuk individu, keluarga, dan perusahaan.
               </p>
             </div>
 
@@ -82,7 +81,7 @@ export const LandingLayout: React.FC = () => {
                 Email: layanggroup@gmail.com
               </p>
               <p className="text-body2 font-body text-white">
-                WhatsApp: +62 857-5995-7956
+                WhatsApp: 0851-8232-2580
               </p>
             </div>
           </div>

@@ -24,3 +24,8 @@ export const downloadPDFTest = async (id : number) => {
     })
     return res.data
 }
+
+export const getThinkingStyleById = async (id : number) => {
+    const res = await api.get(`thinking-style/${id}`)
+    return res.data
+}

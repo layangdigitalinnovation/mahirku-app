@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import "@blocknote/core/fonts/inter.css";
@@ -7,13 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useGetThinkingStyleById, useUpdateThinkingStyle } from "@/hooks/useThinkingStylesAdmin";
 import * as Tooltip from "@/components/ui/tooltip";
 import { useParams } from "react-router-dom";
-
-// Mock data and hooks for demonstration
-const mockData = {
-  data: {
-    detailPage: `[{"id":"1","type":"paragraph","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Welcome to the BlockNote editor!","styles":{}}],"children":[]},{"id":"2","type":"paragraph","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"This is a rich text editor built with BlockNote. You can:","styles":{}}],"children":[]},{"id":"3","type":"bulletListItem","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Add bullet points","styles":{}}],"children":[]},{"id":"4","type":"bulletListItem","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Format text with ","styles":{}},{"type":"text","text":"bold","styles":{"bold":true}},{"type":"text","text":", ","styles":{}},{"type":"text","text":"italic","styles":{"italic":true}},{"type":"text","text":", or ","styles":{}},{"type":"text","text":"underline","styles":{"underline":true}}],"children":[]},{"id":"5","type":"bulletListItem","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Create headings and more!","styles":{}}],"children":[]}]`
-  }
-};
 
 
 
@@ -36,7 +29,7 @@ export default function EditDetailPage() {
   });
 
   // Mock hooks
-  const { data, isLoading, isFetched } = useGetThinkingStyleById(Number(id));
+  const { data, isLoading } = useGetThinkingStyleById(Number(id));
   const updateDetailPage = useUpdateThinkingStyle();
 
   const detailPage = data?.data?.detailPage;
@@ -74,7 +67,7 @@ export default function EditDetailPage() {
   // Handle editor changes
   const handleEditorChange = () => {
     // Jangan track changes sebelum fully initialized
-    if (!isInitialized) return;
+    // if (!isInitialized) return;
     
     try {
       const currentBlocks = editor.document;
@@ -96,7 +89,6 @@ const handleUpdateDetailPage = async () => {
   
   try {
     // Get HTML version for preview/display purposes
-    const html = await editor.blocksToFullHTML(editor.document);
     
     updateDetailPage.mutate({
       id: Number(id),
@@ -112,21 +104,7 @@ const handleUpdateDetailPage = async () => {
 };
 
 
-  // Export to HTML
-  const handleExportHTML = async () => {
-    try {
-      const html = await editor.blocksToFullHTML(editor.document);
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'content.html';
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error exporting HTML:', error);
-    }
-  };
+
 
   if (isLoading) {
     return (

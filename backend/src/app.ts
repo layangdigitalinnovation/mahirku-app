@@ -12,6 +12,8 @@ import thinkingStyleRoutes from './routes/thinkingStyleRoutes';
 import adminThinkingStyleRoutes from './routes/adminThinkingStyleRoutes';
 import affiliateRoutes from './routes/affiliateRoutes';
 import withdrawRoutes from './routes/withdrawRoutes';
+import invoiceRoutes from './routes/invoiceRoutes';
+import dashboardRoutes from './routes/dashboardRoutes';
 
 const app = express();
 
@@ -42,6 +44,8 @@ app.use('/api/thinking-style', thinkingStyleRoutes);
 app.use('/api/admin/thinking-styles', adminThinkingStyleRoutes);
 app.use('/api/affiliate', affiliateRoutes);
 app.use('/api/withdraw', withdrawRoutes);
+app.use('/api/invoice', invoiceRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

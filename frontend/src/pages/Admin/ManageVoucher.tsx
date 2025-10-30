@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   useVouchers,
   useDeleteVoucher,
   useCreateVoucher,
 } from "@/hooks/useVouchers";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {

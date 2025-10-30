@@ -9,7 +9,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const packageSchema = z.object({
@@ -42,9 +42,12 @@ export default function PackageForm({
       name: "",
       price: 0,
       description: "",
-      commissionRate: 0,
       defaultTokenAmount: 1,
       ...defaultValues,
+      // Ensure commissionRate is always an integer
+      commissionRate: defaultValues?.commissionRate 
+        ? Math.round(Number(defaultValues.commissionRate))
+        : 0,
     },
   });
 
@@ -125,10 +128,38 @@ export default function PackageForm({
               <FormLabel>Tingkat Komisi (%)</FormLabel>
               <FormControl>
                 <Input
-                  type="number"
+                  type="text"
+                  placeholder="Masukkan persentase (0-100)"
                   {...field}
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                  value={field.value === 0 ? "" : field.value?.toString() || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      field.onChange(0);
+                      return;
+                    }
+                    
+                    // Only allow numbers, comma, and dot
+                    const sanitizedValue = value.replace(/[^0-9.,]/g, '');
+                    
+                    // Normalize input: replace comma with dot for decimal parsing
+                    const normalizedValue = sanitizedValue.replace(',', '.');
+                    
+                    // Parse as float first, then round to integer for percentage
+                    const floatValue = parseFloat(normalizedValue);
+                    const numValue = isNaN(floatValue) ? 0 : Math.round(floatValue);
+                    
+                    // Ensure value is within valid range (0-100)
+                    const clampedValue = Math.max(0, Math.min(100, numValue));
+                    field.onChange(clampedValue);
+                  }}
+                  onBlur={() => {
+                    // Ensure display shows clean integer format when user leaves the field
+                    if (field.value && field.value > 0) {
+                      // This will trigger a re-render with clean integer display
+                      field.onChange(field.value);
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />

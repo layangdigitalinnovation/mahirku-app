@@ -32,7 +32,7 @@ export const useAddChildUser = () => {
   return useMutation({
     mutationFn: addChildUser,
     onSuccess: () => {
-      toast.success("Child user added successfully");
+      toast.success("Sukses menambahkan member");
       queryClient.invalidateQueries({ queryKey: tokenKeys.children() });
       // Also invalidate auth/me to refresh parent user data
       queryClient.invalidateQueries({ queryKey: authKeys.me() });

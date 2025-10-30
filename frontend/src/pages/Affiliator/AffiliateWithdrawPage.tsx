@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Clock, Check, X, AlertCircle, CreditCard, Wallet, TrendingUp } from 'lucide-react';
 import { useAffiliateBalanceDetail } from '@/hooks/useAffiliator';
@@ -13,11 +14,6 @@ const AffiliateWithdrawPage = () => {
   // Local state
   const [submitting, setSubmitting] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [bankDetails, setBankDetails] = useState({
-    bankName: '',
-    accountNumber: '',
-    accountName: ''
-  });
   const [showWithdrawForm, setShowWithdrawForm] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -48,9 +44,6 @@ const AffiliateWithdrawPage = () => {
 
       const payload: CreateWithdrawPayload = {
         amount,
-        bankName: bankDetails.bankName,
-        accountNumber: bankDetails.accountNumber,
-        accountName: bankDetails.accountName
       };
 
       await createWithdrawMutation.mutateAsync(payload);
@@ -58,7 +51,6 @@ const AffiliateWithdrawPage = () => {
       setSuccess('Permintaan withdraw berhasil diajukan! Tim kami akan memproses dalam 1-3 hari kerja.');
       setShowWithdrawForm(false);
       setWithdrawAmount('');
-      setBankDetails({ bankName: '', accountNumber: '', accountName: '' });
       
       // Refresh data
       refetchBalance();
@@ -350,7 +342,7 @@ const AffiliateWithdrawPage = () => {
                     </div>
                     
                     <div className="text-sm text-gray-600 space-y-1">
-                      <p><span className="font-medium">Bank:</span> {withdraw.bankName} - {withdraw.accountNumber}</p>
+                      <p><span className="font-medium">Bank:</span> {withdraw.affiliate?.bankName || '-'} - {withdraw.affiliate?.bankAccountNumber}</p>
                       <p><span className="font-medium">Tanggal Pengajuan:</span> {formatDate(withdraw.createdAt)}</p>
                       {withdraw.processedAt && (
                         <p><span className="font-medium">Tanggal Diproses:</span> {formatDate(withdraw.processedAt)}</p>

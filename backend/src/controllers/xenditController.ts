@@ -4,14 +4,14 @@ import { xenditConfig } from '../config/xenditConfig';
 import Invoice from '../models/Invoice';
 import User from '../models/User';
 import Package from '../models/Package';
+import TokenPurchase from '../models/TokenPurchase';
 import { validateVoucher, calculateDiscount } from '../utils/voucherUtils';
 import WithdrawRequest from '../models/WithdrawRequest';
 import { calculateTokenCommission, addTokenPurchaseCommission, updateAffiliateBalance } from '../utils/affiliateUtils';
-import { MockPayoutService } from '../services/mockPayoutService';
+
 import { PayoutRequest, PayoutResponse } from '../types/xendit';
 import AffiliateBalance from '../models/AffiliateBalance';
 import { sequelize } from '../models';
-import { markAsProcessed } from './withdrawController';
 
 export const xenditPayment = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -112,7 +112,8 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
     const {
       external_id,
       status,
-      paid_at
+      paid_at,
+      payment_method
     } = req.body;
 
 
@@ -150,6 +151,51 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
     invoice.paymentDate = paid_at ? new Date(paid_at) : new Date();
     await invoice.save();
 
+    // Buat record TokenPurchase untuk tracking dan analytics
+    let tokenPurchase;
+    try {
+      // Ambil data package untuk menghitung harga
+      const packageData = invoice.packageId ? await Package.findByPk(invoice.packageId) : null;
+      
+      // Hitung pricePerToken dan totalAmount
+      const pricePerToken = packageData ? Math.floor(packageData.price / packageData.defaultTokenAmount) : 0;
+      let originalPrice = packageData ? packageData.price : 0;
+      let discountAmount = 0;
+      let finalAmount = originalPrice;
+
+      // Hitung discount jika ada voucher
+      if (invoice.voucherId && invoice.voucherCode) {
+        try {
+          const voucherValidation = await validateVoucher(invoice.voucherCode);
+          if (voucherValidation) {
+            discountAmount = await calculateDiscount(voucherValidation.dataValues.value, originalPrice);
+            finalAmount = originalPrice - discountAmount;
+          }
+        } catch (voucherError) {
+          console.log('Error calculating voucher discount:', voucherError);
+          // Continue without discount if voucher calculation fails
+        }
+      }
+
+      tokenPurchase = await TokenPurchase.create({
+        userId: invoice.userId,
+        voucherId: invoice.voucherId,
+        packageId: invoice.packageId,
+        totalToken: invoice.tokenAmount,
+        pricePerToken: pricePerToken,
+        totalAmount: finalAmount,
+        discountAmount: discountAmount,
+        paymentStatus: 'paid',
+        paymentMethod: payment_method,
+        // paymentGatewayResponse: req.body
+      });
+
+      console.log('TokenPurchase record created:', tokenPurchase.id);
+    } catch (tokenPurchaseError) {
+      console.error('Error creating TokenPurchase record:', tokenPurchaseError);
+      // Continue with the process even if TokenPurchase creation fails
+    }
+
     // Tambahkan token ke user
     await User.increment(
       { tokens: invoice.tokenAmount },
@@ -185,16 +231,17 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
           const commissionAmount = await calculateTokenCommission(invoice.packageId, invoice.tokenAmount);
           
           if (commissionAmount > 0) {
-            // Buat record komisi
+            // Buat record komisi menggunakan tokenPurchase.id yang benar
+            const tokenPurchaseId = tokenPurchase ? tokenPurchase.id : invoice.id; // fallback ke invoice.id jika tokenPurchase gagal dibuat
             await addTokenPurchaseCommission(
-              invoice.id, // tokenPurchaseId
+              tokenPurchaseId, // tokenPurchaseId
               referrer.id, // referrerId
               invoice.userId, // userId
               commissionAmount, // commissionAmount yang sudah dihitung
               invoice.packageId // packageId
             );
             
-            console.log(`Komisi referral ditambahkan untuk referrer: ${referrer.fullname} (${referralCode}), amount: ${commissionAmount}, tokens: ${invoice.tokenAmount}, packageId: ${invoice.packageId}`);
+            console.log(`Komisi referral ditambahkan untuk referrer: ${referrer.fullname} (${referralCode}), amount: ${commissionAmount}, tokens: ${invoice.tokenAmount}, packageId: ${invoice.packageId}, tokenPurchaseId: ${tokenPurchaseId}`);
            }
          } else {
            console.log(`Referrer tidak ditemukan atau bukan affiliator untuk ID: ${referrerUserId}`);

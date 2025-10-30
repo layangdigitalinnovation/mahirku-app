@@ -43,6 +43,7 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
     badge,
     to 
   }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     icon: any;
     title: string;
     description: string;
@@ -172,12 +173,8 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
               </div>
               <div className="ml-4">
                 <h4 className="font-semibold text-yellow-800 mb-2">Tips untuk Memulai</h4>
-                <p className="text-yellow-700 text-sm mb-3">
-                  Numerologi adalah seni membaca makna di balik angka. Mulai dengan test pertama Anda untuk mendapatkan wawasan unik tentang kepribadian dan potensi hidup Anda.
-                </p>
                 <ul className="text-sm text-yellow-700 space-y-1">
                   <li>• Siapkan tanggal lahir lengkap Anda</li>
-                  <li>• Jawab pertanyaan dengan jujur</li>
                   <li>• Simpan hasil untuk referensi masa depan</li>
                 </ul>
               </div>

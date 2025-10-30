@@ -35,9 +35,6 @@ export interface WithdrawStatistics {
 
 export interface CreateWithdrawPayload {
   amount: number;
-  bankName: string;
-  accountNumber: string;
-  accountName: string;
   notes?: string;
 }
 
