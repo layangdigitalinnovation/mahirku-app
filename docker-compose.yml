@@ -59,6 +59,8 @@ services:
 
 volumes:
   pgdata:
+    name: mahirku_pgdata
+    external: true
 
 networks:
   dokploy-network:
