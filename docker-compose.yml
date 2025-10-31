@@ -1,10 +1,28 @@
 version: "3.9"
 
 services:
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=admin@mahirku.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--api.dashboard=true"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "letsencrypt:/letsencrypt"
+    networks:
+      - app-network
+
   frontend:
     build: ./frontend
-    ports:
-      - "3001:80"  # Map port 80 container ke port 3000 host
     depends_on:
       - backend
     networks:
@@ -12,28 +30,27 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`mahirku.com`)"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
   backend:
     build: ./backend
-    ports:
-      - "5000:5000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgres://postgres:postgres@db:5432/mahirku
       - DB_USER=postgres
       - DB_PASS=postgres
       - DB_NAME=mahirku
-      - PORT=5000
       - DB_HOST=db
+      - PORT=5000
       - JWT_SECRET=675ffe2d468fece7fa614e942b65c44611e63993de0789fe5249c9344cea833698d404b2b957c6fbe54fc88d3c46c52e957be30d98d822533045dde5df0452f5
       - XENDIT_API_KEY=xnd_production_lYDUN855uViCro9u25cRH9M3vSHgMQRzaTei2Y6RnV48cY0UbeC6tyD05nEN
       - XENDIT_PUBLIC_KEY=xnd_public_production_vf34AtLlXwlWJzrORt0uzkJOl4NVBx78HZ7L_MwKbmwaVMwa6lu8eha1AkGjbN0N
       - XENDIT_BASE_URL=https://api.xendit.co
-      - XENDIT_CALLBACK_URL=https://mahirku.com/api/payment/callback  # Update ke HTTPS dan domain yang benar
-      - XENDIT_SUCCESS_REDIRECT_URL=https://mahirku.com/payment-success  # Update ke HTTPS dan domain
-      - XENDIT_FAILURE_REDIRECT_URL=https://mahirku.com/payment-failed   # Update ke HTTPS dan domain
+      - XENDIT_CALLBACK_URL=https://mahirku.com/api/payment/callback
+      - XENDIT_SUCCESS_REDIRECT_URL=https://mahirku.com/payment-success
+      - XENDIT_FAILURE_REDIRECT_URL=https://mahirku.com/payment-failed
       - XENDIT_CALLBACK_TOKEN=yyI0FqtmZBd1yczzKHZ0dzF2bwfzabmq8cx2N03KwiqJHgox
       - RUN_MIGRATIONS=false
       - RUN_SEEDS=false
@@ -44,9 +61,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`mahirku.com`) && PathPrefix(`/api`)"
-      - "traefik.http.services.backend.loadbalancer.server.port=5000"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      - "traefik.http.services.backend.loadbalancer.server.port=5000"
       - "traefik.http.middlewares.backend-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=backend-strip"
 
@@ -61,12 +78,10 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - app-network
-    
 
 volumes:
   pgdata:
-    external: true
-    name : mahirku_pgdata
+  letsencrypt:
 
 networks:
   app-network:
