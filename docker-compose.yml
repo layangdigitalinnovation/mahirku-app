@@ -1,32 +1,10 @@
-version: "3.9"
-
 services:
-  traefik:
-    image: traefik:v2.10
-    command:
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=admin@mahirku.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--api.dashboard=true"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "letsencrypt:/letsencrypt"
-    networks:
-      - app-network
-
   frontend:
     build: ./frontend
     depends_on:
       - backend
     networks:
-      - app-network
+      - dokploy-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`mahirku.com`)"
@@ -57,7 +35,7 @@ services:
     depends_on:
       - db
     networks:
-      - app-network
+      - dokploy-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`mahirku.com`) && PathPrefix(`/api`)"
@@ -77,11 +55,13 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - app-network
+      - dokploy-network
 
 volumes:
   pgdata:
-  letsencrypt:
+    name: mahirku_pgdata
+    external: true
 
 networks:
-  app-network:
+  dokploy-network:
+    external: true
