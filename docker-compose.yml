@@ -38,12 +38,11 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
+      - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`mahirku.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=myresolver"
       - "traefik.http.services.backend.loadbalancer.server.port=5000"
-      - "traefik.http.middlewares.backend-strip.stripprefix.prefixes=/api"
-      - "traefik.http.routers.backend.middlewares=backend-strip"
 
   db:
     image: postgres:15-alpine
