@@ -29,12 +29,13 @@ import AdminWithdrawManagement from './pages/Admin/ManageWithdraw';
 import ThinkingStylesManagement from './pages/Admin/ManageThinkingStyle';
 import ThinkingStyleDetailPage from './pages/Test/ThinkingStyleDetailPage';
 import EditDetailThinkingStylePage from './pages/Admin/EditDetailThinkingStylePage';
-import { AffiliatorLanding } from './pages/AffiliatorLanding';
+import { CognitiveStyleLanding } from './pages/CognitiveStyleLanding';
 import { AffiliatorLandingLayout } from './layouts/AffiliatorLandingLayout';
 import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
 import { UserInvoice } from './pages/User/UserInvoice';
 import { AdminInvoice } from './pages/Admin/AdminInvoice';
 import { RoleName } from './types';
+import { AffiliatorLanding } from './pages/AffiliatorLanding';
 // import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
 
 // Protected Route Component
@@ -88,6 +89,7 @@ function AppRoutes() {
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="terms" element={<Terms />} />
           <Route path="payment-success" element={<PaymentSuccess />} />
+          <Route path="cognitive-style-test" element={<CognitiveStyleLanding />} />
         </Route>
 
         <Route path="/affiliator" element={
