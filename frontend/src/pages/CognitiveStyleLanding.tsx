@@ -72,7 +72,7 @@ export const CognitiveStyleLanding: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" variant="secondary">
-                <Link to="/test">Mulai Tes Sekarang</Link>
+                <Link to="/register">Mulai Tes Sekarang</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link to="/#paket">Lihat Paket</Link>
