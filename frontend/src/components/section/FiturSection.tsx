@@ -11,29 +11,21 @@ import { PlusCircleIcon, MinusCircleIcon } from "lucide-react"
 const features = [
   {
     id: 1,
-    title: "Analisis Gaya Berpikir",
+    title: "Pilihan Personality Test",
     description:
       "Temukan pola berpikir unik dan karakteristik pribadi Anda melalui tes komprehensif yang menggabungkan teknologi biometrik modern dan analisis mendalam. Hasil tes akan memberikan wawasan berharga tentang cara Anda memproses informasi dan membuat keputusan. Dengan pemahaman mendalam tentang gaya berpikir Anda, Anda dapat mengoptimalkan potensi diri dan meningkatkan efektivitas dalam pembelajaran dan pengambilan keputusan sehari-hari.",
     icon: brain,
   },
   {
     id: 2,
-    title: "Verifikasi Sidik Jari",
-    description:
-      "Sistem keamanan berbasis biometrik menggunakan fingerprint yang memastikan keakuratan dan keamanan data Anda. Teknologi pemindaian sidik jari canggih kami menggunakan algoritma enkripsi terkini untuk melindungi informasi pribadi Anda. Proses verifikasi yang cepat dan aman ini memungkinkan Anda untuk mengakses hasil tes dan laporan dengan mudah sambil menjaga privasi data sensitif.",
-    icon: fingerScan,
-
-  },
-  {
-    id: 3,
     title: "Laporan Mendalam",
     description:
-      "Dapatkan laporan gaya berpikir dan saran pengembangan diri Anda yang komprehensif dan terperinci. Laporan ini mencakup analisis mendalam tentang kekuatan dan area pengembangan Anda, disertai dengan rekomendasi praktis untuk peningkatan diri. Setiap laporan disesuaikan secara personal dan mencakup strategi konkret untuk mengoptimalkan potensi Anda dalam berbagai aspek kehidupan.",
+      "Dapatkan laporan  dan saran pengembangan diri Anda yang komprehensif dan terperinci. Laporan ini mencakup analisis mendalam tentang kekuatan dan area pengembangan Anda, disertai dengan rekomendasi praktis untuk peningkatan diri. Setiap laporan disesuaikan secara personal dan mencakup strategi konkret untuk mengoptimalkan potensi Anda dalam berbagai aspek kehidupan.",
     icon: report,
 
   },
   {
-    id: 4,
+    id: 3,
     title: "Rekomendasi Karier",
     description:
       "Rekomendasi bidang karier yang dipersonalisasi berdasarkan hasil tes dan analisis kepribadian Anda. Kami menggunakan algoritma canggih yang mencocokkan profil Anda dengan ribuan jalur karier potensial, memberikan wawasan tentang industri dan posisi yang paling sesuai dengan gaya berpikir dan kepribadian Anda. Termasuk juga panduan langkah-langkah konkret untuk mencapai tujuan karier Anda.",
