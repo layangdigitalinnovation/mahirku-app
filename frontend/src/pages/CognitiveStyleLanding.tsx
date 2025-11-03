@@ -55,7 +55,7 @@ export const CognitiveStyleLanding: React.FC = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section
-        className="pb-20 bg-center pt-6 relative rounded-b-sm border-b border-b-neutral-200"
+        className="pt-30 pb-20 bg-center relative rounded-b-sm border-b border-b-neutral-200"
         style={{
           backgroundImage: `url(${dots})`,
         }}
