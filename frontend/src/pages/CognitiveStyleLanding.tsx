@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Brain, Target, Users, TrendingUp, CheckCircle, Star } from "lucide-react";
 import heroImg from "@/assets/Online Learning 5.png";
 import dots from "@/assets/Dots.png";
+import cta from "@/assets/Problem_Solving_3-removebg-preview 1.png";
 
 export const CognitiveStyleLanding: React.FC = () => {
   const benefits = [
@@ -55,7 +56,7 @@ export const CognitiveStyleLanding: React.FC = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section
-        className="pb-20 bg-center pt-6 relative rounded-b-sm border-b border-b-neutral-200"
+        className="pt-30 pb-20 bg-center relative rounded-b-sm border-b border-b-neutral-200"
         style={{
           backgroundImage: `url(${dots})`,
         }}
@@ -71,7 +72,7 @@ export const CognitiveStyleLanding: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" variant="secondary">
-                <Link to="/test">Mulai Tes Sekarang</Link>
+                <Link to="/register">Mulai Tes Sekarang</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link to="/#paket">Lihat Paket</Link>
@@ -268,14 +269,8 @@ export const CognitiveStyleLanding: React.FC = () => {
               </Button>
             </div>
           </div>
-          <div className="bg-white p-8 rounded-2xl border border-neutral-200">
-            <Brain className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-heading4 font-heading font-bold text-primary-900 mb-2 text-center">
-              Tes Cepat & Akurat
-            </h3>
-            <p className="text-body1 font-body text-gray-700 text-center">
-              Hanya perlu beberapa menit untuk mendapatkan wawasan mendalam tentang pola berpikir Anda.
-            </p>
+          <div className="flex-1  bg-white p-8 rounded-2xl border border-neutral-200">
+            <img src={cta} alt="CTA Image" className="mx-auto mb-4" />
           </div>
         </div>
       </section>
