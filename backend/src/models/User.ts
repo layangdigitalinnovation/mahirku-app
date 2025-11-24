@@ -29,6 +29,7 @@ interface UserAttributes {
   bankName?: string | null;
   bankAccountNumber?: string | null;
   bankAccountName?: string | null;
+  biometricPublicKey?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -50,6 +51,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public bankName?: string | null;
   public bankAccountNumber?: string | null;
   public bankAccountName?: string | null;
+  public biometricPublicKey?: string | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -205,6 +207,10 @@ User.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    biometricPublicKey: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
   },
   {
     sequelize,
@@ -219,13 +225,13 @@ User.init(
     },
     hooks: {
       beforeCreate: async (user: User) => {
-        if (user.password && !user.password.startsWith('$2a$')) {
+        if (user.password && !/^\$2[aby]\$/.test(user.password)) {
           const salt = await bcrypt.genSalt(10);
           user.password = await bcrypt.hash(user.password, salt);
         }
       },
       beforeUpdate: async (user: User) => {
-        if (user.changed('password') && !user.password.startsWith('$2a$')) {
+        if (user.changed('password') && !/^\$2[aby]\$/.test(user.password)) {
           const salt = await bcrypt.genSalt(10);
           user.password = await bcrypt.hash(user.password, salt);
         }
