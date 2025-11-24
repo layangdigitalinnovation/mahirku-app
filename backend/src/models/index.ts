@@ -7,6 +7,7 @@ import ThinkingStyleResult from './ThinkingStyleResult';
 import AffiliateCommission from './AffiliateCommission';
 import TokenPurchase from './TokenPurchase';
 import WithdrawRequest from './WithdrawRequest';
+import BiometricChallenge from './BiometricChallenge';
 
 const models = {
   User,
@@ -18,6 +19,7 @@ const models = {
   AffiliateCommission,
   TokenPurchase,
   WithdrawRequest,
+  BiometricChallenge,
 };
 
 // Registrasi association

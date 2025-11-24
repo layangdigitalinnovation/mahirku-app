@@ -26,10 +26,21 @@ const registerUserWithRole = async (
       return;
     }
 
-    // Cek apakah user sudah terdaftar
+    // Cek apakah email sudah terdaftar
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       res.status(409).json({ message: "Email already registered." });
+      return;
+    }
+
+    // Cek apakah username sudah terdaftar
+    if (!username) {
+      res.status(400).json({ message: "Username is required." });
+      return;
+    }
+    const existingUsername = await User.findOne({ where: { username } });
+    if (existingUsername) {
+      res.status(409).json({ message: "Username already registered." });
       return;
     }
 
@@ -60,6 +71,13 @@ const registerUserWithRole = async (
       return;
     }
 
+    // Sanitasi nomor HP
+    const phoneSanitized = typeof phoneNumber === 'string' ? phoneNumber.replace(/\s+/g, '') : phoneNumber;
+    if (!phoneSanitized || !/^\+?[0-9]+$/.test(phoneSanitized)) {
+      res.status(400).json({ message: "Invalid phone number format." });
+      return;
+    }
+
     // Buat user baru
     const user = await models.User.create({
       username,
@@ -67,7 +85,7 @@ const registerUserWithRole = async (
       password,
       fullname,
       address,
-      phoneNumber,
+      phoneNumber: phoneSanitized,
       roleId,
       bankAccountNumber,
       bankAccountName,
@@ -81,9 +99,17 @@ const registerUserWithRole = async (
     // }
 
     res.status(201).json({ message: "User registered successfully", user });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Register error:", err);
     console.error("Error stack:", err instanceof Error ? err.stack : 'Unknown error');
+    if (err?.name === 'SequelizeUniqueConstraintError') {
+      res.status(409).json({ message: "Duplicate field value.", error: err?.message });
+      return;
+    }
+    if (err?.name === 'SequelizeValidationError') {
+      res.status(400).json({ message: "Validation failed.", error: err?.message });
+      return;
+    }
     res.status(500).json({ message: "Internal server error", error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
@@ -116,7 +142,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const user = await models.User.findByEmail(email);
+    console.log('LOGIN attempt for email:', email, 'found:', !!user);
     if (!user || !(await user.comparePassword(password))) {
+      if (user) {
+        const match = await user.comparePassword(password);
+        console.log('PASSWORD compare result:', match);
+      }
       res.status(401).json({ message: "Invalid email or password" });
       return;
     }

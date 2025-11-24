@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Mahirku",
+    "slug": "mahirku-mobile",
+    "version": "1.0.0",
+    "sdkVersion": "54.0.0",
+    "platforms": [
+      "android"
+    ],
+    "orientation": "portrait",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0F172A"
+    },
+    "android": {
+      "package": "com.mahirku.app",
+      "permissions": []
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font"
+    ]
+  }
+}

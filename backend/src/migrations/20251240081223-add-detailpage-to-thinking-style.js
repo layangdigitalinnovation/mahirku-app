@@ -9,11 +9,13 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-
-    await queryInterface.addColumn('thinking_styles', 'detailPage', {
-      type: Sequelize.TEXT('long'), // pakai long kalau MySQL, biasa TEXT cukup kalau Postgres
-      allowNull: true,
-    });
+    const table = await queryInterface.describeTable('thinking_styles');
+    if (!table.detailPage) {
+      await queryInterface.addColumn('thinking_styles', 'detailPage', {
+        type: Sequelize.TEXT, // TEXT untuk Postgres
+        allowNull: true,
+      });
+    }
   },
 
   async down (queryInterface, Sequelize) {

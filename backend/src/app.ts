@@ -14,6 +14,7 @@ import affiliateRoutes from './routes/affiliateRoutes';
 import withdrawRoutes from './routes/withdrawRoutes';
 import invoiceRoutes from './routes/invoiceRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
+import biometricRoutes from './routes/biometricRoutes';
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use('/api/affiliate', affiliateRoutes);
 app.use('/api/withdraw', withdrawRoutes);
 app.use('/api/invoice', invoiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/biometrics', biometricRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
