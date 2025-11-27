@@ -14,9 +14,10 @@ type Props = {
   containerStyle?: any;
   inputStyle?: any;
   secureToggle?: boolean;
+  startIcon?: React.ReactNode;
 };
 
-export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, errorText, multiline, containerStyle, inputStyle, secureToggle }: Props) {
+export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon }: Props) {
   const [isSecure, setIsSecure] = useState(Boolean(secureTextEntry));
   const showToggle = Boolean(secureToggle);
   const effectiveSecure = showToggle ? isSecure : Boolean(secureTextEntry);
@@ -25,6 +26,11 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
     <View style={[styles.container, containerStyle]}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
       <View style={styles.inputWrapper}>
+        {startIcon && (
+          <View style={styles.iconLeft}>
+            {startIcon}
+          </View>
+        )}
         <TextInput
           value={value}
           onChangeText={onChangeText}
@@ -33,7 +39,12 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
           keyboardType={keyboardType}
           multiline={multiline}
           placeholderTextColor={placeholderColor}
-          style={[styles.input, showToggle && styles.inputWithIcon, inputStyle]}
+          style={[
+            styles.input,
+            showToggle && styles.inputWithIcon,
+            startIcon && styles.inputWithStartIcon,
+            inputStyle
+          ]}
         />
         {showToggle ? (
           <Pressable style={styles.iconRight} onPress={() => setIsSecure(s => !s)}>
@@ -52,6 +63,8 @@ const styles = StyleSheet.create({
   inputWrapper: { position: 'relative' },
   input: { height: 52, borderRadius: 16, borderWidth: 1, borderColor: '#E3EEF9', backgroundColor: '#FFFFFF', paddingHorizontal: 14, color: '#0F172A', fontSize: 16 },
   inputWithIcon: { paddingRight: 42 },
+  inputWithStartIcon: { paddingLeft: 42 },
   iconRight: { position: 'absolute', right: 12, top: 14 },
+  iconLeft: { position: 'absolute', left: 12, top: 14, zIndex: 1 },
   error: { color: '#ef4444', marginTop: 6, fontSize: 12 },
 });

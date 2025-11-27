@@ -1,19 +1,11 @@
-import { Router } from 'express';
+import express from 'express';
+import { registerKey, getChallenge, verifySignature } from '../controllers/biometricController';
 import { authMiddleware } from '../middlewares/authMiddleware';
-import {
-  registerPublicKey,
-  requestChallengeByEmail,
-  verifyLogin,
-  requestChallengeAuthenticated,
-  verifyChallengeAuthenticated,
-} from '../controllers/biometricController';
 
-const router = Router();
+const router = express.Router();
 
-router.post('/register', authMiddleware, registerPublicKey);
-router.post('/challenge', requestChallengeByEmail);
-router.post('/verify-login', verifyLogin);
-router.post('/challenge/auth', authMiddleware, requestChallengeAuthenticated);
-router.post('/verify/auth', authMiddleware, verifyChallengeAuthenticated);
+router.post('/register-key', authMiddleware, registerKey);
+router.get('/challenge', authMiddleware, getChallenge);
+router.post('/verify', authMiddleware, verifySignature);
 
 export default router;
