@@ -29,12 +29,11 @@ interface UserAttributes {
   bankName?: string | null;
   bankAccountNumber?: string | null;
   bankAccountName?: string | null;
-  biometricPublicKey?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'tokens' | 'parentId' | 'packageId'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'tokens' | 'parentId' | 'packageId'> { }
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
@@ -51,7 +50,6 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public bankName?: string | null;
   public bankAccountNumber?: string | null;
   public bankAccountName?: string | null;
-  public biometricPublicKey?: string | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -205,10 +203,6 @@ User.init(
     },
     bankAccountName: {
       type: DataTypes.STRING,
-      allowNull: true,
-    },
-    biometricPublicKey: {
-      type: DataTypes.TEXT,
       allowNull: true,
     },
   },
