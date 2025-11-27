@@ -11,6 +11,11 @@ import TestScreen from './src/screens/TestScreen';
 import ReportsScreen from './src/screens/ReportsScreen';
 import ReportDetailScreen from './src/screens/ReportDetailScreen';
 import InvoiceHistoryScreen from './src/screens/InvoiceHistoryScreen';
+import TokenPackagesScreen from './src/screens/TokenPackagesScreen';
+import PaymentStatusScreen from './src/screens/PaymentStatusScreen';
+import PaymentSuccessScreen from './src/screens/PaymentSuccessScreen';
+import PaymentWebViewScreen from './src/screens/PaymentWebViewScreen';
+import CognitiveTestIntroScreen from './src/screens/CognitiveTestIntroScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
 
@@ -31,6 +36,11 @@ export default function App() {
             <Stack.Screen name="Reports" component={ReportsScreen} />
             <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
             <Stack.Screen name="InvoiceHistory" component={InvoiceHistoryScreen} />
+            <Stack.Screen name="TokenPackages" component={TokenPackagesScreen} />
+            <Stack.Screen name="PaymentStatus" component={PaymentStatusScreen} />
+            <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
+            <Stack.Screen name="PaymentWebView" component={PaymentWebViewScreen} />
+            <Stack.Screen name="CognitiveTestIntro" component={CognitiveTestIntroScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           </Stack.Navigator>

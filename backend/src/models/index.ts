@@ -8,6 +8,7 @@ import AffiliateCommission from './AffiliateCommission';
 import TokenPurchase from './TokenPurchase';
 import WithdrawRequest from './WithdrawRequest';
 import BiometricChallenge from './BiometricChallenge';
+import BiometricKey from './BiometricKey';
 
 const models = {
   User,
@@ -20,6 +21,7 @@ const models = {
   TokenPurchase,
   WithdrawRequest,
   BiometricChallenge,
+  BiometricKey,
 };
 
 // Registrasi association

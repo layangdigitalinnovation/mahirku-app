@@ -52,7 +52,7 @@ const baseURL = resolveBaseURL();
 try {
   console.log('API baseURL resolved to', baseURL);
   console.log('Dev host from scriptURL', NativeModules.SourceCode?.scriptURL);
-} catch {}
+} catch { }
 export const resolvedBaseURL = baseURL;
 
 export const api = axios.create({
@@ -66,8 +66,9 @@ api.interceptors.request.use((config) => {
       method: config.method,
       url: config.url,
       baseURL: config.baseURL,
+      hasAuth: !!config.headers?.Authorization,
     });
-  } catch {}
+  } catch { }
   return config;
 });
 
@@ -82,7 +83,7 @@ api.interceptors.response.use(
         status: error.response?.status,
         data: error.response?.data,
       });
-    } catch {}
+    } catch { }
     return Promise.reject(error);
   }
 );

@@ -1,6 +1,6 @@
 import app from './app';
 import { sequelize } from './config/database';
-import User from './models/User';
+import './models';
 
 const PORT = process.env.PORT || 5000;
 
@@ -18,7 +18,7 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected');
-    await User.sync();
+    await sequelize.sync();
 
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on port ${PORT}`);
