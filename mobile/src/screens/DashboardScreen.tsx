@@ -95,7 +95,15 @@ export default function DashboardScreen({ navigation }: any) {
           <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 24 }}>
             <View style={styles.headerRow}>
               <View style={styles.headerLeft}>
-                <Image source={{ uri: 'https://i.pravatar.cc/120' }} style={styles.avatar} />
+                <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' }] }>
+                  {data?.user?.fullname ? (
+                    <Text style={styles.avatarText}>
+                      {String(data?.user?.fullname).split(' ').slice(0,2).map(s => s[0]?.toUpperCase() || '').join('')}
+                    </Text>
+                  ) : (
+                    <Feather name="user" size={22} color="#4F46E5" />
+                  )}
+                </View>
                 <View style={{ marginLeft: 16 }}>
                   <Text style={styles.headerName}>{data?.user?.fullname || 'Pengguna'}</Text>
                   <Text style={styles.headerTagline}>Member • {data?.user?.role?.name ?? 'User'}</Text>
@@ -208,6 +216,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   avatar: { width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: '#FFFFFF' },
+  avatarText: { color: '#4F46E5', fontSize: 16, fontWeight: '800' },
   headerName: { color: '#1E293B', fontSize: 18, fontWeight: '700', letterSpacing: 0.3 },
   headerTagline: { color: '#64748B', fontWeight: '500', fontSize: 13, marginTop: 2 },
   iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },

@@ -1,16 +1,32 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import { downloadCertificate as downloadCertApi } from '../api/certificate';
 
 export default function ReportDetailScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const r = route?.params?.report as { title: string; date: string; summary: string; type: string; fullData?: any } | undefined;
   const thinkingStyle = r?.fullData?.thinkingStyle;
-
-  const dlCert = () => { };
+  const [downloading, setDownloading] = useState(false);
+  const dlCert = async () => {
+    try {
+      const testId = r?.fullData?.id;
+      if (!testId) {
+        Alert.alert('Gagal', 'ID hasil tes tidak ditemukan');
+        return;
+      }
+      setDownloading(true);
+      await downloadCertApi(Number(testId));
+      Alert.alert('Berhasil', 'Sertifikat berhasil diunduh dan siap dibagikan.');
+    } catch (error: any) {
+      Alert.alert('Gagal', error?.message || 'Gagal mengunduh sertifikat');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
@@ -65,6 +81,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             leftIcon={<Feather name="download" size={18} color="#FFFFFF" />}
             onPress={dlCert}
             style={{ marginTop: 32, backgroundColor: '#4F46E5', borderRadius: 12, height: 48 }}
+            loading={downloading}
           />
         </Card>
       </ScrollView>
@@ -122,4 +139,3 @@ const styles = StyleSheet.create({
   statusBadge: { paddingHorizontal: 8, paddingVertical: 4, backgroundColor: '#DCFCE7', borderRadius: 6, marginTop: 4 },
   statusText: { color: '#16A34A', fontWeight: '700', fontSize: 13 },
 });
-

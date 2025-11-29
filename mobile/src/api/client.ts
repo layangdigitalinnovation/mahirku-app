@@ -35,17 +35,22 @@ const getExpoDebuggerHost = () => {
 const resolveBaseURL = () => {
   const envUrl = (globalThis as any)?.process?.env?.EXPO_PUBLIC_API_URL as string | undefined;
   if (envUrl) return envUrl;
-  const host = getDevHost() || getDevSettingsHost() || getExpoDebuggerHost();
-  if (Platform.OS === 'android') {
+
+  if (__DEV__) {
+    const host = getDevHost() || getDevSettingsHost() || getExpoDebuggerHost();
+    if (Platform.OS === 'android') {
+      if (!host || host === 'localhost' || host === '127.0.0.1') {
+        return 'http://10.0.2.2:5000';
+      }
+      return `http://${host}:5000`;
+    }
     if (!host || host === 'localhost' || host === '127.0.0.1') {
-      return 'http://10.0.2.2:5000';
+      return 'http://localhost:5000';
     }
     return `http://${host}:5000`;
   }
-  if (!host || host === 'localhost' || host === '127.0.0.1') {
-    return 'http://localhost:5000';
-  }
-  return `http://${host}:5000`;
+
+  return 'https://mahirku.com';
 };
 
 const baseURL = resolveBaseURL();
