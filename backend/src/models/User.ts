@@ -18,7 +18,7 @@ interface UserAttributes {
   id: number;
   username: string;
   email: string;
-  password?: string; // Optional for Google users
+  password: string;
   roleId: number;
   fullname: string;
   address: string;
@@ -29,8 +29,6 @@ interface UserAttributes {
   bankName?: string | null;
   bankAccountNumber?: string | null;
   bankAccountName?: string | null;
-  googleId?: string | null;
-  googleEmail?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -41,7 +39,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public id!: number;
   public username!: string;
   public email!: string;
-  public password?: string; // Optional for Google users
+  public password!: string;
   public roleId!: number;
   public fullname!: string;
   public address!: string;
@@ -52,8 +50,6 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public bankName?: string | null;
   public bankAccountNumber?: string | null;
   public bankAccountName?: string | null;
-  public googleId?: string | null;
-  public googleEmail?: string | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -71,9 +67,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     role: Association<User, any>;
   };
 
-  // 🔐 Compare password
   async comparePassword(inputPassword: string): Promise<boolean> {
-    if (!this.password) return false; // Google users don't have password
     return await bcrypt.compare(inputPassword, this.password);
   }
 
@@ -145,7 +139,7 @@ User.init(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: true, // Optional for Google users
+      allowNull: false,
     },
     roleId: {
       type: DataTypes.INTEGER,
@@ -207,15 +201,6 @@ User.init(
       allowNull: true,
     },
     bankAccountName: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    googleId: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true,
-    },
-    googleEmail: {
       type: DataTypes.STRING,
       allowNull: true,
     },
