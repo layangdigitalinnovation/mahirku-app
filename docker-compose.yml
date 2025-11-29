@@ -3,7 +3,7 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: https://mahirku.com/api
+        VITE_API_URL: /api
     depends_on:
       - backend
     networks:
