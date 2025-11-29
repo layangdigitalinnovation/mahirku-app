@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, useWindowDimensions, Alert } from 'react-native';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { View, ScrollView, Text, useWindowDimensions } from 'react-native';
 import { registerUserApi, loginApi } from '../api/auth';
-import { googleLogin } from '../api/googleAuth';
 import { resolvedBaseURL } from '../api/client';
 import { saveToken } from '../store/auth';
 import GradientBackground from '../components/ui/GradientBackground';
@@ -52,42 +50,7 @@ export default function RegisterScreen({ navigation }: any) {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      // Configure Google Sign-In
-      GoogleSignin.configure({
-        webClientId: '1061850144136-r1k407gtpglk67otkdvdqbo55eknhdj2.apps.googleusercontent.com', // Web Client ID (bukan Android!)
-        offlineAccess: false,
-      });
-
-      // Check if device supports Google Play Services
-      await GoogleSignin.hasPlayServices();
-
-      // Sign in with Google
-      const userInfo = await GoogleSignin.signIn();
-      const idToken = userInfo.data?.idToken;
-
-      if (!idToken) {
-        Alert.alert('Error', 'Failed to get Google ID token');
-        return;
-      }
-
-      // Send ID token to backend
-      setLoading(true);
-      const response = await googleLogin(idToken);
-      await saveToken(response.token);
-
-      // Navigate to dashboard
-      navigation.replace('Dashboard');
-    } catch (error: any) {
-      console.error('Google Sign-In Error:', error);
-      if (error.code !== 'SIGN_IN_CANCELLED') {
-        Alert.alert('Error', error.message || 'Google Sign-In failed');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
   return (
     <GradientBackground>
@@ -119,7 +82,6 @@ export default function RegisterScreen({ navigation }: any) {
               </View>
               {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
               <PrimaryButton title="Register" onPress={register} loading={loading} style={{ marginTop: 16, backgroundColor: '#3B82F6' }} />
-              <SocialAuthRow onGooglePress={handleGoogleSignIn} />
             </Card>
           </View>
         </ScrollView>
