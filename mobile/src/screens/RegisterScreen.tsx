@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, useWindowDimensions } from 'react-native';
+import { View, ScrollView, Text, useWindowDimensions, Alert } from 'react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { registerUserApi, loginApi } from '../api/auth';
+import { googleLogin } from '../api/googleAuth';
 import { resolvedBaseURL } from '../api/client';
 import { saveToken } from '../store/auth';
 import GradientBackground from '../components/ui/GradientBackground';
@@ -50,32 +52,77 @@ export default function RegisterScreen({ navigation }: any) {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      // Configure Google Sign-In
+      GoogleSignin.configure({
+        webClientId: '1061850144136-r1k407gtpglk67otkdvdqbo55eknhdj2.apps.googleusercontent.com', // Web Client ID (bukan Android!)
+        offlineAccess: false,
+      });
+
+      // Check if device supports Google Play Services
+      await GoogleSignin.hasPlayServices();
+
+      // Sign in with Google
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.data?.idToken;
+
+      if (!idToken) {
+        Alert.alert('Error', 'Failed to get Google ID token');
+        return;
+      }
+
+      // Send ID token to backend
+      setLoading(true);
+      const response = await googleLogin(idToken);
+      await saveToken(response.token);
+
+      // Navigate to dashboard
+      navigation.replace('Dashboard');
+    } catch (error: any) {
+      console.error('Google Sign-In Error:', error);
+      if (error.code !== 'SIGN_IN_CANCELLED') {
+        Alert.alert('Error', error.message || 'Google Sign-In failed');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <GradientBackground>
       <View style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingVertical: 24 }}>
-        <View style={{ padding: 24 }}>
-          <View style={{ alignItems: 'center', marginBottom: 16 }}>
-            <Text style={{ color: '#0F172A', fontSize: 24, fontWeight: '800' }}>Create an account</Text>
-            <Text style={{ color: '#5A6B85' }}>Already have an account? <Text style={{ color: '#3B82F6', fontWeight: '700' }} onPress={() => navigation.replace('Login')}>Log in</Text></Text>
-          </View>
-          <SegmentedTabs items={["Login", "Register"]} activeIndex={1} onChange={(i) => (i === 0 ? navigation.replace('Login') : null)} />
-          <View style={{ height: 16 }} />
-          <Card>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 }}>
-              <TextField label="Nama Lengkap" value={fullname} onChangeText={setFullname} containerStyle={{ width: '48%' }} />
-              <TextField label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" containerStyle={{ width: '48%' }} />
-              <TextField label="Username" value={username} onChangeText={setUsername} containerStyle={{ width: '48%' }} />
-              <TextField label="No. HP" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="phone-pad" containerStyle={{ width: '48%' }} />
-              <TextField label="Alamat" value={address} onChangeText={setAddress} containerStyle={{ width: '100%' }} />
-              <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry secureToggle containerStyle={{ width: '100%' }} />
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingVertical: 24 }}>
+          <View style={{ padding: 24 }}>
+            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+              <Text style={{ color: '#0F172A', fontSize: 28, fontWeight: '800', letterSpacing: 0.3 }}>Create an account</Text>
+              <Text style={{ color: '#64748B', marginTop: 8, fontSize: 14 }}>
+                Already have an account?{' '}
+                <Text
+                  style={{ color: '#3B82F6', fontWeight: '700' }}
+                  onPress={() => navigation.replace('Login')}
+                >
+                  Log in
+                </Text>
+              </Text>
             </View>
-            {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
-            <PrimaryButton title="Register" onPress={register} loading={loading} style={{ marginTop: 16, backgroundColor: '#3B82F6' }} />
-            <SocialAuthRow />
-          </Card>
-        </View>
-      </ScrollView>
+            <SegmentedTabs items={["Login", "Register"]} activeIndex={1} onChange={(i) => (i === 0 ? navigation.replace('Login') : null)} />
+            <View style={{ height: 16 }} />
+            <Card>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 }}>
+                <TextField label="Nama Lengkap" value={fullname} onChangeText={setFullname} containerStyle={{ width: '48%' }} />
+                <TextField label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" containerStyle={{ width: '48%' }} />
+                <TextField label="Username" value={username} onChangeText={setUsername} containerStyle={{ width: '48%' }} />
+                <TextField label="No. HP" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="phone-pad" containerStyle={{ width: '48%' }} />
+                <TextField label="Alamat" value={address} onChangeText={setAddress} containerStyle={{ width: '100%' }} />
+                <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry secureToggle containerStyle={{ width: '100%' }} />
+              </View>
+              {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
+              <PrimaryButton title="Register" onPress={register} loading={loading} style={{ marginTop: 16, backgroundColor: '#3B82F6' }} />
+              <SocialAuthRow onGooglePress={handleGoogleSignIn} />
+            </Card>
+          </View>
+        </ScrollView>
       </View>
     </GradientBackground>
   );

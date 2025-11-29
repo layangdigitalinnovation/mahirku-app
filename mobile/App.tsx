@@ -18,6 +18,8 @@ import PaymentWebViewScreen from './src/screens/PaymentWebViewScreen';
 import CognitiveTestIntroScreen from './src/screens/CognitiveTestIntroScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
+import DiscTestScreen from './src/screens/DiscTestScreen';
+import DiscResultScreen from './src/screens/DiscResultScreen';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
@@ -43,6 +45,8 @@ export default function App() {
             <Stack.Screen name="CognitiveTestIntro" component={CognitiveTestIntroScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="DiscTest" component={DiscTestScreen} />
+            <Stack.Screen name="DiscResult" component={DiscResultScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </QueryClientProvider>

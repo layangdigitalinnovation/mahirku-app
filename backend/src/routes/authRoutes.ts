@@ -5,6 +5,7 @@ import {
   registerUser,
   registerAffiliator,
 } from '../controllers/authController';
+import { googleLogin } from '../controllers/googleAuthController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
@@ -26,6 +27,12 @@ router.post('/register-affiliator', registerAffiliator);
  * @desc    Login user dan dapatkan JWT token
  */
 router.post('/login', login);
+
+/**
+ * @route   POST /api/auth/google-login
+ * @desc    Login with Google OAuth
+ */
+router.post('/google-login', googleLogin);
 
 /**
  * @route   GET /api/auth/me
