@@ -117,8 +117,13 @@ export default function DashboardScreen({ navigation }: any) {
                 </View>
               </View>
               <View style={styles.buttonRow}>
-                <PrimaryButton title="Beli Token" leftIcon={<Feather name="shopping-cart" size={18} color="#FFFFFF" />} onPress={() => navigation.navigate('TokenPackages')} style={{ flex: 1, backgroundColor: '#4F46E5', borderRadius: 12, height: 44 }} />
-                <PrimaryButton title="Member" leftIcon={<Feather name="user-plus" size={18} color="#0F172A" />} variant="secondary" onPress={() => { }} disabled={(data?.user?.tokens ?? 0) <= 1} style={{ flex: 1, borderRadius: 12, height: 44 }} />
+                <PrimaryButton
+                  title="Beli Token"
+                  leftIcon={<Feather name="shopping-cart" size={18} color="#FFFFFF" />}
+                  onPress={() => navigation.navigate('TokenPackages')}
+                  style={{ flex: 1, backgroundColor: '#4F46E5', borderRadius: 12, height: 44 }}
+                />
+
               </View>
             </Card>
 
