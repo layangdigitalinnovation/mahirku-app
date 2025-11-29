@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Alert } from 'react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { saveToken, loadToken, clearToken } from '../store/auth';
 import { loginApi, meApi } from '../api/auth';
+import { googleLogin } from '../api/googleAuth';
 import { resolvedBaseURL } from '../api/client';
 import GradientBackground from '../components/ui/GradientBackground';
 import Card from '../components/basic/Card';
@@ -19,6 +21,12 @@ export default function LoginScreen({ navigation }: any) {
   const [remember, setRemember] = useState(false);
 
   useEffect(() => {
+    // Configure Google Sign-In
+    GoogleSignin.configure({
+      webClientId: '1061850144136-r1k407gtpglk67otkdvdqbo55eknhdj2.apps.googleusercontent.com', // Web Client ID (bukan Android!)
+      offlineAccess: false,
+    });
+
     const init = async () => {
       const token = await loadToken();
       if (token) {
@@ -51,12 +59,44 @@ export default function LoginScreen({ navigation }: any) {
       setLoading(false);
     }
   };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      // Check if device supports Google Play Services
+      await GoogleSignin.hasPlayServices();
+
+      // Sign in with Google
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.data?.idToken;
+
+      if (!idToken) {
+        Alert.alert('Error', 'Failed to get Google ID token');
+        return;
+      }
+
+      // Send ID token to backend
+      setLoading(true);
+      const response = await googleLogin(idToken);
+      await saveToken(response.token);
+
+      // Navigate to dashboard
+      navigation.replace('Dashboard');
+    } catch (error: any) {
+      console.error('Google Sign-In Error:', error);
+      if (error.code !== 'SIGN_IN_CANCELLED') {
+        Alert.alert('Error', error.message || 'Google Sign-In failed');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   const goRegister = () => navigation.navigate('Register');
   return (
     <GradientBackground>
       <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>
-        <View style={{ alignItems: 'center', marginBottom: 16 }}>
-          <Text style={{ color: '#0F172A', fontSize: 28, fontWeight: '800' }}>Mahirku</Text>
+        <View style={{ alignItems: 'center', marginBottom: 20 }}>
+          <Text style={{ color: '#0F172A', fontSize: 32, fontWeight: '800', letterSpacing: 0.5 }}>Mahirku</Text>
+          <Text style={{ color: '#64748B', fontSize: 15, marginTop: 6, fontWeight: '500' }}>Sign in to your account</Text>
         </View>
         <SegmentedTabs items={["Login", "Register"]} activeIndex={0} onChange={(i) => (i === 1 ? goRegister() : null)} />
         <View style={{ height: 16 }} />
@@ -70,8 +110,8 @@ export default function LoginScreen({ navigation }: any) {
           </View>
           {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
           <PrimaryButton title="Login" onPress={login} loading={loading} style={{ marginTop: 16, backgroundColor: '#3B82F6' }} />
-          <SocialAuthRow />
-          
+          <SocialAuthRow onGooglePress={handleGoogleSignIn} />
+
         </Card>
       </View>
     </GradientBackground>

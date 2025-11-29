@@ -9,6 +9,9 @@ import TokenPurchase from './TokenPurchase';
 import WithdrawRequest from './WithdrawRequest';
 import BiometricChallenge from './BiometricChallenge';
 import BiometricKey from './BiometricKey';
+import DiscQuestion from './DiscQuestion';
+import DiscOption from './DiscOption';
+import DiscResult from './DiscResult';
 
 const models = {
   User,
@@ -22,11 +25,17 @@ const models = {
   WithdrawRequest,
   BiometricChallenge,
   BiometricKey,
+  DiscQuestion,
+  DiscOption,
+  DiscResult,
 };
 
 // Registrasi association
 User.associate(models);
 Role.associate(models);
+DiscQuestion.associate(models);
+DiscOption.associate(models);
+DiscResult.associate(models);
 
 export { sequelize } from '../config/database';
 export default models;

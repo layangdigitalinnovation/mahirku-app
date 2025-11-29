@@ -62,7 +62,7 @@ export default function DashboardScreen({ navigation }: any) {
     navigation.replace('Login');
   };
 
-  const startTest = () => {
+  const startTest = (testKey: string) => {
     const userTokens = data?.user?.tokens ?? 0;
     if (userTokens <= 0) {
       Alert.alert(
@@ -75,7 +75,12 @@ export default function DashboardScreen({ navigation }: any) {
       );
       return;
     }
-    navigation.navigate('CognitiveTestIntro');
+
+    if (testKey === 'cst') {
+      navigation.navigate('CognitiveTestIntro');
+    } else if (testKey === 'disc') {
+      navigation.navigate('DiscTest');
+    }
   };
   const tests = useMemo(() => [
     { key: 'cst', title: 'Cognitive Style Test', desc: 'Temukan pola berpikir unik Anda dan bagaimana hal itu memengaruhi keputusan serta karier Anda.', icon: 'activity', available: true, progress: 0.3 },
@@ -131,7 +136,7 @@ export default function DashboardScreen({ navigation }: any) {
                   <View style={{ flex: 1 }} />
                   <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
                     {t.available ? (
-                      <PrimaryButton title="Mulai" leftIcon={<Feather name="play-circle" size={16} color="#FFFFFF" />} onPress={startTest} style={{ flex: 1, backgroundColor: '#0EA5E9', height: 40, borderRadius: 10 }} />
+                      <PrimaryButton title="Mulai" leftIcon={<Feather name="play-circle" size={16} color="#FFFFFF" />} onPress={() => startTest(t.key)} style={{ flex: 1, backgroundColor: '#0EA5E9', height: 40, borderRadius: 10 }} />
                     ) : (
                       <PrimaryButton title="Segera" variant="secondary" leftIcon={<Feather name="clock" size={16} color="#64748B" />} disabled onPress={() => { }} style={{ flex: 1, height: 40, borderRadius: 10 }} />
                     )}

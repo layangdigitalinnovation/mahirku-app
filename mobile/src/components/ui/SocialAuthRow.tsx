@@ -1,32 +1,87 @@
 import React from 'react';
 import { View, Pressable, Text, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-type Props = { onGoogle?: () => void; onApple?: () => void };
+type Props = { onGooglePress?: () => void };
 
-export default function SocialAuthRow({ onGoogle, onApple }: Props) {
+export default function SocialAuthRow({ onGooglePress }: Props) {
   return (
     <View>
-      <View style={styles.separator} />
-      <Text style={styles.orText}>Or continue with</Text>
-      <View style={styles.row}>
-        <Pressable style={styles.social} android_ripple={{ color: '#EAF4FF' }} onPress={onGoogle}>
-          <AntDesign name="google" size={16} color="#0F172A" />
-          <Text style={styles.socialText}>Google</Text>
-        </Pressable>
-        <Pressable style={styles.social} android_ripple={{ color: '#EAF4FF' }} onPress={onApple}>
-          <AntDesign name="apple" size={16} color="#0F172A" />
-          <Text style={styles.socialText}>Apple</Text>
-        </Pressable>
+      {/* Divider with text */}
+      <View style={styles.dividerContainer}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>or</Text>
+        <View style={styles.dividerLine} />
       </View>
+
+      {/* Google Sign-In Button */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.googleButton,
+          pressed && styles.googleButtonPressed
+        ]}
+        android_ripple={{ color: '#F8FAFC', borderless: false }}
+        onPress={onGooglePress}
+      >
+        <View style={styles.googleIconContainer}>
+          <AntDesign name="google" size={20} color="#4285F4" />
+        </View>
+        <Text style={styles.googleButtonText}>Continue with Google</Text>
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  separator: { height: 1, backgroundColor: '#E2E8F0', marginTop: 20 },
-  orText: { textAlign: 'center', color: '#5A6B85', marginTop: 12 },
-  row: { flexDirection: 'row', gap: 12, marginTop: 12 },
-  social: { flex: 1, height: 44, borderRadius: 14, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
-  socialText: { color: '#0F172A', fontWeight: '600' },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E2E8F0',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    color: '#94A3B8',
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+  googleButton: {
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    shadowColor: '#64748B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  googleButtonPressed: {
+    backgroundColor: '#F8FAFC',
+    transform: [{ scale: 0.98 }],
+  },
+  googleIconContainer: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  googleButtonText: {
+    color: '#1E293B',
+    fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
 });

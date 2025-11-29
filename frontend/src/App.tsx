@@ -36,11 +36,14 @@ import { UserInvoice } from './pages/User/UserInvoice';
 import { AdminInvoice } from './pages/Admin/AdminInvoice';
 import { RoleName } from './types';
 import { AffiliatorLanding } from './pages/AffiliatorLanding';
+import DiscTest from './pages/DiscTest';
+import DiscResult from './pages/DiscResult';
+import DiscQuestionsManagement from './pages/Admin/DiscQuestionsManagement';
 // import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
 
 // Protected Route Component
-const ProtectedRoute: React.FC<{ 
-  children: React.ReactNode; 
+const ProtectedRoute: React.FC<{
+  children: React.ReactNode;
   requiredRole?: 'user' | 'affiliator' | 'super_admin';
 }> = ({ children, requiredRole }) => {
   const { user, loading } = useAuth();
@@ -77,47 +80,38 @@ const ProtectedRoute: React.FC<{
 function AppRoutes() {
   return (
     <Routes>
-        {/* Landing layout routes - hanya untuk user yang belum login */}
-        <Route path="/" element={
-          <PublicRoute>
-            <LandingLayout />
-          </PublicRoute>
-        }>
-          <Route index element={<Landing />} />
-          <Route path="kontak" element={<Contact />} />
-          <Route path="faq" element={<Faq />} />
-          <Route path="privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="terms" element={<Terms />} />
-          <Route path="payment-success" element={<PaymentSuccess />} />
-          <Route path="cognitive-style-test" element={<CognitiveStyleLanding />} />
-        </Route>
-
-        <Route path="/affiliator" element={
-          <PublicRoute>
-            <AffiliatorLandingLayout />
-          </PublicRoute>
-        } >
+      {/* Public Routes */}
+      <Route element={<LandingLayout />}>
+        <Route index element={<Landing />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/faq" element={<Faq />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/cognitive-style" element={<CognitiveStyleLanding />} />
+        <Route path="/affiliator-landing" element={<AffiliatorLandingLayout />}>
           <Route index element={<AffiliatorLanding />} />
-          </Route>
+        </Route>
+      </Route>
 
-        {/* Auth - hanya untuk user yang belum login */}
-        <Route path="/login" element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        } />
-        <Route path="/register" element={
-          <PublicRoute>
-            <Register />
-          </PublicRoute>
-        } />
-        <Route path="/affiliator/register" element={
-          <PublicRoute>
-            <AffiliatorRegister />
-          </PublicRoute>
-        } />
+      {/* Auth Routes - only for non-logged in users */}
+      <Route path="/login" element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      } />
+      <Route path="/register" element={
+        <PublicRoute>
+          <Register />
+        </PublicRoute>
+      } />
+      <Route path="/affiliator/register" element={
+        <PublicRoute>
+          <AffiliatorRegister />
+        </PublicRoute>
+      } />
 
-        {/* Dashboard layout untuk semua role
+      {/* Dashboard layout untuk semua role
         <Route element={<DashboardLayout />}>
           <Route
             path="user/dashboard"
@@ -145,60 +139,65 @@ function AppRoutes() {
           />
         </Route> */}
 
-           <Route
-          path="/admin/dashboard/*"
-          element={
-            <ProtectedRoute requiredRole={RoleName.SUPER_ADMIN}>
-              <SuperAdminDashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          {/* Child routes untuk super admin */}
-          <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<Overview />} />
-          <Route path="users" element={<ManageUsers />} />
-          <Route path="packages" element={<ManagePackages />} />
-          <Route path="voucher" element={<ManageVouchers />} />
-          <Route path="affiliator" element={<AffiliatorDashboard/>}/>
-          <Route path='withdraw' element={<AdminWithdrawManagement/>} />
-          <Route path='thinking-style' element={<ThinkingStylesManagement/>} />
-          <Route path='thinking-style/edit/:id' element={<EditDetailThinkingStylePage/>} />
-          <Route path='invoice' element={<AdminInvoice/>} />
-        </Route>
+      <Route
+        path="/admin/dashboard/*"
+        element={
+          <ProtectedRoute requiredRole={RoleName.SUPER_ADMIN}>
+            <SuperAdminDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Child routes untuk super admin */}
+        <Route index element={<Navigate to="overview" replace />} />
+        <Route path="overview" element={<Overview />} />
+        <Route path="users" element={<ManageUsers />} />
+        <Route path="packages" element={<ManagePackages />} />
+        <Route path="voucher" element={<ManageVouchers />} />
+        <Route path="affiliator" element={<AffiliatorDashboard />} />
+        <Route path='withdraw' element={<AdminWithdrawManagement />} />
+        <Route path='thinking-style' element={<ThinkingStylesManagement />} />
+        <Route path='thinking-style/edit/:id' element={<EditDetailThinkingStylePage />} />
+        <Route path='invoice' element={<AdminInvoice />} />
+        <Route path='disc-questions' element={<DiscQuestionsManagement />} />
+      </Route>
 
-        <Route
-          path="/customer/dashboard/*"
-          element={
-            <ProtectedRoute requiredRole="user">
-              <CustomerDashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          {/* Child routes untuk customer */}
-          <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<UserDashboard />} />
-          <Route path="users" element={<CustomerChilds />} />
-          <Route path="invoice" element={<UserInvoice />} />
-         
+      <Route
+        path="/customer/dashboard/*"
+        element={
+          <ProtectedRoute requiredRole="user">
+            <CustomerDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Child routes untuk customer */}
+        <Route index element={<Navigate to="overview" replace />} />
+        <Route path="overview" element={<UserDashboard />} />
+        <Route path="users" element={<CustomerChilds />} />
+        <Route path="invoice" element={<UserInvoice />} />
+
         {/* Test */}
         <Route path="test" element={<CognitiveTest />} />
         <Route path="test/result" element={<TestResult />} />
-       
-        </Route>
 
-        <Route path='affiliator/dashboard/*' element={
-          <ProtectedRoute requiredRole={RoleName.AFFILIATOR}>
-            <AffiliatorDashboardLayout/>
-          </ProtectedRoute>
-        }>
-           <Route index element={<Navigate to="overview" replace />} />
-           <Route path='overview' element={<AffiliatorDashboard/>}/>
-           <Route path='withdraw' element={<AffiliateWithdrawPage/>} />
-        </Route>
+        {/* DISC Test */}
+        <Route path="disc-test" element={<DiscTest />} />
+        <Route path="disc-result" element={<DiscResult />} />
 
-        <Route path="/thinking-style/:id" element={<ThinkingStyleDetailPage />} />
+      </Route>
 
-    </Routes>
+      <Route path='affiliator/dashboard/*' element={
+        <ProtectedRoute requiredRole={RoleName.AFFILIATOR}>
+          <AffiliatorDashboardLayout />
+        </ProtectedRoute>
+      }>
+        <Route index element={<Navigate to="overview" replace />} />
+        <Route path='overview' element={<AffiliatorDashboard />} />
+        <Route path='withdraw' element={<AffiliateWithdrawPage />} />
+      </Route>
+
+      <Route path="/thinking-style/:id" element={<ThinkingStyleDetailPage />} />
+
+    </Routes >
   );
 }
 
