@@ -1,6 +1,7 @@
 {
     "cli": {
-        "version": ">= 12.5.2"
+        "version": ">= 12.5.2",
+        "appVersionSource": "remote"
     },
     "build": {
         "development": {
@@ -24,7 +25,8 @@
             "channel": "production",
             "env": {
                 "EXPO_PUBLIC_API_URL": "https://mahirku.com"
-            }
+            },
+            "autoIncrement": true
         }
     },
     "submit": {
