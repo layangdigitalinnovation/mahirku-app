@@ -11,9 +11,21 @@
             }
         },
         "preview": {
-            "distribution": "internal"
+            "distribution": "internal",
+            "channel": "preview",
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://mahirku.com"
+            },
+            "android": {
+                "gradleCommand": ":app:assembleRelease"
+            }
         },
-        "production": {}
+        "production": {
+            "channel": "production",
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://mahirku.com"
+            }
+        }
     },
     "submit": {
         "production": {}
