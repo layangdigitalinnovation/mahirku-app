@@ -55,8 +55,10 @@ const resolveBaseURL = () => {
 
 const baseURL = resolveBaseURL();
 try {
-  console.log('API baseURL resolved to', baseURL);
-  console.log('Dev host from scriptURL', NativeModules.SourceCode?.scriptURL);
+  if (__DEV__) {
+    console.log('API baseURL resolved to', baseURL);
+    console.log('Dev host from scriptURL', NativeModules.SourceCode?.scriptURL);
+  }
 } catch { }
 export const resolvedBaseURL = baseURL;
 
@@ -67,12 +69,14 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   try {
-    console.log('API request', {
-      method: config.method,
-      url: config.url,
-      baseURL: config.baseURL,
-      hasAuth: !!config.headers?.Authorization,
-    });
+    if (__DEV__) {
+      console.log('API request', {
+        method: config.method,
+        url: config.url,
+        baseURL: config.baseURL,
+        hasAuth: !!config.headers?.Authorization,
+      });
+    }
   } catch { }
   return config;
 });
@@ -81,13 +85,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     try {
-      console.log('API error', {
-        method: error.config?.method,
-        url: error.config?.url,
-        baseURL: error.config?.baseURL,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
+      if (__DEV__) {
+        console.log('API error', {
+          method: error.config?.method,
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+          status: error.response?.status,
+          data: error.response?.data,
+        });
+      }
     } catch { }
     return Promise.reject(error);
   }
