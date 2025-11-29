@@ -57,16 +57,7 @@ const DiscTestScreen = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={theme.colors.primary} />
-                <Text style={{ marginTop: 10 }}>Loading Questions...</Text>
-            </View>
-        );
-    }
-
-    const progress = Object.keys(answers).length / questions.length;
+    const progress = questions.length > 0 ? Object.keys(answers).length / questions.length : 0;
 
     return (
         <View style={styles.container}>
@@ -94,41 +85,60 @@ const DiscTestScreen = () => {
             </LinearGradient>
 
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                {questions.map((question, index) => (
-                    <Card key={question.id} style={styles.card} mode="elevated">
-                        <Card.Content>
-                            <Text style={styles.questionNumber}>Question {index + 1}</Text>
-                            <Text style={styles.instruction}>Select the word that best describes you:</Text>
+                {loading ? (
+                    // Skeleton loading - show immediately
+                    [1, 2, 3, 4, 5].map((item) => (
+                        <Card key={item} style={styles.card} mode="elevated">
+                            <Card.Content>
+                                <View style={styles.skeletonLine} />
+                                <View style={[styles.skeletonLine, { width: '70%' }]} />
+                                <View style={styles.skeletonOption} />
+                                <View style={styles.skeletonOption} />
+                                <View style={styles.skeletonOption} />
+                                <View style={styles.skeletonOption} />
+                            </Card.Content>
+                        </Card>
+                    ))
+                ) : (
+                    // Actual questions
+                    questions.map((question, index) => (
+                        <Card key={question.id} style={styles.card} mode="elevated">
+                            <Card.Content>
+                                <Text style={styles.questionNumber}>Question {index + 1}</Text>
+                                <Text style={styles.instruction}>Select the word that best describes you:</Text>
 
-                            <RadioButton.Group
-                                onValueChange={value => handleOptionSelect(question.id, parseInt(value))}
-                                value={answers[question.id]?.toString()}
-                            >
-                                <View style={styles.optionsContainer}>
-                                    {question.options.map((option) => (
-                                        <View key={option.id} style={styles.optionRow}>
-                                            <RadioButton.Android value={option.id.toString()} />
-                                            <Text style={styles.optionText} onPress={() => handleOptionSelect(question.id, option.id)}>
-                                                {option.text}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </RadioButton.Group>
-                        </Card.Content>
-                    </Card>
-                ))}
+                                <RadioButton.Group
+                                    onValueChange={value => handleOptionSelect(question.id, parseInt(value))}
+                                    value={answers[question.id]?.toString()}
+                                >
+                                    <View style={styles.optionsContainer}>
+                                        {question.options.map((option) => (
+                                            <View key={option.id} style={styles.optionRow}>
+                                                <RadioButton.Android value={option.id.toString()} />
+                                                <Text style={styles.optionText} onPress={() => handleOptionSelect(question.id, option.id)}>
+                                                    {option.text}
+                                                </Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </RadioButton.Group>
+                            </Card.Content>
+                        </Card>
+                    ))
+                )}
 
-                <Button
-                    mode="contained"
-                    onPress={handleSubmit}
-                    loading={submitting}
-                    disabled={submitting || Object.keys(answers).length < questions.length}
-                    style={styles.submitButton}
-                    contentStyle={{ height: 50 }}
-                >
-                    Submit Test
-                </Button>
+                {!loading && (
+                    <Button
+                        mode="contained"
+                        onPress={handleSubmit}
+                        loading={submitting}
+                        disabled={submitting || Object.keys(answers).length < questions.length}
+                        style={styles.submitButton}
+                        contentStyle={{ height: 50 }}
+                    >
+                        Submit Test
+                    </Button>
+                )}
             </ScrollView>
         </View>
     );
@@ -227,6 +237,20 @@ const styles = StyleSheet.create({
         marginTop: 10,
         borderRadius: 8,
         backgroundColor: '#3b5998',
+    },
+    skeletonLine: {
+        height: 16,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 4,
+        marginBottom: 12,
+        opacity: 0.6,
+    },
+    skeletonOption: {
+        height: 40,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 8,
+        marginBottom: 8,
+        opacity: 0.4,
     },
 });
 

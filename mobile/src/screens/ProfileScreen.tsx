@@ -28,7 +28,15 @@ export default function ProfileScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: insets.bottom + 48 }}>
         <Card style={styles.profileCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Image source={{ uri: 'https://i.pravatar.cc/120' }} style={styles.avatar} />
+            <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' }] }>
+              {data?.user?.fullname ? (
+                <Text style={styles.avatarText}>
+                  {String(data?.user?.fullname).split(' ').slice(0,2).map(s => s[0]?.toUpperCase() || '').join('')}
+                </Text>
+              ) : (
+                <Feather name="user" size={28} color="#4F46E5" />
+              )}
+            </View>
             <View style={{ marginLeft: 16, flex: 1 }}>
               <Text style={styles.name}>{data?.user?.fullname || 'Akun'}</Text>
               <Text style={styles.email}>{data?.user?.email || 'you@mail.com'}</Text>
@@ -134,6 +142,7 @@ const styles = StyleSheet.create({
   topTitle: { color: '#1E293B', fontSize: 16, fontWeight: '700', letterSpacing: 0.3 },
   profileCard: { padding: 20, borderRadius: 24, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.06, shadowRadius: 16, elevation: 3 },
   avatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 2, borderColor: '#F1F5F9' },
+  avatarText: { color: '#4F46E5', fontSize: 20, fontWeight: '800' },
   name: { color: '#1E293B', fontSize: 18, fontWeight: '700' },
   email: { color: '#64748B', marginTop: 2, fontSize: 14 },
   roleBadge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, backgroundColor: '#EEF2FF', borderRadius: 6, marginTop: 6 },

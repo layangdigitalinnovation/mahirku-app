@@ -39,7 +39,15 @@ export default function EditProfileScreen({ navigation }: any) {
         <Card style={styles.formCard}>
           <View style={{ alignItems: 'center', marginBottom: 24 }}>
             <View style={styles.avatarWrap}>
-              <Image source={{ uri: 'https://i.pravatar.cc/120' }} style={styles.avatar} />
+              <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' }] }>
+                {name ? (
+                  <Text style={styles.avatarText}>
+                    {String(name).split(' ').slice(0,2).map(s => s[0]?.toUpperCase() || '').join('')}
+                  </Text>
+                ) : (
+                  <Feather name="user" size={32} color="#4F46E5" />
+                )}
+              </View>
               <View style={styles.camBtn}><Feather name="camera" size={16} color="#FFFFFF" /></View>
             </View>
           </View>
@@ -66,6 +74,7 @@ const styles = StyleSheet.create({
   formCard: { padding: 24, borderRadius: 24, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.06, shadowRadius: 16, elevation: 3 },
   avatarWrap: { position: 'relative' },
   avatar: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#F1F5F9', borderWidth: 4, borderColor: '#FFFFFF' },
+  avatarText: { color: '#4F46E5', fontSize: 28, fontWeight: '800' },
   camBtn: { position: 'absolute', right: 0, bottom: 0, width: 32, height: 32, borderRadius: 16, backgroundColor: '#4F46E5', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#FFFFFF' },
   input: { borderRadius: 12, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' },
 });

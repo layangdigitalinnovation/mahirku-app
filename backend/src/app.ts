@@ -19,6 +19,7 @@ import adminThinkingStyleRoutes from './routes/adminThinkingStyleRoutes';
 import biometricRoutes from './routes/biometricRoutes';
 import discRoutes from './routes/discRoutes';
 import discAdminRoutes from './routes/admin/discAdminRoutes';
+import certificateRoutes from './routes/certificateRoutes';
 
 const app = express();
 
@@ -44,9 +45,10 @@ app.use('/api/affiliate', affiliateRoutes);
 app.use('/api/withdraw', withdrawRoutes);
 app.use('/api/tokens', tokenRoutes);
 app.use('/api/admin/thinking-style', adminThinkingStyleRoutes);
-app.use('/api/biometric', biometricRoutes);
+app.use('/api/biometrics', biometricRoutes);
 app.use('/api/disc', discRoutes);
 app.use('/api/admin/disc', discAdminRoutes);
+app.use('/api/certificates', certificateRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

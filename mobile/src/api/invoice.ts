@@ -19,11 +19,11 @@ export interface Invoice {
 }
 
 export const getInvoiceById = async (id: number) => {
-  const res = await api.get(`/invoice/${id}`);
+  const res = await api.get(`/invoices/${id}`);
   return res.data as { id: number; status: 'PENDING' | 'PAID' | 'FAILED'; tokenAmount?: number; paymentDate?: string };
 };
 
 export const getUserInvoices = async () => {
-  const res = await api.get<Invoice[]>('/invoice/user');
+  const res = await api.get<Invoice[]>('/invoices/user');
   return res.data;
 };

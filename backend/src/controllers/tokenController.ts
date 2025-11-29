@@ -31,8 +31,11 @@ export const purchaseToken = async (
 
     // Panggil endpoint pembayaran Xendit via axios (loopback HTTP call)
     const axios = require("axios");
+    console.log('Initiating loopback call to:', "http://127.0.0.1:5000/api/payments/xendit");
+    console.log('Payload:', { userId, packageId, voucherCode, referralCode });
+
     const paymentRes = await axios.post(
-      "http://localhost:5000/api/payment/xendit",
+      "http://127.0.0.1:5000/api/payments/xendit",
       { userId, packageId, voucherCode, referralCode },
       {
         headers: {
@@ -49,12 +52,19 @@ export const purchaseToken = async (
       invoiceId: paymentRes.data.invoiceId,
     });
   } catch (err: any) {
-    console.error("purchaseToken error:", err.response?.data || err.message);
+    console.error("purchaseToken error details:", {
+      url: err.config?.url,
+      method: err.config?.method,
+      status: err.response?.status,
+      statusText: err.response?.statusText,
+      data: err.response?.data
+    });
     res
       .status(500)
       .json({
         message: "Gagal memproses pembelian token.",
         error: err.message,
+        details: err.response?.data
       });
   }
 };

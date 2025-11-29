@@ -89,17 +89,16 @@ export default function CognitiveTestIntroScreen() {
             const headers = { Authorization: `Bearer ${token}` };
             const rnBiometrics = rnBiometricsRef.current;
 
-            // 1. Check if keys exist
-            const { keysExist } = await rnBiometrics.biometricKeysExist();
+            // ALWAYS delete and recreate keys for testing to ensure they match
+            console.log('Deleting existing keys...');
+            await rnBiometrics.deleteKeys();
 
-            if (!keysExist) {
-                // 2. Generate keys if not exist
-                const { publicKey } = await rnBiometrics.createKeys();
-                if (!publicKey) throw new Error('Failed to create keys');
+            console.log('Creating new keys...');
+            const { publicKey } = await rnBiometrics.createKeys();
+            if (!publicKey) throw new Error('Failed to create keys');
 
-                // 3. Register public key
-                await axios.post(`${API_URL}/biometrics/register-key`, { publicKey, deviceId: Platform.OS }, { headers });
-            }
+            console.log('Registering public key with backend...');
+            await axios.post(`${API_URL}/biometrics/register-key`, { publicKey, deviceId: Platform.OS }, { headers });
 
             // 4. Get Challenge
             const challengeRes = await axios.get(`${API_URL}/biometrics/challenge`, { headers });
@@ -179,6 +178,12 @@ export default function CognitiveTestIntroScreen() {
 
         } catch (error: any) {
             console.error('Biometric error:', error);
+            console.error('Error details:', {
+                message: error.message,
+                status: error.response?.status,
+                url: error.config?.url,
+                data: error.response?.data
+            });
             if (error.message !== 'User cancellation') {
                 Alert.alert('Terjadi Kesalahan', 'Gagal memproses verifikasi biometrik.');
             }
