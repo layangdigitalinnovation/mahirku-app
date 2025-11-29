@@ -11,8 +11,9 @@ import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, wit
 import TextField from '../components/basic/TextField';
 import { loadToken } from '../store/auth';
 import { submitTest } from '../api/thinkingStyle';
+import { resolvedBaseURL } from '../api/client';
 
-const API_URL = 'http://192.168.11.193:5000/api';
+const API_URL = `${resolvedBaseURL}/api`;
 const { width } = Dimensions.get('window');
 
 export default function CognitiveTestIntroScreen() {
