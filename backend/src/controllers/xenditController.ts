@@ -58,6 +58,56 @@ export const xenditPayment = async (req: Request, res: Response): Promise<void> 
     const authHeader = Buffer.from(`${xenditConfig.apiKey}:`).toString('base64');
 
     // Payload untuk Xendit Invoice API
+    console.log('DEBUG XENDIT PAYMENT:', {
+      packageId,
+      packageName: selectedPackage.name,
+      originalPrice: selectedPackage.price,
+      discountAmount,
+      finalAmount: totalAmount,
+      paymentAmount: paymentAmount
+    });
+
+    // JIKA PEMBAYARAN GRATIS (<= 0)
+    if (paymentAmount <= 0) {
+      // 1. Update invoice jadi PAID
+      invoice.status = 'PAID';
+      invoice.paymentDate = new Date();
+      await invoice.save();
+
+      // 2. Buat TokenPurchase record
+      await TokenPurchase.create({
+        userId: invoice.userId,
+        voucherId: invoice.voucherId,
+        packageId: invoice.packageId,
+        totalToken: invoice.tokenAmount,
+        pricePerToken: 0,
+        totalAmount: 0,
+        discountAmount: discountAmount,
+        paymentStatus: 'paid',
+        paymentMethod: 'FREE_VOUCHER',
+      });
+
+      // 3. Tambah token ke user
+      await User.increment(
+        { tokens: invoice.tokenAmount },
+        { where: { id: invoice.userId } }
+      );
+
+      await User.update(
+        { packageId: invoice.packageId },
+        { where: { id: invoice.userId } }
+      );
+
+      // 4. Return success response (tanpa paymentUrl)
+      res.status(200).json({
+        message: 'Pembayaran berhasil (Gratis). Token telah ditambahkan.',
+        paymentUrl: null, // Frontend harus handle jika null -> langsung sukses
+        invoiceId: invoice.id,
+        isFree: true
+      });
+      return;
+    }
+
     const payload = {
       external_id: `INV-${invoice.id}`,
       amount: paymentAmount,
@@ -156,7 +206,7 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
     try {
       // Ambil data package untuk menghitung harga
       const packageData = invoice.packageId ? await Package.findByPk(invoice.packageId) : null;
-      
+
       // Hitung pricePerToken dan totalAmount
       const pricePerToken = packageData ? Math.floor(packageData.price / packageData.defaultTokenAmount) : 0;
       let originalPrice = packageData ? packageData.price : 0;
@@ -203,8 +253,8 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
     );
 
     await User.update(
-      {packageId : invoice.packageId},
-      {where : {id : invoice.userId}}
+      { packageId: invoice.packageId },
+      { where: { id: invoice.userId } }
     )
 
     // Tambahkan komisi referral jika ada
@@ -212,43 +262,43 @@ export const handlePaymentCallback = async (req: Request, res: Response): Promis
       // Ambil kode referral dari invoice yang sudah disimpan saat pembuatan
       const referralCode = invoice.referralCode;
       console.log('Referral code from invoice:', referralCode);
-      
+
       if (referralCode && invoice.packageId) {
         // Ekstrak user ID dari referral code (format: aff{userId})
         const referrerUserId = referralCode.replace('aff', '');
-        
+
         if (referrerUserId && !isNaN(Number(referrerUserId))) {
           // Cari user berdasarkan ID yang diekstrak dari referral code
           const referrer = await User.findOne({
-            where: { 
+            where: {
               id: Number(referrerUserId),
               roleId: 2 // pastikan referrer adalah affiliator
             }
           });
-          
+
           if (referrer) {
-          // Hitung komisi berdasarkan total tokens yang dibeli
-          const commissionAmount = await calculateTokenCommission(invoice.packageId, invoice.tokenAmount);
-          
-          if (commissionAmount > 0) {
-            // Buat record komisi menggunakan tokenPurchase.id yang benar
-            const tokenPurchaseId = tokenPurchase ? tokenPurchase.id : invoice.id; // fallback ke invoice.id jika tokenPurchase gagal dibuat
-            await addTokenPurchaseCommission(
-              tokenPurchaseId, // tokenPurchaseId
-              referrer.id, // referrerId
-              invoice.userId, // userId
-              commissionAmount, // commissionAmount yang sudah dihitung
-              invoice.packageId // packageId
-            );
-            
-            console.log(`Komisi referral ditambahkan untuk referrer: ${referrer.fullname} (${referralCode}), amount: ${commissionAmount}, tokens: ${invoice.tokenAmount}, packageId: ${invoice.packageId}, tokenPurchaseId: ${tokenPurchaseId}`);
-           }
-         } else {
-           console.log(`Referrer tidak ditemukan atau bukan affiliator untuk ID: ${referrerUserId}`);
-         }
-       } else {
-         console.log(`Format referral code tidak valid: ${referralCode}`);
-       }
+            // Hitung komisi berdasarkan total tokens yang dibeli
+            const commissionAmount = await calculateTokenCommission(invoice.packageId, invoice.tokenAmount);
+
+            if (commissionAmount > 0) {
+              // Buat record komisi menggunakan tokenPurchase.id yang benar
+              const tokenPurchaseId = tokenPurchase ? tokenPurchase.id : invoice.id; // fallback ke invoice.id jika tokenPurchase gagal dibuat
+              await addTokenPurchaseCommission(
+                tokenPurchaseId, // tokenPurchaseId
+                referrer.id, // referrerId
+                invoice.userId, // userId
+                commissionAmount, // commissionAmount yang sudah dihitung
+                invoice.packageId // packageId
+              );
+
+              console.log(`Komisi referral ditambahkan untuk referrer: ${referrer.fullname} (${referralCode}), amount: ${commissionAmount}, tokens: ${invoice.tokenAmount}, packageId: ${invoice.packageId}, tokenPurchaseId: ${tokenPurchaseId}`);
+            }
+          } else {
+            console.log(`Referrer tidak ditemukan atau bukan affiliator untuk ID: ${referrerUserId}`);
+          }
+        } else {
+          console.log(`Format referral code tidak valid: ${referralCode}`);
+        }
       } else {
         console.log('Tidak ada kode referral dalam cookie atau packageId tidak ada');
       }
@@ -284,14 +334,14 @@ export const processAutomaticPayout = async (withdrawRequestId: string): Promise
     }
 
     if (withdrawRequest.status !== 'approved') {
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: 'Withdraw request belum disetujui',
         amount: 0,
         id: '',
         external_id: '',
         status: 'FAILED',
-        created: new Date().toISOString(),  
+        created: new Date().toISOString(),
         metadata: {}
       };
     }
@@ -347,30 +397,30 @@ export const processAutomaticPayout = async (withdrawRequestId: string): Promise
 
     // Check if we should use mock service (development mode or API key limitations)
     // const isDevelopment = process.env.NODE_ENV === 'development' || xenditConfig.apiKey.startsWith('xnd_development_');
-    
+
     let response: any;
-    
-console.log('🚀 Using Xendit Payout API (Test Mode)');
-response = await axios.post(
-  `${xenditConfig.baseUrl}/v2/payouts`,
-  {
-    ...payload,
-    receipt_notification: {
-      email_to: [affiliate.email]
-    },
-    metadata: {
-      withdraw_request_id: withdrawRequestId,
-      affiliate_id: affiliate.id
-    }
-  },
-  {
-    headers: {
-      'Authorization': `Basic ${authHeader}`,
-      'Content-Type': 'application/json',
-      'Idempotency-key': `withdraw-${withdrawRequestId}-${Date.now()}`
-    },
-  }
-);
+
+    console.log('🚀 Using Xendit Payout API (Test Mode)');
+    response = await axios.post(
+      `${xenditConfig.baseUrl}/v2/payouts`,
+      {
+        ...payload,
+        receipt_notification: {
+          email_to: [affiliate.email]
+        },
+        metadata: {
+          withdraw_request_id: withdrawRequestId,
+          affiliate_id: affiliate.id
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Basic ${authHeader}`,
+          'Content-Type': 'application/json',
+          'Idempotency-key': `withdraw-${withdrawRequestId}-${Date.now()}`
+        },
+      }
+    );
 
     console.log('Xendit Payout Response:', response.data);
 
@@ -519,12 +569,12 @@ export const handlePayoutCallback = async (
         if (affiliate) {
           const currentBalance = Number(affiliate.availableBalance) || 0;
           const withdrawAmount = Number(withdrawRequest.amount) || 0;
-            console.log("Affiliate Balance (before):", currentBalance);
+          console.log("Affiliate Balance (before):", currentBalance);
           if (currentBalance >= withdrawAmount) {
             affiliate.withdrawnAmount += Number(withdrawRequest.amount);
             await affiliate.save({ transaction: t });
 
-            
+
             console.log("Withdraw Request Amount:", withdrawAmount);
             console.log("Affiliate Balance (after):", affiliate.availableBalance);
           } else {

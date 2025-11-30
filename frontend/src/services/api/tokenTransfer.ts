@@ -21,8 +21,9 @@ export const transferTokenToChild = async ({ childUserId, tokenAmount }: { child
 export const purchaseToken = async ({ packageId, voucherCode }: { packageId: number, voucherCode?: string }) => {
   const response = await api.post<{
     message: string;
-    paymentUrl: string;
+    paymentUrl: string | null;
     invoiceId: number;
+    isFree?: boolean;
   }>("/tokens/purchase", { packageId, voucherCode });
   return response.data;
 }
