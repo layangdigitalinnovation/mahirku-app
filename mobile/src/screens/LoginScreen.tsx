@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { View, Text, KeyboardAvoidingView, ScrollView, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -63,6 +63,10 @@ export default function LoginScreen({ navigation }: any) {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
         <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
         <LinearGradient colors={["#0F172A", "#183048"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 40, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Image source={require('../../assets/logo-mahirku-no-bg.png')} style={{ width: 28, height: 28 }} />
+            <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>Mahirku</Text>
+          </View>
           <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '800' }}>Go ahead and set up your account</Text>
           <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 6 }}>Sign in to enjoy the best managing experience</Text>
           <View style={{ marginTop: 16 }}>
