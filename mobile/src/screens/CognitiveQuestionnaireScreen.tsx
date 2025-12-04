@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -120,7 +120,13 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: insets.top + 24, paddingBottom: insets.bottom + 48 }}>
-        <Text style={styles.pageTitle}>Kuesioner Cognitive Style</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <Pressable style={styles.backBtn} android_ripple={{ color: '#E2E8F0' }} onPress={() => navigation.goBack()}>
+            <Ionicons name="chevron-back" size={20} color="#475569" />
+          </Pressable>
+          <Text style={styles.pageTitle}>Kuesioner Cognitive Style</Text>
+          <View style={{ width: 40 }} />
+        </View>
         <Text style={styles.pageSubtitle}>Isi data diri dan jawaban Anda sebelum verifikasi sidik jari.</Text>
 
         <Card style={{ marginTop: 16 }}>
@@ -157,25 +163,9 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
           </View>
         </Card>
 
-        <Card style={{ marginTop: 16 }}>
-          <Text style={styles.sectionTitle}>Ringkasan Sementara</Text>
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-            <View style={styles.metric}><Text style={styles.metricLabel}>Observer</Text><Text style={styles.metricValue}>{domainScores.Observer}</Text></View>
-            <View style={styles.metric}><Text style={styles.metricLabel}>Analyzer</Text><Text style={styles.metricValue}>{domainScores.Analyzer}</Text></View>
-            <View style={styles.metric}><Text style={styles.metricLabel}>Empath</Text><Text style={styles.metricValue}>{domainScores.Empath}</Text></View>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-            <View style={styles.metric}><Text style={styles.metricLabel}>Visionary</Text><Text style={styles.metricValue}>{domainScores.Visionary}</Text></View>
-            <View style={styles.metric}><Text style={styles.metricLabel}>Navigator</Text><Text style={styles.metricValue}>{domainScores.Navigator}</Text></View>
-            <View style={styles.metric}><Text style={styles.metricLabel}>{eiType}</Text><Text style={styles.metricValue}>{eiType === 'Ekstrovert' ? eScore : iScore}</Text></View>
-          </View>
-          <View style={{ marginTop: 12 }}>
-            <Text style={styles.summaryText}>Tipe Utama: {tipeUtama}</Text>
-            <Text style={styles.summaryText}>Final Type: {finalType}</Text>
-            <Text style={styles.summaryText}>Persentase Kuesioner: {questionnairePercent}%</Text>
-          </View>
+        <View style={{ marginTop: 16 }}>
           <PrimaryButton title="Simpan Kuesioner & Verifikasi" onPress={proceed} style={{ marginTop: 12 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
-        </Card>
+        </View>
       </ScrollView>
     </View>
   );
@@ -198,5 +188,6 @@ const styles = StyleSheet.create({
   metricLabel: { color: '#64748B', fontSize: 12, fontWeight: '500' },
   metricValue: { color: '#4F46E5', fontWeight: '800', fontSize: 16, marginTop: 4 },
   summaryText: { color: '#475569', fontSize: 13, marginTop: 4 },
+  backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
 });
 

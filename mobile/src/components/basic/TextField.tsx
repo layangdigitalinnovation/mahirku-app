@@ -12,6 +12,7 @@ type Props = {
   autoCapitalize?: any;
   textContentType?: any;
   returnKeyType?: any;
+  onFocus?: () => void;
   editable?: boolean;
   onPress?: () => void;
   errorText?: string;
@@ -22,7 +23,7 @@ type Props = {
   startIcon?: React.ReactNode;
 };
 
-export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, autoCapitalize, textContentType, returnKeyType, editable = true, onPress, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon }: Props) {
+export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, autoCapitalize, textContentType, returnKeyType, onFocus, editable = true, onPress, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon }: Props) {
   const [isSecure, setIsSecure] = useState(Boolean(secureTextEntry));
   const showToggle = Boolean(secureToggle);
   const effectiveSecure = showToggle ? isSecure : Boolean(secureTextEntry);
@@ -46,6 +47,7 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
             autoCapitalize={autoCapitalize}
             textContentType={textContentType}
             returnKeyType={returnKeyType}
+            onFocus={onFocus}
             editable={editable}
             multiline={multiline}
             placeholderTextColor={placeholderColor}
@@ -78,6 +80,7 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
             autoCapitalize={autoCapitalize}
             textContentType={textContentType}
             returnKeyType={returnKeyType}
+            onFocus={onFocus}
             editable={editable}
             multiline={multiline}
             placeholderTextColor={placeholderColor}

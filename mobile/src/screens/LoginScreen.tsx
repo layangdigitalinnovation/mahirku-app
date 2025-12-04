@@ -63,12 +63,10 @@ export default function LoginScreen({ navigation }: any) {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
         <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
         <LinearGradient colors={["#0F172A", "#183048"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 40, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Image source={require('../../assets/logo-mahirku-no-bg.png')} style={{ width: 28, height: 28 }} />
-            <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>Mahirku</Text>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Image source={require('../../assets/logo-mahirku-no-bg.png')} style={{ width: 72, height: 72 }} />
+            <Text style={{ color: '#FFFFFF', fontSize: 26, fontWeight: '800', marginTop: 6, textAlign: 'center' }}>Mahirku</Text>
           </View>
-          <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '800' }}>Mulai Personality Test dengan Mahirku</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 6 }}>Masuk ke Mahirku untuk pengalaman terbaik</Text>
           <View style={{ marginTop: 16 }}>
             <SegmentedTabs items={["Login", "Register"]} activeIndex={0} onChange={(i) => (i === 1 ? goRegister() : null)} />
           </View>

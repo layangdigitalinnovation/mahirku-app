@@ -178,7 +178,12 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                                     summary: `${testResult.data.data.thinkingStyle?.type} (${testResult.data.data.thinkingStyle?.code})`,
                                     type: 'cst',
                                     fullData: testResult.data.data,
-                                    combine: { finalPercent }
+                                    combine: {
+                                        finalPercent,
+                                        fingerprintPercent,
+                                        questionnairePercent,
+                                        questionnaire
+                                    }
                                 }
                             });
                         } catch (submitError: any) {
