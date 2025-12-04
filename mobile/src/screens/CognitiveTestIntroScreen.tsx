@@ -16,12 +16,16 @@ import { resolvedBaseURL } from '../api/client';
 const API_URL = `${resolvedBaseURL}/api`;
 const { width } = Dimensions.get('window');
 
-export default function CognitiveTestIntroScreen() {
+export default function CognitiveTestIntroScreen({ route }: any) {
     const insets = useSafeAreaInsets();
     const navigation = useNavigation<any>();
 
     const [dob, setDob] = useState('');
     const [bloodType, setBloodType] = useState('');
+    const fromQuestionnaire = route?.params?.fromQuestionnaire;
+    const qDob = route?.params?.dob as string | undefined;
+    const qBlood = route?.params?.bloodType as string | undefined;
+    const questionnaire = route?.params?.questionnaire as any | undefined;
     const [loading, setLoading] = useState(false);
     const [biometricsAvailable, setBiometricsAvailable] = useState(false);
 
@@ -76,7 +80,9 @@ export default function CognitiveTestIntroScreen() {
     };
 
     const handleBiometricAuth = async () => {
-        if (!dob || !bloodType) {
+        const effectiveDob = qDob || dob;
+        const effectiveBlood = qBlood || bloodType;
+        if (!effectiveDob || !effectiveBlood) {
             Alert.alert('Data Belum Lengkap', 'Mohon isi Tanggal Lahir dan Golongan Darah Anda.');
             return;
         }
@@ -120,20 +126,25 @@ export default function CognitiveTestIntroScreen() {
                         // 7. Submit Test to Backend
                         try {
                             // Convert DD-MM-YYYY to YYYY-MM-DD
-                            let formattedDate = dob;
-                            const dobParts = dob.split('-');
+                            let formattedDate = effectiveDob;
+                            const dobParts = effectiveDob.split('-');
                             if (dobParts.length === 3) {
                                 // Assuming format is DD-MM-YYYY
                                 formattedDate = `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}`;
                             }
 
                             const testResult = await submitTest({
-                                fullname: dob, // TODO: Ask for actual fullname
+                                fullname: '',
                                 birthdate: formattedDate,
-                                bloodType: bloodType,
+                                bloodType: effectiveBlood,
                             });
 
                             // Navigate to report detail with result
+                            const fingerprintVal = Number(testResult.data.data.resultDigit ?? 0);
+                            const fingerprintPercent = Math.max(0, Math.min(100, Math.round(fingerprintVal)));
+                            const questionnairePercent = Math.max(0, Math.min(100, Math.round(questionnaire?.percent ?? 0)));
+                            const finalPercent = Math.max(0, Math.min(100, Math.round(0.6 * fingerprintPercent + 0.4 * questionnairePercent)));
+
                             navigation.replace('ReportDetail', {
                                 report: {
                                     id: testResult.data.data.id.toString(),
@@ -141,7 +152,13 @@ export default function CognitiveTestIntroScreen() {
                                     date: new Date(testResult.data.data.createdAt).toLocaleDateString('id-ID'),
                                     summary: `${testResult.data.data.thinkingStyle?.type} (${testResult.data.data.thinkingStyle?.code})`,
                                     type: 'cst',
-                                    fullData: testResult.data.data
+                                    fullData: testResult.data.data,
+                                    combine: {
+                                        fingerprintPercent,
+                                        questionnairePercent,
+                                        finalPercent,
+                                        questionnaire,
+                                    }
                                 }
                             });
                         } catch (submitError: any) {
@@ -217,7 +234,6 @@ export default function CognitiveTestIntroScreen() {
                     </Text>
                 </View>
 
-                {/* Form Section */}
                 <View style={styles.card}>
                     <View style={styles.cardHeader}>
                         <Text style={styles.cardTitle}>Data Diri</Text>
@@ -225,25 +241,31 @@ export default function CognitiveTestIntroScreen() {
                             <Text style={styles.badgeText}>Wajib</Text>
                         </View>
                     </View>
-
-                    <View style={styles.inputGroup}>
-                        <TextField
-                            label="Tanggal Lahir"
-                            placeholder="DD-MM-YYYY"
-                            value={dob}
-                            onChangeText={setDob}
-                            startIcon={<Feather name="calendar" size={18} color="#64748B" />}
-                            containerStyle={styles.inputContainer}
-                        />
-                        <TextField
-                            label="Golongan Darah"
-                            placeholder="A / B / AB / O"
-                            value={bloodType}
-                            onChangeText={setBloodType}
-                            startIcon={<Feather name="droplet" size={18} color="#64748B" />}
-                            containerStyle={styles.inputContainer}
-                        />
-                    </View>
+                    {fromQuestionnaire ? (
+                        <View style={{ gap: 8 }}>
+                            <Text style={styles.subtitle}>Tanggal Lahir: {qDob}</Text>
+                            <Text style={styles.subtitle}>Golongan Darah: {qBlood}</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.inputGroup}>
+                            <TextField
+                                label="Tanggal Lahir"
+                                placeholder="DD-MM-YYYY"
+                                value={dob}
+                                onChangeText={setDob}
+                                startIcon={<Feather name="calendar" size={18} color="#64748B" />}
+                                containerStyle={styles.inputContainer}
+                            />
+                            <TextField
+                                label="Golongan Darah"
+                                placeholder="A / B / AB / O"
+                                value={bloodType}
+                                onChangeText={setBloodType}
+                                startIcon={<Feather name="droplet" size={18} color="#64748B" />}
+                                containerStyle={styles.inputContainer}
+                            />
+                        </View>
+                    )}
                 </View>
 
                 {/* Biometric Section */}
