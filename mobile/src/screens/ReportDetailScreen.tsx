@@ -11,6 +11,11 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   const r = route?.params?.report as { title: string; date: string; summary: string; type: string; fullData?: any } | undefined;
   const thinkingStyle = r?.fullData?.thinkingStyle;
   const combine = (route?.params?.report as any)?.combine as { finalPercent: number; fingerprintPercent?: number; questionnairePercent?: number; questionnaire?: any } | undefined;
+  const fpType = thinkingStyle?.type as string | undefined;
+  const q = combine?.questionnaire as any;
+  const eLetter = q?.eiType === 'Ekstrovert' ? 'E' : 'I';
+  const qLabel = q ? `${q.tipeUtama}${q.tipeUtama === 'Navigator' ? '' : `-${eLetter}`}` : '';
+  const sameType = Boolean(fpType && q?.tipeUtama && fpType === q.tipeUtama);
   const [downloading, setDownloading] = useState(false);
   const dlCert = async () => {
     try {
@@ -86,6 +91,16 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                 </View>
                 <Text style={{ color: '#10B981', fontWeight: '800', fontSize: 18 }}>{combine.finalPercent}%</Text>
                 <Text style={{ color: '#64748B', fontSize: 12 }}>Gabungan: 60% sidik jari + 40% kuesioner</Text>
+                <View style={{ marginTop: 8 }}>
+                  {sameType ? (
+                    <Text style={styles.itemSubtitle}>{fpType} 100%</Text>
+                  ) : (
+                    <>
+                      <Text style={styles.itemSubtitle}>{fpType} 60%</Text>
+                      <Text style={styles.itemSubtitle}>{qLabel} 40%</Text>
+                    </>
+                  )}
+                </View>
               </View>
             </>
           )}
