@@ -10,6 +10,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const r = route?.params?.report as { title: string; date: string; summary: string; type: string; fullData?: any } | undefined;
   const thinkingStyle = r?.fullData?.thinkingStyle;
+  const combine = (route?.params?.report as any)?.combine as { finalPercent: number } | undefined;
   const [downloading, setDownloading] = useState(false);
   const dlCert = async () => {
     try {
@@ -76,7 +77,18 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {/* Tidak menampilkan breakdown 60/40 ke pengguna, hanya hasil akhir di atas */}
+          {combine && (
+            <>
+              <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Skor Akhir</Text>
+              <View style={{ gap: 8 }}>
+                <View style={{ height: 16, borderRadius: 10, backgroundColor: '#E2E8F0', overflow: 'hidden' }}>
+                  <View style={{ width: `${combine.finalPercent}%`, height: '100%', backgroundColor: '#10B981' }} />
+                </View>
+                <Text style={{ color: '#10B981', fontWeight: '800', fontSize: 18 }}>{combine.finalPercent}%</Text>
+                <Text style={{ color: '#64748B', fontSize: 12 }}>Gabungan: 60% sidik jari + 40% kuesioner</Text>
+              </View>
+            </>
+          )}
 
           <PrimaryButton
             title="Download Sertifikat"

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import Card from '../components/basic/Card';
 import TextField from '../components/basic/TextField';
 import PrimaryButton from '../components/basic/PrimaryButton';
-import DatePicker from 'react-native-date-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function CognitiveDataEntryScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
@@ -31,7 +31,7 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: insets.top + 24, paddingBottom: insets.bottom + 48 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <Pressable style={styles.backBtn} android_ripple={{ color: '#E2E8F0' }} onPress={() => navigation.replace('Dashboard')}>
+          <Pressable style={styles.backBtn} android_ripple={{ color: '#E2E8F0' }} onPress={() => navigation.goBack()}>
             <Ionicons name="chevron-back" size={20} color="#475569" />
           </Pressable>
           <Text style={styles.pageTitle}>Data Diri</Text>
@@ -48,10 +48,12 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
             <TextField label="Tanggal Lahir" placeholder="DD-MM-YYYY" value={dobDate ? formatDate(dobDate) : dob} onChangeText={setDob} startIcon={<Feather name="calendar" size={18} color="#64748B" />} editable={false} onPress={() => setPickerOpen(s => !s)} />
             {pickerOpen ? (
               <View style={{ paddingHorizontal: 4 }}>
-                <DatePicker
-                  date={dobDate || new Date(2000, 0, 1)}
+                <DateTimePicker
+                  value={dobDate || new Date(2000, 0, 1)}
                   mode="date"
-                  onDateChange={(d) => { setDobDate(d); setDob(formatDate(d)); }}
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={(e, d) => { if (d) { setDobDate(d); setDob(formatDate(d)); } }}
+                  maximumDate={new Date()}
                 />
               </View>
             ) : null}
