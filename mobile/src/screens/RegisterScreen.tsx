@@ -11,6 +11,7 @@ import PrimaryButton from '../components/basic/PrimaryButton';
 import SegmentedTabs from '../components/ui/SegmentedTabs';
 import SocialAuthRow from '../components/ui/SocialAuthRow';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function RegisterScreen({ navigation }: any) {
   const [username, setUsername] = useState('');
@@ -58,34 +59,31 @@ export default function RegisterScreen({ navigation }: any) {
   return (
     <GradientBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingVertical: 24, paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
-          <View style={{ padding: 24 }}>
-            <View style={{ alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ color: '#0F172A', fontSize: 28, fontWeight: '800', letterSpacing: 0.3 }}>Create an account</Text>
-              <Text style={{ color: '#64748B', marginTop: 8, fontSize: 14 }}>
-                Already have an account?{' '}
-                <Text
-                  style={{ color: '#3B82F6', fontWeight: '700' }}
-                  onPress={() => navigation.replace('Login')}
-                >
-                  Log in
-                </Text>
-              </Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
+          <LinearGradient colors={["#0F172A", "#183048"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 40, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '800' }}>Create your account</Text>
+            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 6 }}>Sign in-up to enjoy the best managing experience</Text>
+            <View style={{ marginTop: 16 }}>
+              <SegmentedTabs items={["Login", "Register"]} activeIndex={1} onChange={(i) => (i === 0 ? navigation.replace('Login') : null)} />
             </View>
-            <SegmentedTabs items={["Login", "Register"]} activeIndex={1} onChange={(i) => (i === 0 ? navigation.replace('Login') : null)} />
-            <View style={{ height: 16 }} />
+          </LinearGradient>
+          <View style={{ paddingHorizontal: 24, marginTop: -24 }}>
             <Card>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 }}>
-                <TextField label="Nama Lengkap" value={fullname} onChangeText={setFullname} containerStyle={{ width: '48%' }} startIcon={<Feather name="user" size={18} color="#64748B" />} />
-                <TextField label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" textContentType="emailAddress" containerStyle={{ width: '48%' }} startIcon={<Feather name="mail" size={18} color="#64748B" />} />
-                <TextField label="Username" value={username} onChangeText={setUsername} containerStyle={{ width: '48%' }} startIcon={<Feather name="at-sign" size={18} color="#64748B" />} />
-                <TextField label="No. HP" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="phone-pad" containerStyle={{ width: '48%' }} startIcon={<Feather name="phone" size={18} color="#64748B" />} />
-                <TextField label="Alamat" value={address} onChangeText={setAddress} containerStyle={{ width: '100%' }} startIcon={<Feather name="map-pin" size={18} color="#64748B" />} />
-                <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry secureToggle textContentType="password" containerStyle={{ width: '100%' }} startIcon={<Feather name="lock" size={18} color="#64748B" />} />
+                <TextField label="Nama Lengkap" value={fullname} onChangeText={setFullname} containerStyle={{ width: '48%' }} startIcon={<Feather name="user" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
+                <TextField label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" textContentType="emailAddress" containerStyle={{ width: '48%' }} startIcon={<Feather name="mail" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
+                <TextField label="Username" value={username} onChangeText={setUsername} containerStyle={{ width: '48%' }} startIcon={<Feather name="at-sign" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
+                <TextField label="No. HP" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="phone-pad" containerStyle={{ width: '48%' }} startIcon={<Feather name="phone" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
+                <TextField label="Alamat" value={address} onChangeText={setAddress} containerStyle={{ width: '100%' }} startIcon={<Feather name="map-pin" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
+                <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry secureToggle textContentType="password" containerStyle={{ width: '100%' }} startIcon={<Feather name="lock" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
               </View>
               {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
-              <PrimaryButton title="Register" onPress={register} loading={loading} style={{ marginTop: 16, backgroundColor: '#3B82F6' }} />
+              <PrimaryButton title="Register" onPress={register} loading={loading} style={{ marginTop: 16, backgroundColor: '#2563EB', borderRadius: 24, height: 52 }} />
             </Card>
+            <View style={{ alignItems: 'center', marginTop: 16 }}>
+              <Text style={{ color: '#64748B' }}>Or sign up with</Text>
+            </View>
+            <SocialAuthRow />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

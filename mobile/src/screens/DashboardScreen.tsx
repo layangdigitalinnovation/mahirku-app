@@ -77,7 +77,7 @@ export default function DashboardScreen({ navigation }: any) {
     }
 
     if (testKey === 'cst') {
-      navigation.navigate('CognitiveTestIntro');
+      navigation.navigate('CognitiveDataEntry');
     } else if (testKey === 'disc') {
       navigation.navigate('DiscTest');
     }
