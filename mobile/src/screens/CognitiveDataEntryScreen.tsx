@@ -45,21 +45,21 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
             <Text style={styles.sectionTitle}>Informasi Wajib</Text>
           </View>
           <View style={{ gap: 12 }}>
-            <TextField label="Tanggal Lahir" placeholder="DD-MM-YYYY" value={dobDate ? formatDate(dobDate) : dob} onChangeText={setDob} startIcon={<Feather name="calendar" size={18} color="#64748B" />} />
-            <PrimaryButton title="Pilih Tanggal" onPress={() => setPickerOpen(true)} variant="secondary" style={{ marginTop: 8 }} leftIcon={<Feather name="calendar" size={18} color="#0F172A" />} />
+            <TextField label="Tanggal Lahir" placeholder="DD-MM-YYYY" value={dobDate ? formatDate(dobDate) : dob} onChangeText={setDob} startIcon={<Feather name="calendar" size={18} color="#64748B" />} editable={false} onPress={() => setPickerOpen(s => !s)} />
+            {pickerOpen ? (
+              <View style={{ paddingHorizontal: 4 }}>
+                <DatePicker
+                  date={dobDate || new Date(2000, 0, 1)}
+                  mode="date"
+                  onDateChange={(d) => { setDobDate(d); setDob(formatDate(d)); }}
+                />
+              </View>
+            ) : null}
             <TextField label="Golongan Darah" placeholder="A / B / AB / O" value={bloodType} onChangeText={setBloodType} startIcon={<Feather name="droplet" size={18} color="#64748B" />} />
           </View>
           <PrimaryButton title="Lanjutkan" onPress={next} style={{ marginTop: 16 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
         </Card>
-
-        <DatePicker
-          modal
-          open={pickerOpen}
-          date={dobDate || new Date(2000, 0, 1)}
-          mode="date"
-          onConfirm={(d) => { setPickerOpen(false); setDobDate(d); setDob(formatDate(d)); }}
-          onCancel={() => setPickerOpen(false)}
-        />
+        
       </ScrollView>
     </View>
   );

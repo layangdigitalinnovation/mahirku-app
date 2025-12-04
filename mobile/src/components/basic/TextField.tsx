@@ -12,6 +12,8 @@ type Props = {
   autoCapitalize?: any;
   textContentType?: any;
   returnKeyType?: any;
+  editable?: boolean;
+  onPress?: () => void;
   errorText?: string;
   multiline?: boolean;
   containerStyle?: any;
@@ -20,7 +22,7 @@ type Props = {
   startIcon?: React.ReactNode;
 };
 
-export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, autoCapitalize, textContentType, returnKeyType, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon }: Props) {
+export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, autoCapitalize, textContentType, returnKeyType, editable = true, onPress, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon }: Props) {
   const [isSecure, setIsSecure] = useState(Boolean(secureTextEntry));
   const showToggle = Boolean(secureToggle);
   const effectiveSecure = showToggle ? isSecure : Boolean(secureTextEntry);
@@ -28,36 +30,71 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
   return (
     <View style={[styles.container, containerStyle]}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
-      <View style={styles.inputWrapper}>
-        {startIcon && (
-          <View style={styles.iconLeft}>
-            {startIcon}
-          </View>
-        )}
-        <TextInput
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          secureTextEntry={effectiveSecure}
-          keyboardType={keyboardType}
-          autoCapitalize={autoCapitalize}
-          textContentType={textContentType}
-          returnKeyType={returnKeyType}
-          multiline={multiline}
-          placeholderTextColor={placeholderColor}
-          style={[
-            styles.input,
-            showToggle && styles.inputWithIcon,
-            startIcon && styles.inputWithStartIcon,
-            inputStyle
-          ]}
-        />
-        {showToggle ? (
-          <Pressable style={styles.iconRight} onPress={() => setIsSecure(s => !s)}>
-            <Ionicons name={effectiveSecure ? 'eye-off' : 'eye'} size={20} color="#7F8EA3" />
-          </Pressable>
-        ) : null}
-      </View>
+      {onPress ? (
+        <Pressable style={styles.inputWrapper} onPress={onPress} android_ripple={{ color: '#EAF4FF' }}>
+          {startIcon && (
+            <View style={styles.iconLeft}>
+              {startIcon}
+            </View>
+          )}
+          <TextInput
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            secureTextEntry={effectiveSecure}
+            keyboardType={keyboardType}
+            autoCapitalize={autoCapitalize}
+            textContentType={textContentType}
+            returnKeyType={returnKeyType}
+            editable={editable}
+            multiline={multiline}
+            placeholderTextColor={placeholderColor}
+            style={[
+              styles.input,
+              showToggle && styles.inputWithIcon,
+              startIcon && styles.inputWithStartIcon,
+              inputStyle
+            ]}
+          />
+          {showToggle ? (
+            <Pressable style={styles.iconRight} onPress={() => setIsSecure(s => !s)}>
+              <Ionicons name={effectiveSecure ? 'eye-off' : 'eye'} size={20} color="#7F8EA3" />
+            </Pressable>
+          ) : null}
+        </Pressable>
+      ) : (
+        <View style={styles.inputWrapper}>
+          {startIcon && (
+            <View style={styles.iconLeft}>
+              {startIcon}
+            </View>
+          )}
+          <TextInput
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            secureTextEntry={effectiveSecure}
+            keyboardType={keyboardType}
+            autoCapitalize={autoCapitalize}
+            textContentType={textContentType}
+            returnKeyType={returnKeyType}
+            editable={editable}
+            multiline={multiline}
+            placeholderTextColor={placeholderColor}
+            style={[
+              styles.input,
+              showToggle && styles.inputWithIcon,
+              startIcon && styles.inputWithStartIcon,
+              inputStyle
+            ]}
+          />
+          {showToggle ? (
+            <Pressable style={styles.iconRight} onPress={() => setIsSecure(s => !s)}>
+              <Ionicons name={effectiveSecure ? 'eye-off' : 'eye'} size={20} color="#7F8EA3" />
+            </Pressable>
+          ) : null}
+        </View>
+      )}
       {errorText ? <Text style={styles.error}>{errorText}</Text> : null}
     </View>
   );
