@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { saveToken, loadToken, clearToken } from '../store/auth';
 import { loginApi, meApi } from '../api/auth';
 import { resolvedBaseURL } from '../api/client';
@@ -11,6 +12,7 @@ import TextField from '../components/basic/TextField';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import SegmentedTabs from '../components/ui/SegmentedTabs';
 import Checkbox from '../components/ui/Checkbox';
+import SocialAuthRow from '../components/ui/SocialAuthRow';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -59,25 +61,33 @@ export default function LoginScreen({ navigation }: any) {
   return (
     <GradientBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
-        <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
-        <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <Text style={{ color: '#0F172A', fontSize: 32, fontWeight: '800', letterSpacing: 0.5 }}>Mahirku</Text>
-          <Text style={{ color: '#64748B', fontSize: 15, marginTop: 6, fontWeight: '500' }}>Sign in to your account</Text>
-        </View>
-        <SegmentedTabs items={["Login", "Register"]} activeIndex={0} onChange={(i) => (i === 1 ? goRegister() : null)} />
+        <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
+        <LinearGradient colors={["#0F172A", "#183048"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 40, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+          <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '800' }}>Go ahead and set up your account</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 6 }}>Sign in to enjoy the best managing experience</Text>
+          <View style={{ marginTop: 16 }}>
+            <SegmentedTabs items={["Login", "Register"]} activeIndex={0} onChange={(i) => (i === 1 ? goRegister() : null)} />
+          </View>
+        </LinearGradient>
+        <View style={{ paddingHorizontal: 24, marginTop: -24 }}>
         <View style={{ height: 16 }} />
         <Card>
-          <TextField label="Email" value={email} onChangeText={setEmail} placeholder="nama@domain.com" keyboardType="email-address" autoCapitalize="none" textContentType="emailAddress" startIcon={<Feather name="mail" size={18} color="#64748B" />} />
+          <TextField label="Email" value={email} onChangeText={setEmail} placeholder="nama@domain.com" keyboardType="email-address" autoCapitalize="none" textContentType="emailAddress" startIcon={<Feather name="mail" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
           <View style={{ height: 12 }} />
-          <TextField label="Password" value={password} onChangeText={setPassword} placeholder="********" secureTextEntry secureToggle textContentType="password" startIcon={<Feather name="lock" size={18} color="#64748B" />} />
+          <TextField label="Password" value={password} onChangeText={setPassword} placeholder="********" secureTextEntry secureToggle textContentType="password" startIcon={<Feather name="lock" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
             <Checkbox checked={remember} onChange={setRemember} label="Remember Me" />
-            <Text style={{ color: '#5A6B85' }}>Forgot Password</Text>
+            <Text style={{ color: '#3B82F6', fontWeight: '600' }}>Forgot Password?</Text>
           </View>
           {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
-          <PrimaryButton title="Login" onPress={login} loading={loading} style={{ marginTop: 16, backgroundColor: '#3B82F6' }} />
+          <PrimaryButton title="Login" onPress={login} loading={loading} style={{ marginTop: 16, backgroundColor: '#2563EB', borderRadius: 24, height: 52 }} />
+          <View style={{ alignItems: 'center', marginTop: 16 }}>
+            <Text style={{ color: '#64748B' }}>Or login with</Text>
+          </View>
+          <SocialAuthRow />
 
         </Card>
+        </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </GradientBackground>
