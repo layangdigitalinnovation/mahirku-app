@@ -10,7 +10,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const r = route?.params?.report as { title: string; date: string; summary: string; type: string; fullData?: any } | undefined;
   const thinkingStyle = r?.fullData?.thinkingStyle;
-  const combine = (route?.params?.report as any)?.combine as { finalPercent: number } | undefined;
+  const combine = (route?.params?.report as any)?.combine as { finalPercent: number; fingerprintPercent?: number; questionnairePercent?: number; questionnaire?: any } | undefined;
   const [downloading, setDownloading] = useState(false);
   const dlCert = async () => {
     try {
@@ -86,6 +86,27 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                 </View>
                 <Text style={{ color: '#10B981', fontWeight: '800', fontSize: 18 }}>{combine.finalPercent}%</Text>
                 <Text style={{ color: '#64748B', fontSize: 12 }}>Gabungan: 60% sidik jari + 40% kuesioner</Text>
+              </View>
+            </>
+          )}
+
+          {combine?.questionnaire && (
+            <>
+              <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Ringkasan Kuesioner</Text>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                <View style={styles.metric}><Text style={styles.metricLabel}>Observer</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Observer}</Text></View>
+                <View style={styles.metric}><Text style={styles.metricLabel}>Analyzer</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Analyzer}</Text></View>
+                <View style={styles.metric}><Text style={styles.metricLabel}>Empath</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Empath}</Text></View>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                <View style={styles.metric}><Text style={styles.metricLabel}>Visionary</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Visionary}</Text></View>
+                <View style={styles.metric}><Text style={styles.metricLabel}>Navigator</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Navigator}</Text></View>
+                <View style={styles.metric}><Text style={styles.metricLabel}>{combine.questionnaire.eiType}</Text><Text style={styles.metricValue}>{combine.questionnaire.eiType === 'Ekstrovert' ? combine.questionnaire.eScore : combine.questionnaire.iScore}</Text></View>
+              </View>
+              <View style={{ marginTop: 12 }}>
+                <Text style={styles.itemSubtitle}>Tipe Utama: {combine.questionnaire.tipeUtama}</Text>
+                <Text style={styles.itemSubtitle}>Final Type (kuesioner): {combine.questionnaire.finalType}</Text>
+                <Text style={styles.itemSubtitle}>Persentase Kuesioner: {combine.questionnaire.percent}%</Text>
               </View>
             </>
           )}

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import Card from '../components/basic/Card';
 import TextField from '../components/basic/TextField';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CognitiveDataEntryScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
@@ -23,8 +24,34 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
 
   const next = () => {
     const effectiveDob = dobDate ? formatDate(dobDate) : dob;
-    if (!effectiveDob || !bloodType) return;
-    navigation.navigate('CognitiveQuestionnaire', { dob: effectiveDob, bloodType });
+    const blood = (bloodType || '').trim().toUpperCase();
+    if (!effectiveDob || !blood) {
+      Alert.alert('Data Belum Lengkap', 'Mohon isi Tanggal Lahir dan Golongan Darah Anda.');
+      return;
+    }
+    if (!/^A|B|AB|O$/.test(blood)) {
+      Alert.alert('Golongan Darah Tidak Valid', 'Masukkan salah satu: A, B, AB, atau O.');
+      return;
+    }
+    const fnv1a = (str: string) => {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+      }
+      return ('0000000' + h.toString(16)).slice(-8);
+    };
+    const normalizedDob = effectiveDob.trim();
+    AsyncStorage.getItem('cst:firstDobHash').then((firstDobHash) => {
+      if (firstDobHash) {
+        const currentDobHash = fnv1a(normalizedDob);
+        if (firstDobHash !== currentDobHash) {
+          Alert.alert('Validasi Gagal', 'Tanggal lahir tidak sesuai dengan data pertama Anda. Gunakan data asli untuk melanjutkan.');
+          return;
+        }
+      }
+      navigation.navigate('CognitiveQuestionnaire', { dob: effectiveDob, bloodType: blood });
+    });
   };
 
   return (
@@ -57,7 +84,7 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
                 />
               </View>
             ) : null}
-            <TextField label="Golongan Darah" placeholder="A / B / AB / O" value={bloodType} onChangeText={setBloodType} startIcon={<Feather name="droplet" size={18} color="#64748B" />} />
+            <TextField label="Golongan Darah" placeholder="A / B / AB / O" value={bloodType} onChangeText={setBloodType} onFocus={() => setPickerOpen(false)} startIcon={<Feather name="droplet" size={18} color="#64748B" />} />
           </View>
           <PrimaryButton title="Lanjutkan" onPress={next} style={{ marginTop: 16 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
         </Card>
