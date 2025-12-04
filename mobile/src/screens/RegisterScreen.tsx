@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, useWindowDimensions } from 'react-native';
+import { View, ScrollView, Text, useWindowDimensions, KeyboardAvoidingView, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { registerUserApi, loginApi } from '../api/auth';
 import { resolvedBaseURL } from '../api/client';
 import { saveToken } from '../store/auth';
@@ -9,6 +10,7 @@ import TextField from '../components/basic/TextField';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import SegmentedTabs from '../components/ui/SegmentedTabs';
 import SocialAuthRow from '../components/ui/SocialAuthRow';
+import { Feather } from '@expo/vector-icons';
 
 export default function RegisterScreen({ navigation }: any) {
   const [username, setUsername] = useState('');
@@ -21,6 +23,7 @@ export default function RegisterScreen({ navigation }: any) {
   const [error, setError] = useState('');
   const { width } = useWindowDimensions();
   const isWide = width >= 600;
+  const insets = useSafeAreaInsets();
 
   const register = async () => {
     setLoading(true);
@@ -54,8 +57,8 @@ export default function RegisterScreen({ navigation }: any) {
 
   return (
     <GradientBackground>
-      <View style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingVertical: 24 }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingVertical: 24, paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
           <View style={{ padding: 24 }}>
             <View style={{ alignItems: 'center', marginBottom: 20 }}>
               <Text style={{ color: '#0F172A', fontSize: 28, fontWeight: '800', letterSpacing: 0.3 }}>Create an account</Text>
@@ -73,19 +76,19 @@ export default function RegisterScreen({ navigation }: any) {
             <View style={{ height: 16 }} />
             <Card>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 }}>
-                <TextField label="Nama Lengkap" value={fullname} onChangeText={setFullname} containerStyle={{ width: '48%' }} />
-                <TextField label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" containerStyle={{ width: '48%' }} />
-                <TextField label="Username" value={username} onChangeText={setUsername} containerStyle={{ width: '48%' }} />
-                <TextField label="No. HP" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="phone-pad" containerStyle={{ width: '48%' }} />
-                <TextField label="Alamat" value={address} onChangeText={setAddress} containerStyle={{ width: '100%' }} />
-                <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry secureToggle containerStyle={{ width: '100%' }} />
+                <TextField label="Nama Lengkap" value={fullname} onChangeText={setFullname} containerStyle={{ width: '48%' }} startIcon={<Feather name="user" size={18} color="#64748B" />} />
+                <TextField label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" textContentType="emailAddress" containerStyle={{ width: '48%' }} startIcon={<Feather name="mail" size={18} color="#64748B" />} />
+                <TextField label="Username" value={username} onChangeText={setUsername} containerStyle={{ width: '48%' }} startIcon={<Feather name="at-sign" size={18} color="#64748B" />} />
+                <TextField label="No. HP" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="phone-pad" containerStyle={{ width: '48%' }} startIcon={<Feather name="phone" size={18} color="#64748B" />} />
+                <TextField label="Alamat" value={address} onChangeText={setAddress} containerStyle={{ width: '100%' }} startIcon={<Feather name="map-pin" size={18} color="#64748B" />} />
+                <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry secureToggle textContentType="password" containerStyle={{ width: '100%' }} startIcon={<Feather name="lock" size={18} color="#64748B" />} />
               </View>
               {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
               <PrimaryButton title="Register" onPress={register} loading={loading} style={{ marginTop: 16, backgroundColor: '#3B82F6' }} />
             </Card>
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }

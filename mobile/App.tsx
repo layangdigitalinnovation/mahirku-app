@@ -17,6 +17,7 @@ import PaymentSuccessScreen from './src/screens/PaymentSuccessScreen';
 import PaymentWebViewScreen from './src/screens/PaymentWebViewScreen';
 import CognitiveTestIntroScreen from './src/screens/CognitiveTestIntroScreen';
 import CognitiveQuestionnaireScreen from './src/screens/CognitiveQuestionnaireScreen';
+import CognitiveDataEntryScreen from './src/screens/CognitiveDataEntryScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
 import DiscTestScreen from './src/screens/DiscTestScreen';
@@ -42,9 +43,10 @@ export default function App() {
             <Stack.Screen name="TokenPackages" component={TokenPackagesScreen} />
             <Stack.Screen name="PaymentStatus" component={PaymentStatusScreen} />
             <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
-          <Stack.Screen name="PaymentWebView" component={PaymentWebViewScreen} />
-          <Stack.Screen name="CognitiveQuestionnaire" component={CognitiveQuestionnaireScreen} />
-          <Stack.Screen name="CognitiveTestIntro" component={CognitiveTestIntroScreen} />
+            <Stack.Screen name="PaymentWebView" component={PaymentWebViewScreen} />
+            <Stack.Screen name="CognitiveDataEntry" component={CognitiveDataEntryScreen} />
+            <Stack.Screen name="CognitiveQuestionnaire" component={CognitiveQuestionnaireScreen} />
+            <Stack.Screen name="CognitiveTestIntro" component={CognitiveTestIntroScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="DiscTest" component={DiscTestScreen} />

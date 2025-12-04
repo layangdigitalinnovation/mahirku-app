@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
-import TextField from '../components/basic/TextField';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Question = { id: number; text: string };
 
@@ -47,10 +47,10 @@ const QUESTIONS: Question[] = [
   { id: 36, text: 'Saya lebih suka aktivitas yang tenang dan terstruktur.' },
 ];
 
-export default function CognitiveQuestionnaireScreen({ navigation }: any) {
+export default function CognitiveQuestionnaireScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
-  const [dob, setDob] = useState('');
-  const [bloodType, setBloodType] = useState('');
+  const dob = route?.params?.dob as string | undefined;
+  const bloodType = route?.params?.bloodType as string | undefined;
   const [answers, setAnswers] = useState<number[]>(Array(36).fill(3));
   const setAnswer = (index: number, val: number) => {
     setAnswers(prev => {
@@ -91,22 +91,29 @@ export default function CognitiveQuestionnaireScreen({ navigation }: any) {
   const finalType = useMemo(() => (tipeUtama === 'Navigator' ? 'Navigator' : `${tipeUtama} ${eiType}`), [tipeUtama, eiType]);
   const questionnairePercent = useMemo(() => Math.round((answers.reduce((a, b) => a + b, 0) / (36 * 5)) * 100), [answers]);
 
-  const proceed = () => {
+  const proceed = async () => {
     if (!dob || !bloodType) return;
+    const payload = {
+      savedAt: new Date().toISOString(),
+      dob,
+      bloodType,
+      answers,
+      domainScores,
+      eScore,
+      iScore,
+      eiType,
+      tipeUtama,
+      finalType,
+      percent: questionnairePercent,
+    };
+    try {
+      await AsyncStorage.setItem('cst:lastQuestionnaire', JSON.stringify(payload));
+    } catch {}
     navigation.navigate('CognitiveTestIntro', {
       fromQuestionnaire: true,
       dob,
       bloodType,
-      questionnaire: {
-        answers,
-        domainScores,
-        eScore,
-        iScore,
-        eiType,
-        tipeUtama,
-        finalType,
-        percent: questionnairePercent,
-      },
+      questionnaire: payload,
     });
   };
 
@@ -121,9 +128,10 @@ export default function CognitiveQuestionnaireScreen({ navigation }: any) {
             <View style={styles.iconWrap}><Feather name="user" size={18} color="#4F46E5" /></View>
             <Text style={styles.sectionTitle}>Data Diri</Text>
           </View>
-          <View style={{ gap: 12 }}>
-            <TextField label="Tanggal Lahir" placeholder="DD-MM-YYYY" value={dob} onChangeText={setDob} startIcon={<Feather name="calendar" size={18} color="#64748B" />} />
-            <TextField label="Golongan Darah" placeholder="A / B / AB / O" value={bloodType} onChangeText={setBloodType} startIcon={<Feather name="droplet" size={18} color="#64748B" />} />
+          <Text style={styles.helper}>Konfirmasi data yang akan digunakan untuk verifikasi.</Text>
+          <View style={{ gap: 8, marginTop: 8 }}>
+            <Text style={styles.summaryText}>Tanggal Lahir: {dob}</Text>
+            <Text style={styles.summaryText}>Golongan Darah: {bloodType}</Text>
           </View>
         </Card>
 
@@ -166,7 +174,7 @@ export default function CognitiveQuestionnaireScreen({ navigation }: any) {
             <Text style={styles.summaryText}>Final Type: {finalType}</Text>
             <Text style={styles.summaryText}>Persentase Kuesioner: {questionnairePercent}%</Text>
           </View>
-          <PrimaryButton title="Lanjut Verifikasi Sidik Jari" onPress={proceed} style={{ marginTop: 12 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
+          <PrimaryButton title="Simpan Kuesioner & Verifikasi" onPress={proceed} style={{ marginTop: 12 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
         </Card>
       </ScrollView>
     </View>

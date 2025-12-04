@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import TextField from '../components/basic/TextField';
 import { loadToken } from '../store/auth';
@@ -79,11 +80,28 @@ export default function CognitiveTestIntroScreen({ route }: any) {
         }
     };
 
+    const fnv1a = (str: string) => {
+        let h = 0x811c9dc5;
+        for (let i = 0; i < str.length; i++) {
+            h ^= str.charCodeAt(i);
+            h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+        }
+        return ('0000000' + h.toString(16)).slice(-8);
+    };
+
     const handleBiometricAuth = async () => {
         const effectiveDob = qDob || dob;
         const effectiveBlood = qBlood || bloodType;
         if (!effectiveDob || !effectiveBlood) {
             Alert.alert('Data Belum Lengkap', 'Mohon isi Tanggal Lahir dan Golongan Darah Anda.');
+            return;
+        }
+
+        const normalizedDob = effectiveDob.trim();
+        const currentDobHash = fnv1a(normalizedDob);
+        const firstDobHash = await AsyncStorage.getItem('cst:firstDobHash');
+        if (firstDobHash && firstDobHash !== currentDobHash) {
+            Alert.alert('Validasi Gagal', 'Tanggal lahir tidak sesuai dengan data pertama Anda. Gunakan data asli untuk melanjutkan.');
             return;
         }
 
@@ -95,13 +113,16 @@ export default function CognitiveTestIntroScreen({ route }: any) {
             const headers = { Authorization: `Bearer ${token}` };
             const rnBiometrics = rnBiometricsRef.current;
 
-            // ALWAYS delete and recreate keys for testing to ensure they match
-            console.log('Deleting existing keys...');
-            await rnBiometrics.deleteKeys();
-
-            console.log('Creating new keys...');
-            const { publicKey } = await rnBiometrics.createKeys();
-            if (!publicKey) throw new Error('Failed to create keys');
+            const keysExist = await (rnBiometrics as any).biometricKeysExist?.();
+            let publicKey: string | undefined;
+            if (!keysExist?.keysExist) {
+                const created = await rnBiometrics.createKeys();
+                publicKey = created.publicKey;
+                if (!publicKey) throw new Error('Failed to create keys');
+                await AsyncStorage.setItem('cst:fingerprintPublicKey', publicKey);
+            } else {
+                publicKey = await AsyncStorage.getItem('cst:fingerprintPublicKey') || undefined;
+            }
 
             console.log('Registering public key with backend...');
             await axios.post(`${API_URL}/biometrics/register-key`, { publicKey, deviceId: Platform.OS }, { headers });
@@ -140,10 +161,9 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                             });
 
                             // Navigate to report detail with result
-                            const fingerprintVal = Number(testResult.data.data.resultDigit ?? 0);
-                            const fingerprintPercent = Math.max(0, Math.min(100, Math.round(fingerprintVal)));
-                            const questionnairePercent = Math.max(0, Math.min(100, Math.round(questionnaire?.percent ?? 0)));
-                            const finalPercent = Math.max(0, Math.min(100, Math.round(0.6 * fingerprintPercent + 0.4 * questionnairePercent)));
+                            if (!firstDobHash) {
+                                await AsyncStorage.setItem('cst:firstDobHash', currentDobHash);
+                            }
 
                             navigation.replace('ReportDetail', {
                                 report: {
@@ -152,13 +172,7 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                                     date: new Date(testResult.data.data.createdAt).toLocaleDateString('id-ID'),
                                     summary: `${testResult.data.data.thinkingStyle?.type} (${testResult.data.data.thinkingStyle?.code})`,
                                     type: 'cst',
-                                    fullData: testResult.data.data,
-                                    combine: {
-                                        fingerprintPercent,
-                                        questionnairePercent,
-                                        finalPercent,
-                                        questionnaire,
-                                    }
+                                    fullData: testResult.data.data
                                 }
                             });
                         } catch (submitError: any) {
