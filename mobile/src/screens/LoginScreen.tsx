@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import { saveToken, loadToken, clearToken } from '../store/auth';
 import { loginApi, meApi } from '../api/auth';
 import { resolvedBaseURL } from '../api/client';
@@ -16,6 +18,7 @@ export default function LoginScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [remember, setRemember] = useState(false);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const init = async () => {
@@ -55,7 +58,8 @@ export default function LoginScreen({ navigation }: any) {
   const goRegister = () => navigation.navigate('Register');
   return (
     <GradientBackground>
-      <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
+        <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
         <View style={{ alignItems: 'center', marginBottom: 20 }}>
           <Text style={{ color: '#0F172A', fontSize: 32, fontWeight: '800', letterSpacing: 0.5 }}>Mahirku</Text>
           <Text style={{ color: '#64748B', fontSize: 15, marginTop: 6, fontWeight: '500' }}>Sign in to your account</Text>
@@ -63,9 +67,9 @@ export default function LoginScreen({ navigation }: any) {
         <SegmentedTabs items={["Login", "Register"]} activeIndex={0} onChange={(i) => (i === 1 ? goRegister() : null)} />
         <View style={{ height: 16 }} />
         <Card>
-          <TextField label="Email" value={email} onChangeText={setEmail} placeholder="nama@domain.com" />
+          <TextField label="Email" value={email} onChangeText={setEmail} placeholder="nama@domain.com" keyboardType="email-address" autoCapitalize="none" textContentType="emailAddress" startIcon={<Feather name="mail" size={18} color="#64748B" />} />
           <View style={{ height: 12 }} />
-          <TextField label="Password" value={password} onChangeText={setPassword} placeholder="********" secureTextEntry secureToggle />
+          <TextField label="Password" value={password} onChangeText={setPassword} placeholder="********" secureTextEntry secureToggle textContentType="password" startIcon={<Feather name="lock" size={18} color="#64748B" />} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
             <Checkbox checked={remember} onChange={setRemember} label="Remember Me" />
             <Text style={{ color: '#5A6B85' }}>Forgot Password</Text>
@@ -74,7 +78,8 @@ export default function LoginScreen({ navigation }: any) {
           <PrimaryButton title="Login" onPress={login} loading={loading} style={{ marginTop: 16, backgroundColor: '#3B82F6' }} />
 
         </Card>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }

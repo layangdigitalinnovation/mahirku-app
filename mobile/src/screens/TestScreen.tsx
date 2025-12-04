@@ -14,7 +14,7 @@ export default function TestScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const { data } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
   const tokens = data?.user?.tokens ?? 0;
-  const startCognitive = () => navigation.navigate('CognitiveQuestionnaire');
+  const startCognitive = () => navigation.navigate('CognitiveDataEntry');
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: insets.top + 24, paddingBottom: insets.bottom + 48 }}>

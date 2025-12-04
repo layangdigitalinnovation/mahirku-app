@@ -9,7 +9,6 @@ import { downloadCertificate as downloadCertApi } from '../api/certificate';
 export default function ReportDetailScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const r = route?.params?.report as { title: string; date: string; summary: string; type: string; fullData?: any } | undefined;
-  const combine = (route?.params?.report as any)?.combine as { fingerprintPercent: number; questionnairePercent: number; finalPercent: number; questionnaire?: any } | undefined;
   const thinkingStyle = r?.fullData?.thinkingStyle;
   const [downloading, setDownloading] = useState(false);
   const dlCert = async () => {
@@ -77,50 +76,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {combine && (
-            <>
-              <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Gabungan Hasil</Text>
-              <View style={{ gap: 10 }}>
-                <View style={{ gap: 6 }}>
-                  <Text style={styles.itemSubtitle}>Hasil Tes Sidik Jari (60%)</Text>
-                  <View style={{ height: 12, borderRadius: 8, backgroundColor: '#E2E8F0', overflow: 'hidden' }}>
-                    <View style={{ width: `${combine.fingerprintPercent}%`, height: '100%', backgroundColor: '#4F46E5' }} />
-                  </View>
-                  <Text style={styles.metricValue}>{combine.fingerprintPercent}%</Text>
-                </View>
-                <View style={{ gap: 6 }}>
-                  <Text style={styles.itemSubtitle}>Hasil Kuesioner (40%)</Text>
-                  <View style={{ height: 12, borderRadius: 8, backgroundColor: '#E2E8F0', overflow: 'hidden' }}>
-                    <View style={{ width: `${combine.questionnairePercent}%`, height: '100%', backgroundColor: '#0EA5E9' }} />
-                  </View>
-                  <Text style={[styles.metricValue, { color: '#0EA5E9' }]}>{combine.questionnairePercent}%</Text>
-                </View>
-                <View style={{ gap: 6 }}>
-                  <Text style={styles.itemSubtitle}>Skor Akhir</Text>
-                  <View style={{ height: 14, borderRadius: 8, backgroundColor: '#E2E8F0', overflow: 'hidden' }}>
-                    <View style={{ width: `${combine.finalPercent}%`, height: '100%', backgroundColor: '#10B981' }} />
-                  </View>
-                  <Text style={[styles.metricValue, { color: '#10B981' }]}>{combine.finalPercent}%</Text>
-                </View>
-              </View>
-              {combine.questionnaire && (
-                <>
-                  <Text style={[styles.sectionHeader, { marginTop: 18 }]}>Ringkasan Kuesioner</Text>
-                  <View style={{ flexDirection: 'row', gap: 12 }}>
-                    <View style={styles.metric}><Text style={styles.metricLabel}>Observer</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Observer}</Text></View>
-                    <View style={styles.metric}><Text style={styles.metricLabel}>Analyzer</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Analyzer}</Text></View>
-                    <View style={styles.metric}><Text style={styles.metricLabel}>Empath</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Empath}</Text></View>
-                  </View>
-                  <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-                    <View style={styles.metric}><Text style={styles.metricLabel}>Visionary</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Visionary}</Text></View>
-                    <View style={styles.metric}><Text style={styles.metricLabel}>Navigator</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Navigator}</Text></View>
-                    <View style={styles.metric}><Text style={styles.metricLabel}>{combine.questionnaire.eiType}</Text><Text style={styles.metricValue}>{combine.questionnaire.eiType === 'Ekstrovert' ? combine.questionnaire.eScore : combine.questionnaire.iScore}</Text></View>
-                  </View>
-                  <Text style={[styles.itemSubtitle, { marginTop: 8 }]}>Final Type: {combine.questionnaire.finalType}</Text>
-                </>
-              )}
-            </>
-          )}
+          {/* Tidak menampilkan breakdown 60/40 ke pengguna, hanya hasil akhir di atas */}
 
           <PrimaryButton
             title="Download Sertifikat"

@@ -9,6 +9,9 @@ type Props = {
   placeholder?: string;
   secureTextEntry?: boolean;
   keyboardType?: any;
+  autoCapitalize?: any;
+  textContentType?: any;
+  returnKeyType?: any;
   errorText?: string;
   multiline?: boolean;
   containerStyle?: any;
@@ -17,7 +20,7 @@ type Props = {
   startIcon?: React.ReactNode;
 };
 
-export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon }: Props) {
+export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, autoCapitalize, textContentType, returnKeyType, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon }: Props) {
   const [isSecure, setIsSecure] = useState(Boolean(secureTextEntry));
   const showToggle = Boolean(secureToggle);
   const effectiveSecure = showToggle ? isSecure : Boolean(secureTextEntry);
@@ -37,6 +40,9 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
           placeholder={placeholder}
           secureTextEntry={effectiveSecure}
           keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          textContentType={textContentType}
+          returnKeyType={returnKeyType}
           multiline={multiline}
           placeholderTextColor={placeholderColor}
           style={[
