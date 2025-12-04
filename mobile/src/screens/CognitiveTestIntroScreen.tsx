@@ -165,6 +165,11 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                                 await AsyncStorage.setItem('cst:firstDobHash', currentDobHash);
                             }
 
+                            const fingerprintVal = Number(testResult.data.data.resultDigit ?? 0);
+                            const fingerprintPercent = Math.max(0, Math.min(100, Math.round(fingerprintVal)));
+                            const questionnairePercent = Math.max(0, Math.min(100, Math.round((questionnaire?.percent ?? 0))));
+                            const finalPercent = Math.max(0, Math.min(100, Math.round(0.6 * fingerprintPercent + 0.4 * questionnairePercent)));
+
                             navigation.replace('ReportDetail', {
                                 report: {
                                     id: testResult.data.data.id.toString(),
@@ -172,7 +177,8 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                                     date: new Date(testResult.data.data.createdAt).toLocaleDateString('id-ID'),
                                     summary: `${testResult.data.data.thinkingStyle?.type} (${testResult.data.data.thinkingStyle?.code})`,
                                     type: 'cst',
-                                    fullData: testResult.data.data
+                                    fullData: testResult.data.data,
+                                    combine: { finalPercent }
                                 }
                             });
                         } catch (submitError: any) {
