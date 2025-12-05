@@ -9,7 +9,6 @@ import Card from '../components/basic/Card';
 import TextField from '../components/basic/TextField';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import SegmentedTabs from '../components/ui/SegmentedTabs';
-import SocialAuthRow from '../components/ui/SocialAuthRow';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -54,19 +53,15 @@ export default function RegisterScreen({ navigation }: any) {
     }
   };
 
-  
-
   return (
     <GradientBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
           <LinearGradient colors={["#0F172A", "#183048"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 40, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Image source={require('../../assets/logo-mahirku-no-bg.png')} style={{ width: 28, height: 28 }} />
-              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>Mahirku</Text>
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Image source={require('../../assets/logo-mahirku-no-bg.png')} style={{ width: 72, height: 72 }} />
+              <Text style={{ color: '#FFFFFF', fontSize: 26, fontWeight: '800', marginTop: 6, textAlign: 'center' }}>Mahirku</Text>
             </View>
-            <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '800' }}>Create your account</Text>
-            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 6 }}>Sign in-up to enjoy the best managing experience</Text>
             <View style={{ marginTop: 16 }}>
               <SegmentedTabs items={["Login", "Register"]} activeIndex={1} onChange={(i) => (i === 0 ? navigation.replace('Login') : null)} />
             </View>
@@ -81,13 +76,9 @@ export default function RegisterScreen({ navigation }: any) {
                 <TextField label="Alamat" value={address} onChangeText={setAddress} containerStyle={{ width: '100%' }} startIcon={<Feather name="map-pin" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
                 <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry secureToggle textContentType="password" containerStyle={{ width: '100%' }} startIcon={<Feather name="lock" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
               </View>
-              {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
+              {error ? <Text style={{ color: '#ef4444', marginTop: 8, fontSize: 13 }}>{error}</Text> : null}
               <PrimaryButton title="Register" onPress={register} loading={loading} style={{ marginTop: 16, backgroundColor: '#2563EB', borderRadius: 24, height: 52 }} />
             </Card>
-            <View style={{ alignItems: 'center', marginTop: 16 }}>
-              <Text style={{ color: '#64748B' }}>Or sign up with</Text>
-            </View>
-            <SocialAuthRow />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

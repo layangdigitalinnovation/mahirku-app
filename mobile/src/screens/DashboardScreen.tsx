@@ -1,17 +1,18 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet, Animated, Image, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet, Animated, Image, Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { AxiosError } from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { meApi } from '../api/auth';
 import { clearToken } from '../store/auth';
 import { getHistory } from '../api/thinkingStyle';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import BottomTabs from '../components/navigation/BottomTabs';
 import FlatItemList from '../components/list/FlatItemList';
-import { AntDesign, Ionicons, Feather } from '@expo/vector-icons';
+import { AntDesign, Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -44,7 +45,7 @@ export default function DashboardScreen({ navigation }: any) {
   const fadeIn = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
   useEffect(() => {
-    Animated.timing(fadeIn, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+    Animated.timing(fadeIn, { toValue: 1, duration: 400, useNativeDriver: true }).start();
   }, []);
 
   useEffect(() => {
@@ -56,11 +57,6 @@ export default function DashboardScreen({ navigation }: any) {
       }
     }
   }, [isError, error, navigation]);
-
-  const logout = async () => {
-    await clearToken();
-    navigation.replace('Login');
-  };
 
   const startTest = (testKey: string) => {
     const userTokens = data?.user?.tokens ?? 0;
@@ -83,97 +79,176 @@ export default function DashboardScreen({ navigation }: any) {
     }
   };
   const tests = useMemo(() => [
-    { key: 'cst', title: 'Cognitive Style Test', desc: 'Temukan pola berpikir unik Anda dan bagaimana hal itu memengaruhi keputusan serta karier Anda.', icon: 'activity', available: true, progress: 0.3 },
-    { key: 'disc', title: 'DISC Test', desc: 'Tes DISC (Four Personality Types) adalah tes yang mengetahui tiga aspek utama dalam interaksi manusia.', icon: 'users', available: true, progress: 0.6 },
-    { key: 'grp', title: 'Graphology Test', desc: 'Tes Graphology (Pengetahuan Tangan) menganalisis tangan untuk mengidentifikasi sifat psikologis.', icon: 'edit-3', available: false, progress: 0 },
+    { key: 'cst', title: 'Cognitive Style', subtitle: 'Analisis Pola Pikir', desc: 'Temukan potensi dan gaya berpikir unik Anda.', icon: 'brain', iconLib: 'MaterialCommunityIcons', color: '#4F46E5', available: true },
+    { key: 'disc', title: 'DISC Personality', subtitle: 'Profil Kepribadian', desc: 'Pahami karakter dan cara Anda berinteraksi.', icon: 'account-group', iconLib: 'MaterialCommunityIcons', color: '#0EA5E9', available: true },
+    { key: 'grp', title: 'Graphology', subtitle: 'Analisis Tulisan', desc: 'Ungkap karakter tersembunyi dari tulisan tangan.', icon: 'edit-3', iconLib: 'Feather', color: '#8B5CF6', available: false },
   ], []);
+
+  const getInitials = (name: string) => {
+    return String(name).split(' ').slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('');
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+      <LinearGradient
+        colors={['#EEF2FF', '#F1F5F9', '#F8FAFC']}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+
       <Animated.View style={{ flex: 1, opacity: fadeIn }}>
-        <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}>
-          <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 24 }}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: insets.bottom + 90 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 24 }}>
+
+            {/* Header Section */}
             <View style={styles.headerRow}>
-              <View style={styles.headerLeft}>
-                <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' }] }>
-                  {data?.user?.fullname ? (
-                    <Text style={styles.avatarText}>
-                      {String(data?.user?.fullname).split(' ').slice(0,2).map(s => s[0]?.toUpperCase() || '').join('')}
-                    </Text>
-                  ) : (
-                    <Feather name="user" size={22} color="#4F46E5" />
-                  )}
-                </View>
-                <View style={{ marginLeft: 16 }}>
-                  <Text style={styles.headerName}>{data?.user?.fullname || 'Pengguna'}</Text>
-                  <Text style={styles.headerTagline}>Member • {data?.user?.role?.name ?? 'User'}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.greetingText}>Selamat Datang,</Text>
+                <Text style={styles.headerName} numberOfLines={1}>
+                  {data?.user?.fullname || 'Pengguna'}
+                </Text>
+                <View style={styles.roleBadge}>
+                  <Text style={styles.roleText}>{data?.user?.role?.name ?? 'Member'}</Text>
                 </View>
               </View>
-              <Pressable onPress={() => navigation.navigate('Profile')} style={styles.iconBtn} android_ripple={{ color: '#E2E8F0' }}>
-                <Ionicons name="settings-outline" size={22} color="#475569" />
+
+              <Pressable onPress={() => navigation.navigate('Profile')} style={styles.avatarContainer}>
+                {data?.user?.fullname ? (
+                  <LinearGradient
+                    colors={['#6366F1', '#4F46E5']}
+                    style={styles.avatarGradient}
+                  >
+                    <Text style={styles.avatarText}>{getInitials(data?.user?.fullname)}</Text>
+                  </LinearGradient>
+                ) : (
+                  <View style={[styles.avatarGradient, { backgroundColor: '#E0E7FF' }]}>
+                    <Feather name="user" size={24} color="#4F46E5" />
+                  </View>
+                )}
+                <View style={styles.onlineIndicator} />
               </Pressable>
             </View>
 
-            <Card style={[styles.tokenCard, { marginTop: 24 }]}>
-              <View style={styles.tokenRow}>
-                <View style={styles.tokenIconWrap}>
-                  <AntDesign name="wallet" size={24} color="#4F46E5" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.tokenTitle}>Total Token</Text>
-                  <Text style={styles.tokenValue}>{data?.user?.tokens ?? 0}</Text>
-                </View>
-              </View>
-              <View style={styles.buttonRow}>
-                <PrimaryButton
-                  title="Beli Token"
-                  leftIcon={<Feather name="shopping-cart" size={18} color="#FFFFFF" />}
-                  onPress={() => navigation.navigate('TokenPackages')}
-                  style={{ flex: 1, backgroundColor: '#4F46E5', borderRadius: 12, height: 44 }}
-                />
-
-              </View>
-            </Card>
-
-            <Text style={styles.sectionTitle}>Tes Tersedia</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 4 }}>
-              {tests.map((t) => (
-                <Card key={t.key} style={styles.testCard}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                    <View style={styles.testIconWrap}>
-                      <Feather name={t.icon as any} size={20} color="#4F46E5" />
+            {/* Token Card */}
+            <View style={styles.tokenCardWrapper}>
+              <LinearGradient
+                colors={['#4F46E5', '#4338CA']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.tokenCardGradient}
+              >
+                <View style={styles.tokenCardContent}>
+                  <View>
+                    <Text style={styles.tokenLabel}>Saldo Token</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
+                      <Text style={styles.tokenValue}>{data?.user?.tokens ?? 0}</Text>
+                      <Text style={styles.tokenUnit}>Token</Text>
                     </View>
-                    <Text style={styles.testTitle}>{t.title}</Text>
                   </View>
-                  <Text style={styles.testDesc} numberOfLines={3}>{t.desc}</Text>
-                  <View style={{ flex: 1 }} />
-                  <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
-                    {t.available ? (
-                      <PrimaryButton title="Mulai" leftIcon={<Feather name="play-circle" size={16} color="#FFFFFF" />} onPress={() => startTest(t.key)} style={{ flex: 1, backgroundColor: '#0EA5E9', height: 40, borderRadius: 10 }} />
+                  <View style={styles.tokenIconContainer}>
+                    <MaterialCommunityIcons name="ticket-percent-outline" size={32} color="#FFFFFF" />
+                  </View>
+                </View>
+
+                <View style={styles.actionButtonsRow}>
+                  <PrimaryButton
+                    title="Top Up"
+                    leftIcon={<Feather name="plus-circle" size={18} color="#4F46E5" />}
+                    onPress={() => navigation.navigate('TokenPackages')}
+                    style={styles.topUpBtn}
+                    textStyle={{ color: '#4F46E5', fontSize: 14 }}
+                  />
+                  <PrimaryButton
+                    title="Add Member"
+                    leftIcon={<Feather name="user-plus" size={18} color="#FFFFFF" />}
+                    onPress={() => navigation.navigate('AddMember')}
+                    disabled={(data?.user?.tokens ?? 0) <= 1}
+                    style={styles.addMemberBtn}
+                    textStyle={{ color: '#FFFFFF', fontSize: 14 }}
+                  />
+                </View>
+              </LinearGradient>
+            </View>
+
+            {/* Tests Section */}
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Tes Tersedia</Text>
+              <Pressable onPress={() => navigation.navigate('Tests')}>
+                <Text style={styles.seeAllText}>Lihat Semua</Text>
+              </Pressable>
+            </View>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingRight: 24, paddingBottom: 24, gap: 16 }}
+              style={{ marginHorizontal: -24, paddingHorizontal: 24 }}
+            >
+              {tests.map((t) => (
+                <Pressable
+                  key={t.key}
+                  onPress={() => t.available && startTest(t.key)}
+                  style={({ pressed }) => [
+                    styles.testCard,
+                    pressed && { transform: [{ scale: 0.98 }] }
+                  ]}
+                >
+                  <View style={[styles.testIconBox, { backgroundColor: `${t.color}15` }]}>
+                    {t.iconLib === 'MaterialCommunityIcons' ? (
+                      <MaterialCommunityIcons name={t.icon as any} size={24} color={t.color} />
                     ) : (
-                      <PrimaryButton title="Segera" variant="secondary" leftIcon={<Feather name="clock" size={16} color="#64748B" />} disabled onPress={() => { }} style={{ flex: 1, height: 40, borderRadius: 10 }} />
+                      <Feather name={t.icon as any} size={24} color={t.color} />
                     )}
                   </View>
-                </Card>
+                  <View style={{ marginTop: 16, flex: 1 }}>
+                    <Text style={styles.testCardTitle}>{t.title}</Text>
+                    <Text style={styles.testCardSubtitle}>{t.subtitle}</Text>
+                    <Text style={styles.testCardDesc} numberOfLines={2}>{t.desc}</Text>
+                  </View>
+
+                  <View style={styles.testCardFooter}>
+                    {t.available ? (
+                      <View style={[styles.playBtn, { backgroundColor: t.color }]}>
+                        <Text style={styles.playBtnText}>Mulai Tes</Text>
+                        <Feather name="arrow-right" size={16} color="#FFF" />
+                      </View>
+                    ) : (
+                      <View style={styles.soonBtn}>
+                        <Text style={styles.soonBtnText}>Segera Hadir</Text>
+                      </View>
+                    )}
+                  </View>
+                </Pressable>
               ))}
             </ScrollView>
 
-            <Text style={styles.sectionTitle}>Aktivitas Terakhir</Text>
-            <Card style={{ padding: 0, overflow: 'hidden', borderRadius: 20 }}>
+            {/* Recent Activity */}
+            <View style={[styles.sectionHeader, { marginTop: 32 }]}>
+              <Text style={styles.sectionTitle}>Aktivitas Terakhir</Text>
+            </View>
+
+            <View style={styles.activityCard}>
               {activityData && activityData.length > 0 ? (
                 <FlatItemList
                   data={activityData}
                   scrollEnabled={false}
                   renderItem={({ item, index }) => {
-                    const date = new Date(item.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const date = new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const isLast = index === activityData.length - 1;
                     return (
-                      <View style={[styles.activityRow, index !== activityData.length - 1 && { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }]}>
-                        <View style={styles.activityIcon}>
-                          <Feather name="activity" size={18} color="#64748B" />
+                      <View style={[styles.activityItem, !isLast && styles.activityDivider]}>
+                        <View style={styles.activityIconBox}>
+                          <Feather name="check-circle" size={20} color="#10B981" />
                         </View>
-                        <View style={{ marginLeft: 12, flex: 1 }}>
-                          <Text style={styles.activityTitle}>Cognitive Style Test</Text>
-                          <Text style={styles.activitySubtitle}>{item.thinkingStyle?.type || 'Unknown'} ({item.thinkingStyle?.code || 'N/A'})</Text>
+                        <View style={{ flex: 1, marginLeft: 16 }}>
+                          <Text style={styles.activityName}>Cognitive Style Test</Text>
+                          <Text style={styles.activityResult}>
+                            Hasil: <Text style={{ fontWeight: '600', color: '#4F46E5' }}>{item.thinkingStyle?.type || 'Unknown'}</Text>
+                          </Text>
                         </View>
                         <Text style={styles.activityDate}>{date}</Text>
                       </View>
@@ -181,11 +256,14 @@ export default function DashboardScreen({ navigation }: any) {
                   }}
                 />
               ) : (
-                <View style={{ padding: 24, alignItems: 'center' }}>
-                  <Text style={{ color: '#94A3B8', fontSize: 14 }}>Belum ada aktivitas</Text>
+                <View style={styles.emptyState}>
+                  <View style={styles.emptyIconBg}>
+                    <Feather name="clock" size={24} color="#94A3B8" />
+                  </View>
+                  <Text style={styles.emptyText}>Belum ada aktivitas terbaru</Text>
                 </View>
               )}
-            </Card>
+            </View>
 
           </View>
         </ScrollView>
@@ -213,31 +291,52 @@ export default function DashboardScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  avatar: { width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: '#FFFFFF' },
-  avatarText: { color: '#4F46E5', fontSize: 16, fontWeight: '800' },
-  headerName: { color: '#1E293B', fontSize: 18, fontWeight: '700', letterSpacing: 0.3 },
-  headerTagline: { color: '#64748B', fontWeight: '500', fontSize: 13, marginTop: 2 },
-  iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
+  greetingText: { color: '#64748B', fontSize: 14, fontWeight: '500', marginBottom: 4 },
+  headerName: { color: '#1E293B', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 },
+  roleBadge: { alignSelf: 'flex-start', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, marginTop: 8, borderWidth: 1, borderColor: '#DBEAFE' },
+  roleText: { color: '#3B82F6', fontSize: 12, fontWeight: '600' },
 
-  sectionTitle: { color: '#0F172A', fontWeight: '700', fontSize: 18, marginTop: 28, marginBottom: 12, letterSpacing: -0.5 },
+  avatarContainer: { position: 'relative' },
+  avatarGradient: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', shadowColor: '#4F46E5', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  avatarText: { color: '#FFFFFF', fontSize: 20, fontWeight: '700' },
+  onlineIndicator: { position: 'absolute', bottom: 2, right: 2, width: 14, height: 14, borderRadius: 7, backgroundColor: '#10B981', borderWidth: 2, borderColor: '#FFFFFF' },
 
-  testCard: { width: 260, marginRight: 16, padding: 16, borderRadius: 20, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 3, minHeight: 180 },
-  testTitle: { color: '#1E293B', fontWeight: '700', fontSize: 16, flex: 1, marginLeft: 12 },
-  testDesc: { color: '#64748B', marginTop: 4, fontSize: 13, lineHeight: 20 },
-  testIconWrap: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  tokenCardWrapper: { borderRadius: 24, shadowColor: '#4F46E5', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20, elevation: 8, marginBottom: 32 },
+  tokenCardGradient: { borderRadius: 24, padding: 24 },
+  tokenCardContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
+  tokenLabel: { color: '#E0E7FF', fontSize: 14, fontWeight: '500', marginBottom: 4 },
+  tokenValue: { color: '#FFFFFF', fontSize: 36, fontWeight: '800', letterSpacing: -1 },
+  tokenUnit: { color: '#E0E7FF', fontSize: 16, fontWeight: '600' },
+  tokenIconContainer: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
 
-  activityRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16 },
-  activityIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center' },
-  activityTitle: { color: '#1E293B', fontWeight: '600', fontSize: 14 },
-  activitySubtitle: { color: '#64748B', fontSize: 12, marginTop: 2 },
+  actionButtonsRow: { flexDirection: 'row', gap: 12 },
+  topUpBtn: { flex: 1, backgroundColor: '#FFFFFF', height: 44, borderRadius: 12 },
+  addMemberBtn: { flex: 1, backgroundColor: 'rgba(255,255,255,0.2)', height: 44, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  sectionTitle: { color: '#1E293B', fontSize: 18, fontWeight: '700', letterSpacing: -0.5 },
+  seeAllText: { color: '#4F46E5', fontSize: 14, fontWeight: '600' },
+
+  testCard: { width: 260, minHeight: 180, backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 4 },
+  testIconBox: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  testCardTitle: { color: '#1E293B', fontSize: 16, fontWeight: '700', marginBottom: 2 },
+  testCardSubtitle: { color: '#64748B', fontSize: 12, fontWeight: '500', marginBottom: 8 },
+  testCardDesc: { color: '#94A3B8', fontSize: 12, lineHeight: 18 },
+  testCardFooter: { marginTop: 20 },
+  playBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 12, gap: 6 },
+  playBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
+  soonBtn: { backgroundColor: '#F1F5F9', paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
+  soonBtnText: { color: '#94A3B8', fontSize: 13, fontWeight: '600' },
+
+  activityCard: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 8, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
+  activityItem: { flexDirection: 'row', alignItems: 'center', padding: 16 },
+  activityDivider: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  activityIconBox: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#ECFDF5', alignItems: 'center', justifyContent: 'center' },
+  activityName: { color: '#1E293B', fontSize: 15, fontWeight: '600', marginBottom: 2 },
+  activityResult: { color: '#64748B', fontSize: 13 },
   activityDate: { color: '#94A3B8', fontSize: 12, fontWeight: '500' },
-
-  tokenCard: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 4 },
-  tokenRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  tokenTitle: { color: '#64748B', fontSize: 13, fontWeight: '600', marginBottom: 4 },
-  tokenValue: { color: '#1E293B', fontSize: 32, fontWeight: '800', letterSpacing: -1 },
-  buttonRow: { flexDirection: 'row', gap: 12 },
-  tokenIconWrap: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', marginRight: 16, borderWidth: 1, borderColor: '#E0E7FF' },
+  emptyState: { padding: 32, alignItems: 'center' },
+  emptyIconBg: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  emptyText: { color: '#94A3B8', fontSize: 14, fontWeight: '500' },
 });

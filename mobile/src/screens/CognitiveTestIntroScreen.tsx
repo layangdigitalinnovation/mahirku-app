@@ -171,6 +171,7 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                             const finalPercent = Math.max(0, Math.min(100, Math.round(0.6 * fingerprintPercent + 0.4 * questionnairePercent)));
 
                             navigation.replace('ReportDetail', {
+                                fromFingerprint: true,
                                 report: {
                                     id: testResult.data.data.id.toString(),
                                     title: 'Cognitive Style Test',

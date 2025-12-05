@@ -22,6 +22,8 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
 import DiscTestScreen from './src/screens/DiscTestScreen';
 import DiscResultScreen from './src/screens/DiscResultScreen';
+import AddMemberScreen from './src/screens/AddMemberScreen';
+import MemberListScreen from './src/screens/MemberListScreen';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
@@ -51,6 +53,8 @@ export default function App() {
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="DiscTest" component={DiscTestScreen} />
             <Stack.Screen name="DiscResult" component={DiscResultScreen} />
+            <Stack.Screen name="AddMember" component={AddMemberScreen} />
+            <Stack.Screen name="MemberList" component={MemberListScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </QueryClientProvider>
