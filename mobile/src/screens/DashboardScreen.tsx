@@ -79,9 +79,9 @@ export default function DashboardScreen({ navigation }: any) {
     }
   };
   const tests = useMemo(() => [
-    { key: 'cst', title: 'Cognitive Style', subtitle: 'Analisis Pola Pikir', desc: 'Temukan potensi dan gaya berpikir unik Anda.', icon: 'brain', color: '#4F46E5', available: true },
-    { key: 'disc', title: 'DISC Personality', subtitle: 'Profil Kepribadian', desc: 'Pahami karakter dan cara Anda berinteraksi.', icon: 'users', color: '#0EA5E9', available: true },
-    { key: 'grp', title: 'Graphology', subtitle: 'Analisis Tulisan', desc: 'Ungkap karakter tersembunyi dari tulisan tangan.', icon: 'edit-3', color: '#8B5CF6', available: false },
+    { key: 'cst', title: 'Cognitive Style', subtitle: 'Analisis Pola Pikir', desc: 'Temukan potensi dan gaya berpikir unik Anda.', icon: 'brain', iconLib: 'MaterialCommunityIcons', color: '#4F46E5', available: true },
+    { key: 'disc', title: 'DISC Personality', subtitle: 'Profil Kepribadian', desc: 'Pahami karakter dan cara Anda berinteraksi.', icon: 'account-group', iconLib: 'MaterialCommunityIcons', color: '#0EA5E9', available: true },
+    { key: 'grp', title: 'Graphology', subtitle: 'Analisis Tulisan', desc: 'Ungkap karakter tersembunyi dari tulisan tangan.', icon: 'edit-3', iconLib: 'Feather', color: '#8B5CF6', available: false },
   ], []);
 
   const getInitials = (name: string) => {
@@ -185,7 +185,7 @@ export default function DashboardScreen({ navigation }: any) {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingRight: 24, gap: 16 }}
+              contentContainerStyle={{ paddingRight: 24, paddingBottom: 24, gap: 16 }}
               style={{ marginHorizontal: -24, paddingHorizontal: 24 }}
             >
               {tests.map((t) => (
@@ -198,7 +198,11 @@ export default function DashboardScreen({ navigation }: any) {
                   ]}
                 >
                   <View style={[styles.testIconBox, { backgroundColor: `${t.color}15` }]}>
-                    <Feather name={t.icon as any} size={24} color={t.color} />
+                    {t.iconLib === 'MaterialCommunityIcons' ? (
+                      <MaterialCommunityIcons name={t.icon as any} size={24} color={t.color} />
+                    ) : (
+                      <Feather name={t.icon as any} size={24} color={t.color} />
+                    )}
                   </View>
                   <View style={{ marginTop: 16, flex: 1 }}>
                     <Text style={styles.testCardTitle}>{t.title}</Text>
@@ -314,7 +318,7 @@ const styles = StyleSheet.create({
   sectionTitle: { color: '#1E293B', fontSize: 18, fontWeight: '700', letterSpacing: -0.5 },
   seeAllText: { color: '#4F46E5', fontSize: 14, fontWeight: '600' },
 
-  testCard: { width: 200, backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 2 },
+  testCard: { width: 260, minHeight: 180, backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 4 },
   testIconBox: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   testCardTitle: { color: '#1E293B', fontSize: 16, fontWeight: '700', marginBottom: 2 },
   testCardSubtitle: { color: '#64748B', fontSize: 12, fontWeight: '500', marginBottom: 8 },

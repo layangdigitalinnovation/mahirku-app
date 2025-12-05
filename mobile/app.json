@@ -10,7 +10,9 @@
     "orientation": "portrait",
     "icon": "./assets/logo-mahirku-no-bg.png",
     "runtimeVersion": "1.0.0",
-    "updates": { "url": "https://u.expo.dev/48ffbe31-63a3-4e66-a5f0-308b51e4fd6c" },
+    "updates": {
+      "url": "https://u.expo.dev/48ffbe31-63a3-4e66-a5f0-308b51e4fd6c"
+    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -24,7 +26,21 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo-mahirku-no-bg.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "com.mahirku.app"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "plugins": [
       "expo-asset",

@@ -9,7 +9,6 @@ import Card from '../components/basic/Card';
 import TextField from '../components/basic/TextField';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import SegmentedTabs from '../components/ui/SegmentedTabs';
-import SocialAuthRow from '../components/ui/SocialAuthRow';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -54,8 +53,6 @@ export default function RegisterScreen({ navigation }: any) {
     }
   };
 
-  
-
   return (
     <GradientBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
@@ -79,13 +76,9 @@ export default function RegisterScreen({ navigation }: any) {
                 <TextField label="Alamat" value={address} onChangeText={setAddress} containerStyle={{ width: '100%' }} startIcon={<Feather name="map-pin" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
                 <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry secureToggle textContentType="password" containerStyle={{ width: '100%' }} startIcon={<Feather name="lock" size={18} color="#64748B" />} inputStyle={{ borderRadius: 28, height: 54 }} />
               </View>
-              {error ? <Text style={{ color: '#ef4444', marginTop: 8 }}>{error}</Text> : null}
+              {error ? <Text style={{ color: '#ef4444', marginTop: 8, fontSize: 13 }}>{error}</Text> : null}
               <PrimaryButton title="Register" onPress={register} loading={loading} style={{ marginTop: 16, backgroundColor: '#2563EB', borderRadius: 24, height: 52 }} />
             </Card>
-            <View style={{ alignItems: 'center', marginTop: 16 }}>
-              <Text style={{ color: '#64748B' }}>Or sign up with</Text>
-            </View>
-            <SocialAuthRow />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
