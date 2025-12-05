@@ -33,7 +33,8 @@
     "extra": {
       "eas": {
         "projectId": "48ffbe31-63a3-4e66-a5f0-308b51e4fd6c"
-      }
+      },
+      "GOOGLE_WEB_CLIENT_ID": "1061850144136-r1k407gtpglk67otkdvdqbo55eknhdj2.apps.googleusercontent.com"
     }
   }
 }

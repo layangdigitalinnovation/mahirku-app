@@ -13,6 +13,8 @@ import PrimaryButton from '../components/basic/PrimaryButton';
 import SegmentedTabs from '../components/ui/SegmentedTabs';
 import Checkbox from '../components/ui/Checkbox';
 import SocialAuthRow from '../components/ui/SocialAuthRow';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { googleLogin } from '../api/googleAuth';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -33,6 +35,12 @@ export default function LoginScreen({ navigation }: any) {
           await clearToken();
         }
       }
+      try {
+        const webClientId = (require('expo-constants').default?.expoConfig?.extra as any)?.GOOGLE_WEB_CLIENT_ID as string | undefined;
+        if (webClientId) {
+          GoogleSignin.configure({ webClientId, offlineAccess: true });
+        }
+      } catch {}
     };
     init();
   }, [navigation]);
@@ -58,6 +66,26 @@ export default function LoginScreen({ navigation }: any) {
 
   
   const goRegister = () => navigation.navigate('Register');
+  const loginWithGoogle = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = (userInfo as any)?.idToken;
+      if (!idToken) {
+        throw new Error('Tidak mendapatkan idToken dari Google. Pastikan webClientId sudah dikonfigurasi.');
+      }
+      const res = await googleLogin(idToken);
+      await saveToken(res.token);
+      navigation.replace('Dashboard');
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || e?.message || 'Login Google gagal';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <GradientBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
@@ -86,7 +114,7 @@ export default function LoginScreen({ navigation }: any) {
           <View style={{ alignItems: 'center', marginTop: 16 }}>
             <Text style={{ color: '#64748B' }}>Or login with</Text>
           </View>
-          <SocialAuthRow />
+          <SocialAuthRow onGooglePress={loginWithGoogle} />
 
         </Card>
         </View>

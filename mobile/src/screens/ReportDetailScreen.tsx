@@ -11,6 +11,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   const r = route?.params?.report as { title: string; date: string; summary: string; type: string; fullData?: any } | undefined;
   const thinkingStyle = r?.fullData?.thinkingStyle;
   const combine = (route?.params?.report as any)?.combine as { finalPercent: number; fingerprintPercent?: number; questionnairePercent?: number; questionnaire?: any } | undefined;
+  const fromFingerprint = route?.params?.fromFingerprint as boolean | undefined;
   const fpType = thinkingStyle?.type as string | undefined;
   const q = combine?.questionnaire as any;
   const eLetter = q?.eiType === 'Ekstrovert' ? 'E' : 'I';
@@ -37,7 +38,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <View style={[styles.topBar, { paddingTop: insets.top + 12 }]}>
-        <Pressable style={styles.backBtn} android_ripple={{ color: '#E2E8F0' }} onPress={() => navigation.goBack()}>
+        <Pressable style={styles.backBtn} android_ripple={{ color: '#E2E8F0' }} onPress={() => (fromFingerprint ? navigation.replace('Dashboard') : navigation.goBack())}>
           <Ionicons name="chevron-back" size={20} color="#475569" />
         </Pressable>
         <Text style={styles.topTitle}>Detail Laporan</Text>
@@ -86,10 +87,6 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             <>
               <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Skor Akhir</Text>
               <View style={{ gap: 8 }}>
-                <View style={{ height: 16, borderRadius: 10, backgroundColor: '#E2E8F0', overflow: 'hidden' }}>
-                  <View style={{ width: `${combine.finalPercent}%`, height: '100%', backgroundColor: '#10B981' }} />
-                </View>
-                <Text style={{ color: '#10B981', fontWeight: '800', fontSize: 18 }}>{combine.finalPercent}%</Text>
                 <Text style={{ color: '#64748B', fontSize: 12 }}>Gabungan: 60% sidik jari + 40% kuesioner</Text>
                 <View style={{ marginTop: 8 }}>
                   {sameType ? (
@@ -121,7 +118,6 @@ export default function ReportDetailScreen({ navigation, route }: any) {
               <View style={{ marginTop: 12 }}>
                 <Text style={styles.itemSubtitle}>Tipe Utama: {combine.questionnaire.tipeUtama}</Text>
                 <Text style={styles.itemSubtitle}>Final Type (kuesioner): {combine.questionnaire.finalType}</Text>
-                <Text style={styles.itemSubtitle}>Persentase Kuesioner: {combine.questionnaire.percent}%</Text>
               </View>
             </>
           )}

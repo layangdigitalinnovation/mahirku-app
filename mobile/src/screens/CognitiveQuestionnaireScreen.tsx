@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import Card from '../components/basic/Card';
@@ -51,7 +51,7 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
   const insets = useSafeAreaInsets();
   const dob = route?.params?.dob as string | undefined;
   const bloodType = route?.params?.bloodType as string | undefined;
-  const [answers, setAnswers] = useState<number[]>(Array(36).fill(3));
+  const [answers, setAnswers] = useState<number[]>(Array(36).fill(0));
   const setAnswer = (index: number, val: number) => {
     setAnswers(prev => {
       const next = [...prev];
@@ -93,6 +93,10 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
 
   const proceed = async () => {
     if (!dob || !bloodType) return;
+    if (answers.includes(0)) {
+      Alert.alert('Belum Lengkap', 'Mohon isi semua pertanyaan kuesioner sebelum melanjutkan.');
+      return;
+    }
     const payload = {
       savedAt: new Date().toISOString(),
       dob,

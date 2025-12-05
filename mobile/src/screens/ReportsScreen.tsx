@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet, RefreshControl, Linking } from 'rea
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { getHistory, downloadPDF, ThinkingStyleResult } from '../api/thinkingStyle';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '../components/basic/Card';
 import TextField from '../components/basic/TextField';
 import PrimaryButton from '../components/basic/PrimaryButton';
@@ -44,16 +45,35 @@ export default function ReportsScreen({ navigation }: any) {
     });
   }, [historyData, q, start, end]);
 
-  const goDetail = (item: ThinkingStyleResult) => navigation.navigate('ReportDetail', {
-    report: {
-      id: item.id.toString(),
-      title: 'Cognitive Style Test',
-      date: new Date(item.createdAt).toLocaleDateString('id-ID'),
-      summary: `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
-      type: 'cst',
-      fullData: item
-    }
-  });
+  const goDetail = async (item: ThinkingStyleResult) => {
+    let questionnaire: any = undefined;
+    try {
+      const qStr = await AsyncStorage.getItem('cst:lastQuestionnaire');
+      questionnaire = qStr ? JSON.parse(qStr) : undefined;
+    } catch {}
+
+    const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
+    const fingerprintPercent = clamp(Number(item.resultDigit ?? 0));
+    const questionnairePercent = clamp(Number(questionnaire?.percent ?? 0));
+    const finalPercent = clamp(0.6 * fingerprintPercent + 0.4 * questionnairePercent);
+
+    navigation.navigate('ReportDetail', {
+      report: {
+        id: item.id.toString(),
+        title: 'Cognitive Style Test',
+        date: new Date(item.createdAt).toLocaleDateString('id-ID'),
+        summary: `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
+        type: 'cst',
+        fullData: item,
+        combine: {
+          finalPercent,
+          fingerprintPercent,
+          questionnairePercent,
+          questionnaire,
+        },
+      },
+    });
+  };
 
   const dlCert = async (item: ThinkingStyleResult) => {
     // Implement PDF download
