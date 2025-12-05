@@ -89,9 +89,10 @@ function AppRoutes() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/cognitive-style" element={<CognitiveStyleLanding />} />
-        <Route path="/affiliator-landing" element={<AffiliatorLandingLayout />}>
-          <Route index element={<AffiliatorLanding />} />
-        </Route>
+      </Route>
+
+      <Route element={<AffiliatorLandingLayout />}>
+        <Route path="/affiliator-landing" element={<AffiliatorLanding />} />
       </Route>
 
       {/* Auth Routes - only for non-logged in users */}
