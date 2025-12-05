@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import models from "../models";
 import User from "../models/User";
 import { getReferralFromCookie, clearReferralCookie } from '../middlewares/referralMiddleware';
+import { OAuth2Client } from 'google-auth-library';
 
 interface AuthenticatedRequest extends Request {
   user?: any;
@@ -179,5 +180,82 @@ export const getMe = async (
   } catch (err) {
     console.error("GetMe error:", err);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Google OAuth login
+export const googleLogin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { idToken } = req.body as { idToken?: string };
+    if (!idToken) {
+      res.status(400).json({ message: 'idToken wajib dikirim.' });
+      return;
+    }
+
+    const audience = process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_WEB_CLIENT_ID || '1061850144136-r1k407gtpglk67otkdvdqbo55eknhdj2.apps.googleusercontent.com';
+    if (!audience) {
+      res.status(500).json({ message: 'Konfigurasi Google OAuth tidak tersedia di server.' });
+      return;
+    }
+
+    const client = new OAuth2Client(audience);
+    const ticket = await client.verifyIdToken({ idToken, audience });
+    const payload = ticket.getPayload();
+    if (!payload) {
+      res.status(401).json({ message: 'Token Google tidak valid.' });
+      return;
+    }
+
+    const email = payload.email as string | undefined;
+    const name = payload.name as string | undefined;
+    const sub = payload.sub as string | undefined; // Google user ID
+    if (!email) {
+      res.status(400).json({ message: 'Email tidak tersedia dari Google.' });
+      return;
+    }
+
+    // Cari berdasarkan googleId atau googleEmail terlebih dahulu
+    let user = await User.findOne({ where: { googleId: sub } });
+    if (!user && email) {
+      user = await User.findOne({ where: { googleEmail: email } });
+    }
+    // Jika masih belum ada, coba tautkan ke akun email biasa
+    if (!user && email) {
+      const existingByEmail = await models.User.findByEmail(email);
+      if (existingByEmail) {
+        existingByEmail.googleId = sub || null;
+        existingByEmail.googleEmail = email;
+        await existingByEmail.save();
+        user = existingByEmail as any;
+      }
+    }
+    // Jika tetap tidak ada, buat akun baru dengan field Google
+    if (!user) {
+      const baseUsername = (email || name || 'user').split('@')[0];
+      let username = baseUsername;
+      let counter = 1;
+      while (await models.User.findOne({ where: { username } })) {
+        username = `${baseUsername}${counter}`;
+        counter += 1;
+      }
+      user = await models.User.create({
+        username,
+        email,
+        password: null,
+        fullname: name || baseUsername,
+        address: '-',
+        phoneNumber: '0',
+        roleId: 3,
+        tokens: 0,
+        googleId: sub || null,
+        googleEmail: email || null,
+      });
+    }
+
+    const token = user.generateAuthToken();
+    res.status(200).json({ message: 'Login Google berhasil', token, user });
+  } catch (err: any) {
+    console.error('googleLogin error:', err);
+    res.status(500).json({ message: 'Gagal memproses login Google', error: err?.message });
   }
 };

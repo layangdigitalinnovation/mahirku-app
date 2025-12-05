@@ -58,6 +58,15 @@ export default function ProfileScreen({ navigation }: any) {
             <Feather name="chevron-right" size={18} color="#94A3B8" />
           </Pressable>
           <View style={styles.divider} />
+          <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }} onPress={() => navigation.navigate('MemberList')}>
+            <View style={styles.iconWrap}><Feather name="users" size={18} color="#4F46E5" /></View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.itemTitle}>Member</Text>
+              <Text style={styles.itemSubtitle}>Lihat dan kelola daftar member</Text>
+            </View>
+            <Feather name="chevron-right" size={18} color="#94A3B8" />
+          </Pressable>
+          <View style={styles.divider} />
           <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }}>
             <View style={styles.iconWrap}><Feather name="lock" size={18} color="#4F46E5" /></View>
             <View style={{ flex: 1, marginLeft: 12 }}>
