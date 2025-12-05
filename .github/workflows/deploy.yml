@@ -29,3 +29,23 @@ jobs:
           push: true
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
+      - name: Deploy Frontend to Dokploy
+        if: success()
+        run: |
+          curl -X 'POST' \
+            'https://${{ secrets.DOKPLOY_DOMAIN }}/api/trpc/application.deploy' \
+            -H 'accept: application/json' \
+            -H 'x-api-key: ${{ secrets.DOKPLOY_API_KEY }}' \
+            -H 'Content-Type: application/json' \
+            -d '{ "json":{ "applicationId": "${{ secrets.DOKPLOY_FRONTEND_ID }}" } }'
+
+      - name: Deploy Backend to Dokploy
+        if: success()
+        run: |
+          curl -X 'POST' \
+            'https://${{ secrets.DOKPLOY_DOMAIN }}/api/trpc/application.deploy' \
+            -H 'accept: application/json' \
+            -H 'x-api-key: ${{ secrets.DOKPLOY_API_KEY }}' \
+            -H 'Content-Type: application/json' \
+            -d '{ "json":{ "applicationId": "${{ secrets.DOKPLOY_BACKEND_ID }}" } }'
