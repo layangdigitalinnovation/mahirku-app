@@ -28,4 +28,3 @@ export const fetchCommissionBreakdown = async () => {
   const { data } = await api.get("/affiliate/commission-breakdown");
   return data;
 };
-
