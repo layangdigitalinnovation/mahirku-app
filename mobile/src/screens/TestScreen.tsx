@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { meApi } from '../api/auth';
@@ -15,7 +15,22 @@ export default function TestScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const { data } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
   const tokens = data?.user?.tokens ?? 0;
-  const startCognitive = () => navigation.navigate('CognitiveDataEntry');
+  
+  const startCognitive = () => {
+    if (tokens <= 0) {
+      Alert.alert(
+        'Token Tidak Cukup',
+        'Anda memerlukan minimal 1 token untuk melakukan tes. Silakan beli token terlebih dahulu.',
+        [
+          { text: 'Batal', style: 'cancel' },
+          { text: 'Beli Token', onPress: () => navigation.navigate('TokenPackages') }
+        ]
+      );
+      return;
+    }
+    navigation.navigate('CognitiveDataEntry');
+  };
+
   const startDisc = () => navigation.navigate('DiscTest');
 
   const tests = [
