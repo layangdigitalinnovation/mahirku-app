@@ -8,23 +8,23 @@
       "android"
     ],
     "orientation": "portrait",
-    "icon": "./assets/logo-mahirku-no-bg.png",
+    "icon": "./assets/icon.png",
     "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/48ffbe31-63a3-4e66-a5f0-308b51e4fd6c"
     },
     "splash": {
-      "image": "./assets/logo-mahirku-no-bg.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#0F172A"
     },
     "android": {
       "package": "com.mahirku.app",
       "versionCode": 1,
-      "icon": "./assets/logo-mahirku-no-bg.png",
+      "icon": "./assets/icon.png",
       "permissions": [],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo-mahirku-no-bg.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "intentFilters": [
