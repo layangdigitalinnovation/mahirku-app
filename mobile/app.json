@@ -59,7 +59,9 @@
             "enableProguardInReleaseBuilds": false,
             "enableShrinkResourcesInReleaseBuilds": false,
             "kotlinVersion": "2.0.21"
-          }
+          },
+          "ios": {},
+          "react": {}
         }
       ]
     ],
