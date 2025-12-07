@@ -58,9 +58,7 @@
           "android": {
             "enableProguardInReleaseBuilds": false,
             "enableShrinkResourcesInReleaseBuilds": false,
-            "kotlinVersion": "2.0.21",
-            "newArchEnabled": false,
-            "unstable_reactLegacyComponentNames": []
+            "kotlinVersion": "2.0.21"
           }
         }
       ]
