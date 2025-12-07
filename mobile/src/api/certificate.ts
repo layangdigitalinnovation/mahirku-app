@@ -1,6 +1,6 @@
 import { resolvedBaseURL } from './client';
 import { loadToken } from '../store/auth';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 import { Linking, Platform } from 'react-native';
 
 export const downloadCertificate = async (testId: number): Promise<void> => {
