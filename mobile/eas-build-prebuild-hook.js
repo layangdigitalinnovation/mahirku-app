@@ -1,19 +1,29 @@
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
 console.log('🔧 Running EAS prebuild hook...');
 
-// The android folder should already exist at this point since expo prebuild was run
+// Run expo prebuild to generate the android folder
+// Note: In EAS Build, we don't need --platform flag as it's already determined
+console.log('📦 Running expo prebuild...');
+try {
+    execSync('npx expo prebuild', { stdio: 'inherit' });
+    console.log('✅ Expo prebuild completed');
+} catch (error) {
+    console.error('❌ Expo prebuild failed:', error.message);
+    process.exit(1);
+}
+
+// Now patch the build.gradle file
 const buildGradlePath = path.join(__dirname, 'android', 'app', 'build.gradle');
 
 if (fs.existsSync(buildGradlePath)) {
     console.log('🔍 Patching build.gradle...');
     let buildGradleContent = fs.readFileSync(buildGradlePath, 'utf8');
 
-    // Store original content to check if changes were made
-    const originalContent = buildGradleContent;
-
     // Remove enableBundleCompression if it exists
+    const originalContent = buildGradleContent;
     buildGradleContent = buildGradleContent.replace(/\s*enableBundleCompression\s*=\s*(true|false)\s*/g, '\n');
 
     // Also remove it if it's in a react block
@@ -26,8 +36,8 @@ if (fs.existsSync(buildGradlePath)) {
         console.log('ℹ️  No enableBundleCompression found in build.gradle');
     }
 } else {
-    console.warn('⚠️  build.gradle not found at:', buildGradlePath);
-    console.warn('The android folder may not have been generated yet.');
+    console.log('⚠️  build.gradle not found at:', buildGradlePath);
+    console.log('This is expected - EAS will run expo prebuild automatically.');
 }
 
-console.log('✅ Prebuild hook completed');
+console.log('✅ Prebuild hook completed successfully');
