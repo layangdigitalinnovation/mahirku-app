@@ -18,5 +18,5 @@
     "src",
     "App.tsx"
   ],
-  "extends": "expo/tsconfig.base.json"
+  "extends": "expo/tsconfig.base"
 }
