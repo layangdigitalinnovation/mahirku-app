@@ -63,7 +63,8 @@
           "ios": {},
           "react": {}
         }
-      ]
+      ],
+      "./plugins/withRemoveBundleCompression.js"
     ],
     "extra": {
       "eas": {
