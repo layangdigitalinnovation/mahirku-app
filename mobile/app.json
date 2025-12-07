@@ -51,16 +51,7 @@
     },
     "plugins": [
       "expo-asset",
-      "expo-font",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "kotlinVersion": "2.0.21"
-          }
-        }
-      ],
-      "./plugins/withRemoveBundleCompression.js"
+      "expo-font"
     ],
     "extra": {
       "eas": {
