@@ -4,7 +4,7 @@ pluginManagement {
       workingDir(rootDir)
       commandLine("node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })")
     }.standardOutput.asText.get().trim()
-  ).getParentFile().getParentFile())
+  ).getParentFile())
 }
 
 plugins {
