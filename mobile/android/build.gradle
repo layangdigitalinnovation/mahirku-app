@@ -5,13 +5,10 @@ buildscript {
     google()
     mavenCentral()
   }
-  ext {
-    kotlinVersion = "2.0.21"
-  }
   dependencies {
     classpath('com.android.tools.build:gradle')
     classpath('com.facebook.react:react-native-gradle-plugin')
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
   }
 }
 
