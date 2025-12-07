@@ -8,7 +8,8 @@
             "developmentClient": true,
             "distribution": "internal",
             "android": {
-                "gradleCommand": ":app:assembleDebug"
+                "gradleCommand": ":app:assembleDebug",
+                "buildType": "apk"
             }
         },
         "preview": {
@@ -18,7 +19,19 @@
                 "EXPO_PUBLIC_API_URL": "https://mahirku.com"
             },
             "android": {
+                "buildType": "apk",
                 "gradleCommand": ":app:assembleRelease"
+            }
+        },
+        "preview-debug": {
+            "distribution": "internal",
+            "channel": "preview",
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://mahirku.com"
+            },
+            "android": {
+                "buildType": "apk",
+                "gradleCommand": ":app:assembleDebug"
             }
         },
         "production": {
@@ -26,7 +39,10 @@
             "env": {
                 "EXPO_PUBLIC_API_URL": "https://mahirku.com"
             },
-            "autoIncrement": true
+            "autoIncrement": true,
+            "android": {
+                "buildType": "aab"
+            }
         }
     },
     "submit": {
