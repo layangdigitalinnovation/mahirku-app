@@ -23,17 +23,6 @@
                 "gradleCommand": ":app:assembleRelease"
             }
         },
-        "preview-debug": {
-            "distribution": "internal",
-            "channel": "preview",
-            "env": {
-                "EXPO_PUBLIC_API_URL": "https://mahirku.com"
-            },
-            "android": {
-                "buildType": "apk",
-                "gradleCommand": ":app:assembleDebug"
-            }
-        },
         "production": {
             "channel": "production",
             "env": {
