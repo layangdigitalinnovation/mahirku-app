@@ -3,24 +3,11 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' }
     }
-
-    // Include React Native Gradle Plugin
-    def reactNativeGradlePlugin = new File(
-        providers.exec {
-            workingDir(rootDir)
-            commandLine(
-                "node",
-                "--print",
-                "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })"
-            )
-        }.standardOutput.asText.get().trim()
-    ).getParentFile().absolutePath
-    includeBuild(reactNativeGradlePlugin)
 }
 
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
@@ -28,31 +15,10 @@ dependencyResolutionManagement {
     }
 }
 
-// Set root project name
 rootProject.name = "Mahirku"
 
-// Apply React Native settings plugin FIRST
-apply plugin: "com.facebook.react.settings"
-
-// THEN configure the extension (after plugin is applied)
-react {
-    if (System.getenv("EXPO_USE_COMMUNITY_AUTOLINKING") == "1") {
-        autolinkLibrariesFromCommand()
-    } else {
-        // Fallback: try Expo autolinking, or use default
-        try {
-            def expoAutolinking = new File(["node", "--print", "require.resolve('expo-modules-autolinking/package.json')"].execute().text.trim()).getParentFile()
-            autolinkLibrariesFromCommand([
-                "node",
-                new File(expoAutolinking, "scripts/expo-autolinking.js").absolutePath,
-                "react-native-config"
-            ])
-        } catch (Exception e) {
-            // Use default React Native autolinking
-            autolinkLibrariesFromCommand()
-        }
-    }
-}
-
-// Include main app module
 include ':app'
+
+// Expo Modules Autolinking (jika menggunakan Expo)
+apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute().text.trim()).getParentFile().toString() + "/scripts/autolinking.gradle"
+useExpoModules()
