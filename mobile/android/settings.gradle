@@ -17,21 +17,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "Mahirku"
 
-// Tambahkan plugin RN 0.81
-includeBuild('../node_modules/react-native-gradle-plugin')
-
 include ':app'
 
-
-// === EXPO AUTO LINKING ===
-def expoAutolinkingScript = file(
-    new File(
-        ["node", "--print", "require.resolve('expo/package.json')"]
-            .execute(null, rootDir)
-            .text
-            .trim()
-    ).parent + "/scripts/autolinking.gradle"
-)
-
-apply from: expoAutolinkingScript
+// Expo autolinking
+apply from: new File(["node", "--print", "require.resolve('expo/package.json')"]
+        .execute().text.trim()).getParentFile().toString() + "/scripts/autolinking.gradle"
 useExpoModules()
