@@ -23,9 +23,6 @@ includeBuild('../node_modules/react-native-gradle-plugin')
 // App module
 include ':app'
 
-// EXPO autolinking
+// Expo autolinking
 apply from: file("../node_modules/expo/scripts/autolinking.gradle")
 useExpoModules()
-
-// React Native autolinking
-apply from: file("../node_modules/react-native/react.gradle")
