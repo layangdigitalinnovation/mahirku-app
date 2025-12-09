@@ -1,28 +1,27 @@
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
+  repositories {
+    gradlePluginPortal()
+    google()
+    mavenCentral()
+  }
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://www.jitpack.io' }
-    }
+  repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+  repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+  }
 }
 
 rootProject.name = "Mahirku"
 
-// Wajib: include react-native gradle plugin
-includeBuild('../node_modules/react-native-gradle-plugin')
+// React Native (sesuai RN 0.81)
+apply from: file("../node_modules/react-native/scripts/react_native_dependencies.gradle")
 
-// App module
-include ':app'
-
-// Expo autolinking
+// Expo Modules Autolinking (SDK 54)
 apply from: file("../node_modules/expo/scripts/autolinking.gradle")
 useExpoModules()
+
+include(":app")
