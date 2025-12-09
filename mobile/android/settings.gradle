@@ -22,7 +22,6 @@ pluginManagement {
 
 plugins {
     id("com.facebook.react.settings") apply false
-    id("expo-autolinking-settings") apply false
 }
 
 // Configure React Settings Extension
@@ -30,13 +29,14 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
     if (System.getenv("EXPO_USE_COMMUNITY_AUTOLINKING") == "1") {
         ex.autolinkLibrariesFromCommand()
     } else {
-        ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand)
+        // fallback default autolinking dari Expo/React Native
+        try {
+            ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand)
+        } catch(Exception ignored) {
+            // jika expoAutolinking tidak ada, tetap lanjut
+        }
     }
 }
-
-// Enable Expo Modules Autolinking
-expoAutolinking.useExpoModules()
-expoAutolinking.useExpoVersionCatalog()
 
 // Set root project name
 rootProject.name = "Mahirku"
