@@ -3,6 +3,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' } // <-- untuk Compose plugin
     }
 
     // React Native Gradle Plugin
@@ -19,17 +20,18 @@ pluginManagement {
     includeBuild(reactNativeGradlePlugin)
 
     // Expo Modules Autolinking
-    def expoPluginsPath = new File(
-        providers.exec {
-            workingDir(rootDir)
-            commandLine(
-                "node",
-                "--print",
-                "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })"
-            )
-        }.standardOutput.asText.get().trim(),
-        "../android/expo-gradle-plugin"
-    ).absolutePath
+    // def expoPluginsPath = new File(
+    //     providers.exec {
+    //         workingDir(rootDir)
+    //         commandLine(
+    //             "node",
+    //             "--print",
+    //             "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })"
+    //         )
+    //     }.standardOutput.asText.get().trim(),
+    //     "../android/expo-gradle-plugin"
+    // ).absolutePath
+    def expoPluginsPath = new File(rootDir, "node_modules/expo-modules-autolinking/android/expo-gradle-plugin").absolutePath
     includeBuild(expoPluginsPath)
 }
 
@@ -57,4 +59,5 @@ rootProject.name = "Mahirku"
 include ':app'
 
 // Include react-native plugin build
-includeBuild(expoAutolinking.reactNativeGradlePlugin)
+// includeBuild(expoAutolinking.reactNativeGradlePlugin)
+includeBuild('node_modules/@react-native/gradle-plugin')
