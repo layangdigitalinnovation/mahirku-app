@@ -47,10 +47,10 @@ android {
         }
         release {
             signingConfig signingConfigs.debug
-            shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false').toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            crunchPngs (findProperty('android.enablePngCrunchInReleaseBuilds') ?: 'true').toBoolean()
+            // Hapus shrinkResources karena AGP 8+ otomatis mengatur ini
+            // crunchPngs juga bisa dihapus karena default sudah true
         }
     }
 
