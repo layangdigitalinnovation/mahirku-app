@@ -49,8 +49,6 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableMinifyInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            // Hapus shrinkResources karena AGP 8+ otomatis mengatur ini
-            // crunchPngs juga bisa dihapus karena default sudah true
         }
     }
 
@@ -62,15 +60,6 @@ android {
 
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
-    }
-}
-
-["pickFirsts", "excludes", "merges", "doNotStrip"].each { prop ->
-    def options = (findProperty("android.packagingOptions.$prop") ?: "").split(",")
-    for (i in 0..<options.size()) options[i] = options[i].trim()
-    options -= ""
-    if (options.length > 0) {
-        options.each { android.packagingOptions[prop] += it }
     }
 }
 
