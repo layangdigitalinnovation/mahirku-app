@@ -3,7 +3,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' } // untuk Compose plugin
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' }
     }
 
     // Include React Native Gradle Plugin
@@ -20,29 +20,39 @@ pluginManagement {
     includeBuild(reactNativeGradlePlugin)
 }
 
-plugins {
-    id("com.facebook.react.settings") apply false
-}
-
-// Configure React Settings Extension
-extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
-    if (System.getenv("EXPO_USE_COMMUNITY_AUTOLINKING") == "1") {
-        ex.autolinkLibrariesFromCommand()
-    } else {
-        // fallback default autolinking dari Expo/React Native
-        try {
-            ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand)
-        } catch(Exception ignored) {
-            // jika expoAutolinking tidak ada, tetap lanjut
-        }
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://www.jitpack.io' }
     }
 }
 
 // Set root project name
 rootProject.name = "Mahirku"
 
+// Apply React Native settings plugin FIRST
+apply plugin: "com.facebook.react.settings"
+
+// THEN configure the extension (after plugin is applied)
+react {
+    if (System.getenv("EXPO_USE_COMMUNITY_AUTOLINKING") == "1") {
+        autolinkLibrariesFromCommand()
+    } else {
+        // Fallback: try Expo autolinking, or use default
+        try {
+            def expoAutolinking = new File(["node", "--print", "require.resolve('expo-modules-autolinking/package.json')"].execute().text.trim()).getParentFile()
+            autolinkLibrariesFromCommand([
+                "node",
+                new File(expoAutolinking, "scripts/expo-autolinking.js").absolutePath,
+                "react-native-config"
+            ])
+        } catch (Exception e) {
+            // Use default React Native autolinking
+            autolinkLibrariesFromCommand()
+        }
+    }
+}
+
 // Include main app module
 include ':app'
-
-// Include React Native plugin
-includeBuild('node_modules/@react-native/gradle-plugin')
