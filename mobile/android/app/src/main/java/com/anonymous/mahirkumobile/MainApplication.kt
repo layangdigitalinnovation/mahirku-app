@@ -1,4 +1,4 @@
-package com.mahirku.app
+package com.anonymous.mahirkumobile
 
 import android.app.Application
 import android.content.res.Configuration
