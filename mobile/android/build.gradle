@@ -1,16 +1,8 @@
 // Top-level build file
 
-ext {
-    buildToolsVersion = "35.0.0"
-    minSdkVersion = 23
-    compileSdkVersion = 35
-    targetSdkVersion = 35
-    ndkVersion = "26.3.11579264"
-}
-
 buildscript {
     ext {
-        kotlinVersion = "1.9.0"
+        kotlinVersion = "2.0.20"
     }
 
     repositories {
@@ -25,6 +17,19 @@ buildscript {
     }
 }
 
+plugins {
+    id("expo-root-project")
+    id("com.facebook.react.rootproject")
+}
+
+ext {
+    buildToolsVersion = "35.0.0"
+    minSdkVersion = 23
+    compileSdkVersion = 35
+    targetSdkVersion = 35
+    ndkVersion = "26.3.11579264"
+}
+
 allprojects {
     repositories {
         google()
@@ -32,9 +37,4 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' } // <- untuk compose plugin
     }
-}
-
-plugins {
-    id("expo-root-project")
-    id("com.facebook.react.rootproject")
 }
