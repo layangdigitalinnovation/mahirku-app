@@ -24,8 +24,15 @@ import certificateRoutes from './routes/certificateRoutes';
 const app = express();
 
 // Middleware
+// Middleware
+app.use((req, res, next) => {
+    console.log(`[REQUEST] ${req.method} ${req.url}`);
+    console.log(`[HEADERS] Origin: ${req.headers.origin || 'No Origin'}`);
+    next();
+});
+
 app.use(cors({
-    origin: true, // Allow all origins for now, or specify your frontend URL
+    origin: true,
     credentials: true
 }));
 app.use(express.json());
