@@ -60,12 +60,17 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                 {menuItems.map((item) => (
                   <button
                     key={item.path}
-                    onClick={() => navigate(item.path)}
-                    className={`relative min-w-fit w-18 text-center justify-center h-full flex items-center gap-2 font-medium transition-colors ${
-                      activeItem === item
-                        ? "text-white"
-                        : "text-primary-200 hover:text-white"
-                    }`}
+                    onClick={() => {
+                      if (item.path.startsWith("http")) {
+                        window.open(item.path, "_blank");
+                      } else {
+                        navigate(item.path);
+                      }
+                    }}
+                    className={`relative min-w-fit w-18 text-center justify-center h-full flex items-center gap-2 font-medium transition-colors ${activeItem === item
+                      ? "text-white"
+                      : "text-primary-200 hover:text-white"
+                      }`}
                   >
                     {/* Icon jika ada */}
                     {item.icon && <item.icon className="w-5 h-5" />}
@@ -99,7 +104,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent 
+              <DropdownMenuContent
                 align="end"
                 side="bottom"
                 sideOffset={8}
@@ -110,7 +115,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                   <p className="text-sm text-gray-500">{user?.email}</p>
                 </div>
                 <div className="border-t border-gray-100 mt-2 pt-2">
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={handleLogout}
                     className="cursor-pointer hover:bg-red-50 focus:bg-red-50 px-4 py-2 text-sm text-red-600"
                   >
@@ -132,7 +137,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                 Mahirku
               </h1>
             </div>
-            
+
             {/* Mobile Profile */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -145,7 +150,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent 
+              <DropdownMenuContent
                 align="end"
                 side="bottom"
                 sideOffset={8}
@@ -156,7 +161,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                   <p className="text-sm text-gray-500">{user?.email}</p>
                 </div>
                 <div className="border-t border-gray-100 mt-2 pt-2">
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={handleLogout}
                     className="cursor-pointer hover:bg-red-50 focus:bg-red-50 px-4 py-2 text-sm text-red-600"
                   >
@@ -185,23 +190,27 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
-                className={`relative flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 min-w-0 flex-1 ${
-                  isActive 
-                    ? "text-primary-600" 
-                    : "text-gray-500 hover:text-gray-700 active:bg-gray-100"
-                }`}
+                onClick={() => {
+                  if (item.path.startsWith("http")) {
+                    window.open(item.path, "_blank");
+                  } else {
+                    navigate(item.path);
+                  }
+                }}
+                className={`relative flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 min-w-0 flex-1 ${isActive
+                  ? "text-primary-600"
+                  : "text-gray-500 hover:text-gray-700 active:bg-gray-100"
+                  }`}
               >
                 {/* Icon Container with Animation */}
                 <div className="relative mb-1">
                   {item.icon && (
-                    <item.icon 
-                      className={`w-6 h-6 transition-all duration-200 ${
-                        isActive ? "text-primary-600 scale-110" : "text-gray-500"
-                      }`} 
+                    <item.icon
+                      className={`w-6 h-6 transition-all duration-200 ${isActive ? "text-primary-600 scale-110" : "text-gray-500"
+                        }`}
                     />
                   )}
-                  
+
                   {/* Active Indicator Dot */}
                   {isActive && (
                     <motion.div
@@ -217,10 +226,9 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                 </div>
 
                 {/* Label */}
-                <span 
-                  className={`text-xs font-medium transition-colors duration-200 truncate max-w-full ${
-                    isActive ? "text-primary-600 font-semibold" : "text-gray-500"
-                  }`}
+                <span
+                  className={`text-xs font-medium transition-colors duration-200 truncate max-w-full ${isActive ? "text-primary-600 font-semibold" : "text-gray-500"
+                    }`}
                 >
                   {item.label}
                 </span>
