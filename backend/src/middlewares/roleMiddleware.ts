@@ -2,10 +2,11 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from './authMiddleware';
 
 // Role ID Mapping (bisa diimpor dari DB kalau dinamis)
-const ROLE = {
+export const ROLE = {
   SUPER_ADMIN: 1,
   AFFILIATOR: 2,
-  USER: 3
+  USER: 3,
+  MITRA: 4
 };
 
 // Cek apakah user memiliki role tertentu
@@ -31,3 +32,4 @@ export const checkRole = (...allowedRoles: number[]) => {
 export const isAdmin = checkRole(ROLE.SUPER_ADMIN);
 export const isAffiliator = checkRole(ROLE.AFFILIATOR);
 export const isUser = checkRole(ROLE.USER);
+export const isMitra = checkRole(ROLE.MITRA);

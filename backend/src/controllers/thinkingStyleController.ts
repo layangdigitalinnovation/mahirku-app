@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import ThinkingStyleResult from "../models/ThinkingStyleResult";
 import ThinkingStyle from "../models/ThinkingStyle";
 import User from "../models/User";
+import Role from "../models/Role";
 import QRCode from "qrcode";
 import PDFDocument from "pdfkit";
 
@@ -74,6 +75,18 @@ submitThinkingStyleTest = async (
 
     // Kurangi token
     user.tokens -= 1;
+
+    // Logic Mitra: Jika user punya parent (Mitra) dan masih role 'user', upgrade ke 'affiliator'
+    if (user.parentId) {
+      const userRole = await Role.findOne({ where: { name: 'user' } });
+      const affiliatorRole = await Role.findOne({ where: { name: 'affiliator' } });
+      
+      if (userRole && affiliatorRole && user.roleId === userRole.id) {
+        user.roleId = affiliatorRole.id;
+        console.log(`User ${user.id} upgraded to affiliator (parent: ${user.parentId})`);
+      }
+    }
+
     await user.save();
 
     res.status(201).json({

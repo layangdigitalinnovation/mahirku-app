@@ -4,7 +4,7 @@ import Package from '../models/Package';
 
 export const createPackage = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, description, defaultTokenAmount, price, commissionRate } = req.body;
+    const { name, description, defaultTokenAmount, price, commissionRate, mitraCommissionRate } = req.body;
 
     const existing = await Package.findOne({ where: { name } });
     if (existing) {
@@ -17,7 +17,8 @@ export const createPackage = async (req: Request, res: Response): Promise<void> 
       description, 
       defaultTokenAmount, 
       price, 
-      commissionRate: commissionRate || 0 
+      commissionRate: commissionRate || 0,
+      mitraCommissionRate: mitraCommissionRate || 0
     });
     res.status(201).json({ message: 'Paket berhasil dibuat.', data: newPackage });
   } catch (err: any) {
@@ -56,7 +57,7 @@ export const getPackageById = async (req: Request, res: Response): Promise<void>
 export const updatePackage = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, description, defaultTokenAmount, price, commissionRate } = req.body;
+    const { name, description, defaultTokenAmount, price, commissionRate, mitraCommissionRate } = req.body;
 
     const pkg = await Package.findByPk(id);
     if (!pkg) {
@@ -67,6 +68,9 @@ export const updatePackage = async (req: Request, res: Response): Promise<void> 
     const updateData: any = { name, description, defaultTokenAmount, price };
     if (commissionRate !== undefined) {
       updateData.commissionRate = commissionRate;
+    }
+    if (mitraCommissionRate !== undefined) {
+      updateData.mitraCommissionRate = mitraCommissionRate;
     }
 
     await pkg.update(updateData);

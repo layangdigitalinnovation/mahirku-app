@@ -20,6 +20,10 @@ const packageSchema = z.object({
     .number()
     .min(0, "Tingkat komisi minimal 0")
     .max(100, "Tingkat komisi maksimal 100"),
+  mitraCommissionRate: z
+    .number()
+    .min(0, "Tingkat komisi mitra minimal 0")
+    .max(100, "Tingkat komisi mitra maksimal 100"),
   defaultTokenAmount: z.number().min(1, "Token minimal 1"),
 });
 
@@ -48,6 +52,9 @@ export default function PackageForm({
       commissionRate: defaultValues?.commissionRate 
         ? Math.round(Number(defaultValues.commissionRate))
         : 0,
+      mitraCommissionRate: defaultValues?.mitraCommissionRate 
+        ? Math.round(Number(defaultValues.mitraCommissionRate))
+        : 0,
     },
   });
 
@@ -70,10 +77,29 @@ export default function PackageForm({
 
         <FormField
           control={form.control}
-          name="price"
+          name="commissionRate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Harga</FormLabel>
+              <FormLabel>Tingkat Komisi (%)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="mitraCommissionRate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tingkat Komisi Mitra (%)</FormLabel>
               <FormControl>
                 <Input
                   type="number"
