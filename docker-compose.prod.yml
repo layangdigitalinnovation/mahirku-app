@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: ${DOCKER_USERNAME}/mahirku-frontend:latest
+    image: layangdigital/mahirku-frontend:latest
     depends_on:
       - backend
     networks:
@@ -13,7 +13,7 @@ services:
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
   backend:
-    image: ${DOCKER_USERNAME}/mahirku-backend:latest
+    image: layangdigital/mahirku-backend:latest
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgres://postgres:postgres@db:5432/mahirku
