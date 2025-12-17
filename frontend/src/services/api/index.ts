@@ -21,3 +21,4 @@ export * from './thinkingStyles'
 
 export * from './affiliator'
 export * from './invoice'
+export * from './mitra'

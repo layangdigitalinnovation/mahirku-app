@@ -71,3 +71,104 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ error: 'Failed to create user' });
   }
 };
+
+/**
+ * @route   PUT /api/users/:id
+ * @desc    Update user details
+ * @access  Admin only
+ */
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const {
+    username,
+    email,
+    password,
+    fullname,
+    phoneNumber,
+    address,
+    roleId,
+    tokens
+  } = req.body;
+
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Check if email/username is taken by another user
+    if (email && email !== user.email) {
+      const existingEmail = await User.findOne({ where: { email } });
+      if (existingEmail) {
+        res.status(409).json({ message: 'Email already in use' });
+        return;
+      }
+    }
+
+    if (username && username !== user.username) {
+      const existingUsername = await User.findOne({ where: { username } });
+      if (existingUsername) {
+        res.status(409).json({ message: 'Username already in use' });
+        return;
+      }
+    }
+
+    // Update basic fields
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (fullname) user.fullname = fullname;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (address) user.address = address;
+    if (roleId) user.roleId = roleId;
+    if (tokens !== undefined) user.tokens = tokens;
+
+    // Update password if provided
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: 'User updated successfully',
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullname: user.fullname,
+        roleId: user.roleId,
+      }
+    });
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+};
+
+/**
+ * @route   DELETE /api/users/:id
+ * @desc    Delete a user
+ * @access  Admin only
+ */
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    await user.destroy();
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+};

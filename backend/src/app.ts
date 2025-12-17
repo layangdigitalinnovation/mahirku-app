@@ -20,6 +20,7 @@ import biometricRoutes from './routes/biometricRoutes';
 import discRoutes from './routes/discRoutes';
 import discAdminRoutes from './routes/admin/discAdminRoutes';
 import certificateRoutes from './routes/certificateRoutes';
+import mitraRoutes from './routes/mitraRoutes';
 
 const app = express();
 
@@ -32,8 +33,18 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
+    origin: true, // Reflects the request origin, allowing any origin to access
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With']
+}));
+
+// Handle preflight requests explicitly
+app.options(/.*/, cors({
     origin: true,
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With']
 }));
 app.use(express.json());
 app.use(cookieParser());
@@ -56,6 +67,7 @@ app.use('/api/biometrics', biometricRoutes);
 app.use('/api/disc', discRoutes);
 app.use('/api/admin/disc', discAdminRoutes);
 app.use('/api/certificates', certificateRoutes);
+app.use('/api/mitra', mitraRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

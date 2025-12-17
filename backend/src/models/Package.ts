@@ -9,6 +9,7 @@ interface PackageAttributes {
   defaultTokenAmount: number;
   price: number;
   commissionRate: number; // percentage for affiliate commission (0-100)
+  mitraCommissionRate: number; // percentage for mitra commission (0-100)
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -22,6 +23,7 @@ class Package extends Model<PackageAttributes, PackageCreationAttributes> implem
   public defaultTokenAmount!: number;
   public price!: number;
   public commissionRate!: number;
+  public mitraCommissionRate!: number;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -52,6 +54,15 @@ Package.init(
       allowNull: false,
     },
     commissionRate: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+        max: 100,
+      },
+    },
+    mitraCommissionRate: {
       type: DataTypes.DECIMAL(5, 2),
       allowNull: false,
       defaultValue: 0,
