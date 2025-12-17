@@ -146,52 +146,7 @@ export default function PackageForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="commissionRate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tingkat Komisi (%)</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  placeholder="Masukkan persentase (0-100)"
-                  {...field}
-                  value={field.value === 0 ? "" : field.value?.toString() || ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "") {
-                      field.onChange(0);
-                      return;
-                    }
-                    
-                    // Only allow numbers, comma, and dot
-                    const sanitizedValue = value.replace(/[^0-9.,]/g, '');
-                    
-                    // Normalize input: replace comma with dot for decimal parsing
-                    const normalizedValue = sanitizedValue.replace(',', '.');
-                    
-                    // Parse as float first, then round to integer for percentage
-                    const floatValue = parseFloat(normalizedValue);
-                    const numValue = isNaN(floatValue) ? 0 : Math.round(floatValue);
-                    
-                    // Ensure value is within valid range (0-100)
-                    const clampedValue = Math.max(0, Math.min(100, numValue));
-                    field.onChange(clampedValue);
-                  }}
-                  onBlur={() => {
-                    // Ensure display shows clean integer format when user leaves the field
-                    if (field.value && field.value > 0) {
-                      // This will trigger a re-render with clean integer display
-                      field.onChange(field.value);
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="submit" disabled={loading}>

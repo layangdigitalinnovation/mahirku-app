@@ -1,5 +1,5 @@
 import express from 'express';
-import { getUsers, createUser } from '../controllers/userController';
+import { getUsers, createUser, updateUser, deleteUser } from '../controllers/userController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { isAdmin } from '../middlewares/roleMiddleware';
 
@@ -18,5 +18,19 @@ router.get('/', authMiddleware, isAdmin, getUsers);
  * @access  Protected - Admin only
  */
 router.post('/add', authMiddleware, isAdmin, createUser);
+
+/**
+ * @route   PUT /api/users/:id
+ * @desc    Update user details
+ * @access  Protected - Admin only
+ */
+router.put('/:id', authMiddleware, isAdmin, updateUser);
+
+/**
+ * @route   DELETE /api/users/:id
+ * @desc    Delete a user
+ * @access  Protected - Admin only
+ */
+router.delete('/:id', authMiddleware, isAdmin, deleteUser);
 
 export default router;
