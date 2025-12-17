@@ -26,6 +26,7 @@ export interface PackagePayload {
   description : string;
   defaultTokenAmount: number;
   commissionRate: number;
+  mitraCommissionRate?: number;
   price: number;
 }
 

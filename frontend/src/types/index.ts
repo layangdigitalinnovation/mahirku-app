@@ -51,7 +51,8 @@ export interface Role {
 export enum RoleName {
   SUPER_ADMIN = 'super_admin',
   AFFILIATOR = 'affiliator',
-  USER = 'user'
+  USER = 'user',
+  MITRA = 'mitra'
 }
 
 export interface TestResult {

@@ -39,12 +39,14 @@ import { AffiliatorLanding } from './pages/AffiliatorLanding';
 import DiscTest from './pages/DiscTest';
 import DiscResult from './pages/DiscResult';
 import DiscQuestionsManagement from './pages/Admin/DiscQuestionsManagement';
-// import { AffiliatorRegister } from './pages/Auth/AffiliatorRegister';
+import MitraDashboardLayout from './layouts/mitra/MitraDashboardLayout';
+import { MitraDashboard } from './pages/Mitra/MitraDashboard';
+import { MitraMembers } from './pages/Mitra/MitraMembers';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
-  requiredRole?: 'user' | 'affiliator' | 'super_admin';
+  requiredRole?: 'user' | 'affiliator' | 'super_admin' | 'mitra';
 }> = ({ children, requiredRole }) => {
   const { user, loading } = useAuth();
 
@@ -67,6 +69,8 @@ const ProtectedRoute: React.FC<{
         return <Navigate to="/admin/dashboard" replace />;
       case RoleName.AFFILIATOR:
         return <Navigate to="/affiliator/dashboard" replace />;
+      case RoleName.MITRA:
+        return <Navigate to="/mitra/dashboard/overview" replace />;
       case RoleName.USER:
         return <Navigate to="/customer/dashboard" replace />;
       default:
@@ -140,6 +144,21 @@ function AppRoutes() {
           />
         </Route> */}
 
+      {/* Mitra Routes */}
+      <Route
+        path="/mitra/dashboard/*"
+        element={
+          <ProtectedRoute requiredRole={RoleName.MITRA}>
+            <MitraDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="overview" replace />} />
+        <Route path="overview" element={<MitraDashboard />} />
+        <Route path="members" element={<MitraMembers />} />
+      </Route>
+
+      {/* Admin Routes */}
       <Route
         path="/admin/dashboard/*"
         element={

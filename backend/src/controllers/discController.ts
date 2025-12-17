@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import DiscQuestion from '../models/DiscQuestion';
 import DiscOption from '../models/DiscOption';
 import DiscResult from '../models/DiscResult';
+import User from '../models/User';
+import Role from '../models/Role';
 import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const getQuestions = async (req: Request, res: Response) => {
@@ -78,6 +80,19 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
             c_score: cScore,
             dominant_type: dominantType,
         });
+
+        // Logic Mitra: Jika user punya parent (Mitra) dan masih role 'user', upgrade ke 'affiliator'
+        const user = await User.findByPk(userId);
+        if (user && user.parentId) {
+            const userRole = await Role.findOne({ where: { name: 'user' } });
+            const affiliatorRole = await Role.findOne({ where: { name: 'affiliator' } });
+            
+            if (userRole && affiliatorRole && user.roleId === userRole.id) {
+                user.roleId = affiliatorRole.id;
+                await user.save();
+                console.log(`User ${user.id} upgraded to affiliator (parent: ${user.parentId})`);
+            }
+        }
 
         res.status(201).json({
             message: 'Test submitted successfully',
