@@ -21,7 +21,7 @@ router.post('/add', authMiddleware, isAdmin, createUser);
 
 /**
  * @route   PUT /api/users/:id
- * @desc    Update a user
+ * @desc    Update user details
  * @access  Protected - Admin only
  */
 router.put('/:id', authMiddleware, isAdmin, updateUser);

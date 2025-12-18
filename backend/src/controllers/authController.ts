@@ -17,7 +17,7 @@ const registerUserWithRole = async (
   try {
     const { username, email, password, fullname, address, phoneNumber, bankAccountNumber, bankAccountName, bankName } =
       req.body;
-    
+
     // Ambil referral dari cookie alih-alih dari request body
     const referrerId = getReferralFromCookie(req);
 
@@ -52,11 +52,11 @@ const registerUserWithRole = async (
       const referrerUserId = referrerId.replace('aff', '');
       if (referrerUserId && !isNaN(Number(referrerUserId))) {
         // Verifikasi bahwa referrer exists dan merupakan affiliator
-        const referrer = await User.findOne({ 
-          where: { 
+        const referrer = await User.findOne({
+          where: {
             id: Number(referrerUserId),
             roleId: 2 // pastikan referrer adalah affiliator
-          } 
+          }
         });
         if (referrer) {
           parentId = Number(referrerUserId);
@@ -192,14 +192,28 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const audience = process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_WEB_CLIENT_ID || '1061850144136-r1k407gtpglk67otkdvdqbo55eknhdj2.apps.googleusercontent.com';
-    if (!audience) {
+    const webClientId = process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_WEB_CLIENT_ID;
+    const androidClientId = process.env.GOOGLE_ANDROID_CLIENT_ID;
+    const iosClientId = process.env.GOOGLE_IOS_CLIENT_ID;
+
+    // Kumpulkan semua Client ID yang valid
+    const audience = [webClientId, androidClientId, iosClientId].filter((id) => id && id.trim() !== '') as string[];
+
+    if (audience.length === 0) {
+      // Fallback default jika tidak ada env set (sebaiknya jangan di production)
+      audience.push('1061850144136-r1k407gtpglk67otkdvdqbo55eknhdj2.apps.googleusercontent.com');
+    }
+
+    if (audience.length === 0) {
       res.status(500).json({ message: 'Konfigurasi Google OAuth tidak tersedia di server.' });
       return;
     }
 
-    const client = new OAuth2Client(audience);
-    const ticket = await client.verifyIdToken({ idToken, audience });
+    const client = new OAuth2Client(audience[0]); // Gunakan salah satu client ID untuk inisialisasi, verifyIdToken akan cek against 'audience' array
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience // google-auth-library supports array of audiences
+    });
     const payload = ticket.getPayload();
     if (!payload) {
       res.status(401).json({ message: 'Token Google tidak valid.' });
