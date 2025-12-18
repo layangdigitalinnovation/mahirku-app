@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/table/DataTable";
-import { columns } from "@/components/table/columns/userColumn";
+import { getColumns } from "@/components/table/columns/userColumn";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -179,39 +179,47 @@ export default function ManageUsers() {
 
   // Enhanced columns with actions
   const enhancedColumns: ColumnDef<User>[] = useMemo(
-    () => [
-      ...(columns as ColumnDef<User>[]),
-      {
-        id: "actions",
-        header: "Aksi",
-        cell: ({ row }) => {
-          const user = row.original;
-          return (
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => openEditDialog(user)}
-              >
-                <Edit className="h-4 w-4 mr-1" />
-                Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => openDeleteDialog(user)}
-                disabled={currentUser?.id === user.id}
-                className={currentUser?.id === user.id ? "opacity-50 cursor-not-allowed" : ""}
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Hapus
-              </Button>
-            </div>
-          );
+    () => {
+      // Filter out the default "actions" column from getColumns because we are defining a custom one below.
+      // This prevents the "Encountered two children with the same key" error.
+      const baseColumns = (getColumns(() => { }, () => { }) as ColumnDef<User>[]).filter(
+        (col) => col.id !== "actions" && (col as any).accessorKey !== "actions"
+      );
+
+      return [
+        ...baseColumns,
+        {
+          id: "actions",
+          header: "Aksi",
+          cell: ({ row }) => {
+            const user = row.original;
+            return (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openEditDialog(user)}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => openDeleteDialog(user)}
+                  disabled={currentUser?.id === user.id}
+                  className={currentUser?.id === user.id ? "opacity-50 cursor-not-allowed" : ""}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Hapus
+                </Button>
+              </div>
+            );
+          },
         },
-      },
-    ],
-    [columns, currentUser]
+      ];
+    },
+    [currentUser]
   );
 
   const clearFilters = () => {
