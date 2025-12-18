@@ -1,6 +1,7 @@
 import { DataTable } from "@/components/table/DataTable";
 import { columns } from "@/components/table/columns/userColumn";
 import { useUsers } from "@/hooks/useUsers";
+import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ import { toast } from "sonner";
 import { ColumnDef } from "@tanstack/react-table";
 
 export default function ManageUsers() {
+  const { user: currentUser } = useAuth();
   const { data, isLoading, isError, error } = useUsers();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("all");
@@ -106,8 +108,13 @@ export default function ManageUsers() {
     }
   };
 
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const handleDeleteUser = () => {
     if (selectedUser) {
+      if (currentUser?.id === selectedUser.id) {
+        toast.error("Anda tidak dapat menghapus akun sendiri");
+        return;
+      }
       deleteMutation.mutate(selectedUser.id);
     }
   };
@@ -194,6 +201,8 @@ export default function ManageUsers() {
                 variant="destructive"
                 size="sm"
                 onClick={() => openDeleteDialog(user)}
+                disabled={currentUser?.id === user.id}
+                className={currentUser?.id === user.id ? "opacity-50 cursor-not-allowed" : ""}
               >
                 <Trash2 className="h-4 w-4 mr-1" />
                 Hapus
