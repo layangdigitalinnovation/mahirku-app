@@ -212,7 +212,7 @@ export default function ManageUsers() {
         },
       },
     ],
-    [columns]
+    [columns, currentUser]
   );
 
   const clearFilters = () => {
@@ -281,7 +281,7 @@ export default function ManageUsers() {
   return (
     <div className="space-y-6 container mx-auto px-10 sm:px-10 lg:px-12">
       {/* Header with Add Button */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Manajemen Pengguna</h1>
           <p className="text-sm text-gray-500">Kelola pengguna sistem</p>
