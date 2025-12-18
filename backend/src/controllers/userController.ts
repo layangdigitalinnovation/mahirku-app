@@ -157,10 +157,16 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
   const { id } = req.params;
 
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(id, { include: ['role'] });
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Check if user is super admin
+    if (user.role && (user.role as any).name === 'super_admin') {
+      res.status(403).json({ message: 'Cannot delete Super Admin account' });
       return;
     }
 

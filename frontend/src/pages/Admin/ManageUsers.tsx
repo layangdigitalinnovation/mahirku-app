@@ -38,14 +38,14 @@ import { ColumnDef } from "@tanstack/react-table";
 export default function ManageUsers() {
   const { user: currentUser } = useAuth();
   const { data, isLoading, isError, error } = useUsers();
+  const queryClient = useQueryClient();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  const queryClient = useQueryClient();
 
   // Create mutation
   const createMutation = useMutation({
@@ -54,7 +54,7 @@ export default function ManageUsers() {
       if (!payload.password) {
         throw new Error('Password is required');
       }
-      return createUser({ ...payload, password: payload.password });
+      return createUser({ ...payload, password: payload.password } as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -69,7 +69,7 @@ export default function ManageUsers() {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: Partial<UserFormValues> }) =>
-      updateUser(id, payload),
+      updateUser(id, payload as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success("User berhasil diupdate");
@@ -108,7 +108,6 @@ export default function ManageUsers() {
     }
   };
 
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const handleDeleteUser = () => {
     if (selectedUser) {
       if (currentUser?.id === selectedUser.id) {
@@ -268,16 +267,6 @@ export default function ManageUsers() {
     );
   }
 
-  if (!data || data.length === 0) {
-    return (
-      <div className="text-center text-gray-500 py-10">
-        <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
-        <p className="text-lg font-medium">Tidak ada pengguna ditemukan</p>
-        <p className="text-sm text-gray-400">Belum ada pengguna yang terdaftar dalam sistem.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 container mx-auto px-10 sm:px-10 lg:px-12">
       {/* Header with Add Button */}
@@ -301,7 +290,7 @@ export default function ManageUsers() {
           <CardContent>
             <div className="flex items-center space-x-2">
               <Users className="h-4 w-4 text-blue-600" />
-              <span className="text-2xl font-bold">{data.length}</span>
+              <span className="text-2xl font-bold">{data?.length || 0}</span>
             </div>
           </CardContent>
         </Card>
@@ -313,14 +302,15 @@ export default function ManageUsers() {
                 {role === RoleName.SUPER_ADMIN ? 'Super Admin' :
                   role === RoleName.AFFILIATOR ? 'Affiliator' :
                     role === RoleName.USER ? 'User' :
-                      (role as string).charAt(0).toUpperCase() + (role as string).slice(1)}
+                      role === RoleName.MITRA ? 'Mitra' :
+                        (role as string).charAt(0).toUpperCase() + (role as string).slice(1)}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold">{roleStats[role]}</span>
                 <Badge variant="secondary" className="text-xs">
-                  {Math.round((roleStats[role] / data.length) * 100)}%
+                  {Math.round((roleStats[role] / (data?.length || 1)) * 100)}%
                 </Badge>
               </div>
             </CardContent>
@@ -365,7 +355,8 @@ export default function ManageUsers() {
                           {role === RoleName.SUPER_ADMIN ? 'Super Admin' :
                             role === RoleName.AFFILIATOR ? 'Affiliator' :
                               role === RoleName.USER ? 'User' :
-                                (role as string).charAt(0).toUpperCase() + (role as string).slice(1)}
+                                role === RoleName.MITRA ? 'Mitra' :
+                                  (role as string).charAt(0).toUpperCase() + (role as string).slice(1)}
                         </span>
                         <Badge variant="outline" className="ml-2 text-xs">
                           {roleStats[role]}
@@ -405,7 +396,8 @@ export default function ManageUsers() {
                   Role: {selectedRole === 'super_admin' ? 'Super Admin' :
                     selectedRole === 'affiliator' ? 'Affiliator' :
                       selectedRole === 'user' ? 'User' :
-                        selectedRole}
+                        selectedRole === 'mitra' ? 'Mitra' :
+                          selectedRole}
                 </Badge>
               )}
             </div>
@@ -416,7 +408,7 @@ export default function ManageUsers() {
       {/* Results Summary */}
       <div className="flex justify-between items-center">
         <p className="text-sm text-gray-600">
-          Menampilkan {filteredData.length} dari {data.length} pengguna
+          Menampilkan {filteredData.length} dari {data?.length || 0} pengguna
         </p>
         {filteredData.length === 0 && hasActiveFilters && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -467,11 +459,12 @@ export default function ManageUsers() {
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Update informasi user {selectedUser?.fullname}
+              Ubah data user di bawah ini
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
             <UserForm
+              isEdit
               defaultValues={{
                 username: selectedUser.username,
                 email: selectedUser.email,
@@ -479,11 +472,9 @@ export default function ManageUsers() {
                 phoneNumber: selectedUser.phoneNumber,
                 address: selectedUser.address,
                 roleId: selectedUser.roleId,
-                password: "",
               }}
               onSubmit={handleEditUser}
               loading={updateMutation.isPending}
-              isEdit
             />
           )}
         </DialogContent>
@@ -495,16 +486,16 @@ export default function ManageUsers() {
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. User <strong>{selectedUser?.fullname}</strong> akan dihapus secara permanen dari sistem.
+              Tindakan ini tidak dapat dibatalkan. User <strong>{selectedUser?.username}</strong> akan dihapus permanen dari sistem.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteUser}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >
-              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+              {deleteMutation.isPending ? "Menghapus..." : "Hapus User"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
