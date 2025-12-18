@@ -7,10 +7,7 @@ import { Edit, Trash } from "lucide-react"
 // Define proper badge variant type based on shadcn/ui badge component
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
-export const getColumns = (
-  onEdit: (user: UserColumn) => void,
-  onDelete: (user: UserColumn) => void
-): ColumnDef<UserColumn>[] => [
+export const columns: ColumnDef<UserColumn>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -63,6 +60,13 @@ export const getColumns = (
       );
     }
   },
+];
+
+export const getColumns = (
+  onEdit: (user: UserColumn) => void,
+  onDelete: (user: UserColumn) => void
+): ColumnDef<UserColumn>[] => [
+  ...columns,
   {
     id: "actions",
     header: "Aksi",
