@@ -21,6 +21,8 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         return <Navigate to="/admin/dashboard" replace />;
       case 'affiliator':
         return <Navigate to="/affiliator/dashboard" replace />;
+      case 'mitra':
+        return <Navigate to="/mitra/dashboard/overview" replace />;
       case 'user':
         return <Navigate to="/customer/dashboard" replace />;
       default:

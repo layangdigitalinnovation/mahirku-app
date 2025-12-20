@@ -178,7 +178,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
       </header>
 
       {/* Page Content */}
-      <main className="w-full mx-auto min-h-screen pt-16 md:pt-20 pb-20 md:pb-0 bg-gradient-to-br from-blue-50 via-indigo-50">
+      <main className="w-full mx-auto min-h-screen pt-16 md:pt-20 pb-20 md:pb-0 px-4 md:px-6 lg:px-12 xl:px-20 bg-gradient-to-br from-blue-50 via-indigo-50">
         {children}
       </main>
 

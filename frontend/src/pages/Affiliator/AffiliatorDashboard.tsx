@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { TrendingUp, Users, Wallet } from "lucide-react";
+import { TrendingUp, Users, Wallet, Crown } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardHeader, CardContent } from "../../components/ui/card";
-import { useAffiliateStats, useReferralLink } from "@/hooks/useAffiliator";
+import { useAffiliateStats, useReferralLink, useCheckMitraEligibility, useUpgradeToMitra } from "@/hooks/useAffiliator";
 
 export const AffiliatorDashboard: React.FC = () => {
   const {
@@ -16,6 +16,8 @@ export const AffiliatorDashboard: React.FC = () => {
     isLoading: statsLoading,
     isError: statsError,
   } = useAffiliateStats();
+  const { data: eligibilityData } = useCheckMitraEligibility();
+  const { mutate: upgradeToMitra, isPending: isUpgrading } = useUpgradeToMitra();
 
   const copyReferralLink = async () => {
     try {
@@ -80,6 +82,45 @@ export const AffiliatorDashboard: React.FC = () => {
             Pantau referal dan penghasilan Anda
           </p>
         </div>
+
+        {/* Info Upgrade Mitra (Hanya jika eligible) */}
+        {eligibilityData?.eligible && (
+          <div className="mb-8 relative overflow-hidden bg-gradient-to-r from-purple-600 to-indigo-700 rounded-2xl p-8 text-white shadow-xl border border-indigo-500/30">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
+                  <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                    <Crown className="w-6 h-6 text-yellow-300" />
+                  </div>
+                  <span className="bg-yellow-400/20 text-yellow-200 text-xs font-bold px-3 py-1 rounded-full border border-yellow-400/30 uppercase tracking-wider shadow-sm">
+                    Kesempatan Upgrade
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">
+                  Selamat! Anda Berhak Menjadi Mitra
+                </h3>
+                <p className="text-indigo-100 leading-relaxed max-w-2xl text-lg">
+                  Salah satu member Anda telah berhasil menjadi Affiliator. 
+                  Ini membuka kesempatan bagi Anda untuk upgrade ke level <strong className="text-white">Mitra</strong>. 
+                  Nikmati komisi override, kelola tim member, dan potensi penghasilan yang jauh lebih besar!
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <Button 
+                  onClick={() => upgradeToMitra()} 
+                  disabled={isUpgrading}
+                  className="bg-white text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 font-bold px-8 py-6 text-lg shadow-lg shadow-indigo-900/20 transition-all hover:scale-105 border-0"
+                >
+                  {isUpgrading ? 'Memproses...' : 'Upgrade ke Mitra Sekarang'}
+                </Button>
+              </div>
+            </div>
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-purple-400 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-indigo-400 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
+          </div>
+        )}
 
         {/* Kartu Statistik */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

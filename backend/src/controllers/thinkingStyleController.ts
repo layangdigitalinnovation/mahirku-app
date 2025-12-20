@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import ThinkingStyleResult from "../models/ThinkingStyleResult";
 import ThinkingStyle from "../models/ThinkingStyle";
+import DiscResult from "../models/DiscResult";
 import User from "../models/User";
 import Role from "../models/Role";
 import QRCode from "qrcode";
@@ -122,7 +123,8 @@ export const getThinkingStyleHistory = async (
       return;
     }
 
-    const history = await ThinkingStyleResult.findAll({
+    // Fetch Thinking Style Results
+    const thinkingStyleHistory = await ThinkingStyleResult.findAll({
       where: { userId },
       order: [["createdAt", "DESC"]],
       include: [{
@@ -132,9 +134,57 @@ export const getThinkingStyleHistory = async (
       }]
     });
 
+    // Fetch DISC Results
+    const discHistory = await DiscResult.findAll({
+      where: { user_id: userId },
+      order: [["created_at", "DESC"]]
+    });
+
+    // Attempt to find a birthdate from existing Thinking Style results
+    // Since DISC doesn't store it and User doesn't have it.
+    const derivedBirthdate = thinkingStyleHistory.length > 0 ? thinkingStyleHistory[0].birthdate : null;
+
+    // Map and Combine
+    const mappedThinkingStyle = thinkingStyleHistory.map((item: any) => ({
+      ...item.toJSON(),
+      testType: 'THINKING_STYLE',
+      sortDate: new Date(item.createdAt)
+    }));
+
+    const mappedDisc = discHistory.map((item: any) => {
+      const json = item.toJSON();
+      return {
+        ...json,
+        id: item.id, // Ensure ID is preserved
+        fullname: user.fullname, // Use current user fullname as fallback since DISC doesn't store snapshot
+        birthdate: derivedBirthdate, // Use derived birthdate or null
+        createdAt: item.created_at, // Normalize field name
+        testType: 'DISC',
+        // Map snake_case to camelCase for frontend compatibility
+        dScore: json.d_score,
+        iScore: json.i_score,
+        sScore: json.s_score,
+        cScore: json.c_score,
+        dominantType: json.dominant_type,
+        
+        thinkingStyle: { // Mock structure for frontend compatibility (or distinct handling)
+          id: item.id,
+          type: item.dominant_type, // e.g., "Dominance (D)"
+          description: "DISC Personality Assessment Result",
+          theory: "William Moulton Marston's DISC Theory",
+          code: item.dominant_type?.split(' ')[0] || 'DISC'
+        },
+        sortDate: new Date(item.created_at)
+      };
+    });
+
+    const combinedHistory = [...mappedThinkingStyle, ...mappedDisc].sort(
+      (a, b) => b.sortDate.getTime() - a.sortDate.getTime()
+    );
+
     res.status(200).json({
       message: "Histori tes berhasil diambil",
-      data: history,
+      data: combinedHistory,
     });
   } catch (err: any) {
     console.error("getThinkingStyleHistory error:", err);

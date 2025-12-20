@@ -6,6 +6,8 @@ import {
   fetchAffiliateStats,
   fetchAffiliateBalanceDetail,
   fetchCommissionBreakdown,
+  checkMitraEligibility,
+  upgradeToMitra
 } from "@/services/api";
 import { toast } from "sonner";
 
@@ -16,6 +18,7 @@ import { toast } from "sonner";
   stats: () => [...affiliateKeys.all, "stats"] as const,
   balance: () => [...affiliateKeys.all, "balance"] as const,
   commissionBreakdown: () => [...affiliateKeys.all, "commission-breakdown"] as const,
+  mitraEligibility: () => [...affiliateKeys.all, "mitra-eligibility"] as const,
 };
 // Referral Link
 export const useReferralLink = () =>
@@ -58,3 +61,30 @@ export const useCommissionBreakdown = () =>
     queryKey: affiliateKeys.commissionBreakdown(),
     queryFn: fetchCommissionBreakdown,
   });
+
+// Mitra Eligibility
+export const useCheckMitraEligibility = () =>
+  useQuery({
+    queryKey: affiliateKeys.mitraEligibility(),
+    queryFn: checkMitraEligibility,
+  });
+
+// Upgrade to Mitra Mutation
+export const useUpgradeToMitra = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: upgradeToMitra,
+    onSuccess: (data) => {
+      toast.success(data.message || "Upgrade ke Mitra berhasil!");
+      queryClient.invalidateQueries({ queryKey: affiliateKeys.mitraEligibility() });
+      // Reload page to reflect role change (or handle in AuthProvider)
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Gagal upgrade ke Mitra");
+    },
+  });
+};

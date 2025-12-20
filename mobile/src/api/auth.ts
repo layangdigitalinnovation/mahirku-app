@@ -11,6 +11,7 @@ export const registerUserApi = (payload: {
   address: string;
   phoneNumber: string;
   roleId?: number;
+  referralCode?: string;
 }) => api.post('/auth/register-user', payload);
 
 export const meApi = () => api.get('/auth/me');

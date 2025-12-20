@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -8,8 +8,16 @@ import {
     Container,
     Typography,
     Paper,
-    Divider
+    Divider,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions
 } from '@mui/material';
+import { TrendingUp, LogOut } from 'lucide-react';
+import { useMeQuery } from '@/hooks/useAuthQuery';
+import { useAuth } from '@/hooks/useAuth';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -42,6 +50,24 @@ const DiscResult: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const result = location.state?.result as DiscResultData;
+    const { data: userData, refetch: refetchUser } = useMeQuery();
+    const user = userData?.user;
+    const { logout } = useAuth();
+    const [openUpgradeDialog, setOpenUpgradeDialog] = useState(false);
+
+    useEffect(() => {
+        refetchUser();
+    }, [refetchUser]);
+
+    useEffect(() => {
+        if (user?.parent) {
+            setOpenUpgradeDialog(true);
+        }
+    }, [user]);
+
+    const handleLogout = async () => {
+        await logout();
+    };
 
     if (!result) {
         return (
@@ -110,6 +136,69 @@ const DiscResult: React.FC = () => {
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
+
+            {/* Info Upgrade Affiliator */}
+            {user?.parent && (
+                <Paper
+                    elevation={0}
+                    sx={{
+                        mb: 4,
+                        p: 3,
+                        background: 'linear-gradient(to right, #FFFBEB, #FFF7ED)', // yellow-50 to orange-50
+                        border: '1px solid #FEF08A', // yellow-200
+                        borderRadius: 4,
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }}
+                >
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: -40,
+                            right: -40,
+                            width: 160,
+                            height: 160,
+                            bgcolor: '#FED7AA', // orange-200
+                            borderRadius: '50%',
+                            opacity: 0.2,
+                            pointerEvents: 'none',
+                            filter: 'blur(40px)'
+                        }}
+                    />
+                    <Box sx={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 3, textAlign: { xs: 'center', sm: 'left' } }}>
+                        <Box sx={{ flexShrink: 0, p: 2, bgcolor: '#FEF9C3', borderRadius: '50%', color: '#CA8A04', boxShadow: 1 }}>
+                            <TrendingUp size={32} />
+                        </Box>
+                        <Box sx={{ flexGrow: 1 }}>
+                            <Typography variant="h6" fontWeight="bold" color="#111827" gutterBottom>
+                                Selamat! Akun Anda Telah Di-Upgrade
+                            </Typography>
+                            <Typography variant="body2" color="#374151" sx={{ lineHeight: 1.6 }}>
+                                Karena Anda telah menyelesaikan Tes Kepribadian DISC, status akun Anda kini menjadi <Box component="span" fontWeight="bold" color="#A16207">Affiliator</Box>.
+                                Anda sekarang memiliki akses ke Dashboard Affiliator untuk mulai menghasilkan pendapatan.
+                            </Typography>
+                        </Box>
+                        <Box sx={{ flexShrink: 0, width: { xs: '100%', sm: 'auto' } }}>
+                            <Button
+                                onClick={handleLogout}
+                                variant="contained"
+                                startIcon={<LogOut size={18} />}
+                                sx={{
+                                    width: { xs: '100%', sm: 'auto' },
+                                    bgcolor: '#CA8A04', // yellow-600
+                                    '&:hover': { bgcolor: '#A16207' }, // yellow-700
+                                    boxShadow: '0 10px 15px -3px rgba(254, 240, 138, 0.5)',
+                                    textTransform: 'none',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                Logout & Login Kembali
+                            </Button>
+                        </Box>
+                    </Box>
+                </Paper>
+            )}
+
             <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
                 <Box sx={{ textAlign: 'center', mb: 4 }}>
                     <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
@@ -159,11 +248,50 @@ const DiscResult: React.FC = () => {
                 </Box>
 
                 <Box sx={{ mt: 4, textAlign: 'center' }}>
-                    <Button variant="contained" size="large" onClick={() => navigate('/customer/dashboard')}>
-                        Back to Dashboard
-                    </Button>
+                    {!user?.parent ? (
+                        <Button variant="contained" size="large" onClick={() => navigate('/customer/dashboard')}>
+                            Back to Dashboard
+                        </Button>
+                    ) : (
+                        <Button 
+                            variant="contained" 
+                            size="large" 
+                            onClick={handleLogout}
+                            startIcon={<LogOut size={20} />}
+                            sx={{
+                                bgcolor: '#CA8A04',
+                                '&:hover': { bgcolor: '#A16207' }
+                            }}
+                        >
+                            Logout & Login ke Dashboard Affiliator
+                        </Button>
+                    )}
                 </Box>
             </Paper>
+
+            <Dialog
+                open={openUpgradeDialog}
+                onClose={() => setOpenUpgradeDialog(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Selamat! Akun Anda Telah Di-Upgrade"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Karena Anda telah menyelesaikan Tes Kepribadian DISC, status akun Anda kini menjadi <strong>Affiliator</strong>.
+                        <br /><br />
+                        Silakan <strong>Logout</strong> dan Login kembali untuk mengakses Dashboard Affiliator dan mulai menghasilkan pendapatan.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenUpgradeDialog(false)}>Nanti Saja</Button>
+                    <Button onClick={handleLogout} variant="contained" color="primary" autoFocus>
+                        Logout Sekarang
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 };

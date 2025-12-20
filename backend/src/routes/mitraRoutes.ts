@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { 
   addMember, 
   getMembers, 
-  getDashboardStats 
+  getDashboardStats,
+  promoteMemberToAffiliator
 } from '../controllers/mitraController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { isMitra } from '../middlewares/roleMiddleware';
@@ -18,5 +19,6 @@ router.use(isMitra);
 router.post('/members', addMember);
 router.get('/members', getMembers);
 router.get('/dashboard', getDashboardStats);
+router.post('/members/:id/promote', promoteMemberToAffiliator);
 
 export default router;

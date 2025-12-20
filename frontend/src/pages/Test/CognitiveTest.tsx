@@ -78,8 +78,15 @@ export const CognitiveTest: React.FC = () => {
             {/* Cognitive Style Test Card */}
             <Card className="hover:shadow-lg transition-all duration-300 border-blue-100 cursor-pointer group" onClick={() => setIsMobileModalOpen(true)}>
               <CardHeader>
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors duration-300">
-                  <Brain className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors duration-300">
+                    <Brain className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
+                  </div>
+                  {data?.user?.parentId && (
+                     <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-full shadow-sm">
+                       Unlock Affiliator
+                     </span>
+                  )}
                 </div>
                 <CardTitle className="text-xl text-blue-900">Tes Gaya Kognitif</CardTitle>
                 <CardDescription>
@@ -108,8 +115,15 @@ export const CognitiveTest: React.FC = () => {
             {/* DISC Test Card */}
             <Card className="hover:shadow-lg transition-all duration-300 border-indigo-100 cursor-pointer group" onClick={() => navigate('/customer/dashboard/disc-test')}>
               <CardHeader>
-                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 transition-colors duration-300">
-                  <FileQuestion className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors duration-300" />
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 transition-colors duration-300">
+                    <FileQuestion className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors duration-300" />
+                  </div>
+                  {data?.user?.parentId && (
+                     <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-full shadow-sm">
+                       Unlock Affiliator
+                     </span>
+                  )}
                 </div>
                 <CardTitle className="text-xl text-indigo-900">Tes Kepribadian DISC</CardTitle>
                 <CardDescription>

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Linking } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -25,14 +26,49 @@ import DiscResultScreen from './src/screens/DiscResultScreen';
 import AddMemberScreen from './src/screens/AddMemberScreen';
 import MemberListScreen from './src/screens/MemberListScreen';
 
+import { saveReferralCode } from './src/store/referral';
+
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
 
+const linking = {
+  prefixes: ['com.mahirku.app://', 'mahirku://', 'https://mahirku.com', 'http://mahirku.com'],
+  config: {
+    screens: {
+      Login: 'login',
+      Register: 'register',
+      Dashboard: 'dashboard',
+    },
+  },
+};
+
 export default function App() {
+  useEffect(() => {
+    const handleUrl = (url: string | null) => {
+      if (!url) return;
+      try {
+        // Simple regex to find ref or referralCode query param
+        const regex = /[?&](ref|referralCode)=([^&#]*)/;
+        const match = regex.exec(url);
+        if (match && match[2]) {
+          const ref = match[2];
+          console.log('Referral code captured:', ref);
+          saveReferralCode(ref);
+        }
+      } catch (e) {
+        console.error('Error parsing URL:', e);
+      }
+    };
+
+    Linking.getInitialURL().then(handleUrl);
+    const subscription = Linking.addEventListener('url', (event) => handleUrl(event.url));
+    return () => subscription.remove();
+  }, []);
+
   return (
     <PaperProvider>
       <QueryClientProvider client={queryClient}>
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, useWindowDimensions, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { registerUserApi, loginApi } from '../api/auth';
 import { resolvedBaseURL } from '../api/client';
 import { saveToken } from '../store/auth';
+import { getReferralCode, clearReferralCode } from '../store/referral';
 import GradientBackground from '../components/ui/GradientBackground';
 import Card from '../components/basic/Card';
 import TextField from '../components/basic/TextField';
@@ -12,7 +13,7 @@ import SegmentedTabs from '../components/ui/SegmentedTabs';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function RegisterScreen({ navigation }: any) {
+export default function RegisterScreen({ navigation, route }: any) {
   const [username, setUsername] = useState('');
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
@@ -21,9 +22,19 @@ export default function RegisterScreen({ navigation }: any) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [referralCode, setReferralCode] = useState<string | undefined>(route?.params?.referralCode || route?.params?.ref);
+
   const { width } = useWindowDimensions();
   const isWide = width >= 600;
   const insets = useSafeAreaInsets();
+  
+  useEffect(() => {
+    if (!referralCode) {
+      getReferralCode().then(code => {
+        if (code) setReferralCode(code);
+      });
+    }
+  }, []);
 
   const register = async () => {
     setLoading(true);
@@ -35,9 +46,19 @@ export default function RegisterScreen({ navigation }: any) {
         return;
       }
       const sanitizedPhone = String(phoneNumber).replace(/\D/g, '');
-      await registerUserApi({ username, email, password, fullname, address, phoneNumber: sanitizedPhone, roleId: 3 });
+      await registerUserApi({ 
+        username, 
+        email, 
+        password, 
+        fullname, 
+        address, 
+        phoneNumber: sanitizedPhone, 
+        roleId: 3,
+        referralCode 
+      });
       const res = await loginApi(email, password);
       await saveToken(res.data.token);
+      await clearReferralCode();
       navigation.replace('Dashboard');
     } catch (e) {
       const hasResponse = (e as any)?.response;

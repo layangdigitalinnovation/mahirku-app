@@ -15,7 +15,7 @@ const registerUserWithRole = async (
   roleId: number
 ): Promise<void> => {
   try {
-    const { username, email, password, fullname, address, phoneNumber, bankAccountNumber, bankAccountName, bankName } =
+    const { username, email, password, fullname, address, phoneNumber, bankAccountNumber, bankAccountName, bankName, mitraId } =
       req.body;
 
     // Ambil referral dari cookie alih-alih dari request body
@@ -45,9 +45,28 @@ const registerUserWithRole = async (
       return;
     }
 
-    // Proses referrerId menjadi parentId
+    // Proses referrerId atau mitraId menjadi parentId
     let parentId = null;
-    if (referrerId) {
+
+    // Prioritas 1: Input ID Mitra manual (untuk member join mitra)
+    if (mitraId) {
+      if (isNaN(Number(mitraId))) {
+         res.status(400).json({ message: "ID Mitra harus berupa angka." });
+         return;
+      }
+      const mitra = await User.findByPk(mitraId);
+      if (!mitra) {
+        res.status(400).json({ message: "ID Mitra tidak ditemukan." });
+        return;
+      }
+      if (mitra.roleId !== 4) { // 4 = Mitra
+        res.status(400).json({ message: "ID tersebut bukan merupakan ID Mitra yang valid." });
+        return;
+      }
+      parentId = parseInt(mitraId);
+    } 
+    // Prioritas 2: Cookie referral (untuk link affiliator)
+    else if (referrerId) {
       // Ekstrak user ID dari referral code (format: aff{userId})
       const referrerUserId = referrerId.replace('aff', '');
       if (referrerUserId && !isNaN(Number(referrerUserId))) {
@@ -168,7 +187,15 @@ export const getMe = async (
 ): Promise<void> => {
   try {
     const user = await models.User.findByPk(req.user.userId, {
-      include: ["role"], // Pastikan relasi 'roles' tersedia di model
+      include: [
+        "role",
+        {
+          model: models.User,
+          as: 'parent',
+          attributes: ['id', 'fullname', 'email', 'roleId'],
+          include: ['role']
+        }
+      ], 
     });
 
     if (!user) {
