@@ -4,7 +4,9 @@ import {
   getReferralLink, 
   getAffiliateStats,
   getAffiliateBalanceDetail,
-  getCommissionBreakdown
+  getCommissionBreakdown,
+  checkMitraEligibility,
+  upgradeToMitra
 } from '../controllers/affiliateController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
@@ -15,6 +17,12 @@ router.get('/referral-link', authMiddleware, getReferralLink);
 
 // Mendapatkan statistik affiliate (hanya untuk user yang login)
 router.get('/stats', authMiddleware, getAffiliateStats);
+
+// Cek eligibility upgrade mitra
+router.get('/check-mitra-eligibility', authMiddleware, checkMitraEligibility);
+
+// Upgrade ke mitra
+router.post('/upgrade-mitra', authMiddleware, upgradeToMitra);
 
 // Mendapatkan detail balance affiliate (hanya untuk user yang login)
 router.get('/balance', authMiddleware, getAffiliateBalanceDetail);

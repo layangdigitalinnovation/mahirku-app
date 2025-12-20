@@ -77,10 +77,29 @@ export default function PackageForm({
 
         <FormField
           control={form.control}
+          name="price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Harga Paket</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="commissionRate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tingkat Komisi (%)</FormLabel>
+              <FormLabel>Tingkat Komisi Affiliator(%)</FormLabel>
               <FormControl>
                 <Input
                   type="number"
