@@ -110,16 +110,28 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
           {combine && (
             <>
-              <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Skor Akhir</Text>
+              <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Hasil Akhir</Text>
               <View style={styles.scoreCard}>
-                <Text style={styles.scoreLabel}>Gabungan: 60% sidik jari + 40% kuesioner</Text>
-                <View style={{ marginTop: 12 }}>
+                <View style={{ marginTop: 4 }}>
                   {sameType ? (
-                    <Text style={styles.itemSubtitle}>{fpType} 100%</Text>
+                    <>
+                      <Text style={styles.finalTypeLabel}>Tipe Gaya Berpikir Anda:</Text>
+                      <Text style={styles.finalTypeValue}>{fpType}</Text>
+                      <View style={styles.consistencyBadge}>
+                        <Feather name="check-circle" size={14} color="#10B981" />
+                        <Text style={styles.consistencyText}>Hasil Konsisten</Text>
+                      </View>
+                    </>
                   ) : (
                     <>
-                      <Text style={styles.itemSubtitle}>{fpType} 60%</Text>
-                      <Text style={styles.itemSubtitle}>{qLabel} 40%</Text>
+                      <Text style={styles.finalTypeLabel}>Tipe Gaya Berpikir Anda:</Text>
+                      <Text style={styles.finalTypeValue}>{fpType}</Text>
+                      <View style={styles.combinedNote}>
+                        <Feather name="info" size={14} color="#64748B" />
+                        <Text style={styles.combinedNoteText}>
+                          Hasil dari kombinasi sidik jari dan kuesioner
+                        </Text>
+                      </View>
                     </>
                   )}
                 </View>
@@ -272,6 +284,52 @@ const styles = StyleSheet.create({
   scoreLabel: {
     color: '#64748B',
     fontSize: 13,
+    fontWeight: '500'
+  },
+  finalTypeLabel: {
+    color: '#64748B',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8
+  },
+  finalTypeValue: {
+    color: '#4F46E5',
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 12
+  },
+  consistencyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: '#D1FAE5'
+  },
+  consistencyText: {
+    color: '#10B981',
+    fontSize: 12,
+    fontWeight: '600'
+  },
+  combinedNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: '#E2E8F0'
+  },
+  combinedNoteText: {
+    color: '#64748B',
+    fontSize: 12,
     fontWeight: '500'
   },
   metric: {

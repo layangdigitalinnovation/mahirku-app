@@ -6,6 +6,9 @@ interface WithdrawRequestAttributes {
   id: number;
   affiliateId: number; // referensi ke User dengan role affiliator
   amount: number; // jumlah yang diminta untuk di-withdraw
+  bankName: string; // nama bank tujuan
+  accountNumber: string; // nomor rekening tujuan
+  accountName: string; // nama pemilik rekening
   status: 'pending' | 'approved' | 'rejected' | 'processed' | 'processing' | 'completed' | 'failed'; // status permintaan
   notes?: string | null; // catatan dari admin atau affiliator
   processedAt?: Date | null; // tanggal diproses
@@ -22,7 +25,7 @@ interface WithdrawRequestAttributes {
 }
 
 interface WithdrawRequestCreationAttributes
-  extends Optional<WithdrawRequestAttributes, 'id' | 'status' | 'notes' | 'processedAt' | 'processedBy' | 'rejectionReason' | 'payoutId' | 'payoutStatus' | 'failureReason' | 'createdAt' | 'updatedAt'> {}
+  extends Optional<WithdrawRequestAttributes, 'id' | 'status' | 'notes' | 'processedAt' | 'processedBy' | 'rejectionReason' | 'payoutId' | 'payoutStatus' | 'failureReason' | 'createdAt' | 'updatedAt'> { }
 
 class WithdrawRequest
   extends Model<WithdrawRequestAttributes, WithdrawRequestCreationAttributes>
@@ -30,6 +33,9 @@ class WithdrawRequest
   public id!: number;
   public affiliateId!: number;
   public amount!: number;
+  public bankName!: string;
+  public accountNumber!: string;
+  public accountName!: string;
   public status!: 'pending' | 'approved' | 'rejected' | 'processed' | 'processing' | 'completed' | 'failed';
   public notes?: string | null;
   public processedAt?: Date | null;
@@ -40,7 +46,7 @@ class WithdrawRequest
   public failureReason?: string | null;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-  
+
   // Relasi
   public affiliate?: User;
   public processor?: User;
@@ -90,6 +96,18 @@ WithdrawRequest.init(
       validate: {
         min: 1, // Minimal withdraw 1 rupiah
       },
+    },
+    bankName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    accountNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    accountName: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     status: {
       type: DataTypes.ENUM('pending', 'approved', 'rejected', 'processed', 'processing', 'completed', 'failed'),

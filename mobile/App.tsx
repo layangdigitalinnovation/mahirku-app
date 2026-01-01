@@ -4,9 +4,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider as PaperProvider } from 'react-native-paper';
-import LoginScreen from './src/screens/LoginScreen';
-import RegisterScreen from './src/screens/RegisterScreen';
+import AuthScreen from './src/screens/AuthScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
+import AffiliatorDashboardScreen from './src/screens/AffiliatorDashboardScreen';
+import MitraDashboardScreen from './src/screens/MitraDashboardScreen';
 import TestStartScreen from './src/screens/TestStartScreen';
 import TestScreen from './src/screens/TestScreen';
 import ReportsScreen from './src/screens/ReportsScreen';
@@ -25,6 +26,8 @@ import DiscTestScreen from './src/screens/DiscTestScreen';
 import DiscResultScreen from './src/screens/DiscResultScreen';
 import AddMemberScreen from './src/screens/AddMemberScreen';
 import MemberListScreen from './src/screens/MemberListScreen';
+import TermsOfUseScreen from './src/screens/TermsOfUseScreen';
+import FAQScreen from './src/screens/FAQScreen';
 
 import { saveReferralCode } from './src/store/referral';
 
@@ -35,9 +38,17 @@ const linking = {
   prefixes: ['com.mahirku.app://', 'mahirku://', 'https://mahirku.com', 'http://mahirku.com'],
   config: {
     screens: {
-      Login: 'login',
-      Register: 'register',
+      Auth: {
+        path: 'auth',
+        // Support old /login and /register paths
+        parse: {
+          login: () => ({ initialTab: 0 }),
+          register: () => ({ initialTab: 1 }),
+        },
+      },
       Dashboard: 'dashboard',
+      AffiliatorDashboard: 'affiliator-dashboard',
+      MitraDashboard: 'mitra-dashboard',
     },
   },
 };
@@ -69,10 +80,11 @@ export default function App() {
     <PaperProvider>
       <QueryClientProvider client={queryClient}>
         <NavigationContainer linking={linking}>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Navigator initialRouteName="Auth" screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Auth" component={AuthScreen} />
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
+            <Stack.Screen name="AffiliatorDashboard" component={AffiliatorDashboardScreen} />
+            <Stack.Screen name="MitraDashboard" component={MitraDashboardScreen} />
             <Stack.Screen name="TestStart" component={TestStartScreen} />
             <Stack.Screen name="Tests" component={TestScreen} />
             <Stack.Screen name="Reports" component={ReportsScreen} />
@@ -91,6 +103,8 @@ export default function App() {
             <Stack.Screen name="DiscResult" component={DiscResultScreen} />
             <Stack.Screen name="AddMember" component={AddMemberScreen} />
             <Stack.Screen name="MemberList" component={MemberListScreen} />
+            <Stack.Screen name="TermsOfUse" component={TermsOfUseScreen} />
+            <Stack.Screen name="FAQ" component={FAQScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </QueryClientProvider>

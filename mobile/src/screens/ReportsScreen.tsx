@@ -44,6 +44,17 @@ export default function ReportsScreen({ navigation }: any) {
     });
   }, [historyData, q, start, end]);
 
+  // Helper function to get full DISC type name
+  const getDiscTypeName = (code: string): string => {
+    const typeMap: { [key: string]: string } = {
+      'D': 'D - Dominance',
+      'I': 'I - Influence',
+      'S': 'S - Steadiness',
+      'C': 'C - Compliance'
+    };
+    return typeMap[code] || code;
+  };
+
   const goDetail = async (item: ThinkingStyleResult) => {
     let questionnaire: any = undefined;
     try {
@@ -59,10 +70,12 @@ export default function ReportsScreen({ navigation }: any) {
     navigation.navigate('ReportDetail', {
       report: {
         id: item.id.toString(),
-        title: 'Cognitive Style Test',
+        title: item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test',
         date: new Date(item.createdAt).toLocaleDateString('id-ID'),
-        summary: `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
-        type: 'cst',
+        summary: item.testType === 'DISC'
+          ? getDiscTypeName(item.thinkingStyle?.code || '')
+          : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
+        type: item.testType === 'DISC' ? 'disc' : 'cst',
         fullData: item,
         combine: {
           finalPercent,
@@ -138,12 +151,19 @@ export default function ReportsScreen({ navigation }: any) {
                     </View>
                     <View style={{ flex: 1 }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                        <Text style={styles.itemTitle}>Cognitive Style Test</Text>
+                        <Text style={styles.itemTitle}>
+                          {item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test'}
+                        </Text>
                         <View style={styles.dateBadge}>
                           <Text style={styles.itemDate}>{date}</Text>
                         </View>
                       </View>
-                      <Text style={styles.itemSubtitle}>{item.thinkingStyle?.type} ({item.thinkingStyle?.code})</Text>
+                      <Text style={styles.itemSubtitle}>
+                        {item.testType === 'DISC'
+                          ? getDiscTypeName(item.thinkingStyle?.code || '')
+                          : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`
+                        }
+                      </Text>
 
                       <View style={styles.actionRow}>
                         <PrimaryButton
