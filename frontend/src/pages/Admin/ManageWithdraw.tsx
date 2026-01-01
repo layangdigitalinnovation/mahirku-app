@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
-import { 
-  Clock, 
-  DollarSign, 
-  TrendingUp, 
+import {
+  Clock,
+  DollarSign,
+  TrendingUp,
   X
 } from 'lucide-react';
 import { DataTable } from '@/components/table/DataTable';
@@ -22,7 +22,7 @@ const AdminWithdrawManagement = () => {
   const approveWithdrawMutation = useApproveWithdrawRequest();
   const rejectWithdrawMutation = useRejectWithdrawRequest();
   const markAsProcessedMutation = useMarkAsProcessed();
-  
+
   // State untuk UI
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'view' | 'approve' | 'reject'>('view');
@@ -71,7 +71,7 @@ const AdminWithdrawManagement = () => {
   const handleConfirmReject = () => {
     if (currentRequest) {
       rejectWithdrawMutation.mutate(
-        { id: currentRequest.id, payload : { rejectionReason } },
+        { id: currentRequest.id, payload: { rejectionReason } },
         {
           onSuccess: () => {
             setShowModal(false);
@@ -103,7 +103,7 @@ const AdminWithdrawManagement = () => {
 
 
   return (
-    <div className="container max-w-screen-xl mx-auto p-6">
+    <div className="container max-w-7xl mx-auto p-6">
       <div className=" mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -118,7 +118,7 @@ const AdminWithdrawManagement = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Total withdraw berhasil</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {withdrawRequests && withdrawRequests.filter((request : any) => request.status === 'completed').length}
+                  {withdrawRequests && withdrawRequests.filter((request: any) => request.status === 'completed').length}
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
@@ -132,7 +132,7 @@ const AdminWithdrawManagement = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Jumlah Tertunda</p>
                 <p className="text-2xl font-bold text-yellow-600">
-                  {withdrawRequests && withdrawRequests.filter((request : any) => request.status === 'pending').length}
+                  {withdrawRequests && withdrawRequests.filter((request: any) => request.status === 'pending').length}
                 </p>
               </div>
               <div className="bg-yellow-100 p-3 rounded-lg">
@@ -163,7 +163,7 @@ const AdminWithdrawManagement = () => {
               <h2 className="text-lg font-semibold text-gray-900">Permintaan Penarikan</h2>
             </div>
           </div>
-          
+
           <div className="p-6">
             <DataTable
               columns={columns}
@@ -193,7 +193,7 @@ const AdminWithdrawManagement = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-md flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-96 overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -222,12 +222,11 @@ const AdminWithdrawManagement = () => {
                         <div>
                           <span className="font-medium text-gray-500">Status:</span>
                           <div className="mt-1">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              currentRequest.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${currentRequest.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                               currentRequest.status === 'approved' ? 'bg-green-100 text-green-800' :
-                              currentRequest.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              'bg-blue-100 text-blue-800'
-                            }`}>
+                                currentRequest.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                  'bg-blue-100 text-blue-800'
+                              }`}>
                               {currentRequest.status.charAt(0).toUpperCase() + currentRequest.status.slice(1)}
                             </span>
                           </div>
@@ -247,9 +246,20 @@ const AdminWithdrawManagement = () => {
                         </div>
                         <div className="col-span-2">
                           <span className="font-medium text-gray-500">Detail Bank:</span>
-                          <p className="text-gray-900">{currentRequest.affiliate.bankName}</p>
-                          <p className="text-gray-900">{currentRequest.affiliate.bankAccountNumber}</p>
-                          <p className="text-gray-900">{currentRequest.affiliate.bankAccountName}</p>
+                          <div className="mt-2 bg-gray-50 p-3 rounded-lg space-y-1">
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-600">Bank:</span>
+                              <span className="ml-2 text-gray-900">{currentRequest.bankName || '-'}</span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-600">No. Rekening:</span>
+                              <span className="ml-2 text-gray-900">{currentRequest.accountNumber || '-'}</span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-600">Nama Pemilik:</span>
+                              <span className="ml-2 text-gray-900">{currentRequest.accountName || '-'}</span>
+                            </p>
+                          </div>
                         </div>
                         {currentRequest.notes && (
                           <div className="col-span-2">
@@ -311,7 +321,7 @@ const AdminWithdrawManagement = () => {
                     {approveWithdrawMutation.isPending ? 'Menyetujui...' : 'Setujui Permintaan'}
                   </button>
                 )}
-                
+
                 {modalType === 'reject' && (
                   <button
                     onClick={handleConfirmReject}
@@ -321,7 +331,7 @@ const AdminWithdrawManagement = () => {
                     {rejectWithdrawMutation.isPending ? 'Menolak...' : 'Tolak Permintaan'}
                   </button>
                 )}
-                
+
                 <button
                   onClick={closeModal}
                   className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"

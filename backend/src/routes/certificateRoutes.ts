@@ -1,9 +1,10 @@
 import express from 'express';
-import { downloadCertificate } from '../controllers/certificateController';
+import { downloadCertificate, verifyCertificate } from '../controllers/certificateController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
 router.get('/thinking-style/:testId', authMiddleware, downloadCertificate);
+router.get('/verify/:certificateId', verifyCertificate); // Public route for verification
 
 export default router;

@@ -38,17 +38,14 @@ export default function EditProfileScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: insets.bottom + 48 }}>
         <Card style={styles.formCard}>
           <View style={{ alignItems: 'center', marginBottom: 24 }}>
-            <View style={styles.avatarWrap}>
-              <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' }] }>
-                {name ? (
-                  <Text style={styles.avatarText}>
-                    {String(name).split(' ').slice(0,2).map(s => s[0]?.toUpperCase() || '').join('')}
-                  </Text>
-                ) : (
-                  <Feather name="user" size={32} color="#4F46E5" />
-                )}
-              </View>
-              <View style={styles.camBtn}><Feather name="camera" size={16} color="#FFFFFF" /></View>
+            <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' }]}>
+              {name ? (
+                <Text style={styles.avatarText}>
+                  {String(name).split(' ').slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('')}
+                </Text>
+              ) : (
+                <Feather name="user" size={32} color="#4F46E5" />
+              )}
             </View>
           </View>
 

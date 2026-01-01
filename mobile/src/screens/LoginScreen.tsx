@@ -53,8 +53,17 @@ export default function LoginScreen({ navigation }: any) {
       const token = await loadToken();
       if (token) {
         try {
-          await meApi();
-          navigation.replace('Dashboard');
+          const response = await meApi();
+          const userRole = response?.data?.user?.role?.name;
+
+          // Redirect based on user role
+          if (userRole === 'Affiliator') {
+            navigation.replace('AffiliatorDashboard');
+          } else if (userRole === 'Mitra') {
+            navigation.replace('MitraDashboard');
+          } else {
+            navigation.replace('Dashboard'); // Default for User role
+          }
         } catch {
           await clearToken();
         }
@@ -82,7 +91,18 @@ export default function LoginScreen({ navigation }: any) {
     try {
       const res = await googleLogin(idToken);
       await saveToken(res.token);
-      navigation.replace('Dashboard');
+
+      // Get user role after login
+      const meResponse = await meApi();
+      const userRole = meResponse?.data?.user?.role?.name;
+
+      if (userRole === 'Affiliator') {
+        navigation.replace('AffiliatorDashboard');
+      } else if (userRole === 'Mitra') {
+        navigation.replace('MitraDashboard');
+      } else {
+        navigation.replace('Dashboard');
+      }
     } catch (e: any) {
       const msg = e?.response?.data?.message || e?.message || 'Login Google gagal';
       setError(msg);
@@ -96,7 +116,18 @@ export default function LoginScreen({ navigation }: any) {
     try {
       const res = await loginApi(email, password);
       await saveToken(res.data.token);
-      navigation.replace('Dashboard');
+
+      // Get user role after login
+      const meResponse = await meApi();
+      const userRole = meResponse?.data?.user?.role?.name;
+
+      if (userRole === 'Affiliator') {
+        navigation.replace('AffiliatorDashboard');
+      } else if (userRole === 'Mitra') {
+        navigation.replace('MitraDashboard');
+      } else {
+        navigation.replace('Dashboard');
+      }
     } catch (e) {
       const hasResponse = (e as any)?.response;
       if (!hasResponse) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, useWindowDimensions, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { registerUserApi, loginApi } from '../api/auth';
+import { registerUserApi, loginApi, meApi } from '../api/auth';
 import { resolvedBaseURL } from '../api/client';
 import { saveToken } from '../store/auth';
 import { getReferralCode, clearReferralCode } from '../store/referral';
@@ -27,7 +27,7 @@ export default function RegisterScreen({ navigation, route }: any) {
   const { width } = useWindowDimensions();
   const isWide = width >= 600;
   const insets = useSafeAreaInsets();
-  
+
   useEffect(() => {
     if (!referralCode) {
       getReferralCode().then(code => {
@@ -46,20 +46,31 @@ export default function RegisterScreen({ navigation, route }: any) {
         return;
       }
       const sanitizedPhone = String(phoneNumber).replace(/\D/g, '');
-      await registerUserApi({ 
-        username, 
-        email, 
-        password, 
-        fullname, 
-        address, 
-        phoneNumber: sanitizedPhone, 
+      await registerUserApi({
+        username,
+        email,
+        password,
+        fullname,
+        address,
+        phoneNumber: sanitizedPhone,
         roleId: 3,
-        referralCode 
+        referralCode
       });
       const res = await loginApi(email, password);
       await saveToken(res.data.token);
       await clearReferralCode();
-      navigation.replace('Dashboard');
+
+      // Get user role after registration
+      const meResponse = await meApi();
+      const userRole = meResponse?.data?.user?.role?.name;
+
+      if (userRole === 'Affiliator') {
+        navigation.replace('AffiliatorDashboard');
+      } else if (userRole === 'Mitra') {
+        navigation.replace('MitraDashboard');
+      } else {
+        navigation.replace('Dashboard');
+      }
     } catch (e) {
       const hasResponse = (e as any)?.response;
       if (!hasResponse) {

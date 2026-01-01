@@ -12,7 +12,7 @@ import { processAutomaticPayout } from './xenditController';
  */
 export const createWithdrawRequest = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { amount, notes } = req.body;
+    const { amount, bankName, accountNumber, accountName, notes } = req.body;
     const affiliateId = req.user?.userId; // Assuming user is authenticated
 
     if (!affiliateId) {
@@ -23,7 +23,6 @@ export const createWithdrawRequest = async (req: AuthRequest, res: Response): Pr
       return;
     }
 
-
     if (amount <= 0) {
       res.status(400).json({
         success: false,
@@ -32,9 +31,17 @@ export const createWithdrawRequest = async (req: AuthRequest, res: Response): Pr
       return;
     }
 
+    if (!bankName || !accountNumber || !accountName) {
+      res.status(400).json({
+        success: false,
+        message: 'Bank details are required (bankName, accountNumber, accountName)'
+      });
+      return;
+    }
+
     // Cek saldo affiliator
     const balance = await getAffiliateBalance(affiliateId);
-    
+
     if (amount > balance.availableBalance) {
       res.status(400).json({
         success: false,
@@ -67,6 +74,9 @@ export const createWithdrawRequest = async (req: AuthRequest, res: Response): Pr
     const withdrawRequest = await WithdrawRequest.create({
       affiliateId,
       amount,
+      bankName,
+      accountNumber,
+      accountName,
       notes: notes || null,
       status: 'pending'
     });
@@ -104,7 +114,7 @@ export const getWithdrawHistory = async (req: AuthRequest, res: Response): Promi
 
     const offset = (Number(page) - 1) * Number(limit);
     const whereClause: any = { affiliateId };
-    
+
     if (status && ['pending', 'approved', 'rejected', 'processed'].includes(status as string)) {
       whereClause.status = status;
     }
@@ -157,13 +167,13 @@ export const getAllWithdrawRequests = async (req: AuthRequest, res: Response): P
   try {
     const { page = 1, limit = 10, status, affiliateId } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
-    
+
     const whereClause: any = {};
-    
+
     if (status && ['pending', 'approved', 'rejected', 'processed'].includes(status as string)) {
       whereClause.status = status;
     }
-    
+
     if (affiliateId) {
       whereClause.affiliateId = affiliateId;
     }
@@ -215,7 +225,7 @@ export const getAllWithdrawRequests = async (req: AuthRequest, res: Response): P
 export const approveWithdrawRequest = async (req: AuthRequest, res: Response): Promise<void> => {
 
   try {
-    const { id : withdrawRequestId } = req.params;
+    const { id: withdrawRequestId } = req.params;
     const { notes } = req.body;
     const adminId = req.user?.userId;
 
@@ -229,7 +239,7 @@ export const approveWithdrawRequest = async (req: AuthRequest, res: Response): P
     }
 
     const withdrawRequest = await WithdrawRequest.findByPk(withdrawRequestId);
-    
+
     if (!withdrawRequest) {
       res.status(404).json({
         success: false,
@@ -252,7 +262,7 @@ export const approveWithdrawRequest = async (req: AuthRequest, res: Response): P
     // Proses payout otomatis menggunakan Xendit
     try {
       const payoutResult = await processAutomaticPayout(withdrawRequest.id.toString());
-      
+
       console.log('Payout Result In Approve Withdraw Request:', payoutResult);
 
       if (payoutResult.success) {
@@ -326,7 +336,7 @@ export const rejectWithdrawRequest = async (req: AuthRequest, res: Response): Pr
     }
 
     const withdrawRequest = await WithdrawRequest.findByPk(id);
-    
+
     if (!withdrawRequest) {
       res.status(404).json({
         success: false,
@@ -379,7 +389,7 @@ export const markAsProcessed = async (req: AuthRequest, res: Response): Promise<
     }
 
     const withdrawRequest = await WithdrawRequest.findByPk(id);
-    
+
     if (!withdrawRequest) {
       res.status(404).json({
         success: false,
@@ -454,7 +464,7 @@ export const getWithdrawRequestDetail = async (req: AuthRequest, res: Response):
         }
       ]
     });
-    
+
     if (!withdrawRequest) {
       res.status(404).json({
         success: false,
@@ -492,9 +502,9 @@ export const getWithdrawRequestDetail = async (req: AuthRequest, res: Response):
 export const getWithdrawStatistics = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { startDate, endDate } = req.query;
-    
+
     const whereClause: any = {};
-    
+
     if (startDate && endDate) {
       whereClause.createdAt = {
         [Op.between]: [new Date(startDate as string), new Date(endDate as string)]
