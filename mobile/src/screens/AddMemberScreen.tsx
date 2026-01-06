@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -6,21 +6,15 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import TextField from '../components/basic/TextField';
-import { addChildUser, getChildrenUsers, transferTokenToChild, type AddChildPayload, type ChildUser } from '../api/childUser';
+import { addChildUser, type AddChildPayload } from '../api/childUser';
 import { meApi } from '../api/auth';
 
 export default function AddMemberScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
 
-  const { data: me, refetch: refetchMe } = useQuery({
+  const { data: me } = useQuery({
     queryKey: ['me'],
     queryFn: async () => (await meApi()).data,
-    retry: false,
-  });
-
-  const { data: children, refetch: refetchChildren, isFetching: childrenLoading } = useQuery<ChildUser[]>({
-    queryKey: ['childrenUsers'],
-    queryFn: getChildrenUsers,
     retry: false,
   });
 
@@ -47,27 +41,10 @@ export default function AddMemberScreen({ navigation }: any) {
     onSuccess: async () => {
       Alert.alert('Berhasil', 'Member berhasil ditambahkan.');
       setUsername(''); setEmail(''); setFullname(''); setAddress(''); setPhoneNumber(''); setPassword('');
-      await refetchChildren();
     },
     onError: (e: any) => {
       const msg = e?.response?.data?.message || e?.message || 'Gagal menambah member.';
       setError(msg);
-      Alert.alert('Gagal', msg);
-    }
-  });
-
-  const [transferMap, setTransferMap] = useState<Record<number, string>>({});
-  const transferMut = useMutation({
-    mutationFn: async ({ childId, amount }: { childId: number; amount: number }) => {
-      return transferTokenToChild({ childId, tokenAmount: amount });
-    },
-    onSuccess: async () => {
-      Alert.alert('Berhasil', 'Transfer token berhasil.');
-      await refetchChildren();
-      await refetchMe();
-    },
-    onError: (e: any) => {
-      const msg = e?.response?.data?.message || e?.message || 'Gagal transfer token.';
       Alert.alert('Gagal', msg);
     }
   });
@@ -86,8 +63,8 @@ export default function AddMemberScreen({ navigation }: any) {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: insets.bottom + 48 }}>
-        <Text style={styles.pageTitle}>Kelola Member</Text>
-        <Text style={styles.pageSubtitle}>Tambah akun member baru dan transfer token agar mereka bisa melakukan tes.</Text>
+        <Text style={styles.pageTitle}>Tambah Member</Text>
+        <Text style={styles.pageSubtitle}>Tambah akun member baru untuk menggunakan platform Mahirku.</Text>
 
         <Card style={{ borderRadius: 24, padding: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
@@ -121,59 +98,6 @@ export default function AddMemberScreen({ navigation }: any) {
             {error ? (<Text style={{ color: '#EF4444', fontSize: 12 }}>{error}</Text>) : null}
           </View>
         </Card>
-
-        <Text style={[styles.pageTitle, { marginTop: 24 }]}>Daftar Member</Text>
-
-        {(children ?? []).length === 0 ? (
-          <Card style={{ padding: 16, borderRadius: 16 }}>
-            <Text style={{ color: '#64748B' }}>Belum ada member. Tambahkan member untuk mulai menggunakan fitur ini.</Text>
-          </Card>
-        ) : (
-          <View style={{ gap: 12 }}>
-            {(children ?? []).map((c) => {
-              const inputVal = transferMap[c.id] ?? '';
-              const parentTokens = me?.user?.tokens ?? 0;
-              const amountNum = Number(inputVal || 0);
-              const canTransfer = amountNum > 0 && parentTokens >= amountNum;
-              return (
-                <Card key={c.id} style={{ padding: 16, borderRadius: 16 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={styles.avatarSmall}><Feather name="user" size={16} color="#4F46E5" /></View>
-                    <View style={{ marginLeft: 12, flex: 1 }}>
-                      <Text style={styles.memberName}>{c.fullname || c.username}</Text>
-                      <Text style={styles.memberMeta}>{c.email}</Text>
-                    </View>
-                    <View style={styles.tokenBadge}><Text style={styles.tokenBadgeText}>{c.tokens} Token</Text></View>
-                  </View>
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 }}>
-                    <View style={{ flex: 1 }}>
-                      <TextField
-                        label="Jumlah Token"
-                        value={inputVal}
-                        onChangeText={(t) => setTransferMap((m) => ({ ...m, [c.id]: t.replace(/[^0-9]/g, '') }))}
-                        keyboardType="number-pad"
-                        placeholder="mis. 1"
-                        startIcon={<Feather name="hash" size={18} color="#7F8EA3" />}
-                      />
-                    </View>
-                    <PrimaryButton
-                      title="Transfer"
-                      variant="outline"
-                      onPress={() => transferMut.mutate({ childId: c.id, amount: Number(transferMap[c.id]) })}
-                      disabled={!canTransfer || transferMut.isPending}
-                      leftIcon={<Feather name="send" size={18} color="#3BB1FF" />}
-                      style={{ height: 44, borderRadius: 12 }}
-                    />
-                  </View>
-                  {!canTransfer ? (
-                    <Text style={{ color: '#EF4444', fontSize: 12, marginTop: 6 }}>Pastikan jumlah token valid dan tidak melebihi saldo Anda.</Text>
-                  ) : null}
-                </Card>
-              );
-            })}
-          </View>
-        )}
       </ScrollView>
     </View>
   );

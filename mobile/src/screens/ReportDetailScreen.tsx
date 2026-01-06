@@ -5,7 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { downloadCertificate as downloadCertApi } from '../api/certificate';
+import { generateCertificatePDF } from '../utils/certificateGenerator';
+
 
 export default function ReportDetailScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
@@ -22,16 +23,38 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
   const dlCert = async () => {
     try {
-      const testId = r?.fullData?.id;
-      if (!testId) {
-        Alert.alert('Gagal', 'ID hasil tes tidak ditemukan');
+      if (!r?.fullData) {
+        Alert.alert('Gagal', 'Data laporan tidak lengkap');
         return;
       }
+
       setDownloading(true);
-      await downloadCertApi(Number(testId));
-      Alert.alert('Berhasil', 'Sertifikat berhasil diunduh dan siap dibagikan.');
+
+      const isDisc = r.type === 'disc';
+      const courseName = isDisc ? 'DISC Personality Test' : 'Cognitive Style Test';
+      const studentName = r.fullData.fullname || 'Student';
+      const certId = `${isDisc ? 'DISC' : 'CST'}-${r.fullData.id}-${new Date().getFullYear()}`;
+
+      // Get result title
+      let resultTitle = '';
+      if (isDisc) {
+        const type = r.fullData.thinkingStyle?.type || 'Unknown';
+        const code = r.fullData.thinkingStyle?.code || '';
+        resultTitle = `${type} (${code})`;
+      } else {
+        resultTitle = `${r.fullData.thinkingStyle?.type || ''} (${r.fullData.thinkingStyle?.code || ''})`;
+      }
+
+      await generateCertificatePDF({
+        studentName,
+        courseName,
+        completionDate: r.date,
+        certificateId: certId,
+        resultTitle
+      });
+
     } catch (error: any) {
-      Alert.alert('Gagal', error?.message || 'Gagal mengunduh sertifikat');
+      Alert.alert('Gagal', error?.message || 'Gagal membuat sertifikat');
     } finally {
       setDownloading(false);
     }
@@ -71,8 +94,71 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
           <View style={styles.divider} />
 
-          {/* Thinking Style Type */}
-          {thinkingStyle?.type && (
+          {/* DISC Test Specific Display */}
+          {r?.type === 'disc' && r?.fullData && (
+            <>
+              {/* DISC Dominant Type Circle */}
+              <View style={{ alignItems: 'center', marginVertical: 24 }}>
+                <Text style={styles.discSectionLabel}>DOMINANT TYPE</Text>
+                <View style={styles.discCircle}>
+                  <Text style={styles.discCircleText}>{r.fullData.thinkingStyle?.code || 'I'}</Text>
+                </View>
+                <Text style={styles.discTypeName}>
+                  {r.fullData.thinkingStyle?.type || 'Influence'}: {r.fullData.thinkingStyle?.description || 'Analytical, reserved, precise, private, systematic.'}
+                </Text>
+              </View>
+
+              {/* DISC Detailed Scores */}
+              <Text style={[styles.sectionHeader, { marginTop: 12, marginBottom: 16 }]}>Detailed Scores</Text>
+
+              {/* Dominance */}
+              <View style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={styles.discScoreLabel}>Dominance (D)</Text>
+                  <Text style={[styles.discScoreValue, { color: '#EF4444' }]}>{r.fullData.dScore || 0}</Text>
+                </View>
+                <View style={styles.scoreBarBg}>
+                  <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.dScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#EF4444' }]} />
+                </View>
+              </View>
+
+              {/* Influence */}
+              <View style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={styles.discScoreLabel}>Influence (I)</Text>
+                  <Text style={[styles.discScoreValue, { color: '#3B82F6' }]}>{r.fullData.iScore || 0}</Text>
+                </View>
+                <View style={styles.scoreBarBg}>
+                  <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.iScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#3B82F6' }]} />
+                </View>
+              </View>
+
+              {/* Steadiness */}
+              <View style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={styles.discScoreLabel}>Steadiness (S)</Text>
+                  <Text style={[styles.discScoreValue, { color: '#F59E0B' }]}>{r.fullData.sScore || 0}</Text>
+                </View>
+                <View style={styles.scoreBarBg}>
+                  <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.sScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#F59E0B' }]} />
+                </View>
+              </View>
+
+              {/* Compliance */}
+              <View style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={styles.discScoreLabel}>Compliance (C)</Text>
+                  <Text style={[styles.discScoreValue, { color: '#10B981' }]}>{r.fullData.cScore || 0}</Text>
+                </View>
+                <View style={styles.scoreBarBg}>
+                  <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.cScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#10B981' }]} />
+                </View>
+              </View>
+            </>
+          )}
+
+          {/* Thinking Style Type (for CST) */}
+          {r?.type !== 'disc' && thinkingStyle?.type && (
             <>
               <Text style={styles.sectionHeader}>Tipe Gaya Berpikir</Text>
               <LinearGradient
@@ -365,5 +451,61 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 4
+  },
+  // DISC Test Styles
+  discSectionLabel: {
+    color: '#94A3B8',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginBottom: 16,
+    textTransform: 'uppercase'
+  },
+  discCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 4,
+    borderColor: '#22D3EE',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: '#22D3EE',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6
+  },
+  discCircleText: {
+    fontSize: 56,
+    fontWeight: '800',
+    color: '#22D3EE'
+  },
+  discTypeName: {
+    textAlign: 'center',
+    color: '#64748B',
+    fontSize: 14,
+    lineHeight: 22,
+    paddingHorizontal: 24
+  },
+  discScoreLabel: {
+    color: '#1E293B',
+    fontSize: 14,
+    fontWeight: '600'
+  },
+  discScoreValue: {
+    fontSize: 16,
+    fontWeight: '800'
+  },
+  scoreBarBg: {
+    height: 8,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 4,
+    overflow: 'hidden'
+  },
+  scoreBar: {
+    height: '100%',
+    borderRadius: 4
   },
 });

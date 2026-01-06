@@ -142,7 +142,17 @@ export default function ReportsScreen({ navigation }: any) {
         ) : filtered.length > 0 ? (
           <View style={{ gap: 16 }}>
             {filtered.map((item: ThinkingStyleResult) => {
-              const date = new Date(item.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+              // Safely format date with validation
+              let dateStr = 'Invalid Date';
+              try {
+                const dateObj = new Date(item.createdAt);
+                if (!isNaN(dateObj.getTime())) {
+                  dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+              } catch (e) {
+                dateStr = 'Invalid Date';
+              }
+
               return (
                 <Card key={item.id} style={styles.reportCard}>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
@@ -155,7 +165,7 @@ export default function ReportsScreen({ navigation }: any) {
                           {item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test'}
                         </Text>
                         <View style={styles.dateBadge}>
-                          <Text style={styles.itemDate}>{date}</Text>
+                          <Text style={styles.itemDate}>{dateStr}</Text>
                         </View>
                       </View>
                       <Text style={styles.itemSubtitle}>
