@@ -12,7 +12,6 @@ import * as Clipboard from 'expo-clipboard';
 
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
-import BottomTabs from '../components/navigation/BottomTabs';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { useFocusEffect } from '@react-navigation/native';
@@ -53,7 +52,6 @@ export default function MitraDashboardScreen({ navigation }: any) {
         }, [])
     );
 
-    const [active, setActive] = useState(0);
     const fadeIn = useRef(new Animated.Value(0)).current;
     const insets = useSafeAreaInsets();
 
@@ -66,7 +64,7 @@ export default function MitraDashboardScreen({ navigation }: any) {
             const status = error?.response?.status;
             if (status === 401 || status === 403) {
                 clearToken();
-                navigation.replace('Login');
+                navigation.replace('Auth');
             }
         }
     }, [isError, error, navigation]);
@@ -381,25 +379,11 @@ export default function MitraDashboardScreen({ navigation }: any) {
                         )}
 
                     </View>
-                </ScrollView>
 
-                <BottomTabs
-                    tabs={[
-                        { key: 'home', label: 'Home', icon: 'home' },
-                        { key: 'members', label: 'Member', icon: 'users' },
-                        { key: 'profile', label: 'Profile', icon: 'user' },
-                    ]}
-                    activeIndex={active}
-                    onChange={(i) => {
-                        setActive(i);
-                        const keys = ['home', 'members', 'profile'];
-                        const key = keys[i];
-                        if (key === 'profile') navigation.navigate('Profile');
-                        if (key === 'members') navigation.navigate('MemberList');
-                    }}
-                />
+
+                </ScrollView>
             </Animated.View>
-        </View>
+        </View >
     );
 }
 

@@ -25,6 +25,40 @@ export interface RecentCommission {
 export const getMitraDashboardStats = () => api.get<MitraDashboardStats>('/mitra/dashboard');
 
 export const getMitraReferralLink = () => {
-    // Mitra uses same endpoint as affiliator for referral link
     return api.get('/affiliate/referral-link');
+};
+
+export interface MitraMember {
+    id: number;
+    username: string;
+    email: string;
+    fullname: string;
+    tokens: number;
+    address: string;
+    phoneNumber: string;
+    parentId: number;
+    createdAt: string;
+    role?: {
+        id: number;
+        name: string;
+    };
+    totalCommissionGenerated: number;
+}
+
+export interface MitraMembersResponse {
+    data: MitraMember[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}
+
+export const getMitraMembers = (params?: { page?: number; limit?: number; search?: string }) => {
+    return api.get<MitraMembersResponse>('/mitra/members', { params });
+};
+
+export const promoteToAffiliator = (memberId: number) => {
+    return api.post(`/mitra/members/${memberId}/promote`);
 };

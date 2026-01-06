@@ -14,7 +14,7 @@ export default function ProfileScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const { data } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
   const [notif, setNotif] = useState(true);
-  const logout = async () => { await clearToken(); navigation.replace('Login'); };
+  const logout = async () => { await clearToken(); navigation.replace('Auth'); };
   const goEdit = () => navigation.navigate('EditProfile');
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>

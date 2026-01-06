@@ -8,12 +8,15 @@ import AuthScreen from './src/screens/AuthScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
 import AffiliatorDashboardScreen from './src/screens/AffiliatorDashboardScreen';
 import MitraDashboardScreen from './src/screens/MitraDashboardScreen';
+import MitraNavigator from './src/navigation/MitraNavigator';
+import AffiliatorNavigator from './src/navigation/AffiliatorNavigator';
 import TestStartScreen from './src/screens/TestStartScreen';
 import TestScreen from './src/screens/TestScreen';
 import ReportsScreen from './src/screens/ReportsScreen';
 import ReportDetailScreen from './src/screens/ReportDetailScreen';
 import InvoiceHistoryScreen from './src/screens/InvoiceHistoryScreen';
 import TokenPackagesScreen from './src/screens/TokenPackagesScreen';
+import PurchaseConfirmationScreen from './src/screens/PurchaseConfirmationScreen';
 import PaymentStatusScreen from './src/screens/PaymentStatusScreen';
 import PaymentSuccessScreen from './src/screens/PaymentSuccessScreen';
 import PaymentWebViewScreen from './src/screens/PaymentWebViewScreen';
@@ -24,6 +27,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
 import DiscTestScreen from './src/screens/DiscTestScreen';
 import DiscResultScreen from './src/screens/DiscResultScreen';
+import TransferTokenScreen from './src/screens/TransferTokenScreen';
 import AddMemberScreen from './src/screens/AddMemberScreen';
 import MemberListScreen from './src/screens/MemberListScreen';
 import TermsOfUseScreen from './src/screens/TermsOfUseScreen';
@@ -83,14 +87,16 @@ export default function App() {
           <Stack.Navigator initialRouteName="Auth" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Auth" component={AuthScreen} />
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
-            <Stack.Screen name="AffiliatorDashboard" component={AffiliatorDashboardScreen} />
-            <Stack.Screen name="MitraDashboard" component={MitraDashboardScreen} />
+            <Stack.Screen name="AffiliatorDashboard" component={AffiliatorNavigator} />
+            <Stack.Screen name="MitraDashboard" component={MitraNavigator} />
             <Stack.Screen name="TestStart" component={TestStartScreen} />
+            <Stack.Screen name="TransferToken" component={TransferTokenScreen} />
             <Stack.Screen name="Tests" component={TestScreen} />
             <Stack.Screen name="Reports" component={ReportsScreen} />
             <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
             <Stack.Screen name="InvoiceHistory" component={InvoiceHistoryScreen} />
             <Stack.Screen name="TokenPackages" component={TokenPackagesScreen} />
+            <Stack.Screen name="PurchaseConfirmation" component={PurchaseConfirmationScreen} />
             <Stack.Screen name="PaymentStatus" component={PaymentStatusScreen} />
             <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
             <Stack.Screen name="PaymentWebView" component={PaymentWebViewScreen} />

@@ -51,47 +51,7 @@ export default function DashboardScreen({ navigation }: any) {
     retry: false,
   });
 
-  // Transfer token modal state
-  const [transferModal, setTransferModal] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<ChildUser | null>(null);
-  const [transferAmount, setTransferAmount] = useState('');
 
-  const openTransferModal = (member: ChildUser) => {
-    setSelectedMember(member);
-    setTransferModal(true);
-    setTransferAmount('');
-  };
-
-  const closeTransferModal = () => {
-    setTransferModal(false);
-    setSelectedMember(null);
-    setTransferAmount('');
-  };
-
-  const handleTransfer = async () => {
-    if (!selectedMember || !transferAmount || parseInt(transferAmount) <= 0) {
-      Alert.alert('Error', 'Masukkan jumlah token yang valid');
-      return;
-    }
-
-    const amount = parseInt(transferAmount);
-    const userTokens = data?.user?.tokens ?? 0;
-
-    if (amount > userTokens) {
-      Alert.alert('Token Tidak Cukup', 'Saldo token Anda tidak mencukupi untuk transfer ini.');
-      return;
-    }
-
-    try {
-      await transferTokenToChild({ childId: selectedMember.id, tokenAmount: amount });
-      Alert.alert('Berhasil', `${amount} token berhasil ditransfer ke ${selectedMember.fullname}`);
-      closeTransferModal();
-      refetch();
-      membersRefetch();
-    } catch (error: any) {
-      Alert.alert('Gagal', error?.response?.data?.message || 'Terjadi kesalahan saat transfer token');
-    }
-  };
 
   const [active, setActive] = useState(0);
   const fadeIn = useRef(new Animated.Value(0)).current;
@@ -105,7 +65,7 @@ export default function DashboardScreen({ navigation }: any) {
       const status = error?.response?.status;
       if (status === 401 || status === 403) {
         clearToken();
-        navigation.replace('Login');
+        navigation.replace('Auth');
       }
     }
   }, [isError, error, navigation]);
@@ -297,9 +257,15 @@ export default function DashboardScreen({ navigation }: any) {
                           <Feather name="check-circle" size={20} color="#10B981" />
                         </View>
                         <View style={{ flex: 1, marginLeft: 16 }}>
-                          <Text style={styles.activityName}>Cognitive Style Test</Text>
+                          <Text style={styles.activityName}>
+                            {item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test'}
+                          </Text>
                           <Text style={styles.activityResult}>
-                            Hasil: <Text style={{ fontWeight: '600', color: '#4F46E5' }}>{item.thinkingStyle?.type || 'Unknown'}</Text>
+                            Hasil: <Text style={{ fontWeight: '600', color: '#4F46E5' }}>
+                              {item.testType === 'DISC'
+                                ? `${item.thinkingStyle?.type || ''} (${item.thinkingStyle?.code || ''})`
+                                : (item.thinkingStyle?.type || 'Unknown')}
+                            </Text>
                           </Text>
                         </View>
                         <Text style={styles.activityDate}>{date}</Text>
@@ -349,7 +315,7 @@ export default function DashboardScreen({ navigation }: any) {
                       <PrimaryButton
                         title="Transfer Token"
                         leftIcon={<Feather name="send" size={16} color="#FFFFFF" />}
-                        onPress={() => openTransferModal(member)}
+                        onPress={() => navigation.navigate('TransferToken', { member })}
                         style={styles.transferBtn}
                         textStyle={{ fontSize: 14, fontWeight: '600' }}
                       />
@@ -362,70 +328,7 @@ export default function DashboardScreen({ navigation }: any) {
           </View>
         </ScrollView>
 
-        {/* Transfer Token Modal */}
-        {transferModal && selectedMember && (
-          <View style={styles.modalOverlay}>
-            <Pressable style={styles.modalBackground} onPress={closeTransferModal} />
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Transfer Token</Text>
-                <Pressable onPress={closeTransferModal} style={styles.modalCloseBtn}>
-                  <Feather name="x" size={20} color="#64748B" />
-                </Pressable>
-              </View>
 
-              <View style={styles.modalBody}>
-                <View style={styles.memberInfoRow}>
-                  <View style={styles.memberAvatarSmall}>
-                    <Text style={styles.memberInitialsSmall}>
-                      {selectedMember.fullname?.split(' ').slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('')}
-                    </Text>
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.modalMemberName}>{selectedMember.fullname || selectedMember.username}</Text>
-                    <Text style={styles.modalMemberEmail}>{selectedMember.email}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.balanceInfo}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <Text style={styles.balanceLabel}>Saldo Anda:</Text>
-                    <Text style={styles.balanceValue}>{data?.user?.tokens ?? 0} Token</Text>
-                  </View>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={styles.balanceLabel}>Saldo Member:</Text>
-                    <Text style={styles.balanceValue}>{selectedMember.tokens} Token</Text>
-                  </View>
-                </View>
-
-                <TextField
-                  label="Jumlah Token"
-                  placeholder="Masukkan jumlah token"
-                  value={transferAmount}
-                  onChangeText={setTransferAmount}
-                  keyboardType="numeric"
-                  containerStyle={{ marginBottom: 20 }}
-                />
-
-                <View style={{ flexDirection: 'row', gap: 12 }}>
-                  <PrimaryButton
-                    title="Batal"
-                    onPress={closeTransferModal}
-                    style={[styles.modalBtn, styles.cancelBtn]}
-                    textStyle={{ color: '#64748B', fontSize: 15, fontWeight: '600' }}
-                  />
-                  <PrimaryButton
-                    title="Transfer"
-                    onPress={handleTransfer}
-                    leftIcon={<Feather name="send" size={16} color="#FFFFFF" />}
-                    style={[styles.modalBtn, styles.confirmBtn]}
-                    textStyle={{ fontSize: 15, fontWeight: '600' }}
-                  />
-                </View>
-              </View>
-            </View>
-          </View>
-        )}
 
 
 
@@ -511,23 +414,4 @@ const styles = StyleSheet.create({
   memberTokenText: { color: '#7C3AED', fontWeight: '600', fontSize: 12 },
   transferBtn: { backgroundColor: '#4F46E5', height: 44, borderRadius: 12 },
 
-  // Modal Styles  
-  modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-  modalBackground: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-  modalContent: { backgroundColor: '#FFFFFF', borderRadius: 24, width: '85%', maxWidth: 400, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20, elevation: 10 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 24, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  modalTitle: { color: '#1E293B', fontSize: 20, fontWeight: '700' },
-  modalCloseBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center' },
-  modalBody: { padding: 24 },
-  memberInfoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, padding: 16, backgroundColor: '#F8FAFC', borderRadius: 16 },
-  memberAvatarSmall: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E0E7FF' },
-  memberInitialsSmall: { color: '#4F46E5', fontSize: 14, fontWeight: '700' },
-  modalMemberName: { color: '#1E293B', fontSize: 15, fontWeight: '700', marginBottom: 2 },
-  modalMemberEmail: { color: '#64748B', fontSize: 13 },
-  balanceInfo: { padding: 16, backgroundColor: '#EEF2FF', borderRadius: 16, marginBottom: 20, borderWidth: 1, borderColor: '#E0E7FF' },
-  balanceLabel: { color: '#64748B', fontSize: 14, fontWeight: '500' },
-  balanceValue: { color: '#4F46E5', fontSize: 14, fontWeight: '700' },
-  modalBtn: { flex: 1, height: 48, borderRadius: 12 },
-  cancelBtn: { backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: '#E2E8F0' },
-  confirmBtn: { backgroundColor: '#4F46E5' },
 });
