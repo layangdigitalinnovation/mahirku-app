@@ -77,6 +77,7 @@ export default function ReportsScreen({ navigation }: any) {
           : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
         type: item.testType === 'DISC' ? 'disc' : 'cst',
         fullData: item,
+        fullname: item.fullname || (item as any).user?.fullname,
         combine: {
           finalPercent,
           fingerprintPercent,
@@ -168,7 +169,9 @@ export default function ReportsScreen({ navigation }: any) {
                           {item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test'}
                         </Text>
                         <View style={styles.dateBadge}>
-                          <Text style={styles.itemDate}>{dateStr}</Text>
+                          <Text style={styles.itemDate}>
+                            {item.testType === 'DISC' ? '' : dateStr}
+                          </Text>
                         </View>
                       </View>
                       <Text style={styles.itemSubtitle}>

@@ -3,20 +3,20 @@ import { shareAsync } from 'expo-sharing';
 import { Platform } from 'react-native';
 
 interface CertificateData {
-    studentName: string;
-    courseName: string;
-    completionDate: string;
-    certificateId: string;
-    resultTitle?: string;
-    resultDescription?: string;
+  studentName: string;
+  courseName: string;
+  completionDate: string;
+  certificateId: string;
+  resultTitle?: string;
+  resultDescription?: string;
 }
 
 export const generateCertificatePDF = async (data: CertificateData) => {
-    const { studentName, courseName, completionDate, certificateId, resultTitle } = data;
+  const { studentName, courseName, completionDate, certificateId, resultTitle } = data;
 
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mahirku.com/verify/certificate/${certificateId}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mahirku.com/verify/certificate/${certificateId}`;
 
-    const html = `
+  const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -209,8 +209,10 @@ export const generateCertificatePDF = async (data: CertificateData) => {
 
         <div class="footer">
           <div class="date-section">
+            ${completionDate ? `
             <div class="date-label">Date Issued</div>
             <div class="date-value">${completionDate}</div>
+            ` : ''}
             <div class="id-value">ID: ${certificateId}</div>
           </div>
 
@@ -230,11 +232,11 @@ export const generateCertificatePDF = async (data: CertificateData) => {
 </html>
   `;
 
-    try {
-        const { uri } = await Print.printToFileAsync({ html, width: 842, height: 595 }); // A4 Landscape roughly
-        await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-    } catch (error) {
-        console.error('Error generating certificate:', error);
-        throw error;
-    }
+  try {
+    const { uri } = await Print.printToFileAsync({ html, width: 842, height: 595 }); // A4 Landscape roughly
+    await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+  } catch (error) {
+    console.error('Error generating certificate:', error);
+    throw error;
+  }
 };

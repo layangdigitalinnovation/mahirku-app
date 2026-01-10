@@ -58,7 +58,7 @@ export default function AffiliatorNavigator() {
             />
             <Tab.Screen
                 name="AffiliatorProfile"
-                component={ProfileScreen}
+                children={(props) => <ProfileScreen {...props} hideTabs={true} />}
                 options={{
                     tabBarLabel: 'Profile',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (

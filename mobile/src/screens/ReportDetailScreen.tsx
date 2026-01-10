@@ -54,7 +54,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
       const isDisc = r.type === 'disc';
       const courseName = isDisc ? 'DISC Personality Test' : 'Cognitive Style Test';
-      const studentName = r.fullData.fullname || 'Student';
+      // Use fullname from report params (CST) or fullData (DISC) or fallback
+      const studentName = (r as any).fullname || r.fullData.fullname || 'Student';
       const certId = `${isDisc ? 'DISC' : 'CST'}-${r.fullData.id}-${new Date().getFullYear()}`;
 
       // Get result title
@@ -69,7 +70,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
       // Format the date properly for the certificate
       const dateObj = new Date(r.fullData.createdAt || r.fullData.created_at);
-      const formattedDate = dateObj.toLocaleDateString('en-US', {
+      const formattedDate = isDisc ? '' : dateObj.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -118,7 +119,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.itemTitle}>{r?.title || 'Test Result'}</Text>
-              <Text style={styles.itemDate}>{r?.date || ''}</Text>
+              {r?.type !== 'disc' && <Text style={styles.itemDate}>{r?.date || ''}</Text>}
             </View>
           </View>
 
@@ -236,7 +237,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                       <Text style={styles.finalTypeValue}>{fpType}</Text>
                       <View style={styles.consistencyBadge}>
                         <Feather name="check-circle" size={14} color="#10B981" />
-                        <Text style={styles.consistencyText}>Hasil Konsisten</Text>
+                        <Text style={styles.consistencyText}>Confidence</Text>
                       </View>
                     </>
                   ) : (
@@ -256,26 +257,6 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {combine?.questionnaire && (
-            <>
-              <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Ringkasan Kuesioner</Text>
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Observer</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Observer}</Text></View>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Analyzer</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Analyzer}</Text></View>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Empath</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Empath}</Text></View>
-              </View>
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Visionary</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Visionary}</Text></View>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Navigator</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Navigator}</Text></View>
-                <View style={styles.metric}><Text style={styles.metricLabel}>{combine.questionnaire.eiType}</Text><Text style={styles.metricValue}>{combine.questionnaire.eiType === 'Ekstrovert' ? combine.questionnaire.eScore : combine.questionnaire.iScore}</Text></View>
-              </View>
-              <View style={styles.summaryCard}>
-                <Text style={styles.itemSubtitle}>Tipe Utama: {combine.questionnaire.tipeUtama}</Text>
-                <Text style={styles.itemSubtitle}>Final Type (kuesioner): {combine.questionnaire.finalType}</Text>
-              </View>
-            </>
-          )}
-
           <PrimaryButton
             title="Download Sertifikat"
             leftIcon={<Feather name="download" size={18} color="#FFFFFF" />}
@@ -284,8 +265,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             loading={downloading}
           />
         </Card>
-      </ScrollView>
-    </View>
+      </ScrollView >
+    </View >
   );
 }
 

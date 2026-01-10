@@ -12,7 +12,7 @@ import * as Clipboard from 'expo-clipboard';
 
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -105,21 +105,73 @@ export default function MitraDashboardScreen({ navigation }: any) {
         return `Rp ${amount.toLocaleString('id-ID')}`;
     };
 
+    const handleWithdraw = () => {
+        navigation.navigate('MitraWithdraw');
+    };
+
+    const WalletCard = () => (
+        <View style={styles.walletCardWrapper}>
+            <LinearGradient
+                colors={['#6366F1', '#8B5CF6', '#D946EF']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.walletCard}
+            >
+                {/* Background Decoration */}
+                <View style={styles.walletDecoration1} />
+                <View style={styles.walletDecoration2} />
+
+                {/* Content */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, zIndex: 10 }}>
+                    <View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                            <View style={styles.walletIconBg}>
+                                <Ionicons name="wallet-outline" size={16} color="#FFFFFF" />
+                            </View>
+                            <Text style={styles.walletLabel}>Total Komisi</Text>
+                        </View>
+                        <Text style={styles.walletAmount}>
+                            {formatCurrency(statsData?.totalCommission ?? 0)}
+                        </Text>
+                    </View>
+                    <Pressable style={styles.historyBtn} onPress={() => navigation.navigate('InvoiceHistory')}>
+                        <MaterialCommunityIcons name="history" size={20} color="#FFFFFF" />
+                        <Text style={styles.historyText}>Riwayat</Text>
+                    </Pressable>
+                </View>
+
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', zIndex: 10 }}>
+                    <View>
+                        <Text style={styles.cardNumber}>**** **** **** {data?.user?.fullname?.substring(0, 4).toUpperCase() || 'USER'}</Text>
+                        <Text style={styles.cardHolder}>{data?.user?.fullname || 'Mitra Mahirku'}</Text>
+                    </View>
+                    <Pressable
+                        style={styles.withdrawBtn}
+                        onPress={handleWithdraw}
+                    >
+                        <Text style={styles.withdrawText}>Withdraw</Text>
+                        <Feather name="arrow-up-right" size={18} color="#6366F1" />
+                    </Pressable>
+                </View>
+            </LinearGradient>
+        </View>
+    );
+
     return (
         <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
             <LinearGradient
-                colors={['#EEF2FF', '#F1F5F9', '#F8FAFC']}
+                colors={['#EEF2FF', '#F8FAFC', '#FFFFFF']}
                 style={StyleSheet.absoluteFill}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                end={{ x: 1, y: 0.5 }}
             />
 
             <Animated.View style={{ flex: 1, opacity: fadeIn }}>
                 <ScrollView
-                    contentContainerStyle={{ paddingBottom: insets.bottom + 90 }}
+                    contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
                     showsVerticalScrollIndicator={false}
                 >
-                    <View style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 24 }}>
+                    <View style={{ paddingHorizontal: 24, paddingTop: insets.top + 20 }}>
 
                         {/* Header Section */}
                         <View style={styles.headerRow}>
@@ -128,15 +180,12 @@ export default function MitraDashboardScreen({ navigation }: any) {
                                 <Text style={styles.headerName} numberOfLines={1}>
                                     {data?.user?.fullname || 'Mitra'}
                                 </Text>
-                                <View style={styles.roleBadge}>
-                                    <Text style={styles.roleText}>{data?.user?.role?.name ?? 'Mitra'}</Text>
-                                </View>
                             </View>
 
                             <Pressable onPress={() => navigation.navigate('Profile')} style={styles.avatarContainer}>
                                 {data?.user?.fullname ? (
                                     <LinearGradient
-                                        colors={['#8B5CF6', '#7C3AED']}
+                                        colors={['#6366F1', '#8B5CF6']}
                                         style={styles.avatarGradient}
                                     >
                                         <Text style={styles.avatarText}>{getInitials(data?.user?.fullname)}</Text>
@@ -146,52 +195,21 @@ export default function MitraDashboardScreen({ navigation }: any) {
                                         <Feather name="user" size={24} color="#7C3AED" />
                                     </View>
                                 )}
-                                <View style={styles.onlineIndicator} />
+                                <View style={styles.roleBadge}>
+                                    <Text style={styles.roleText}>{data?.user?.role?.name ?? 'Mitra'}</Text>
+                                </View>
                             </Pressable>
                         </View>
 
-                        {/* Token Balance Card */}
-                        <View style={styles.balanceCardWrapper}>
-                            <LinearGradient
-                                colors={['#8B5CF6', '#7C3AED', '#6D28D9']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={styles.balanceCardGradient}
-                            >
-                                <View style={styles.balanceIconContainer}>
-                                    <MaterialCommunityIcons name="ticket-percent-outline" size={22} color="#FFFFFF" style={{ opacity: 0.95 }} />
-                                </View>
-                                <Text style={styles.balanceLabel}>Saldo Token</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-                                    <Text style={styles.balanceValue}>{data?.user?.tokens ?? 0}</Text>
-                                    <Text style={{ color: '#EDE9FE', fontSize: 16, fontWeight: '600', opacity: 0.85 }}>Token</Text>
-                                </View>
-
-                                <View style={styles.actionButtonsRow}>
-                                    <Pressable
-                                        onPress={() => navigation.navigate('TokenPackages')}
-                                        style={[styles.actionBtn, { backgroundColor: '#FFFFFF' }]}
-                                    >
-                                        <Feather name="plus-circle" size={16} color="#7C3AED" />
-                                        <Text style={{ color: '#7C3AED', fontSize: 14, fontWeight: '600', marginLeft: 6 }}>Beli Token</Text>
-                                    </Pressable>
-                                    <Pressable
-                                        onPress={() => navigation.navigate('InvoiceHistory')}
-                                        style={[styles.actionBtn, { backgroundColor: 'rgba(255,255,255,0.2)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' }]}
-                                    >
-                                        <Feather name="file-text" size={16} color="#FFFFFF" />
-                                        <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600', marginLeft: 6 }}>Invoice</Text>
-                                    </Pressable>
-                                </View>
-                            </LinearGradient>
-                        </View>
+                        {/* Wallet Card */}
+                        <WalletCard />
 
                         {/* Stats Cards Row */}
-                        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
+                        <View style={{ flexDirection: 'row', gap: 16, marginBottom: 32 }}>
                             {/* Total Anggota */}
                             <View style={[styles.statCard, { flex: 1 }]}>
-                                <View style={[styles.statIconBox, { backgroundColor: '#EDE9FE' }]}>
-                                    <Feather name="users" size={20} color="#8B5CF6" />
+                                <View style={[styles.statIconBox, { backgroundColor: '#EEF2FF' }]}>
+                                    <Feather name="users" size={20} color="#6366F1" />
                                 </View>
                                 <Text style={styles.statValue}>{statsData?.totalMembers ?? 0}</Text>
                                 <Text style={styles.statLabel}>Total Anggota</Text>
@@ -199,188 +217,95 @@ export default function MitraDashboardScreen({ navigation }: any) {
 
                             {/* Total Affiliator */}
                             <View style={[styles.statCard, { flex: 1 }]}>
-                                <View style={[styles.statIconBox, { backgroundColor: '#DBEAFE' }]}>
-                                    <MaterialCommunityIcons name="account-star" size={20} color="#3B82F6" />
+                                <View style={[styles.statIconBox, { backgroundColor: '#F0F9FF' }]}>
+                                    <MaterialCommunityIcons name="account-group-outline" size={22} color="#0EA5E9" />
                                 </View>
                                 <Text style={styles.statValue}>{statsData?.totalAffiliators ?? 0}</Text>
                                 <Text style={styles.statLabel}>Total Affiliator</Text>
                             </View>
                         </View>
 
-                        {/* Total Komisi Card */}
-                        <Card style={{ padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 0, shadowColor: '#8B5CF6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                                <View style={[styles.statIconBox, { backgroundColor: '#D1FAE5', marginRight: 12, marginBottom: 0 }]}>
-                                    <MaterialCommunityIcons name="cash-multiple" size={20} color="#10B981" />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ color: '#64748B', fontSize: 12, fontWeight: '600', letterSpacing: 0.5, textTransform: 'uppercase' as 'uppercase' }}>Total Komisi</Text>
-                                    <Text style={{ color: '#10B981', fontSize: 24, fontWeight: '800', letterSpacing: -0.8 }}>
-                                        {formatCurrency(statsData?.totalCommission ?? 0)}
-                                    </Text>
-                                </View>
-                            </View>
-                            <Text style={{ color: '#94A3B8', fontSize: 12, marginTop: 4 }}>
-                                Total komisi yang diperoleh dari semua anggota
-                            </Text>
-                        </Card>
-
                         {/* Referral Link Section */}
-                        <View style={styles.sectionHeader}>
-                            <Text style={styles.sectionTitle}>Tautan Referral Anda</Text>
-                        </View>
-
-                        <Card style={{ padding: 20, borderRadius: 20, marginBottom: 24 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                                <View style={[styles.statIconBox, { backgroundColor: '#EEF2FF', marginRight: 12, marginBottom: 0 }]}>
-                                    <Feather name="link" size={20} color="#6366F1" />
+                        <View style={styles.referralContainer}>
+                            <View style={styles.referralHeader}>
+                                <View style={styles.referralIcon}>
+                                    <Feather name="share-2" size={18} color="#FFFFFF" />
                                 </View>
-                                <Text style={{ color: '#1E293B', fontSize: 15, fontWeight: '700', flex: 1 }}>Link Referral</Text>
+                                <View>
+                                    <Text style={styles.referralTitle}>Tautan Referral Anda</Text>
+                                    <Text style={styles.referralSubtitle}>Bagikan untuk tambah anggota</Text>
+                                </View>
                             </View>
-                            <Text style={{ color: '#64748B', fontSize: 13, marginBottom: 12 }}>
-                                Bagikan link ini untuk merekrut anggota baru
-                            </Text>
 
-                            {/* Link Display */}
-                            <Pressable
-                                onPress={handleCopyLink}
-                                style={{
-                                    backgroundColor: '#F1F5F9',
-                                    padding: 12,
-                                    borderRadius: 12,
-                                    marginBottom: 12,
-                                    borderWidth: 1,
-                                    borderColor: '#E2E8F0',
-                                }}
-                            >
-                                <Text style={{ color: '#6366F1', fontSize: 12, fontFamily: 'monospace' }} numberOfLines={1}>
-                                    {referralData?.referralLink || 'Loading...'}
+                            <View style={styles.linkBox}>
+                                <Text style={styles.linkText} numberOfLines={1}>
+                                    {referralData?.referralLink || 'Memuat link...'}
                                 </Text>
-                            </Pressable>
-
-                            {/* Action Buttons */}
-                            <View style={{ flexDirection: 'row', gap: 8 }}>
-                                <PrimaryButton
-                                    title="Salin Link"
-                                    leftIcon={<Feather name="copy" size={16} color="#FFFFFF" />}
-                                    onPress={handleCopyLink}
-                                    style={{ flex: 1, backgroundColor: '#6366F1', height: 44 }}
-                                    textStyle={{ fontSize: 14 }}
-                                />
-                                <PrimaryButton
-                                    title="Bagikan"
-                                    leftIcon={<Feather name="share-2" size={16} color="#FFFFFF" />}
-                                    onPress={handleShareLink}
-                                    style={{ flex: 1, backgroundColor: '#8B5CF6', height: 44 }}
-                                    textStyle={{ fontSize: 14 }}
-                                />
+                                <Pressable onPress={handleCopyLink} style={styles.copyBtn}>
+                                    <Feather name="copy" size={16} color="#6366F1" />
+                                </Pressable>
                             </View>
-                        </Card>
 
-                        {/* Recent Commission Activity */}
-                        <View style={styles.sectionHeader}>
-                            <Text style={styles.sectionTitle}>Aktivitas Komisi Terbaru</Text>
-                        </View>
-
-                        <View style={{ gap: 12, marginBottom: 28 }}>
-                            {(statsData?.recentCommissions ?? []).length > 0 ? (
-                                statsData?.recentCommissions?.map((commission) => (
-                                    <Card key={commission.id} style={styles.commissionCard}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                                            <View style={[styles.commissionIcon, { backgroundColor: commission.source === 'token_purchase' ? '#FEF3C7' : '#DBEAFE' }]}>
-                                                <MaterialCommunityIcons
-                                                    name={commission.source === 'token_purchase' ? 'ticket-percent' : 'file-document-outline'}
-                                                    size={16}
-                                                    color={commission.source === 'token_purchase' ? '#F59E0B' : '#3B82F6'}
-                                                />
-                                            </View>
-                                            <View style={{ flex: 1, marginLeft: 10 }}>
-                                                <Text style={{ color: '#1E293B', fontSize: 14, fontWeight: '600' }}>
-                                                    {commission.referredUser?.fullname || 'User'}
-                                                </Text>
-                                                <Text style={{ color: '#64748B', fontSize: 12 }}>
-                                                    {commission.source === 'token_purchase' ? 'Pembelian Token' : 'Test Selesai'}
-                                                </Text>
-                                            </View>
-                                            <Text style={{ color: '#10B981', fontSize: 15, fontWeight: '700' }}>
-                                                {formatCurrency(commission.amount)}
-                                            </Text>
-                                        </View>
-                                        <Text style={{ color: '#94A3B8', fontSize: 11 }}>
-                                            {new Date(commission.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                        </Text>
-                                    </Card>
-                                ))
-                            ) : (
-                                <View style={styles.emptyState}>
-                                    <View style={styles.emptyIconBg}>
-                                        <Feather name="inbox" size={24} color="#94A3B8" />
-                                    </View>
-                                    <Text style={styles.emptyText}>Belum ada aktivitas komisi</Text>
-                                </View>
-                            )}
+                            <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+                                <Pressable style={[styles.actionBtn, styles.primaryActionBtn]} onPress={handleCopyLink}>
+                                    <Text style={styles.primaryActionText}>Salin Link</Text>
+                                </Pressable>
+                                <Pressable style={[styles.actionBtn, styles.secondaryActionBtn]} onPress={handleShareLink}>
+                                    <Text style={styles.secondaryActionText}>Bagikan</Text>
+                                </Pressable>
+                            </View>
                         </View>
 
                         {/* Members Section */}
-                        <View style={styles.sectionHeader}>
-                            <Text style={styles.sectionTitle}>Anggota</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                            <Text style={styles.sectionTitle}>Anggota Terbaru</Text>
                             {(membersData?.length ?? 0) > 0 && (
                                 <Pressable onPress={() => navigation.navigate('MemberList')}>
-                                    <Text style={{ color: '#8B5CF6', fontSize: 14, fontWeight: '600' }}>Lihat Semua</Text>
+                                    <Text style={{ color: '#6366F1', fontSize: 13, fontWeight: '600' }}>Lihat Semua</Text>
                                 </Pressable>
                             )}
                         </View>
 
                         {(membersData?.length ?? 0) > 0 ? (
-                            <>
-                                <View style={{ gap: 12, marginBottom: 16 }}>
-                                    {(membersData ?? []).slice(0, 3).map((member) => (
-                                        <Card key={member.id} style={styles.memberCard}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <View style={styles.memberAvatar}>
-                                                    <Text style={styles.memberInitials}>
-                                                        {member.fullname?.split(' ').slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('')}
-                                                    </Text>
-                                                </View>
-
-                                                <View style={{ flex: 1, marginLeft: 12 }}>
-                                                    <Text style={styles.memberName}>{member.fullname || member.username}</Text>
-                                                    <Text style={styles.memberEmail}>{member.email}</Text>
-                                                </View>
-
-                                                <View style={styles.memberTokenBadge}>
-                                                    <MaterialCommunityIcons name="ticket-percent-outline" size={14} color="#8B5CF6" />
-                                                    <Text style={styles.memberTokenText}>{member.tokens}</Text>
-                                                </View>
-                                            </View>
-                                        </Card>
-                                    ))}
-                                </View>
-                                <PrimaryButton
-                                    title="Tambah Anggota"
-                                    leftIcon={<Feather name="user-plus" size={18} color="#FFFFFF" />}
+                            <View style={{ gap: 12, marginBottom: 24 }}>
+                                {(membersData ?? []).slice(0, 3).map((member) => (
+                                    <View key={member.id} style={styles.memberRow}>
+                                        <View style={styles.memberAvatar}>
+                                            <Text style={styles.memberInitials}>
+                                                {member.fullname?.split(' ').slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('')}
+                                            </Text>
+                                        </View>
+                                        <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                                            <Text style={styles.memberName}>{member.fullname || member.username}</Text>
+                                            <Text style={styles.memberEmail}>{member.email}</Text>
+                                        </View>
+                                        <View style={{ alignItems: 'flex-end' }}>
+                                            <Text style={styles.joinedDate}>Joined</Text>
+                                            <Text style={styles.joinedDateVal}>Now</Text>
+                                        </View>
+                                    </View>
+                                ))}
+                                <Pressable
+                                    style={styles.addMemberBtn}
                                     onPress={() => navigation.navigate('AddMember')}
-                                    style={{ backgroundColor: '#8B5CF6', height: 52, borderRadius: 16 }}
-                                />
-                            </>
+                                >
+                                    <Feather name="plus" size={16} color="#6366F1" />
+                                    <Text style={{ color: '#6366F1', fontSize: 14, fontWeight: '600' }}>Tambah Anggota Manual</Text>
+                                </Pressable>
+                            </View>
                         ) : (
                             <View style={styles.emptyState}>
-                                <View style={styles.emptyIconBg}>
-                                    <Feather name="users" size={24} color="#94A3B8" />
-                                </View>
-                                <Text style={styles.emptyText}>Belum ada anggota</Text>
+                                <Feather name="users" size={32} color="#CBD5E1" />
+                                <Text style={styles.emptyText}>Belum ada anggota yang bergabung</Text>
                                 <PrimaryButton
                                     title="Tambah Anggota"
                                     leftIcon={<Feather name="user-plus" size={16} color="#FFFFFF" />}
                                     onPress={() => navigation.navigate('AddMember')}
-                                    style={{ marginTop: 16, backgroundColor: '#8B5CF6' }}
+                                    style={{ marginTop: 16, backgroundColor: '#6366F1', borderRadius: 12, height: 44 }}
                                 />
                             </View>
                         )}
-
                     </View>
-
-
                 </ScrollView>
             </Animated.View>
         </View >
@@ -388,128 +313,185 @@ export default function MitraDashboardScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
-    greetingText: { color: '#64748B', fontSize: 14, fontWeight: '500', marginBottom: 4 },
-    headerName: { color: '#1E293B', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 },
-    roleBadge: {
-        alignSelf: 'flex-start',
-        backgroundColor: '#EDE9FE',
-        paddingHorizontal: 12,
-        paddingVertical: 5,
-        borderRadius: 20,
-        marginTop: 8,
-        borderWidth: 0,
-        shadowColor: '#8B5CF6',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 1,
-    },
-    roleText: { color: '#7C3AED', fontSize: 12, fontWeight: '600' },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 },
+    greetingText: { color: '#64748B', fontSize: 14, fontWeight: '500', marginBottom: 2 },
+    headerName: { color: '#0F172A', fontSize: 22, fontWeight: '700', letterSpacing: -0.5 },
 
-    avatarContainer: { position: 'relative' },
+    avatarContainer: { position: 'relative', alignItems: 'flex-end' },
     avatarGradient: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#8B5CF6',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 12,
-        elevation: 5,
-    },
-    avatarText: { color: '#FFFFFF', fontSize: 20, fontWeight: '700' },
-    onlineIndicator: { position: 'absolute', bottom: 2, right: 2, width: 14, height: 14, borderRadius: 7, backgroundColor: '#10B981', borderWidth: 2, borderColor: '#FFFFFF' },
-
-    balanceCardWrapper: {
+        width: 48,
+        height: 48,
         borderRadius: 24,
-        shadowColor: '#8B5CF6',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.12,
-        shadowRadius: 16,
-        elevation: 4,
-        overflow: 'hidden',
-        marginBottom: 28,
-    },
-    balanceCardGradient: { borderRadius: 24, padding: 20, gap: 6 },
-    balanceIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 8,
+        marginBottom: -6,
+        zIndex: 10,
+        borderWidth: 2,
+        borderColor: '#FFFFFF',
     },
-    balanceLabel: { color: '#FFFFFF', fontSize: 11, fontWeight: '600', opacity: 0.85, letterSpacing: 0.5, textTransform: 'uppercase' as 'uppercase' },
-    balanceValue: { color: '#FFFFFF', fontSize: 32, fontWeight: '800', letterSpacing: -1.2 },
+    avatarText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
+    roleBadge: {
+        backgroundColor: '#0F172A',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 8,
+        position: 'relative',
+        zIndex: 11,
+        borderWidth: 2,
+        borderColor: '#FFFFFF',
+    },
+    roleText: { color: '#FFFFFF', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
 
-    actionButtonsRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
-    actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 42, borderRadius: 12 },
+    walletCardWrapper: {
+        borderRadius: 24,
+        shadowColor: '#6366F1',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.2,
+        shadowRadius: 20,
+        elevation: 8,
+        marginBottom: 32,
+    },
+    walletCard: {
+        borderRadius: 24,
+        padding: 24,
+        position: 'relative',
+        overflow: 'hidden',
+        height: 200, // Fixed height for consistency
+        justifyContent: 'space-between'
+    },
+    walletDecoration1: {
+        position: 'absolute',
+        top: -20,
+        right: -20,
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    walletDecoration2: {
+        position: 'absolute',
+        bottom: -40,
+        left: -20,
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+    },
+    walletIconBg: {
+        width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center'
+    },
+    walletLabel: { color: '#FFFFFF', fontSize: 13, fontWeight: '500', opacity: 0.9 },
+    walletAmount: { color: '#FFFFFF', fontSize: 32, fontWeight: '800', letterSpacing: -1 },
 
-    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    sectionTitle: { color: '#1E293B', fontSize: 18, fontWeight: '700', letterSpacing: -0.5 },
+    historyBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, padding: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, paddingHorizontal: 12 },
+    historyText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600' },
+
+    cardNumber: { color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: '600', marginBottom: 4, fontFamily: 'monospace' },
+    cardHolder: { color: '#FFFFFF', fontSize: 14, fontWeight: '600', textTransform: 'uppercase' },
+
+    withdrawBtn: {
+        backgroundColor: '#FFFFFF',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 14,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    withdrawText: { color: '#6366F1', fontSize: 14, fontWeight: '700' },
 
     statCard: {
         backgroundColor: '#FFFFFF',
         borderRadius: 20,
-        padding: 18,
-        borderWidth: 0,
-        shadowColor: '#64748B',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.06,
-        shadowRadius: 12,
-        elevation: 3,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+        shadowColor: '#94A3B8',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,
+        alignItems: 'flex-start'
     },
-    statIconBox: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-    statValue: { color: '#1E293B', fontSize: 20, fontWeight: '800', marginBottom: 4 },
-    statLabel: { color: '#64748B', fontSize: 12, fontWeight: '500' },
+    statIconBox: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+    statValue: { color: '#0F172A', fontSize: 24, fontWeight: '800', marginBottom: 2 },
+    statLabel: { color: '#64748B', fontSize: 13, fontWeight: '500' },
 
-    commissionCard: {
-        padding: 18,
-        borderRadius: 18,
+    referralContainer: {
         backgroundColor: '#FFFFFF',
-        borderWidth: 0,
-        shadowColor: '#64748B',
-        shadowOffset: { width: 0, height: 2 },
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 32,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+        shadowColor: '#94A3B8',
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 2,
     },
-    commissionIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-
-    memberCard: {
-        padding: 18,
-        borderRadius: 18,
-        backgroundColor: '#FFFFFF',
-        borderWidth: 0,
-        shadowColor: '#64748B',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
+    referralHeader: { flexDirection: 'row', gap: 12, marginBottom: 16 },
+    referralIcon: {
+        width: 36, height: 36, borderRadius: 10, backgroundColor: '#6366F1', alignItems: 'center', justifyContent: 'center'
     },
-    memberAvatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#EDE9FE', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#DDD6FE' },
-    memberInitials: { color: '#7C3AED', fontSize: 16, fontWeight: '700' },
-    memberName: { color: '#1E293B', fontSize: 15, fontWeight: '700', marginBottom: 2 },
-    memberEmail: { color: '#64748B', fontSize: 13 },
-    memberTokenBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16, backgroundColor: '#EDE9FE', borderWidth: 1, borderColor: '#DDD6FE' },
-    memberTokenText: { color: '#7C3AED', fontWeight: '600', fontSize: 12 },
+    referralTitle: { color: '#0F172A', fontSize: 15, fontWeight: '700' },
+    referralSubtitle: { color: '#64748B', fontSize: 13 },
 
-    emptyState: {
-        padding: 40,
+    linkBox: {
+        flexDirection: 'row',
+        backgroundColor: '#F8FAFC',
+        borderRadius: 14,
+        padding: 4,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
         alignItems: 'center',
+    },
+    linkText: { flex: 1, paddingHorizontal: 12, color: '#64748B', fontSize: 13, fontFamily: 'monospace' },
+    copyBtn: {
+        width: 40, height: 40, backgroundColor: '#FFFFFF', borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0'
+    },
+
+    actionBtn: { flex: 1, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
+    primaryActionBtn: { backgroundColor: '#6366F1' },
+    primaryActionText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+    secondaryActionBtn: { backgroundColor: '#EEF2FF' },
+    secondaryActionText: { color: '#6366F1', fontSize: 14, fontWeight: '600' },
+
+    sectionTitle: { color: '#0F172A', fontSize: 16, fontWeight: '700' },
+
+    memberRow: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 24,
-        borderWidth: 0,
+        padding: 12,
+        borderRadius: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
         shadowColor: '#64748B',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.04,
-        shadowRadius: 10,
+        shadowOpacity: 0.03,
+        shadowRadius: 6,
         elevation: 1,
     },
-    emptyIconBg: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-    emptyText: { color: '#94A3B8', fontSize: 14, fontWeight: '500' },
+    memberAvatar: {
+        width: 42, height: 42, borderRadius: 21, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E0E7FF'
+    },
+    memberInitials: { color: '#6366F1', fontSize: 14, fontWeight: '700' },
+    memberName: { color: '#0F172A', fontSize: 14, fontWeight: '600', marginBottom: 2 },
+    memberEmail: { color: '#64748B', fontSize: 12 },
+    joinedDate: { color: '#94A3B8', fontSize: 10, textAlign: 'right' },
+    joinedDateVal: { color: '#64748B', fontSize: 12, fontWeight: '600', textAlign: 'right' },
+
+    addMemberBtn: {
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 14,
+        backgroundColor: '#EEF2FF', borderRadius: 14, borderStyle: 'dashed', borderWidth: 1, borderColor: '#6366F1', gap: 8
+    },
+
+    emptyState: { alignItems: 'center', padding: 32, backgroundColor: '#F8FAFC', borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', borderStyle: 'dashed' },
+    emptyText: { color: '#94A3B8', fontSize: 14, marginVertical: 8 },
 });
