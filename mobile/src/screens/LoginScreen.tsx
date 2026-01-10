@@ -58,10 +58,11 @@ export default function LoginScreen({ navigation }: any) {
           console.log('🔍 [LOGIN INIT] User role from /me:', userRole);
 
           // Redirect based on user role
-          if (userRole === 'Affiliator') {
+          const role = userRole?.toLowerCase();
+          if (role === 'affiliator') {
             console.log('✅ [LOGIN INIT] Navigating to: AffiliatorDashboard');
             navigation.replace('AffiliatorDashboard');
-          } else if (userRole === 'Mitra') {
+          } else if (role === 'mitra') {
             console.log('✅ [LOGIN INIT] Navigating to: MitraDashboard');
             navigation.replace('MitraDashboard');
           } else {
@@ -101,10 +102,11 @@ export default function LoginScreen({ navigation }: any) {
       const userRole = meResponse?.data?.user?.role?.name;
       console.log('🔍 [GOOGLE LOGIN] User role from /me:', userRole);
 
-      if (userRole === 'Affiliator') {
+      const role = userRole?.toLowerCase();
+      if (role === 'affiliator') {
         console.log('✅ [GOOGLE LOGIN] Navigating to: AffiliatorDashboard');
         navigation.replace('AffiliatorDashboard');
-      } else if (userRole === 'Mitra') {
+      } else if (role === 'mitra') {
         console.log('✅ [GOOGLE LOGIN] Navigating to: MitraDashboard');
         navigation.replace('MitraDashboard');
       } else {
@@ -130,10 +132,11 @@ export default function LoginScreen({ navigation }: any) {
       const userRole = meResponse?.data?.user?.role?.name;
       console.log('🔍 [EMAIL LOGIN] User role from /me:', userRole);
 
-      if (userRole === 'Affiliator') {
+      const role = userRole?.toLowerCase();
+      if (role === 'affiliator') {
         console.log('✅ [EMAIL LOGIN] Navigating to: AffiliatorDashboard');
         navigation.replace('AffiliatorDashboard');
-      } else if (userRole === 'Mitra') {
+      } else if (role === 'mitra') {
         console.log('✅ [EMAIL LOGIN] Navigating to: MitraDashboard');
         navigation.replace('MitraDashboard');
       } else {
