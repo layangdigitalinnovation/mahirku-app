@@ -55,13 +55,17 @@ export default function LoginScreen({ navigation }: any) {
         try {
           const response = await meApi();
           const userRole = response?.data?.user?.role?.name;
+          console.log('🔍 [LOGIN INIT] User role from /me:', userRole);
 
           // Redirect based on user role
           if (userRole === 'Affiliator') {
+            console.log('✅ [LOGIN INIT] Navigating to: AffiliatorDashboard');
             navigation.replace('AffiliatorDashboard');
           } else if (userRole === 'Mitra') {
+            console.log('✅ [LOGIN INIT] Navigating to: MitraDashboard');
             navigation.replace('MitraDashboard');
           } else {
+            console.log('✅ [LOGIN INIT] Navigating to: Dashboard (role:', userRole, ')');
             navigation.replace('Dashboard'); // Default for User role
           }
         } catch {
@@ -95,12 +99,16 @@ export default function LoginScreen({ navigation }: any) {
       // Get user role after login
       const meResponse = await meApi();
       const userRole = meResponse?.data?.user?.role?.name;
+      console.log('🔍 [GOOGLE LOGIN] User role from /me:', userRole);
 
       if (userRole === 'Affiliator') {
+        console.log('✅ [GOOGLE LOGIN] Navigating to: AffiliatorDashboard');
         navigation.replace('AffiliatorDashboard');
       } else if (userRole === 'Mitra') {
+        console.log('✅ [GOOGLE LOGIN] Navigating to: MitraDashboard');
         navigation.replace('MitraDashboard');
       } else {
+        console.log('✅ [GOOGLE LOGIN] Navigating to: Dashboard (role:', userRole, ')');
         navigation.replace('Dashboard');
       }
     } catch (e: any) {
@@ -120,12 +128,16 @@ export default function LoginScreen({ navigation }: any) {
       // Get user role after login
       const meResponse = await meApi();
       const userRole = meResponse?.data?.user?.role?.name;
+      console.log('🔍 [EMAIL LOGIN] User role from /me:', userRole);
 
       if (userRole === 'Affiliator') {
+        console.log('✅ [EMAIL LOGIN] Navigating to: AffiliatorDashboard');
         navigation.replace('AffiliatorDashboard');
       } else if (userRole === 'Mitra') {
+        console.log('✅ [EMAIL LOGIN] Navigating to: MitraDashboard');
         navigation.replace('MitraDashboard');
       } else {
+        console.log('✅ [EMAIL LOGIN] Navigating to: Dashboard (role:', userRole, ')');
         navigation.replace('Dashboard');
       }
     } catch (e) {

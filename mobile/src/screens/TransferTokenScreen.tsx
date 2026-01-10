@@ -14,7 +14,6 @@ export default function TransferTokenScreen({ navigation, route }: any) {
     const insets = useSafeAreaInsets();
     const queryClient = useQueryClient();
     const [amount, setAmount] = useState('');
-    const [note, setNote] = useState('');
 
     const { data: meData } = useQuery({
         queryKey: ['me'],
@@ -129,14 +128,6 @@ export default function TransferTokenScreen({ navigation, route }: any) {
                     </View>
                 </View>
 
-                {/* Note Input (Optional) */}
-                <TextField
-                    value={note}
-                    onChangeText={setNote}
-                    placeholder="Tulis catatan (opsional)"
-                    startIcon={<Feather name="edit-2" size={18} color="#94A3B8" />}
-                    containerStyle={{ marginTop: 16 }}
-                />
 
             </ScrollView>
 
@@ -285,5 +276,5 @@ const styles = StyleSheet.create({
     totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
     totalLabel: { fontSize: 15, color: '#64748B' },
     totalValue: { fontSize: 18, fontWeight: '700', color: '#1E293B' },
-    sendBtn: { height: 56, borderRadius: 16, backgroundColor: '#F59E0B' }
+    sendBtn: { height: 56, borderRadius: 16, backgroundColor: '#4F46E5' }
 });

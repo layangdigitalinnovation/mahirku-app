@@ -102,11 +102,15 @@ export default function AuthScreen({ navigation, route }: any) {
     }, [response]);
 
     const navigateBasedOnRole = (userRole: string) => {
+        console.log('🔍 [AUTH] Navigating based on role:', userRole);
         if (userRole === 'Affiliator') {
+            console.log('✅ [AUTH] Navigating to: AffiliatorDashboard');
             navigation.replace('AffiliatorDashboard');
         } else if (userRole === 'Mitra') {
+            console.log('✅ [AUTH] Navigating to: MitraDashboard');
             navigation.replace('MitraDashboard');
         } else {
+            console.log('✅ [AUTH] Navigating to: Dashboard (User role:', userRole, ')');
             navigation.replace('Dashboard');
         }
     };
