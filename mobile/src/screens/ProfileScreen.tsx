@@ -10,7 +10,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 
 type Me = { user?: { fullname?: string; email?: string; role?: { name?: string } | null } };
 
-export default function ProfileScreen({ navigation }: any) {
+export default function ProfileScreen({ navigation, ...props }: any) {
   const insets = useSafeAreaInsets();
   const { data } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
   const [notif, setNotif] = useState(true);
@@ -116,22 +116,25 @@ export default function ProfileScreen({ navigation }: any) {
         </Card>
       </ScrollView>
 
-      <BottomTabs
-        tabs={[
-          { key: 'home', label: 'Home', icon: 'home' },
-          { key: 'tests', label: 'Tests', icon: 'grid' },
-          { key: 'reports', label: 'Reports', icon: 'file-text' },
-          { key: 'profile', label: 'Profile', icon: 'user' },
-        ]}
-        activeIndex={3}
-        onChange={(i) => {
-          const keys = ['home', 'tests', 'reports', 'profile'];
-          const key = keys[i];
-          if (key === 'home') navigation.replace('Dashboard');
-          if (key === 'tests') navigation.replace('Tests');
-          if (key === 'reports') navigation.replace('Reports');
-        }}
-      />
+      {/* Conditionally render custom BottomTabs */}
+      {!navigation.getParam?.('hideTabs') && !props.hideTabs && (
+        <BottomTabs
+          tabs={[
+            { key: 'home', label: 'Home', icon: 'home' },
+            { key: 'tests', label: 'Tests', icon: 'grid' },
+            { key: 'reports', label: 'Reports', icon: 'file-text' },
+            { key: 'profile', label: 'Profile', icon: 'user' },
+          ]}
+          activeIndex={3}
+          onChange={(i) => {
+            const keys = ['home', 'tests', 'reports', 'profile'];
+            const key = keys[i];
+            if (key === 'home') navigation.replace('Dashboard');
+            if (key === 'tests') navigation.replace('Tests');
+            if (key === 'reports') navigation.replace('Reports');
+          }}
+        />
+      )}
     </View>
   );
 }

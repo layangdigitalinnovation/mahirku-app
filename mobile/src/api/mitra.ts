@@ -59,6 +59,20 @@ export const getMitraMembers = (params?: { page?: number; limit?: number; search
     return api.get<MitraMembersResponse>('/mitra/members', { params });
 };
 
+// Payload for adding a member
+export interface AddMemberPayload {
+    username: string;
+    email: string;
+    fullname: string;
+    address: string;
+    phoneNumber: string;
+    password: string;
+}
+
+export const addMember = (payload: AddMemberPayload) => {
+    return api.post('/mitra/members', payload);
+};
+
 export const promoteToAffiliator = (memberId: number) => {
     return api.post(`/mitra/members/${memberId}/promote`);
 };

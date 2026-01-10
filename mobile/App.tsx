@@ -8,6 +8,7 @@ import AuthScreen from './src/screens/AuthScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
 import AffiliatorDashboardScreen from './src/screens/AffiliatorDashboardScreen';
 import MitraDashboardScreen from './src/screens/MitraDashboardScreen';
+import MitraWithdrawScreen from './src/screens/MitraWithdrawScreen';
 import MitraNavigator from './src/navigation/MitraNavigator';
 import AffiliatorNavigator from './src/navigation/AffiliatorNavigator';
 import TestStartScreen from './src/screens/TestStartScreen';
@@ -89,6 +90,7 @@ export default function App() {
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
             <Stack.Screen name="AffiliatorDashboard" component={AffiliatorNavigator} />
             <Stack.Screen name="MitraDashboard" component={MitraNavigator} />
+            <Stack.Screen name="MitraWithdraw" component={MitraWithdrawScreen} />
             <Stack.Screen name="TestStart" component={TestStartScreen} />
             <Stack.Screen name="TransferToken" component={TransferTokenScreen} />
             <Stack.Screen name="Tests" component={TestScreen} />

@@ -88,10 +88,17 @@ export default function PurchaseConfirmationScreen({ navigation, route }: any) {
             voucherCode: voucherData?.code
         }),
         onSuccess: async (res) => {
-            navigation.navigate('PaymentWebView', {
-                invoiceId: res.invoiceId,
-                paymentUrl: res.paymentUrl
-            });
+            if (res.paymentUrl) {
+                navigation.navigate('PaymentWebView', {
+                    invoiceId: res.invoiceId,
+                    paymentUrl: res.paymentUrl
+                });
+            } else {
+                // Zero payment / 100% voucher
+                navigation.replace('PaymentSuccess', {
+                    invoiceId: res.invoiceId
+                });
+            }
         }
     });
 

@@ -10,7 +10,7 @@ import PrimaryButton from '../components/basic/PrimaryButton';
 import TextField from '../components/basic/TextField';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function AffiliatorWithdrawScreen({ navigation }: any) {
+export default function MitraWithdrawScreen({ navigation }: any) {
     const insets = useSafeAreaInsets();
     const queryClient = useQueryClient();
     const [withdrawModal, setWithdrawModal] = useState(false);
@@ -22,7 +22,7 @@ export default function AffiliatorWithdrawScreen({ navigation }: any) {
     const [accountName, setAccountName] = useState('');
 
     const { data: statsData, refetch } = useQuery<AffiliateStats>({
-        queryKey: ['affiliateStats'],
+        queryKey: ['mitraWithdrawStats'],
         queryFn: async () => (await getAffiliateStats()).data,
         retry: false,
     });
@@ -42,7 +42,7 @@ export default function AffiliatorWithdrawScreen({ navigation }: any) {
             setBankName('');
             setAccountNumber('');
             setAccountName('');
-            queryClient.invalidateQueries({ queryKey: ['affiliateStats'] });
+            queryClient.invalidateQueries({ queryKey: ['mitraWithdrawStats'] });
         },
         onError: (error: any) => {
             Alert.alert('Gagal', error?.response?.data?.message || 'Terjadi kesalahan');
@@ -90,7 +90,7 @@ export default function AffiliatorWithdrawScreen({ navigation }: any) {
                 </Pressable>
                 <View>
                     <Text style={styles.headerTitle}>Tarik Saldo</Text>
-                    <Text style={styles.headerSubtitle}>Kelola penarikan komisi Anda</Text>
+                    <Text style={styles.headerSubtitle}>Kelola penarikan komisi Mitra</Text>
                 </View>
             </View>
 
@@ -99,7 +99,7 @@ export default function AffiliatorWithdrawScreen({ navigation }: any) {
                 {/* Hero Wallet Card */}
                 <View style={styles.walletCardWrapper}>
                     <LinearGradient
-                        colors={['#10B981', '#059669']}
+                        colors={['#4F46E5', '#4338CA']} // Indigo colors for Mitra
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         style={styles.walletCardGradient}
@@ -251,6 +251,8 @@ export default function AffiliatorWithdrawScreen({ navigation }: any) {
                                     onPress={handleWithdraw}
                                     loading={withdrawMutation.isPending}
                                     style={styles.submitBtn}
+                                // Use Indigo color for Mitra
+                                // But PrimaryButton usually takes scheme or local style overdrive
                                 />
                             </ScrollView>
                         </View>
@@ -268,13 +270,13 @@ const styles = StyleSheet.create({
     headerSubtitle: { fontSize: 13, color: '#64748B', marginTop: 2 },
 
     // Wallet
-    walletCardWrapper: { borderRadius: 24, shadowColor: '#059669', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 16, elevation: 6, marginBottom: 24 },
+    walletCardWrapper: { borderRadius: 24, shadowColor: '#4F46E5', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 16, elevation: 6, marginBottom: 24 },
     walletCardGradient: { borderRadius: 24, padding: 24 },
-    walletLabel: { color: '#D1FAE5', fontSize: 13, fontWeight: '600', marginBottom: 4 },
+    walletLabel: { color: '#EEF2FF', fontSize: 13, fontWeight: '600', marginBottom: 4 },
     walletBalance: { color: '#FFFFFF', fontSize: 32, fontWeight: '800', letterSpacing: -1 },
     walletIconBox: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
     divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.2)' },
-    pendingLabel: { color: '#D1FAE5', fontSize: 13, fontWeight: '500' },
+    pendingLabel: { color: '#EEF2FF', fontSize: 13, fontWeight: '500' },
     pendingBadge: { backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
     pendingValue: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
 
@@ -307,7 +309,7 @@ const styles = StyleSheet.create({
     emptyText: { color: '#94A3B8', fontSize: 14, fontWeight: '500' },
 
     fabContainer: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 24, backgroundColor: 'rgba(248, 250, 252, 0.9)', borderTopWidth: 1, borderTopColor: 'rgba(226, 232, 240, 0.5)' },
-    fabButton: { backgroundColor: '#059669', borderRadius: 16, height: 52, shadowColor: '#059669', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
+    fabButton: { backgroundColor: '#4F46E5', borderRadius: 16, height: 52, shadowColor: '#4F46E5', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
 
     // Modal
     modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(15, 23, 42, 0.6)' },
@@ -317,10 +319,10 @@ const styles = StyleSheet.create({
     modalTitle: { fontSize: 20, fontWeight: '800', color: '#1E293B', letterSpacing: -0.5 },
     closeBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
 
-    balanceHighlight: { backgroundColor: '#ECFDF5', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#A7F3D0', marginBottom: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    balanceHighlightLabel: { color: '#047857', fontSize: 13, fontWeight: '600' },
-    balanceHighlightValue: { color: '#059669', fontSize: 18, fontWeight: '800' },
+    balanceHighlight: { backgroundColor: '#EEF2FF', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#C7D2FE', marginBottom: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    balanceHighlightLabel: { color: '#4338CA', fontSize: 13, fontWeight: '600' },
+    balanceHighlightValue: { color: '#4F46E5', fontSize: 18, fontWeight: '800' },
 
     formSectionTitle: { fontSize: 14, fontWeight: '700', color: '#1E293B', marginBottom: 12, marginTop: 4 },
-    submitBtn: { backgroundColor: '#059669', height: 48, borderRadius: 14 },
+    submitBtn: { backgroundColor: '#4F46E5', height: 48, borderRadius: 14 },
 });

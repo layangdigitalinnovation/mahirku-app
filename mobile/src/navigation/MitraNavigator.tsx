@@ -58,7 +58,7 @@ export default function MitraNavigator() {
             />
             <Tab.Screen
                 name="MitraProfile"
-                component={ProfileScreen}
+                children={(props) => <ProfileScreen {...props} hideTabs={true} />}
                 options={{
                     tabBarLabel: 'Profile',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
