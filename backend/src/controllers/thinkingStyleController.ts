@@ -22,93 +22,93 @@ const reduceToSingleDigit = (n: number): number => {
   return n;
 };
 
-export const 
-submitThinkingStyleTest = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const { fullname, birthdate, fingerprintId, referrerId } = req.body;
+export const
+  submitThinkingStyleTest = async (
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { fullname, birthdate, fingerprintId, referrerId } = req.body;
 
-    const { userId } = req.user;
+      const { userId } = req.user;
 
-    console.log(birthdate);
+      console.log(birthdate);
 
-    const user = await User.findByPk(userId);
-    if (!user) {
-      res.status(404).json({ message: "User tidak ditemukan" });
-      return;
-    }
-
-    // Cek token
-    if (user.tokens <= 0) {
-      res.status(403).json({ message: "Token tidak mencukupi" });
-      return;
-    }
-
-    // Hitung digit dari tanggal lahir
-    const digits: number[] = birthdate.replace(/\D/g, "").split("").map(Number);
-    const total: number = digits.reduce(
-      (acc: number, cur: number) => acc + cur,
-      0
-    );
-    const resultDigit: number = reduceToSingleDigit(total);
-
-    const style = await ThinkingStyle.findByDigit(resultDigit);
-    if (!style) {
-      res
-        .status(400)
-        .json({
-          message: "Gaya berpikir tidak ditemukan untuk digit tersebut",
-        });
-      return;
-    }
-
-    const result = await ThinkingStyleResult.create({
-      userId,
-      fullname,
-      birthdate,
-      resultDigit,
-      thinkingStyleId: style.id,
-      fingerprintId,
-      referrerId,
-    });
-
-    // Kurangi token
-    user.tokens -= 1;
-
-    // Logic Mitra: Jika user punya parent (Mitra) dan masih role 'user', upgrade ke 'affiliator'
-    if (user.parentId) {
-      const userRole = await Role.findOne({ where: { name: 'user' } });
-      const affiliatorRole = await Role.findOne({ where: { name: 'affiliator' } });
-      
-      if (userRole && affiliatorRole && user.roleId === userRole.id) {
-        user.roleId = affiliatorRole.id;
-        console.log(`User ${user.id} upgraded to affiliator (parent: ${user.parentId})`);
+      const user = await User.findByPk(userId);
+      if (!user) {
+        res.status(404).json({ message: "User tidak ditemukan" });
+        return;
       }
-    }
 
-    await user.save();
+      // Cek token
+      if (user.tokens <= 0) {
+        res.status(403).json({ message: "Token tidak mencukupi" });
+        return;
+      }
 
-    res.status(201).json({
-      message: "Tes gaya berpikir berhasil",
-      data: {
-        ...result.toJSON(),
-        thinkingStyle: {
-          id: style.id,
-          type: style.type,
-          code: style.code,
-          description: style.description,
-          theory: style.theory,
-          detailPage : style.detailPage
+      // Hitung digit dari tanggal lahir
+      const digits: number[] = birthdate.replace(/\D/g, "").split("").map(Number);
+      const total: number = digits.reduce(
+        (acc: number, cur: number) => acc + cur,
+        0
+      );
+      const resultDigit: number = reduceToSingleDigit(total);
+
+      const style = await ThinkingStyle.findByDigit(resultDigit);
+      if (!style) {
+        res
+          .status(400)
+          .json({
+            message: "Gaya berpikir tidak ditemukan untuk digit tersebut",
+          });
+        return;
+      }
+
+      const result = await ThinkingStyleResult.create({
+        userId,
+        fullname,
+        birthdate,
+        resultDigit,
+        thinkingStyleId: style.id,
+        fingerprintId,
+        referrerId,
+      });
+
+      // Kurangi token
+      user.tokens -= 1;
+
+      // Logic Mitra: Jika user punya parent (Mitra) dan masih role 'user', upgrade ke 'affiliator'
+      if (user.parentId) {
+        const userRole = await Role.findOne({ where: { name: 'user' } });
+        const affiliatorRole = await Role.findOne({ where: { name: 'affiliator' } });
+
+        if (userRole && affiliatorRole && user.roleId === userRole.id) {
+          user.roleId = affiliatorRole.id;
+          console.log(`User ${user.id} upgraded to affiliator (parent: ${user.parentId})`);
+        }
+      }
+
+      await user.save();
+
+      res.status(201).json({
+        message: "Tes gaya berpikir berhasil",
+        data: {
+          ...result.toJSON(),
+          thinkingStyle: {
+            id: style.id,
+            type: style.type,
+            code: style.code,
+            description: style.description,
+            theory: style.theory,
+            detailPage: style.detailPage
+          },
         },
-      },
-    });
-  } catch (err: any) {
-    console.error("submitThinkingStyleTest error:", err);
-    res.status(500).json({ message: "Terjadi kesalahan", error: err.message });
-  }
-};
+      });
+    } catch (err: any) {
+      console.error("submitThinkingStyleTest error:", err);
+      res.status(500).json({ message: "Terjadi kesalahan", error: err.message });
+    }
+  };
 
 export const getThinkingStyleHistory = async (
   req: AuthenticatedRequest,
@@ -129,7 +129,7 @@ export const getThinkingStyleHistory = async (
       order: [["createdAt", "DESC"]],
       include: [{
         model: ThinkingStyle,
-        as : 'thinkingStyle',
+        as: 'thinkingStyle',
         attributes: ['id', 'type', 'code', 'description', 'theory', 'detailPage']
       }]
     });
@@ -147,6 +147,9 @@ export const getThinkingStyleHistory = async (
     // Map and Combine
     const mappedThinkingStyle = thinkingStyleHistory.map((item: any) => ({
       ...item.toJSON(),
+      // Ensure fullname is available, falling back to current user name if empty, 
+      // or strictly using user.fullname if we want exact parity with DISC behavior (which uses current profile)
+      fullname: item.fullname || user.fullname,
       testType: 'THINKING_STYLE',
       sortDate: new Date(item.createdAt)
     }));
@@ -166,7 +169,7 @@ export const getThinkingStyleHistory = async (
         sScore: json.s_score,
         cScore: json.c_score,
         dominantType: json.dominant_type,
-        
+
         thinkingStyle: { // Mock structure for frontend compatibility (or distinct handling)
           id: item.id,
           type: item.dominant_type, // e.g., "Dominance (D)"
@@ -202,7 +205,7 @@ export const downloadThinkingStylePDF = async (
     const result = await ThinkingStyleResult.findByPk(resultId, {
       include: [{
         model: ThinkingStyle,
-        as : 'thinkingStyle',
+        as: 'thinkingStyle',
       }],
     });
     if (!result) {

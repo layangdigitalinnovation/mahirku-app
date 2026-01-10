@@ -71,7 +71,7 @@ export default function ReportsScreen({ navigation }: any) {
       report: {
         id: item.id.toString(),
         title: item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test',
-        date: new Date(item.createdAt).toLocaleDateString('id-ID'),
+        date: new Date(item.createdAt || (item as any).created_at).toLocaleDateString('id-ID'),
         summary: item.testType === 'DISC'
           ? getDiscTypeName(item.thinkingStyle?.code || '')
           : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
@@ -143,9 +143,12 @@ export default function ReportsScreen({ navigation }: any) {
           <View style={{ gap: 16 }}>
             {filtered.map((item: ThinkingStyleResult) => {
               // Safely format date with validation
+
               let dateStr = 'Invalid Date';
               try {
-                const dateObj = new Date(item.createdAt);
+                // Handle both camelCase and snake_case date fields
+                const rawDate = item.createdAt || (item as any).created_at;
+                const dateObj = new Date(rawDate);
                 if (!isNaN(dateObj.getTime())) {
                   dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
                 }

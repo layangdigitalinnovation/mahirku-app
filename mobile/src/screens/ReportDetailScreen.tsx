@@ -68,7 +68,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
       }
 
       // Format the date properly for the certificate
-      const dateObj = new Date(r.fullData.createdAt);
+      const dateObj = new Date(r.fullData.createdAt || r.fullData.created_at);
       const formattedDate = dateObj.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',

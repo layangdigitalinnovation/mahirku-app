@@ -37,8 +37,14 @@ export default function PurchaseConfirmationScreen({ navigation, route }: any) {
 
         try {
             const res = await validateVoucher(voucherCode);
+            // Check if valid property exists (like frontend) or just data exists
             if (res.data) {
-                setVoucherData(res.data);
+                // Backend might return Sequelize instance with dataValues (like frontend sees)
+                // or a flat object depending on how it was spread.
+                // We check for dataValues to be safe and align with frontend logic.
+                const actualData = (res.data as any).dataValues || res.data;
+
+                setVoucherData(actualData);
                 setVoucherError('');
             } else {
                 setVoucherError('Voucher tidak valid');
