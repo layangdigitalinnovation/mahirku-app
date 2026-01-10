@@ -21,6 +21,28 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   const sameType = Boolean(fpType && q?.tipeUtama && fpType === q.tipeUtama);
   const [downloading, setDownloading] = useState(false);
 
+  // Helper function to get full DISC type name
+  const getDiscFullName = (code: string): string => {
+    const typeMap: { [key: string]: string } = {
+      'D': 'Dominance',
+      'I': 'Influence',
+      'S': 'Steadiness',
+      'C': 'Compliance'
+    };
+    return typeMap[code] || code;
+  };
+
+  // Helper function to get DISC type description
+  const getDiscDescription = (code: string): string => {
+    const descMap: { [key: string]: string } = {
+      'D': 'Direct, results-oriented, firm, strong-willed, forceful.',
+      'I': 'Outgoing, enthusiastic, optimistic, high-spirited, lively.',
+      'S': 'Even-tempered, accommodating, patient, humble, tactful.',
+      'C': 'Analytical, reserved, precise, private, systematic.'
+    };
+    return descMap[code] || '';
+  };
+
   const dlCert = async () => {
     try {
       if (!r?.fullData) {
@@ -38,17 +60,25 @@ export default function ReportDetailScreen({ navigation, route }: any) {
       // Get result title
       let resultTitle = '';
       if (isDisc) {
-        const type = r.fullData.thinkingStyle?.type || 'Unknown';
         const code = r.fullData.thinkingStyle?.code || '';
-        resultTitle = `${type} (${code})`;
+        const fullName = getDiscFullName(code);
+        resultTitle = `${code} (${fullName})`;
       } else {
         resultTitle = `${r.fullData.thinkingStyle?.type || ''} (${r.fullData.thinkingStyle?.code || ''})`;
       }
 
+      // Format the date properly for the certificate
+      const dateObj = new Date(r.fullData.createdAt);
+      const formattedDate = dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
       await generateCertificatePDF({
         studentName,
         courseName,
-        completionDate: r.date,
+        completionDate: formattedDate,
         certificateId: certId,
         resultTitle
       });
@@ -104,7 +134,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                   <Text style={styles.discCircleText}>{r.fullData.thinkingStyle?.code || 'I'}</Text>
                 </View>
                 <Text style={styles.discTypeName}>
-                  {r.fullData.thinkingStyle?.type || 'Influence'}: {r.fullData.thinkingStyle?.description || 'Analytical, reserved, precise, private, systematic.'}
+                  {getDiscFullName(r.fullData.thinkingStyle?.code || 'I')}: {getDiscDescription(r.fullData.thinkingStyle?.code || 'I')}
                 </Text>
               </View>
 
@@ -173,8 +203,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {/* Description */}
-          {thinkingStyle?.description && (
+          {/* Description (Only for non-DISC tests) */}
+          {r?.type !== 'disc' && thinkingStyle?.description && (
             <>
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Deskripsi</Text>
               <View style={styles.descCard}>
@@ -183,8 +213,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {/* Theory */}
-          {thinkingStyle?.theory && (
+          {/* Theory (Only for non-DISC tests) */}
+          {r?.type !== 'disc' && thinkingStyle?.theory && (
             <>
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Landasan Teori</Text>
               <View style={styles.theoryCard}>
@@ -194,7 +224,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {combine && (
+          {/* Final Result (Only for non-DISC tests) */}
+          {r?.type !== 'disc' && combine && (
             <>
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Hasil Akhir</Text>
               <View style={styles.scoreCard}>

@@ -23,32 +23,40 @@ export default function PurchaseConfirmationScreen({ navigation, route }: any) {
     const [voucherCode, setVoucherCode] = useState('');
     const [voucherData, setVoucherData] = useState<any>(null);
     const [voucherError, setVoucherError] = useState('');
-    const [checkingVoucher, setCheckingVoucher] = useState(false);
+    const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
 
-    // Auto-validate voucher when code changes (debounced)
-    useEffect(() => {
+    // Manual voucher validation handler
+    const handleApplyVoucher = async () => {
         if (!voucherCode.trim()) {
-            setVoucherData(null);
-            setVoucherError('');
+            setVoucherError('Kode voucher tidak boleh kosong');
             return;
         }
 
-        const timer = setTimeout(async () => {
-            setCheckingVoucher(true);
-            setVoucherError('');
-            setVoucherData(null);
-            try {
-                const res = await validateVoucher(voucherCode);
-                setVoucherData(res.data);
-            } catch (err: any) {
-                setVoucherError(err.response?.data?.message || 'Voucher tidak valid');
-            } finally {
-                setCheckingVoucher(false);
-            }
-        }, 800);
+        setIsApplyingVoucher(true);
+        setVoucherError('');
 
-        return () => clearTimeout(timer);
-    }, [voucherCode]);
+        try {
+            const res = await validateVoucher(voucherCode);
+            if (res.data) {
+                setVoucherData(res.data);
+                setVoucherError('');
+            } else {
+                setVoucherError('Voucher tidak valid');
+                setVoucherData(null);
+            }
+        } catch (err: any) {
+            setVoucherError(err.response?.data?.message || 'Voucher tidak ditemukan');
+            setVoucherData(null);
+        } finally {
+            setIsApplyingVoucher(false);
+        }
+    };
+
+    const handleRemoveVoucher = () => {
+        setVoucherData(null);
+        setVoucherCode('');
+        setVoucherError('');
+    };
 
     const getDiscountedPrice = (price: number) => {
         if (!voucherData) return price;
@@ -131,31 +139,42 @@ export default function PurchaseConfirmationScreen({ navigation, route }: any) {
                     <Text style={styles.sectionTitle}>Punya Kode Voucher?</Text>
                     <Text style={styles.sectionSubtitle}>Masukkan kode voucher untuk mendapatkan diskon</Text>
 
-                    <TextField
-                        placeholder="Masukkan kode voucher"
-                        value={voucherCode}
-                        onChangeText={(text) => setVoucherCode(text.toUpperCase())}
-                        startIcon={<Feather name="tag" size={18} color="#64748B" />}
-                        containerStyle={{ marginTop: 12 }}
-                    />
-
-                    {checkingVoucher && voucherCode && (
-                        <View style={styles.voucherStatus}>
-                            <ActivityIndicator size="small" color="#4F46E5" />
-                            <Text style={styles.voucherStatusText}>Memvalidasi voucher...</Text>
-                        </View>
-                    )}
+                    <View style={styles.voucherInputRow}>
+                        <TextField
+                            placeholder="Masukkan kode voucher"
+                            value={voucherCode}
+                            onChangeText={(text) => setVoucherCode(text.toUpperCase())}
+                            startIcon={<Feather name="tag" size={18} color="#64748B" />}
+                            containerStyle={{ flex: 1 }}
+                            editable={!voucherData && !mut.isPending}
+                        />
+                        {!voucherData && (
+                            <PrimaryButton
+                                title={isApplyingVoucher ? '' : 'Gunakan'}
+                                onPress={handleApplyVoucher}
+                                disabled={isApplyingVoucher || !voucherCode.trim() || mut.isPending}
+                                loading={isApplyingVoucher}
+                                style={styles.applyBtn}
+                                textStyle={{ fontSize: 14, fontWeight: '600' }}
+                            />
+                        )}
+                    </View>
 
                     {voucherData && (
                         <View style={styles.voucherSuccess}>
-                            <Feather name="check-circle" size={16} color="#10B981" />
-                            <Text style={styles.voucherSuccessText}>
-                                Voucher aktif! Hemat {voucherData.type === 'percentage' ? `${voucherData.value}%` : `Rp ${voucherData.value.toLocaleString('id-ID')}`}
-                            </Text>
+                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Feather name="check-circle" size={16} color="#10B981" />
+                                <Text style={styles.voucherSuccessText}>
+                                    Voucher aktif! Hemat {voucherData.type === 'percentage' ? `${voucherData.value}%` : `Rp ${voucherData.value.toLocaleString('id-ID')}`}
+                                </Text>
+                            </View>
+                            <Pressable onPress={handleRemoveVoucher} disabled={mut.isPending}>
+                                <Text style={styles.removeVoucherText}>Hapus</Text>
+                            </Pressable>
                         </View>
                     )}
 
-                    {voucherError && voucherCode && !checkingVoucher && (
+                    {voucherError && !voucherData && (
                         <View style={styles.voucherError}>
                             <Feather name="alert-circle" size={16} color="#EF4444" />
                             <Text style={styles.voucherErrorText}>{voucherError}</Text>
@@ -309,31 +328,40 @@ const styles = StyleSheet.create({
         color: '#64748B',
         marginTop: 4,
     },
-    voucherStatus: {
+    voucherInputRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 12,
         gap: 8,
+        marginTop: 12,
     },
-    voucherStatusText: {
-        color: '#4F46E5',
-        fontSize: 13,
-        fontWeight: '500',
+    applyBtn: {
+        height: 48,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        backgroundColor: '#4F46E5',
+        minWidth: 100,
     },
     voucherSuccess: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         marginTop: 12,
-        gap: 6,
         backgroundColor: '#ECFDF5',
         padding: 12,
         borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#D1FAE5',
     },
     voucherSuccessText: {
         color: '#10B981',
         fontSize: 13,
         fontWeight: '500',
-        flex: 1,
+    },
+    removeVoucherText: {
+        color: '#EF4444',
+        fontSize: 13,
+        fontWeight: '600',
+        paddingHorizontal: 8,
     },
     voucherError: {
         flexDirection: 'row',
