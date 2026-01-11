@@ -6,6 +6,8 @@ import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { generateCertificatePDF } from '../utils/certificateGenerator';
+import { meApi } from '../api/auth';
+import { useQuery } from '@tanstack/react-query';
 
 
 export default function ReportDetailScreen({ navigation, route }: any) {
@@ -43,6 +45,12 @@ export default function ReportDetailScreen({ navigation, route }: any) {
     return descMap[code] || '';
   };
 
+  const { data: userData } = useQuery({
+    queryKey: ['me'],
+    queryFn: async () => (await meApi()).data,
+    enabled: false, // Lazy load manually if needed, or rely on cache
+  });
+
   const dlCert = async () => {
     try {
       if (!r?.fullData) {
@@ -54,8 +62,26 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
       const isDisc = r.type === 'disc';
       const courseName = isDisc ? 'DISC Personality Test' : 'Cognitive Style Test';
-      // Use fullname from report params (CST) or fullData (DISC) or fallback
-      const studentName = (r as any).fullname || r.fullData.fullname || 'Student';
+
+      // Try to get fullname from params/data first
+      let studentName = (r as any).fullname || r.fullData.fullname;
+
+      // If missing, check if it's "Student" or empty, and try to fetch current user
+      if (!studentName || studentName === 'Student') {
+        try {
+          // Use cached data if available or fetch fresh
+          const meRes = await meApi();
+          if (meRes.data?.user?.fullname) {
+            studentName = meRes.data.user.fullname;
+          }
+        } catch (e) {
+          console.log('Failed to fetch me fallback', e);
+        }
+      }
+
+      // Fallback only if absolutely everything fails
+      studentName = studentName || 'Student';
+
       const certId = `${isDisc ? 'DISC' : 'CST'}-${r.fullData.id}-${new Date().getFullYear()}`;
 
       // Get result title

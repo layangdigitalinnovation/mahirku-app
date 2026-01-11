@@ -11,6 +11,7 @@ import MitraDashboardScreen from './src/screens/MitraDashboardScreen';
 import MitraWithdrawScreen from './src/screens/MitraWithdrawScreen';
 import MitraNavigator from './src/navigation/MitraNavigator';
 import AffiliatorNavigator from './src/navigation/AffiliatorNavigator';
+import MitraCommissionHistoryScreen from './src/screens/MitraCommissionHistoryScreen';
 import TestStartScreen from './src/screens/TestStartScreen';
 import TestScreen from './src/screens/TestScreen';
 import ReportsScreen from './src/screens/ReportsScreen';
@@ -91,6 +92,7 @@ export default function App() {
             <Stack.Screen name="AffiliatorDashboard" component={AffiliatorNavigator} />
             <Stack.Screen name="MitraDashboard" component={MitraNavigator} />
             <Stack.Screen name="MitraWithdraw" component={MitraWithdrawScreen} />
+            <Stack.Screen name="MitraCommissionHistory" component={MitraCommissionHistoryScreen} />
             <Stack.Screen name="TestStart" component={TestStartScreen} />
             <Stack.Screen name="TransferToken" component={TransferTokenScreen} />
             <Stack.Screen name="Tests" component={TestScreen} />

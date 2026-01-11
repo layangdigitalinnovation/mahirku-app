@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet, RefreshControl, Pressable } from 'r
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { getHistory, ThinkingStyleResult } from '../api/thinkingStyle';
+import { meApi } from '../api/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '../components/basic/Card';
@@ -25,6 +26,13 @@ export default function ReportsScreen({ navigation }: any) {
       const response = await getHistory();
       return response.data.data;
     },
+    retry: false,
+  });
+
+  // Fetch current user data for certificate
+  const { data: userData } = useQuery({
+    queryKey: ['me'],
+    queryFn: async () => (await meApi()).data,
     retry: false,
   });
 
@@ -77,7 +85,7 @@ export default function ReportsScreen({ navigation }: any) {
           : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
         type: item.testType === 'DISC' ? 'disc' : 'cst',
         fullData: item,
-        fullname: item.fullname || (item as any).user?.fullname,
+        fullname: item.fullname || (item as any).user?.fullname || (userData as any)?.user?.fullname,
         combine: {
           finalPercent,
           fingerprintPercent,

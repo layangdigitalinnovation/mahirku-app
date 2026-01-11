@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import TextField from '../components/basic/TextField';
 import { loadToken } from '../store/auth';
+import { meApi } from '../api/auth';
 import { submitTest } from '../api/thinkingStyle';
 import { resolvedBaseURL } from '../api/client';
 
@@ -29,6 +30,7 @@ export default function CognitiveTestIntroScreen({ route }: any) {
     const questionnaire = route?.params?.questionnaire as any | undefined;
     const [loading, setLoading] = useState(false);
     const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+    const [userFullname, setUserFullname] = useState('');
 
     // Use useRef to maintain stable biometrics instance
     const rnBiometricsRef = useRef(new ReactNativeBiometrics());
@@ -45,6 +47,12 @@ export default function CognitiveTestIntroScreen({ route }: any) {
             -1,
             true
         );
+        // Fetch user name
+        meApi().then(res => {
+            if (res.data?.user?.fullname) {
+                setUserFullname(res.data.user.fullname);
+            }
+        }).catch(err => console.log('Failed to fetch user info', err));
     }, []);
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -155,7 +163,7 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                             }
 
                             const testResult = await submitTest({
-                                fullname: '',
+                                fullname: userFullname,
                                 birthdate: formattedDate,
                                 bloodType: effectiveBlood,
                             });
@@ -178,6 +186,7 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                                     date: new Date(testResult.data.data.createdAt).toLocaleDateString('id-ID'),
                                     summary: `${testResult.data.data.thinkingStyle?.type} (${testResult.data.data.thinkingStyle?.code})`,
                                     type: 'cst',
+                                    fullname: userFullname,
                                     fullData: testResult.data.data,
                                     combine: {
                                         finalPercent,
