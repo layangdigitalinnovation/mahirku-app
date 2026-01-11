@@ -134,7 +134,7 @@ export default function MitraDashboardScreen({ navigation }: any) {
                             {formatCurrency(statsData?.totalCommission ?? 0)}
                         </Text>
                     </View>
-                    <Pressable style={styles.historyBtn} onPress={() => navigation.navigate('InvoiceHistory')}>
+                    <Pressable style={styles.historyBtn} onPress={() => navigation.navigate('MitraCommissionHistory')}>
                         <MaterialCommunityIcons name="history" size={20} color="#FFFFFF" />
                         <Text style={styles.historyText}>Riwayat</Text>
                     </Pressable>
@@ -180,6 +180,9 @@ export default function MitraDashboardScreen({ navigation }: any) {
                                 <Text style={styles.headerName} numberOfLines={1}>
                                     {data?.user?.fullname || 'Mitra'}
                                 </Text>
+                                <View style={styles.roleBadge}>
+                                    <Text style={styles.roleText}>{data?.user?.role?.name ?? 'Mitra'}</Text>
+                                </View>
                             </View>
 
                             <Pressable onPress={() => navigation.navigate('Profile')} style={styles.avatarContainer}>
@@ -195,9 +198,7 @@ export default function MitraDashboardScreen({ navigation }: any) {
                                         <Feather name="user" size={24} color="#7C3AED" />
                                     </View>
                                 )}
-                                <View style={styles.roleBadge}>
-                                    <Text style={styles.roleText}>{data?.user?.role?.name ?? 'Mitra'}</Text>
-                                </View>
+
                             </Pressable>
                         </View>
 
@@ -313,7 +314,7 @@ export default function MitraDashboardScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 },
     greetingText: { color: '#64748B', fontSize: 14, fontWeight: '500', marginBottom: 2 },
     headerName: { color: '#0F172A', fontSize: 22, fontWeight: '700', letterSpacing: -0.5 },
 
@@ -324,23 +325,23 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: -6,
+        // Removed negative margin since badge is no longer overlapping
         zIndex: 10,
-        borderWidth: 2,
-        borderColor: '#FFFFFF',
+        // Removed border since it's no longer overlapping
     },
     avatarText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
     roleBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
         backgroundColor: '#0F172A',
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 8,
-        position: 'relative',
-        zIndex: 11,
-        borderWidth: 2,
-        borderColor: '#FFFFFF',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20, // Increased border radius for pill shape
+        marginTop: 6, // Added margin top
+        // Removed positioning and z-index props
     },
-    roleText: { color: '#FFFFFF', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+    roleText: { color: '#FFFFFF', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
 
     walletCardWrapper: {
         borderRadius: 24,
