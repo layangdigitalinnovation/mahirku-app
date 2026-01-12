@@ -15,23 +15,23 @@ services:
   backend:
     image: layangdigital/mahirku-backend:latest
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/mahirku
-      - DB_USER=postgres
-      - DB_PASS=postgres
-      - DB_NAME=mahirku
-      - DB_HOST=db
-      - PORT=5000
-      - JWT_SECRET=675ffe2d468fece7fa614e942b65c44611e63993de0789fe5249c9344cea833698d404b2b957c6fbe54fc88d3c46c52e957be30d98d822533045dde5df0452f5
-      - XENDIT_API_KEY=xnd_production_lYDUN855uViCro9u25cRH9M3vSHgMQRzaTei2Y6RnV48cY0UbeC6tyD05nEN
-      - XENDIT_PUBLIC_KEY=xnd_public_production_vf34AtLlXwlWJzrORt0uzkJOl4NVBx78HZ7L_MwKbmwaVMwa6lu8eha1AkGjbN0N
-      - XENDIT_BASE_URL=https://api.xendit.co
-      - XENDIT_CALLBACK_URL=https://mahirku.com/api/payment/callback
-      - XENDIT_SUCCESS_REDIRECT_URL=https://mahirku.com/payment-success
-      - XENDIT_FAILURE_REDIRECT_URL=https://mahirku.com/payment-failed
-      - XENDIT_CALLBACK_TOKEN=yyI0FqtmZBd1yczzKHZ0dzF2bwfzabmq8cx2N03KwiqJHgox
-      - RUN_MIGRATIONS=false
-      - RUN_SEEDS=false
+      - NODE_ENV=${NODE_ENV:-production}
+      - DATABASE_URL=${DATABASE_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST:-db}
+      - PORT=${PORT:-5000}
+      - JWT_SECRET=${JWT_SECRET}
+      - XENDIT_API_KEY=${XENDIT_API_KEY}
+      - XENDIT_PUBLIC_KEY=${XENDIT_PUBLIC_KEY}
+      - XENDIT_BASE_URL=${XENDIT_BASE_URL:-https://api.xendit.co}
+      - XENDIT_CALLBACK_URL=${XENDIT_CALLBACK_URL}
+      - XENDIT_SUCCESS_REDIRECT_URL=${XENDIT_SUCCESS_REDIRECT_URL}
+      - XENDIT_FAILURE_REDIRECT_URL=${XENDIT_FAILURE_REDIRECT_URL}
+      - XENDIT_CALLBACK_TOKEN=${XENDIT_CALLBACK_TOKEN}
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
+      - RUN_SEEDS=${RUN_SEEDS:-false}
     depends_on:
       - db
     networks:
