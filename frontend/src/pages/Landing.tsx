@@ -53,15 +53,15 @@ export const Landing: React.FC = () => {
       title : "Cognitive Style Test",
       description : "Temukan pola berpikir unik Anda dan bagaimana hal itu memengaruhi keputusan serta karier Anda.",
       icon : Brain,
-      link : "/cognitive-style-test",
+      link : "/login",
       available: true
     },
     {
       title : "DISC Test",
       description : "Tes DISC (Four Personality Types) adalah tes yang mengetahui tiga aspek utama dalam interaksi manusia.",
       icon : Users,
-      link : "",
-      available: false
+      link : "/login",
+      available: true
     },
     {
       title : "Graphology Test",
