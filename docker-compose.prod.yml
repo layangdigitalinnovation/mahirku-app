@@ -56,6 +56,15 @@ services:
     networks:
       - dokploy-network
 
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --cleanup
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+
 volumes:
   pgdata:
     name: mahirku_pgdata
