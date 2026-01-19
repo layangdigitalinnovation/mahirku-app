@@ -4,13 +4,15 @@ services:
     depends_on:
       - backend
     networks:
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`mahirku.com`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - nginx-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
 
   backend:
     image: layangdigital/mahirku-backend:latest
@@ -32,44 +34,19 @@ services:
       - XENDIT_CALLBACK_TOKEN=${XENDIT_CALLBACK_TOKEN}
       - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
       - RUN_SEEDS=${RUN_SEEDS:-false}
-    depends_on:
-      - db
     networks:
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`mahirku.com`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=myresolver"
-      - "traefik.http.services.backend.loadbalancer.server.port=5000"
+      - nginx-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
-  db:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mahirku
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - dokploy-network
 
-  watchtower:
-    image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 300 --cleanup
-    restart: unless-stopped
-    networks:
-      - dokploy-network
-
-volumes:
-  pgdata:
-    name: mahirku_pgdata
-    external: true
 
 networks:
-  dokploy-network:
+  nginx-network:
     external: true
