@@ -14,8 +14,8 @@ RUN npm run build
 
 # Install bash + convert line endings + chmod
 RUN apk add --no-cache bash dos2unix \
-    && dos2unix docker-entrypoint.sh wait-for-it.sh \
-    && chmod +x docker-entrypoint.sh wait-for-it.sh
+    && dos2unix docker-entrypoint.sh \
+    && chmod +x docker-entrypoint.sh
 
 EXPOSE 5000
 
