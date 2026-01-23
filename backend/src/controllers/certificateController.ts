@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generateCertificatePDF, getCertificateData } from '../services/certificateService';
+import { generateCertificatePDF, getCertificateData, verifyCertificate as verifyCertificateService } from '../services/certificateService';
 
 export const downloadCertificate = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -23,6 +23,31 @@ export const downloadCertificate = async (req: Request, res: Response): Promise<
         console.error('Download certificate error:', error);
         res.status(500).json({
             message: 'Failed to generate certificate',
+            error: error.message
+        });
+    }
+};
+
+export const verifyCertificate = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { certificateId } = req.params;
+
+        const verificationData = await verifyCertificateService(certificateId);
+
+        if (!verificationData) {
+            res.status(404).json({
+                isValid: false,
+                message: 'Certificate not found'
+            });
+            return;
+        }
+
+        res.status(200).json(verificationData);
+    } catch (error: any) {
+        console.error('Verify certificate error:', error);
+        res.status(500).json({
+            isValid: false,
+            message: 'Failed to verify certificate',
             error: error.message
         });
     }

@@ -39,6 +39,7 @@ import { AffiliatorLanding } from './pages/AffiliatorLanding';
 import DiscTest from './pages/DiscTest';
 import DiscResult from './pages/DiscResult';
 import DiscQuestionsManagement from './pages/Admin/DiscQuestionsManagement';
+import CertificateVerification from './pages/CertificateVerification';
 import MitraDashboardLayout from './layouts/mitra/MitraDashboardLayout';
 import { MitraDashboard } from './pages/Mitra/MitraDashboard';
 import { MitraMembers } from './pages/Mitra/MitraMembers';
@@ -94,6 +95,9 @@ function AppRoutes() {
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/cognitive-style" element={<CognitiveStyleLanding />} />
       </Route>
+
+      {/* Certificate Verification - Public Route */}
+      <Route path="/verify-certificate/:certificateId" element={<CertificateVerification />} />
 
       <Route element={<AffiliatorLandingLayout />}>
         <Route path="/affiliator-landing" element={<AffiliatorLanding />} />
@@ -217,7 +221,7 @@ function AppRoutes() {
 
       <Route path="/thinking-style/:id" element={<ThinkingStyleDetailPage />} />
 
-    </Routes >
+    </Routes>
   );
 }
 

@@ -13,7 +13,7 @@ const router = express.Router();
 router.get('/', authMiddleware, isAdmin, getUsers);
 
 /**
- * @route   POST /api/users
+ * @route   POST /api/users/add
  * @desc    Create a new user
  * @access  Protected - Admin only
  */

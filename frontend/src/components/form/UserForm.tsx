@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -19,6 +19,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
+// Gunakan coerce.number() agar string "1", "2" dari Select otomatis jadi number
 const userSchema = z.object({
     username: z.string().min(3, "Username minimal 3 karakter"),
     email: z.string().email("Email tidak valid"),
@@ -26,7 +27,7 @@ const userSchema = z.object({
     phoneNumber: z.string().min(10, "Nomor telepon minimal 10 digit"),
     address: z.string().min(5, "Alamat minimal 5 karakter"),
     password: z.string().optional(),
-    roleId: z.number().min(1, "Role harus dipilih"),
+    roleId: z.coerce.number().min(1, "Role harus dipilih"),
 });
 
 export type UserFormValues = z.infer<typeof userSchema>;
@@ -45,7 +46,7 @@ export default function UserForm({
     isEdit = false,
 }: Props) {
     const form = useForm<UserFormValues>({
-        resolver: zodResolver(userSchema),
+        resolver: zodResolver(userSchema) as any,
         defaultValues: {
             username: "",
             email: "",
@@ -53,14 +54,29 @@ export default function UserForm({
             phoneNumber: "",
             address: "",
             password: "",
-            roleId: 2,
+            roleId: 3, // Default User
             ...defaultValues,
         },
     });
 
+    const handleSubmit: SubmitHandler<UserFormValues> = (values) => {
+        // Jika edit dan password kosong, hapus field password agar tidak terupdate
+        if (isEdit && !values.password) {
+            const { password, ...rest } = values;
+            onSubmit(rest as UserFormValues);
+        } else {
+            // Jika create dan password kosong, validasi manual (opsional, karena di backend biasanya required)
+            if (!isEdit && !values.password) {
+                form.setError("password", { message: "Password diperlukan" });
+                return;
+            }
+            onSubmit(values);
+        }
+    };
+
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
@@ -143,7 +159,7 @@ export default function UserForm({
                             <FormItem>
                                 <FormLabel>Role</FormLabel>
                                 <Select
-                                    onValueChange={(value) => field.onChange(Number(value))}
+                                    onValueChange={field.onChange}
                                     defaultValue={field.value?.toString()}
                                     value={field.value?.toString()}
                                 >
@@ -154,8 +170,9 @@ export default function UserForm({
                                     </FormControl>
                                     <SelectContent>
                                         <SelectItem value="1">Super Admin</SelectItem>
-                                        <SelectItem value="2">User</SelectItem>
-                                        <SelectItem value="3">Affiliator</SelectItem>
+                                        <SelectItem value="2">Affiliator</SelectItem>
+                                        <SelectItem value="3">User</SelectItem>
+                                        <SelectItem value="4">Mitra</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />

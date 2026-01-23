@@ -15,7 +15,7 @@ const registerUserWithRole = async (
   roleId: number
 ): Promise<void> => {
   try {
-    const { username, email, password, fullname, address, phoneNumber, bankAccountNumber, bankAccountName, bankName } =
+    const { username, email, password, fullname, address, phoneNumber, bankAccountNumber, bankAccountName, bankName, mitraId } =
       req.body;
 
     // Ambil referral dari cookie alih-alih dari request body
@@ -45,24 +45,54 @@ const registerUserWithRole = async (
       return;
     }
 
-    // Proses referrerId menjadi parentId
+    // Proses referrerId atau mitraId menjadi parentId
     let parentId = null;
-    if (referrerId) {
+
+    // Prioritas 1: Input ID Mitra manual (untuk member join mitra)
+    if (mitraId) {
+      if (isNaN(Number(mitraId))) {
+        res.status(400).json({ message: "ID Mitra harus berupa angka." });
+        return;
+      }
+      const mitra = await User.findByPk(mitraId);
+      if (!mitra) {
+        res.status(400).json({ message: "ID Mitra tidak ditemukan." });
+        return;
+      }
+      if (mitra.roleId !== 4) { // 4 = Mitra
+        res.status(400).json({ message: "ID tersebut bukan merupakan ID Mitra yang valid." });
+        return;
+      }
+      parentId = parseInt(mitraId);
+    }
+    // Prioritas 2: Cookie referral (untuk link affiliator atau mitra)
+    else if (referrerId) {
       // Ekstrak user ID dari referral code (format: aff{userId})
       const referrerUserId = referrerId.replace('aff', '');
       if (referrerUserId && !isNaN(Number(referrerUserId))) {
-        // Verifikasi bahwa referrer exists dan merupakan affiliator
+        // Verifikasi bahwa referrer exists dan merupakan affiliator atau mitra
         const referrer = await User.findOne({
           where: {
             id: Number(referrerUserId),
-            roleId: 2 // pastikan referrer adalah affiliator
+            roleId: [2, 4] // Affiliator atau Mitra
           }
         });
         if (referrer) {
-          parentId = Number(referrerUserId);
-          console.log(`User baru akan direferensikan ke affiliator ID: ${parentId}`);
+          // PERBEDAAN PENTING:
+          // - Mitra (roleId=4): Set parentId → user jadi MEMBER
+          // - Affiliator (roleId=2): TIDAK set parentId → hanya tracking untuk komisi
+
+          if (referrer.roleId === 4) {
+            // MITRA: Set parentId untuk member relationship
+            parentId = Number(referrerUserId);
+            console.log(`✅ User baru akan menjadi MEMBER Mitra ID: ${parentId}`);
+          } else if (referrer.roleId === 2) {
+            // AFFILIATOR: Jangan set parentId, hanya log untuk tracking
+            console.log(`✅ User direferensikan oleh Affiliator ID: ${referrerUserId} (tracking only, bukan member)`);
+            // parentId tetap null (atau dari mitraId manual input jika ada)
+          }
         } else {
-          console.log(`Referrer ID ${referrerUserId} tidak valid atau bukan affiliator`);
+          console.log(`❌ Referrer ID ${referrerUserId} tidak valid (harus Affiliator atau Mitra)`);
         }
       }
     }
@@ -168,7 +198,15 @@ export const getMe = async (
 ): Promise<void> => {
   try {
     const user = await models.User.findByPk(req.user.userId, {
-      include: ["role"], // Pastikan relasi 'roles' tersedia di model
+      include: [
+        "role",
+        {
+          model: models.User,
+          as: 'parent',
+          attributes: ['id', 'fullname', 'email', 'roleId'],
+          include: ['role']
+        }
+      ],
     });
 
     if (!user) {

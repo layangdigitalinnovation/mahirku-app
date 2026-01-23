@@ -6,12 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import { meApi } from '../api/auth';
 import { clearToken } from '../store/auth';
 import { getHistory } from '../api/thinkingStyle';
+import { getChildrenUsers, transferTokenToChild, type ChildUser } from '../api/childUser';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import BottomTabs from '../components/navigation/BottomTabs';
 import FlatItemList from '../components/list/FlatItemList';
+import TextField from '../components/basic/TextField';
 import { AntDesign, Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { useFocusEffect } from '@react-navigation/native';
@@ -29,6 +31,7 @@ export default function DashboardScreen({ navigation }: any) {
     useCallback(() => {
       refetch();
       activityRefetch();
+      membersRefetch();
     }, [])
   );
 
@@ -39,8 +42,17 @@ export default function DashboardScreen({ navigation }: any) {
       const response = await getHistory();
       return response.data.data.slice(0, 3); // Get latest 3
     },
+  });
+
+  // Fetch members
+  const { data: membersData, refetch: membersRefetch } = useQuery<ChildUser[]>({
+    queryKey: ['childrenUsers'],
+    queryFn: getChildrenUsers,
     retry: false,
   });
+
+
+
   const [active, setActive] = useState(0);
   const fadeIn = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
@@ -53,7 +65,7 @@ export default function DashboardScreen({ navigation }: any) {
       const status = error?.response?.status;
       if (status === 401 || status === 403) {
         clearToken();
-        navigation.replace('Login');
+        navigation.replace('Auth');
       }
     }
   }, [isError, error, navigation]);
@@ -245,9 +257,15 @@ export default function DashboardScreen({ navigation }: any) {
                           <Feather name="check-circle" size={20} color="#10B981" />
                         </View>
                         <View style={{ flex: 1, marginLeft: 16 }}>
-                          <Text style={styles.activityName}>Cognitive Style Test</Text>
+                          <Text style={styles.activityName}>
+                            {item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test'}
+                          </Text>
                           <Text style={styles.activityResult}>
-                            Hasil: <Text style={{ fontWeight: '600', color: '#4F46E5' }}>{item.thinkingStyle?.type || 'Unknown'}</Text>
+                            Hasil: <Text style={{ fontWeight: '600', color: '#4F46E5' }}>
+                              {item.testType === 'DISC'
+                                ? `${item.thinkingStyle?.type || ''} (${item.thinkingStyle?.code || ''})`
+                                : (item.thinkingStyle?.type || 'Unknown')}
+                            </Text>
                           </Text>
                         </View>
                         <Text style={styles.activityDate}>{date}</Text>
@@ -265,8 +283,54 @@ export default function DashboardScreen({ navigation }: any) {
               )}
             </View>
 
+            {/* Member List */}
+            {membersData && membersData.length > 0 && (
+              <>
+                <View style={[styles.sectionHeader, { marginTop: 32 }]}>
+                  <Text style={styles.sectionTitle}>Member</Text>
+                  <Pressable onPress={() => navigation.navigate('MemberList')}>
+                    <Text style={styles.seeAllText}>Lihat Semua</Text>
+                  </Pressable>
+                </View>
+
+                <View style={{ gap: 12 }}>
+                  {(membersData ?? []).slice(0, 3).map((member) => (
+                    <Card key={member.id} style={styles.memberCard}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                        <View style={styles.memberAvatar}>
+                          <Text style={styles.memberInitials}>
+                            {member.fullname?.split(' ').slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('')}
+                          </Text>
+                        </View>
+                        <View style={{ flex: 1, marginLeft: 12 }}>
+                          <Text style={styles.memberName}>{member.fullname || member.username}</Text>
+                          <Text style={styles.memberEmail}>{member.email}</Text>
+                        </View>
+                        <View style={styles.memberTokenBadge}>
+                          <MaterialCommunityIcons name="ticket-percent-outline" size={14} color="#7C3AED" />
+                          <Text style={styles.memberTokenText}>{member.tokens}</Text>
+                        </View>
+                      </View>
+
+                      <PrimaryButton
+                        title="Transfer Token"
+                        leftIcon={<Feather name="send" size={16} color="#FFFFFF" />}
+                        onPress={() => navigation.navigate('TransferToken', { member })}
+                        style={styles.transferBtn}
+                        textStyle={{ fontSize: 14, fontWeight: '600' }}
+                      />
+                    </Card>
+                  ))}
+                </View>
+              </>
+            )}
+
           </View>
         </ScrollView>
+
+
+
+
 
         <BottomTabs
           tabs={[
@@ -339,4 +403,15 @@ const styles = StyleSheet.create({
   emptyState: { padding: 32, alignItems: 'center' },
   emptyIconBg: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   emptyText: { color: '#94A3B8', fontSize: 14, fontWeight: '500' },
+
+  // Member List Styles
+  memberCard: { padding: 20, borderRadius: 24, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 3 },
+  memberAvatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#E0E7FF' },
+  memberInitials: { color: '#4F46E5', fontSize: 16, fontWeight: '700' },
+  memberName: { color: '#1E293B', fontSize: 15, fontWeight: '700', marginBottom: 2 },
+  memberEmail: { color: '#64748B', fontSize: 13 },
+  memberTokenBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16, backgroundColor: '#F5F3FF', borderWidth: 1, borderColor: '#EDE9FE' },
+  memberTokenText: { color: '#7C3AED', fontWeight: '600', fontSize: 12 },
+  transferBtn: { backgroundColor: '#4F46E5', height: 44, borderRadius: 12 },
+
 });

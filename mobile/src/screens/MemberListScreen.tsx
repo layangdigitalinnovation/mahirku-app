@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import Card from '../components/basic/Card';
-import PrimaryButton from '../components/basic/PrimaryButton';
 import { getChildrenUsers, type ChildUser } from '../api/childUser';
 
 export default function MemberListScreen({ navigation }: any) {
@@ -24,15 +23,6 @@ export default function MemberListScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: insets.bottom + 48 }}>
         <Text style={styles.pageTitle}>Member</Text>
         <Text style={styles.pageSubtitle}>Lihat semua member yang sudah ditambahkan.</Text>
-
-        <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-          <PrimaryButton
-            title="Tambah Member"
-            leftIcon={<Feather name="user-plus" size={18} color="#FFFFFF" />}
-            onPress={() => navigation.navigate('AddMember')}
-            style={{ flex: 1, height: 44, borderRadius: 12 }}
-          />
-        </View>
 
         {isFetching ? (
           <View style={{ padding: 24, alignItems: 'center' }}>

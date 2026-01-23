@@ -79,7 +79,13 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
                   value={dobDate || new Date(2000, 0, 1)}
                   mode="date"
                   display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  onChange={(e, d) => { if (d) { setDobDate(d); setDob(formatDate(d)); } }}
+                  onChange={(e, d) => {
+                    setPickerOpen(false);
+                    if (e.type === 'set' && d) {
+                      setDobDate(d);
+                      setDob(formatDate(d));
+                    }
+                  }}
                   maximumDate={new Date()}
                 />
               </View>
@@ -88,7 +94,7 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
           </View>
           <PrimaryButton title="Lanjutkan" onPress={next} style={{ marginTop: 16 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
         </Card>
-        
+
       </ScrollView>
     </View>
   );

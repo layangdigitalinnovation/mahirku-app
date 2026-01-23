@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -29,7 +29,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMitraMembers, useAddMitraMember } from "@/hooks/useMitra";
+import { useMitraMembers, useAddMitraMember, usePromoteMemberToAffiliator } from "@/hooks/useMitra";
 import { toast } from "sonner";
 
 const memberSchema = z.object({
@@ -44,8 +44,26 @@ const memberSchema = z.object({
 type MemberFormValues = z.infer<typeof memberSchema>;
 
 export const MitraMembers: React.FC = () => {
-  const { data: members, isLoading, isError } = useMitraMembers();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reset to page 1 on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { data: membersData, isLoading, isError } = useMitraMembers({ page, limit, search: debouncedSearch });
+  const members = membersData?.data || [];
+  const meta = membersData?.meta;
+
   const addMemberMutation = useAddMitraMember();
+  const promoteMutation = usePromoteMemberToAffiliator();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const form = useForm<MemberFormValues>({
@@ -87,18 +105,29 @@ export const MitraMembers: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Daftar Anggota</h1>
           <p className="text-gray-600">Kelola anggota group Anda</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Tambah Anggota
-            </Button>
-          </DialogTrigger>
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <Input
+              placeholder="Cari nama atau email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 w-full sm:w-[250px]"
+            />
+          </div>
+
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" /> Tambah Anggota
+              </Button>
+            </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Tambah Anggota Baru</DialogTitle>
@@ -191,6 +220,7 @@ export const MitraMembers: React.FC = () => {
           </DialogContent>
         </Dialog>
       </div>
+    </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <Table>
@@ -201,6 +231,7 @@ export const MitraMembers: React.FC = () => {
               <TableHead>Role</TableHead>
               <TableHead>Komisi Dihasilkan</TableHead>
               <TableHead>Tanggal Bergabung</TableHead>
+              <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -224,18 +255,59 @@ export const MitraMembers: React.FC = () => {
                   <TableCell>
                     {new Date(member.createdAt).toLocaleDateString()}
                   </TableCell>
+                  <TableCell>
+                    {member.role?.name !== 'affiliator' ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => promoteMutation.mutate(member.id)}
+                        disabled={promoteMutation.isPending}
+                      >
+                        {promoteMutation.isPending ? "Memproses..." : "Jadikan Affiliator"}
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-gray-500">Sudah affiliator</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
-                  Belum ada anggota. Tambahkan anggota baru untuk memulai.
+                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  {search ? "Tidak ada anggota yang cocok dengan pencarian." : "Belum ada anggota. Tambahkan anggota baru untuk memulai."}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination Controls */}
+      {meta && meta.totalPages > 1 && (
+        <div className="flex justify-between items-center mt-4">
+          <div className="text-sm text-gray-500">
+            Halaman {meta.page} dari {meta.totalPages} ({meta.total} Anggota)
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" /> Sebelumnya
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((prev) => Math.min(prev + 1, meta.totalPages))}
+              disabled={page === meta.totalPages}
+            >
+              Selanjutnya <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

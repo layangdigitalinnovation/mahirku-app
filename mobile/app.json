@@ -2,57 +2,51 @@
   "expo": {
     "name": "Mahirku",
     "slug": "mahirku-mobile",
+    "scheme": "mahirku",
     "version": "1.0.0",
-    "sdkVersion": "54.0.0",
-    "platforms": [
-      "android"
-    ],
+
+    "platforms": ["android"],
     "orientation": "portrait",
+
     "icon": "./assets/icon.png",
+
     "runtimeVersion": "1.0.0",
+
     "updates": {
       "url": "https://u.expo.dev/48ffbe31-63a3-4e66-a5f0-308b51e4fd6c"
     },
+
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#0F172A"
     },
+
     "android": {
       "package": "com.mahirku.app",
       "versionCode": 1,
       "jsEngine": "hermes",
-      "icon": "./assets/icon.png",
+
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
       ],
+
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#0F172A"
       },
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "data": [
-            {
-              "scheme": "com.mahirku.app"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        }
-      ],
+
       "softwareKeyboardLayoutMode": "pan"
     },
+
     "plugins": [
       "expo-asset",
       "expo-font"
     ],
+
     "extra": {
       "eas": {
         "projectId": "48ffbe31-63a3-4e66-a5f0-308b51e4fd6c"

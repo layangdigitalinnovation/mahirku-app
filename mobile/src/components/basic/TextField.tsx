@@ -21,9 +21,11 @@ type Props = {
   inputStyle?: any;
   secureToggle?: boolean;
   startIcon?: React.ReactNode;
+  helperText?: string;
+  autoFocus?: boolean;
 };
 
-export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, autoCapitalize, textContentType, returnKeyType, onFocus, editable = true, onPress, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon }: Props) {
+export default function TextField({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, autoCapitalize, textContentType, returnKeyType, onFocus, editable = true, onPress, errorText, multiline, containerStyle, inputStyle, secureToggle, startIcon, autoFocus, helperText }: Props) {
   const [isSecure, setIsSecure] = useState(Boolean(secureTextEntry));
   const showToggle = Boolean(secureToggle);
   const effectiveSecure = showToggle ? isSecure : Boolean(secureTextEntry);
@@ -51,6 +53,7 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
             editable={editable}
             multiline={multiline}
             placeholderTextColor={placeholderColor}
+            autoFocus={autoFocus}
             style={[
               styles.input,
               showToggle && styles.inputWithIcon,
@@ -84,6 +87,7 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
             editable={editable}
             multiline={multiline}
             placeholderTextColor={placeholderColor}
+            autoFocus={autoFocus}
             style={[
               styles.input,
               showToggle && styles.inputWithIcon,
@@ -98,6 +102,7 @@ export default function TextField({ label, value, onChangeText, placeholder, sec
           ) : null}
         </View>
       )}
+      {helperText && !errorText ? <Text style={styles.helper}>{helperText}</Text> : null}
       {errorText ? <Text style={styles.error}>{errorText}</Text> : null}
     </View>
   );
@@ -112,5 +117,6 @@ const styles = StyleSheet.create({
   inputWithStartIcon: { paddingLeft: 42 },
   iconRight: { position: 'absolute', right: 12, top: 14 },
   iconLeft: { position: 'absolute', left: 12, top: 14, zIndex: 1 },
+  helper: { color: '#64748B', marginTop: 4, fontSize: 12 },
   error: { color: '#ef4444', marginTop: 6, fontSize: 12 },
 });

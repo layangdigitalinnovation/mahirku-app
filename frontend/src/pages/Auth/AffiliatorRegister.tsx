@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { UserPlus, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { useRegisterAffiliator } from "@/hooks/useAuthQuery";
+import { getReferralId } from "@/utils/referral";
 
 const formSchema = z
   .object({
@@ -41,10 +42,15 @@ const formSchema = z
 type AffiliatorRegisterForm = z.infer<typeof formSchema>;
 
 export const AffiliatorRegister: React.FC = () => {
-  const { mutateAsync : registerAffiliator } = useRegisterAffiliator();
+  const { mutateAsync: registerAffiliator } = useRegisterAffiliator();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Ensure referral cookie is set if ref param exists (e.g. from direct link)
+  useEffect(() => {
+    getReferralId();
+  }, []);
 
   const form = useForm<AffiliatorRegisterForm>({
     resolver: zodResolver(formSchema),

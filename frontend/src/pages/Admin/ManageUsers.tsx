@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/table/DataTable";
-import { columns } from "@/components/table/columns/userColumn";
+import { getColumns } from "@/components/table/columns/userColumn";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,14 +38,14 @@ import { ColumnDef } from "@tanstack/react-table";
 export default function ManageUsers() {
   const { user: currentUser } = useAuth();
   const { data, isLoading, isError, error } = useUsers();
+  const queryClient = useQueryClient();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  const queryClient = useQueryClient();
 
   // Create mutation
   const createMutation = useMutation({
@@ -54,7 +54,7 @@ export default function ManageUsers() {
       if (!payload.password) {
         throw new Error('Password is required');
       }
-      return createUser({ ...payload, password: payload.password });
+      return createUser({ ...payload, password: payload.password } as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -69,7 +69,7 @@ export default function ManageUsers() {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: Partial<UserFormValues> }) =>
-      updateUser(id, payload),
+      updateUser(id, payload as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success("User berhasil diupdate");
@@ -108,7 +108,6 @@ export default function ManageUsers() {
     }
   };
 
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const handleDeleteUser = () => {
     if (selectedUser) {
       if (currentUser?.id === selectedUser.id) {
@@ -180,39 +179,47 @@ export default function ManageUsers() {
 
   // Enhanced columns with actions
   const enhancedColumns: ColumnDef<User>[] = useMemo(
-    () => [
-      ...(columns as ColumnDef<User>[]),
-      {
-        id: "actions",
-        header: "Aksi",
-        cell: ({ row }) => {
-          const user = row.original;
-          return (
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => openEditDialog(user)}
-              >
-                <Edit className="h-4 w-4 mr-1" />
-                Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => openDeleteDialog(user)}
-                disabled={currentUser?.id === user.id}
-                className={currentUser?.id === user.id ? "opacity-50 cursor-not-allowed" : ""}
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Hapus
-              </Button>
-            </div>
-          );
+    () => {
+      // Filter out the default "actions" column from getColumns because we are defining a custom one below.
+      // This prevents the "Encountered two children with the same key" error.
+      const baseColumns = (getColumns(() => { }, () => { }) as ColumnDef<User>[]).filter(
+        (col) => col.id !== "actions" && (col as any).accessorKey !== "actions"
+      );
+
+      return [
+        ...baseColumns,
+        {
+          id: "actions",
+          header: "Aksi",
+          cell: ({ row }) => {
+            const user = row.original;
+            return (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openEditDialog(user)}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => openDeleteDialog(user)}
+                  disabled={currentUser?.id === user.id}
+                  className={currentUser?.id === user.id ? "opacity-50 cursor-not-allowed" : ""}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Hapus
+                </Button>
+              </div>
+            );
+          },
         },
-      },
-    ],
-    [columns, currentUser]
+      ];
+    },
+    [currentUser]
   );
 
   const clearFilters = () => {
@@ -265,16 +272,6 @@ export default function ManageUsers() {
           {error instanceof Error ? error.message : "Gagal memuat pengguna."}
         </AlertDescription>
       </Alert>
-    );
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="text-center text-gray-500 py-10">
-        <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
-        <p className="text-lg font-medium">Tidak ada pengguna ditemukan</p>
-        <p className="text-sm text-gray-400">Belum ada pengguna yang terdaftar dalam sistem.</p>
-      </div>
     );
   }
 
@@ -420,7 +417,8 @@ export default function ManageUsers() {
                           {role === RoleName.SUPER_ADMIN ? 'Super Admin' :
                             role === RoleName.AFFILIATOR ? 'Affiliator' :
                               role === RoleName.USER ? 'User' :
-                                (role as string).charAt(0).toUpperCase() + (role as string).slice(1)}
+                                role === RoleName.MITRA ? 'Mitra' :
+                                  (role as string).charAt(0).toUpperCase() + (role as string).slice(1)}
                         </span>
                         <Badge variant="outline" className="ml-2 text-xs">
                           {roleStats[role]}
@@ -460,7 +458,8 @@ export default function ManageUsers() {
                   Role: {selectedRole === 'super_admin' ? 'Super Admin' :
                     selectedRole === 'affiliator' ? 'Affiliator' :
                       selectedRole === 'user' ? 'User' :
-                        selectedRole}
+                        selectedRole === 'mitra' ? 'Mitra' :
+                          selectedRole}
                 </Badge>
               )}
             </div>
@@ -471,7 +470,7 @@ export default function ManageUsers() {
       {/* Results Summary */}
       <div className="flex justify-between items-center">
         <p className="text-sm text-gray-600">
-          Menampilkan {filteredData.length} dari {data.length} pengguna
+          Menampilkan {filteredData.length} dari {data?.length || 0} pengguna
         </p>
         {filteredData.length === 0 && hasActiveFilters && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -522,11 +521,12 @@ export default function ManageUsers() {
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Update informasi user {selectedUser?.fullname}
+              Ubah data user di bawah ini
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
             <UserForm
+              isEdit
               defaultValues={{
                 username: selectedUser.username,
                 email: selectedUser.email,
@@ -534,11 +534,9 @@ export default function ManageUsers() {
                 phoneNumber: selectedUser.phoneNumber,
                 address: selectedUser.address,
                 roleId: selectedUser.roleId,
-                password: "",
               }}
               onSubmit={handleEditUser}
               loading={updateMutation.isPending}
-              isEdit
             />
           )}
         </DialogContent>
@@ -550,16 +548,16 @@ export default function ManageUsers() {
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. User <strong>{selectedUser?.fullname}</strong> akan dihapus secara permanen dari sistem.
+              Tindakan ini tidak dapat dibatalkan. User <strong>{selectedUser?.username}</strong> akan dihapus permanen dari sistem.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteUser}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >
-              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+              {deleteMutation.isPending ? "Menghapus..." : "Hapus User"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

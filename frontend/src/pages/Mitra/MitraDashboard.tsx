@@ -1,11 +1,42 @@
 import React from "react";
-import { Users, Wallet, TrendingUp } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Users, Wallet, TrendingUp, Share2 } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useMitraStats } from "@/hooks/useMitra";
+import { useReferralLink } from "@/hooks/useAffiliator";
+import { Button } from "@/components/ui/button";
 import formatCurrency from "@/utils/formatCurrency";
 
 export const MitraDashboard: React.FC = () => {
   const { data: stats, isLoading, isError } = useMitraStats();
+  const {
+    data: referralData,
+    isLoading: referralLoading,
+  } = useReferralLink();
+
+  const copyReferralLink = async () => {
+    try {
+      await navigator.clipboard.writeText(referralData?.referralLink as string);
+      alert("Tautan referral berhasil disalin!");
+    } catch (error) {
+      console.error("Gagal menyalin tautan:", error);
+    }
+  };
+
+  const shareReferralLink = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "NeuroScan - Temukan Gaya Kognitifmu",
+          text: "Ikuti tes gaya kognitif ini dan temukan pola berpikirmu yang unik!",
+          url: referralData?.referralLink,
+        });
+      } catch (error) {
+        console.log("Gagal membagikan:", error);
+      }
+    } else {
+      copyReferralLink();
+    }
+  };
 
   if (isLoading) {
     return (
@@ -82,6 +113,40 @@ export const MitraDashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Tautan Referral */}
+      {!referralLoading && referralData?.referralLink && (
+        <Card className="mb-8 bg-white border border-purple-100 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center">
+              <Share2 className="h-6 w-6 text-purple-600 mr-3" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Tautan Referral Anda
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Bagikan tautan ini untuk mengajak teman dan keluarga
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-linear-to-r from-purple-50 to-indigo-50 p-4 rounded-lg mb-4 border border-purple-100">
+              <p className="text-sm text-gray-700 break-all font-mono">
+                {referralData.referralLink}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={copyReferralLink} className="flex-1 sm:flex-none">
+                Salin Tautan
+              </Button>
+              <Button onClick={shareReferralLink} variant="outline" className="flex-1 sm:flex-none">
+                Bagikan Tautan
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-bold mb-4">Aktivitas Komisi Terbaru</h2>

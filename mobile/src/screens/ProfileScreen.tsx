@@ -10,11 +10,11 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 
 type Me = { user?: { fullname?: string; email?: string; role?: { name?: string } | null } };
 
-export default function ProfileScreen({ navigation }: any) {
+export default function ProfileScreen({ navigation, ...props }: any) {
   const insets = useSafeAreaInsets();
   const { data } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
   const [notif, setNotif] = useState(true);
-  const logout = async () => { await clearToken(); navigation.replace('Login'); };
+  const logout = async () => { await clearToken(); navigation.replace('Auth'); };
   const goEdit = () => navigation.navigate('EditProfile');
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
@@ -28,10 +28,10 @@ export default function ProfileScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: insets.bottom + 48 }}>
         <Card style={styles.profileCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' }] }>
+            <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' }]}>
               {data?.user?.fullname ? (
                 <Text style={styles.avatarText}>
-                  {String(data?.user?.fullname).split(' ').slice(0,2).map(s => s[0]?.toUpperCase() || '').join('')}
+                  {String(data?.user?.fullname).split(' ').slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('')}
                 </Text>
               ) : (
                 <Feather name="user" size={28} color="#4F46E5" />
@@ -67,16 +67,7 @@ export default function ProfileScreen({ navigation }: any) {
             <Feather name="chevron-right" size={18} color="#94A3B8" />
           </Pressable>
           <View style={styles.divider} />
-          <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }}>
-            <View style={styles.iconWrap}><Feather name="lock" size={18} color="#4F46E5" /></View>
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.itemTitle}>Change Password</Text>
-              <Text style={styles.itemSubtitle}>Perbarui keamanan akun</Text>
-            </View>
-            <Feather name="chevron-right" size={18} color="#94A3B8" />
-          </Pressable>
-          <View style={styles.divider} />
-          <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }}>
+          <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }} onPress={() => navigation.navigate('TermsOfUse')}>
             <View style={styles.iconWrap}><Feather name="shield" size={18} color="#4F46E5" /></View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.itemTitle}>Terms of Use</Text>
@@ -106,7 +97,7 @@ export default function ProfileScreen({ navigation }: any) {
             <Switch value={notif} onValueChange={setNotif} trackColor={{ false: '#E2E8F0', true: '#4F46E5' }} thumbColor={'#FFFFFF'} />
           </View>
           <View style={styles.divider} />
-          <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }}>
+          <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }} onPress={() => navigation.navigate('FAQ')}>
             <View style={styles.iconWrap}><Feather name="help-circle" size={18} color="#4F46E5" /></View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.itemTitle}>FAQ</Text>
@@ -125,22 +116,25 @@ export default function ProfileScreen({ navigation }: any) {
         </Card>
       </ScrollView>
 
-      <BottomTabs
-        tabs={[
-          { key: 'home', label: 'Home', icon: 'home' },
-          { key: 'tests', label: 'Tests', icon: 'grid' },
-          { key: 'reports', label: 'Reports', icon: 'file-text' },
-          { key: 'profile', label: 'Profile', icon: 'user' },
-        ]}
-        activeIndex={3}
-        onChange={(i) => {
-          const keys = ['home', 'tests', 'reports', 'profile'];
-          const key = keys[i];
-          if (key === 'home') navigation.replace('Dashboard');
-          if (key === 'tests') navigation.replace('Tests');
-          if (key === 'reports') navigation.replace('Reports');
-        }}
-      />
+      {/* Conditionally render custom BottomTabs */}
+      {!navigation.getParam?.('hideTabs') && !props.hideTabs && (
+        <BottomTabs
+          tabs={[
+            { key: 'home', label: 'Home', icon: 'home' },
+            { key: 'tests', label: 'Tests', icon: 'grid' },
+            { key: 'reports', label: 'Reports', icon: 'file-text' },
+            { key: 'profile', label: 'Profile', icon: 'user' },
+          ]}
+          activeIndex={3}
+          onChange={(i) => {
+            const keys = ['home', 'tests', 'reports', 'profile'];
+            const key = keys[i];
+            if (key === 'home') navigation.replace('Dashboard');
+            if (key === 'tests') navigation.replace('Tests');
+            if (key === 'reports') navigation.replace('Reports');
+          }}
+        />
+      )}
     </View>
   );
 }

@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet, RefreshControl, Pressable } from 'r
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { getHistory, ThinkingStyleResult } from '../api/thinkingStyle';
+import { meApi } from '../api/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '../components/basic/Card';
@@ -28,6 +29,13 @@ export default function ReportsScreen({ navigation }: any) {
     retry: false,
   });
 
+  // Fetch current user data for certificate
+  const { data: userData } = useQuery({
+    queryKey: ['me'],
+    queryFn: async () => (await meApi()).data,
+    retry: false,
+  });
+
   const filtered = useMemo(() => {
     if (!historyData) return [];
     const byQ = q.trim().toLowerCase();
@@ -44,6 +52,17 @@ export default function ReportsScreen({ navigation }: any) {
     });
   }, [historyData, q, start, end]);
 
+  // Helper function to get full DISC type name
+  const getDiscTypeName = (code: string): string => {
+    const typeMap: { [key: string]: string } = {
+      'D': 'D - Dominance',
+      'I': 'I - Influence',
+      'S': 'S - Steadiness',
+      'C': 'C - Compliance'
+    };
+    return typeMap[code] || code;
+  };
+
   const goDetail = async (item: ThinkingStyleResult) => {
     let questionnaire: any = undefined;
     try {
@@ -59,11 +78,14 @@ export default function ReportsScreen({ navigation }: any) {
     navigation.navigate('ReportDetail', {
       report: {
         id: item.id.toString(),
-        title: 'Cognitive Style Test',
-        date: new Date(item.createdAt).toLocaleDateString('id-ID'),
-        summary: `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
-        type: 'cst',
+        title: item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test',
+        date: new Date(item.createdAt || (item as any).created_at).toLocaleDateString('id-ID'),
+        summary: item.testType === 'DISC'
+          ? getDiscTypeName(item.thinkingStyle?.code || '')
+          : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
+        type: item.testType === 'DISC' ? 'disc' : 'cst',
         fullData: item,
+        fullname: item.fullname || (item as any).user?.fullname || (userData as any)?.user?.fullname,
         combine: {
           finalPercent,
           fingerprintPercent,
@@ -129,7 +151,20 @@ export default function ReportsScreen({ navigation }: any) {
         ) : filtered.length > 0 ? (
           <View style={{ gap: 16 }}>
             {filtered.map((item: ThinkingStyleResult) => {
-              const date = new Date(item.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+              // Safely format date with validation
+
+              let dateStr = 'Invalid Date';
+              try {
+                // Handle both camelCase and snake_case date fields
+                const rawDate = item.createdAt || (item as any).created_at;
+                const dateObj = new Date(rawDate);
+                if (!isNaN(dateObj.getTime())) {
+                  dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+              } catch (e) {
+                dateStr = 'Invalid Date';
+              }
+
               return (
                 <Card key={item.id} style={styles.reportCard}>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
@@ -138,12 +173,21 @@ export default function ReportsScreen({ navigation }: any) {
                     </View>
                     <View style={{ flex: 1 }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                        <Text style={styles.itemTitle}>Cognitive Style Test</Text>
+                        <Text style={styles.itemTitle}>
+                          {item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test'}
+                        </Text>
                         <View style={styles.dateBadge}>
-                          <Text style={styles.itemDate}>{date}</Text>
+                          <Text style={styles.itemDate}>
+                            {item.testType === 'DISC' ? '' : dateStr}
+                          </Text>
                         </View>
                       </View>
-                      <Text style={styles.itemSubtitle}>{item.thinkingStyle?.type} ({item.thinkingStyle?.code})</Text>
+                      <Text style={styles.itemSubtitle}>
+                        {item.testType === 'DISC'
+                          ? getDiscTypeName(item.thinkingStyle?.code || '')
+                          : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`
+                        }
+                      </Text>
 
                       <View style={styles.actionRow}>
                         <PrimaryButton

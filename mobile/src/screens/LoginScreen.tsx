@@ -53,8 +53,22 @@ export default function LoginScreen({ navigation }: any) {
       const token = await loadToken();
       if (token) {
         try {
-          await meApi();
-          navigation.replace('Dashboard');
+          const response = await meApi();
+          const userRole = response?.data?.user?.role?.name;
+          console.log('🔍 [LOGIN INIT] User role from /me:', userRole);
+
+          // Redirect based on user role
+          const role = userRole?.toLowerCase();
+          if (role === 'affiliator') {
+            console.log('✅ [LOGIN INIT] Navigating to: AffiliatorDashboard');
+            navigation.replace('AffiliatorDashboard');
+          } else if (role === 'mitra') {
+            console.log('✅ [LOGIN INIT] Navigating to: MitraDashboard');
+            navigation.replace('MitraDashboard');
+          } else {
+            console.log('✅ [LOGIN INIT] Navigating to: Dashboard (role:', userRole, ')');
+            navigation.replace('Dashboard'); // Default for User role
+          }
         } catch {
           await clearToken();
         }
@@ -82,7 +96,23 @@ export default function LoginScreen({ navigation }: any) {
     try {
       const res = await googleLogin(idToken);
       await saveToken(res.token);
-      navigation.replace('Dashboard');
+
+      // Get user role after login
+      const meResponse = await meApi();
+      const userRole = meResponse?.data?.user?.role?.name;
+      console.log('🔍 [GOOGLE LOGIN] User role from /me:', userRole);
+
+      const role = userRole?.toLowerCase();
+      if (role === 'affiliator') {
+        console.log('✅ [GOOGLE LOGIN] Navigating to: AffiliatorDashboard');
+        navigation.replace('AffiliatorDashboard');
+      } else if (role === 'mitra') {
+        console.log('✅ [GOOGLE LOGIN] Navigating to: MitraDashboard');
+        navigation.replace('MitraDashboard');
+      } else {
+        console.log('✅ [GOOGLE LOGIN] Navigating to: Dashboard (role:', userRole, ')');
+        navigation.replace('Dashboard');
+      }
     } catch (e: any) {
       const msg = e?.response?.data?.message || e?.message || 'Login Google gagal';
       setError(msg);
@@ -96,7 +126,23 @@ export default function LoginScreen({ navigation }: any) {
     try {
       const res = await loginApi(email, password);
       await saveToken(res.data.token);
-      navigation.replace('Dashboard');
+
+      // Get user role after login
+      const meResponse = await meApi();
+      const userRole = meResponse?.data?.user?.role?.name;
+      console.log('🔍 [EMAIL LOGIN] User role from /me:', userRole);
+
+      const role = userRole?.toLowerCase();
+      if (role === 'affiliator') {
+        console.log('✅ [EMAIL LOGIN] Navigating to: AffiliatorDashboard');
+        navigation.replace('AffiliatorDashboard');
+      } else if (role === 'mitra') {
+        console.log('✅ [EMAIL LOGIN] Navigating to: MitraDashboard');
+        navigation.replace('MitraDashboard');
+      } else {
+        console.log('✅ [EMAIL LOGIN] Navigating to: Dashboard (role:', userRole, ')');
+        navigation.replace('Dashboard');
+      }
     } catch (e) {
       const hasResponse = (e as any)?.response;
       if (!hasResponse) {

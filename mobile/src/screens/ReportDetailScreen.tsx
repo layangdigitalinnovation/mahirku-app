@@ -5,7 +5,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { downloadCertificate as downloadCertApi } from '../api/certificate';
+import { generateCertificatePDF } from '../utils/certificateGenerator';
+import { meApi } from '../api/auth';
+import { useQuery } from '@tanstack/react-query';
+
 
 export default function ReportDetailScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
@@ -20,18 +23,95 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   const sameType = Boolean(fpType && q?.tipeUtama && fpType === q.tipeUtama);
   const [downloading, setDownloading] = useState(false);
 
+  // Helper function to get full DISC type name
+  const getDiscFullName = (code: string): string => {
+    const typeMap: { [key: string]: string } = {
+      'D': 'Dominance',
+      'I': 'Influence',
+      'S': 'Steadiness',
+      'C': 'Compliance'
+    };
+    return typeMap[code] || code;
+  };
+
+  // Helper function to get DISC type description
+  const getDiscDescription = (code: string): string => {
+    const descMap: { [key: string]: string } = {
+      'D': 'Direct, results-oriented, firm, strong-willed, forceful.',
+      'I': 'Outgoing, enthusiastic, optimistic, high-spirited, lively.',
+      'S': 'Even-tempered, accommodating, patient, humble, tactful.',
+      'C': 'Analytical, reserved, precise, private, systematic.'
+    };
+    return descMap[code] || '';
+  };
+
+  const { data: userData } = useQuery({
+    queryKey: ['me'],
+    queryFn: async () => (await meApi()).data,
+    enabled: false, // Lazy load manually if needed, or rely on cache
+  });
+
   const dlCert = async () => {
     try {
-      const testId = r?.fullData?.id;
-      if (!testId) {
-        Alert.alert('Gagal', 'ID hasil tes tidak ditemukan');
+      if (!r?.fullData) {
+        Alert.alert('Gagal', 'Data laporan tidak lengkap');
         return;
       }
+
       setDownloading(true);
-      await downloadCertApi(Number(testId));
-      Alert.alert('Berhasil', 'Sertifikat berhasil diunduh dan siap dibagikan.');
+
+      const isDisc = r.type === 'disc';
+      const courseName = isDisc ? 'DISC Personality Test' : 'Cognitive Style Test';
+
+      // Try to get fullname from params/data first
+      let studentName = (r as any).fullname || r.fullData.fullname;
+
+      // If missing, check if it's "Student" or empty, and try to fetch current user
+      if (!studentName || studentName === 'Student') {
+        try {
+          // Use cached data if available or fetch fresh
+          const meRes = await meApi();
+          if (meRes.data?.user?.fullname) {
+            studentName = meRes.data.user.fullname;
+          }
+        } catch (e) {
+          console.log('Failed to fetch me fallback', e);
+        }
+      }
+
+      // Fallback only if absolutely everything fails
+      studentName = studentName || 'Student';
+
+      const certId = `${isDisc ? 'DISC' : 'CST'}-${r.fullData.id}-${new Date().getFullYear()}`;
+
+      // Get result title
+      let resultTitle = '';
+      if (isDisc) {
+        const code = r.fullData.thinkingStyle?.code || '';
+        const fullName = getDiscFullName(code);
+        resultTitle = `${code} (${fullName})`;
+      } else {
+        resultTitle = `${r.fullData.thinkingStyle?.type || ''} (${r.fullData.thinkingStyle?.code || ''})`;
+      }
+
+      // Format the date properly for the certificate
+      const dateObj = new Date(r.fullData.createdAt || r.fullData.created_at);
+      const formattedDate = isDisc ? '' : dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      await generateCertificatePDF({
+        studentName,
+        courseName,
+        completionDate: formattedDate,
+        certificateId: certId,
+        resultTitle
+      });
+
     } catch (error: any) {
-      Alert.alert('Gagal', error?.message || 'Gagal mengunduh sertifikat');
+      Alert.alert('Gagal', error?.message || 'Gagal membuat sertifikat');
     } finally {
       setDownloading(false);
     }
@@ -65,14 +145,77 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.itemTitle}>{r?.title || 'Test Result'}</Text>
-              <Text style={styles.itemDate}>{r?.date || ''}</Text>
+              {r?.type !== 'disc' && <Text style={styles.itemDate}>{r?.date || ''}</Text>}
             </View>
           </View>
 
           <View style={styles.divider} />
 
-          {/* Thinking Style Type */}
-          {thinkingStyle?.type && (
+          {/* DISC Test Specific Display */}
+          {r?.type === 'disc' && r?.fullData && (
+            <>
+              {/* DISC Dominant Type Circle */}
+              <View style={{ alignItems: 'center', marginVertical: 24 }}>
+                <Text style={styles.discSectionLabel}>DOMINANT TYPE</Text>
+                <View style={styles.discCircle}>
+                  <Text style={styles.discCircleText}>{r.fullData.thinkingStyle?.code || 'I'}</Text>
+                </View>
+                <Text style={styles.discTypeName}>
+                  {getDiscFullName(r.fullData.thinkingStyle?.code || 'I')}: {getDiscDescription(r.fullData.thinkingStyle?.code || 'I')}
+                </Text>
+              </View>
+
+              {/* DISC Detailed Scores */}
+              <Text style={[styles.sectionHeader, { marginTop: 12, marginBottom: 16 }]}>Detailed Scores</Text>
+
+              {/* Dominance */}
+              <View style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={styles.discScoreLabel}>Dominance (D)</Text>
+                  <Text style={[styles.discScoreValue, { color: '#EF4444' }]}>{r.fullData.dScore || 0}</Text>
+                </View>
+                <View style={styles.scoreBarBg}>
+                  <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.dScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#EF4444' }]} />
+                </View>
+              </View>
+
+              {/* Influence */}
+              <View style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={styles.discScoreLabel}>Influence (I)</Text>
+                  <Text style={[styles.discScoreValue, { color: '#3B82F6' }]}>{r.fullData.iScore || 0}</Text>
+                </View>
+                <View style={styles.scoreBarBg}>
+                  <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.iScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#3B82F6' }]} />
+                </View>
+              </View>
+
+              {/* Steadiness */}
+              <View style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={styles.discScoreLabel}>Steadiness (S)</Text>
+                  <Text style={[styles.discScoreValue, { color: '#F59E0B' }]}>{r.fullData.sScore || 0}</Text>
+                </View>
+                <View style={styles.scoreBarBg}>
+                  <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.sScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#F59E0B' }]} />
+                </View>
+              </View>
+
+              {/* Compliance */}
+              <View style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={styles.discScoreLabel}>Compliance (C)</Text>
+                  <Text style={[styles.discScoreValue, { color: '#10B981' }]}>{r.fullData.cScore || 0}</Text>
+                </View>
+                <View style={styles.scoreBarBg}>
+                  <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.cScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#10B981' }]} />
+                </View>
+              </View>
+            </>
+          )}
+
+          {/* Thinking Style Type (for CST) */}
+          {r?.type !== 'disc' && thinkingStyle?.type && (
             <>
               <Text style={styles.sectionHeader}>Tipe Gaya Berpikir</Text>
               <LinearGradient
@@ -87,8 +230,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {/* Description */}
-          {thinkingStyle?.description && (
+          {/* Description (Only for non-DISC tests) */}
+          {r?.type !== 'disc' && thinkingStyle?.description && (
             <>
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Deskripsi</Text>
               <View style={styles.descCard}>
@@ -97,8 +240,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {/* Theory */}
-          {thinkingStyle?.theory && (
+          {/* Theory (Only for non-DISC tests) */}
+          {r?.type !== 'disc' && thinkingStyle?.theory && (
             <>
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Landasan Teori</Text>
               <View style={styles.theoryCard}>
@@ -108,41 +251,34 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             </>
           )}
 
-          {combine && (
+          {/* Final Result (Only for non-DISC tests) */}
+          {r?.type !== 'disc' && combine && (
             <>
-              <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Skor Akhir</Text>
+              <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Hasil Akhir</Text>
               <View style={styles.scoreCard}>
-                <Text style={styles.scoreLabel}>Gabungan: 60% sidik jari + 40% kuesioner</Text>
-                <View style={{ marginTop: 12 }}>
+                <View style={{ marginTop: 4 }}>
                   {sameType ? (
-                    <Text style={styles.itemSubtitle}>{fpType} 100%</Text>
+                    <>
+                      <Text style={styles.finalTypeLabel}>Tipe Gaya Berpikir Anda:</Text>
+                      <Text style={styles.finalTypeValue}>{fpType}</Text>
+                      <View style={styles.consistencyBadge}>
+                        <Feather name="check-circle" size={14} color="#10B981" />
+                        <Text style={styles.consistencyText}>Confidence</Text>
+                      </View>
+                    </>
                   ) : (
                     <>
-                      <Text style={styles.itemSubtitle}>{fpType} 60%</Text>
-                      <Text style={styles.itemSubtitle}>{qLabel} 40%</Text>
+                      <Text style={styles.finalTypeLabel}>Tipe Gaya Berpikir Anda:</Text>
+                      <Text style={styles.finalTypeValue}>{fpType}</Text>
+                      <View style={styles.combinedNote}>
+                        <Feather name="info" size={14} color="#64748B" />
+                        <Text style={styles.combinedNoteText}>
+                          Hasil dari kombinasi sidik jari dan kuesioner
+                        </Text>
+                      </View>
                     </>
                   )}
                 </View>
-              </View>
-            </>
-          )}
-
-          {combine?.questionnaire && (
-            <>
-              <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Ringkasan Kuesioner</Text>
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Observer</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Observer}</Text></View>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Analyzer</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Analyzer}</Text></View>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Empath</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Empath}</Text></View>
-              </View>
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Visionary</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Visionary}</Text></View>
-                <View style={styles.metric}><Text style={styles.metricLabel}>Navigator</Text><Text style={styles.metricValue}>{combine.questionnaire.domainScores?.Navigator}</Text></View>
-                <View style={styles.metric}><Text style={styles.metricLabel}>{combine.questionnaire.eiType}</Text><Text style={styles.metricValue}>{combine.questionnaire.eiType === 'Ekstrovert' ? combine.questionnaire.eScore : combine.questionnaire.iScore}</Text></View>
-              </View>
-              <View style={styles.summaryCard}>
-                <Text style={styles.itemSubtitle}>Tipe Utama: {combine.questionnaire.tipeUtama}</Text>
-                <Text style={styles.itemSubtitle}>Final Type (kuesioner): {combine.questionnaire.finalType}</Text>
               </View>
             </>
           )}
@@ -155,8 +291,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             loading={downloading}
           />
         </Card>
-      </ScrollView>
-    </View>
+      </ScrollView >
+    </View >
   );
 }
 
@@ -274,6 +410,52 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500'
   },
+  finalTypeLabel: {
+    color: '#64748B',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8
+  },
+  finalTypeValue: {
+    color: '#4F46E5',
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 12
+  },
+  consistencyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: '#D1FAE5'
+  },
+  consistencyText: {
+    color: '#10B981',
+    fontSize: 12,
+    fontWeight: '600'
+  },
+  combinedNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: '#E2E8F0'
+  },
+  combinedNoteText: {
+    color: '#64748B',
+    fontSize: 12,
+    fontWeight: '500'
+  },
   metric: {
     flex: 1,
     borderWidth: 1,
@@ -307,5 +489,61 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 4
+  },
+  // DISC Test Styles
+  discSectionLabel: {
+    color: '#94A3B8',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginBottom: 16,
+    textTransform: 'uppercase'
+  },
+  discCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 4,
+    borderColor: '#22D3EE',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: '#22D3EE',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6
+  },
+  discCircleText: {
+    fontSize: 56,
+    fontWeight: '800',
+    color: '#22D3EE'
+  },
+  discTypeName: {
+    textAlign: 'center',
+    color: '#64748B',
+    fontSize: 14,
+    lineHeight: 22,
+    paddingHorizontal: 24
+  },
+  discScoreLabel: {
+    color: '#1E293B',
+    fontSize: 14,
+    fontWeight: '600'
+  },
+  discScoreValue: {
+    fontSize: 16,
+    fontWeight: '800'
+  },
+  scoreBarBg: {
+    height: 8,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 4,
+    overflow: 'hidden'
+  },
+  scoreBar: {
+    height: '100%',
+    borderRadius: 4
   },
 });
