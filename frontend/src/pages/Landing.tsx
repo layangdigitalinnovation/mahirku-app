@@ -50,24 +50,24 @@ export const Landing: React.FC = () => {
 
   const testTypes = [
     {
-      title : "Cognitive Style Test",
-      description : "Temukan pola berpikir unik Anda dan bagaimana hal itu memengaruhi keputusan serta karier Anda.",
-      icon : Brain,
-      link : "/login",
+      title: "Cognitive Style Test",
+      description: "Temukan pola berpikir unik Anda dan bagaimana hal itu memengaruhi keputusan serta karier Anda.",
+      icon: Brain,
+      link: "",
       available: true
     },
     {
-      title : "DISC Test",
-      description : "Tes DISC (Four Personality Types) adalah tes yang mengetahui tiga aspek utama dalam interaksi manusia.",
-      icon : Users,
-      link : "/login",
+      title: "DISC Test",
+      description: "Tes DISC (Four Personality Types) adalah tes yang mengetahui tiga aspek utama dalam interaksi manusia.",
+      icon: Users,
+      link: "",
       available: true
     },
     {
-      title : "Graphology Test",
-      description : "Tes Graphology (Pengetahuan Tangan) adalah metode yang menggunakan analisis tangan untuk mengidentifikasi sifat-sifat psikologis seseorang.",
-      icon : PenTool,
-      link : "",
+      title: "Graphology Test",
+      description: "Tes Graphology (Pengetahuan Tangan) adalah metode yang menggunakan analisis tangan untuk mengidentifikasi sifat-sifat psikologis seseorang.",
+      icon: PenTool,
+      link: "",
       available: false
     }
   ]
@@ -167,12 +167,12 @@ export const Landing: React.FC = () => {
                     {service.title}
                   </h3>
                   <p className="font-body text-body1">{service.description}</p>
-                 
+
                 </CardContent>
                 <CardFooter>
                   {service.available ? (
                     <Button className="w-full">
-                      <Link to={service.link || "/test/"}>Lihat Test</Link>
+                      <Link to={service.link || "/login"}>Lihat Test</Link>
                     </Button>
                   ) : (
                     <Button className="w-full" disabled variant="outline">
@@ -199,47 +199,55 @@ export const Landing: React.FC = () => {
             </p>
           </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-  {!isLoading &&
-    testPackages?.length > 0 &&
-    testPackages.map((pkg: PackagePayload, index: number) => {
-      // Ubah string deskripsi menjadi array list
-      const descriptions = pkg.description
-        ? pkg.description.split(",").map((item) => item.trim())
-        : [];
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {!isLoading &&
+              testPackages?.length > 0 &&
+              testPackages.map((pkg: PackagePayload, index: number) => {
+                // Ubah string deskripsi menjadi array list
+                const descriptions = pkg.description
+                  ? pkg.description.split(",").map((item) => item.trim())
+                  : [];
 
-      return (
-        <Card
-          key={index}
-          className="p-6 shadow-lg hover:shadow-2xl transition-all rounded-2xl flex flex-col text-left"
-        >
-          <CardHeader>
-            <h3 className="text-heading3 font-bold text-primary-900 mb-1">
-              {pkg.name}
-            </h3>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col justify-between">
-            <div className="text-heading3 md:text-heading2 font-heading font-bold text-secondary-300 mb-6">
-              {formatCurrency(pkg.price)}
-            </div>
-            <div className="space-y-3 bg-white border border-neutral-200 p-6 rounded-xs list-disc list-inside">
-              {descriptions.map((desc, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <CheckIcon className="inline-block w-5 h-5 text-blue-500 mr-2" />
-                  {desc}
-                </div>
-              ))}
-            </div>
-            <Link to={"/register"}>
-              <Button variant="secondary" className="w-full mt-8">
-                Pilih Paket
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      );
-    })}
-</div>
+                return (
+                  <Card
+                    key={index}
+                    className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group"
+                  >
+                    <CardHeader className="p-8 pb-0">
+                      <h3 className="text-xl font-bold text-slate-900 mb-2 min-h-[56px] flex items-end">
+                        {pkg.name}
+                      </h3>
+                      <div className="text-3xl font-extrabold text-blue-600">
+                        {formatCurrency(pkg.price)}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-8 pt-6 flex-1 flex flex-col">
+                      <div className="flex-1 space-y-4 mb-8">
+                        {descriptions.map((desc, i) => (
+                          <div key={i} className="flex items-start gap-3">
+                            <div className="mt-0.5 shrink-0 p-1 bg-blue-50 rounded-full text-blue-500">
+                              <CheckIcon className="w-3.5 h-3.5" strokeWidth={3} />
+                            </div>
+                            <span className="text-slate-600 text-sm font-medium leading-relaxed">
+                              {desc}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <Link to={"/register"} className="block mt-auto">
+                        <Button
+                          variant="default"
+                          size="lg"
+                          className="w-full rounded-2xl font-bold bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200"
+                        >
+                          Pilih Paket
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+          </div>
 
         </div>
       </section>
@@ -254,7 +262,7 @@ export const Landing: React.FC = () => {
           backgroundSize: "cover",
         }}
       >
-        <div className="contianer max-w-screen-xl mx-auto px-10 sm:px-10 lg:px-8 flex flex-col md:flex-row justify-between gap-10">
+        <div className="contianer max-w-7xl mx-auto px-10 sm:px-10 lg:px-8 flex flex-col md:flex-row justify-between gap-10">
           <div>
             <img
               src={cta}
