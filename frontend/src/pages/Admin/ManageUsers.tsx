@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users, Filter, X, UserPlus, Trash2, Edit } from "lucide-react";
+import { Search, Users, Filter, X, UserPlus, Trash2, Edit, ShieldCheck, Banknote, Handshake, UserCircle } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { RoleName, User } from "@/types";
@@ -290,40 +290,94 @@ export default function ManageUsers() {
       </div>
 
       {/* Role Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {/* Total Users Card */}
+        <Card className="border-blue-200 bg-linear-to-br from-blue-50 to-white hover:shadow-md transition-all duration-300">
           <CardHeader className="pb-2">
-            <CardDescription className="text-xs font-medium">Total Pengguna</CardDescription>
+            <CardDescription className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Total Pengguna</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-blue-600" />
-              <span className="text-2xl font-bold">{data?.length || 0}</span>
+            <div className="flex items-center justify-between">
+              <span className="text-3xl font-bold text-gray-800">{data.length}</span>
+              <div className="p-2 bg-blue-100 rounded-full">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {roles.map((role) => role as RoleName).map((role) => (
-          <Card key={role}>
-            <CardHeader className="pb-2">
-              <CardDescription className="text-xs font-medium">
-                {role === RoleName.SUPER_ADMIN ? 'Super Admin' :
-                  role === RoleName.AFFILIATOR ? 'Affiliator' :
-                    role === RoleName.USER ? 'User' :
-                      role === RoleName.MITRA ? 'Mitra' :
-                        (role as string).charAt(0).toUpperCase() + (role as string).slice(1)}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold">{roleStats[role]}</span>
-                <Badge variant="secondary" className="text-xs">
-                  {Math.round((roleStats[role] / (data?.length || 1)) * 100)}%
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {roles.map((role: any) => {
+          const roleNameStr = role as string;
+          let style = {
+            bg: "bg-white",
+            border: "border-gray-200",
+            text: "text-gray-600",
+            icon: Users,
+            iconBg: "bg-gray-100",
+            label: roleNameStr
+          };
+
+          if (role === RoleName.SUPER_ADMIN) {
+            style = {
+              bg: "bg-linear-to-br from-purple-50 to-white",
+              border: "border-purple-200",
+              text: "text-purple-600",
+              icon: ShieldCheck,
+              iconBg: "bg-purple-100",
+              label: "Super Admin"
+            };
+          } else if (role === RoleName.AFFILIATOR) {
+            style = {
+              bg: "bg-linear-to-br from-emerald-50 to-white",
+              border: "border-emerald-200",
+              text: "text-emerald-600",
+              icon: Banknote,
+              iconBg: "bg-emerald-100",
+              label: "Affiliator"
+            };
+          } else if (role === RoleName.USER) {
+            style = {
+              bg: "bg-linear-to-br from-orange-50 to-white",
+              border: "border-orange-200",
+              text: "text-orange-600",
+              icon: UserCircle,
+              iconBg: "bg-orange-100",
+              label: "User"
+            };
+          } else if (roleNameStr.toLowerCase() === 'mitra') {
+            style = {
+              bg: "bg-linear-to-br from-cyan-50 to-white",
+              border: "border-cyan-200",
+              text: "text-cyan-600",
+              icon: Handshake,
+              iconBg: "bg-cyan-100",
+              label: "Mitra"
+            };
+          }
+
+          const IconComponent = style.icon;
+
+          return (
+            <Card key={roleNameStr} className={`${style.bg} ${style.border} hover:shadow-md transition-all duration-300`}>
+              <CardHeader className="pb-2">
+                <CardDescription className={`text-xs font-semibold ${style.text} uppercase tracking-wider`}>
+                  {style.label}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl font-bold text-gray-800">{roleStats[roleNameStr]}</span>
+                  <div className={`p-2 rounded-full ${style.iconBg} flex items-center gap-2`}>
+                    <IconComponent className={`h-5 w-5 ${style.text}`} />
+                    <Badge variant="secondary" className="bg-white/50 backdrop-blur-sm text-xs border-0">
+                      {Math.round((roleStats[roleNameStr] / data.length) * 100)}%
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Filters Section */}
