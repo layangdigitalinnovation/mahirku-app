@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -34,6 +34,8 @@ import AddMemberScreen from './src/screens/AddMemberScreen';
 import MemberListScreen from './src/screens/MemberListScreen';
 import TermsOfUseScreen from './src/screens/TermsOfUseScreen';
 import FAQScreen from './src/screens/FAQScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { saveReferralCode } from './src/store/referral';
 
@@ -60,6 +62,25 @@ const linking = {
 };
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    checkOnboardingStatus();
+  }, []);
+
+  const checkOnboardingStatus = async () => {
+    try {
+      const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding');
+      setShowOnboarding(hasSeenOnboarding !== 'true');
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      setShowOnboarding(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleUrl = (url: string | null) => {
       if (!url) return;
@@ -82,11 +103,17 @@ export default function App() {
     return () => subscription.remove();
   }, []);
 
+  // Show nothing while loading
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <PaperProvider>
       <QueryClientProvider client={queryClient}>
         <NavigationContainer linking={linking}>
-          <Stack.Navigator initialRouteName="Auth" screenOptions={{ headerShown: false }}>
+          <Stack.Navigator initialRouteName={showOnboarding ? "Onboarding" : "Auth"} screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="Auth" component={AuthScreen} />
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
             <Stack.Screen name="AffiliatorDashboard" component={AffiliatorNavigator} />
