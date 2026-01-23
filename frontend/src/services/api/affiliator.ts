@@ -28,3 +28,15 @@ export const fetchCommissionBreakdown = async () => {
   const { data } = await api.get("/affiliate/commission-breakdown");
   return data;
 };
+
+// Check Mitra Eligibility
+export const checkMitraEligibility = async () => {
+  const { data } = await api.get<{ eligible: boolean; message: string }>("/affiliate/check-mitra-eligibility");
+  return data;
+};
+
+// Upgrade to Mitra
+export const upgradeToMitra = async () => {
+  const { data } = await api.post("/affiliate/upgrade-mitra");
+  return data;
+};

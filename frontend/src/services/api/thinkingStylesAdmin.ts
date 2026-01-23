@@ -77,47 +77,47 @@ export const getAllThinkingStyles = async (params: GetAllThinkingStylesParams = 
     search,
     ...(isActive !== undefined && { isActive: isActive.toString() })
   });
-  
-  const response = await api.get(`/admin/thinking-styles?${queryParams}`);
+
+  const response = await api.get(`/admin/thinking-style?${queryParams}`);
   return response.data;
 };
 
 export const getAllCountThinkingStyleTest = async (): Promise<{ message: string; data: { total: number } }> => {
-  const response = await api.get('/admin/thinking-styles/test-stats');
+  const response = await api.get('/admin/thinking-style/test-stats');
   return response.data;
 };
 
 export const getThinkingStyleById = async (id: number): Promise<{ message: string; data: ThinkingStyle }> => {
-  const response = await api.get(`/admin/thinking-styles/${id}`);
+  const response = await api.get(`/admin/thinking-style/${id}`);
   return response.data;
 };
 
 export const getThinkingStyleStats = async (): Promise<{ message: string; data: ThinkingStyleStatistics }> => {
-  const response = await api.get('/admin/thinking-styles/stats');
+  const response = await api.get('/admin/thinking-style/stats');
   return response.data;
 };
 
 export const createThinkingStyle = async (payload: CreateThinkingStylePayload): Promise<{ message: string; data: ThinkingStyle }> => {
-  const response = await api.post('/admin/thinking-styles', payload);
+  const response = await api.post('/admin/thinking-style', payload);
   return response.data;
 };
 
 export const updateThinkingStyle = async (id: number, payload: UpdateThinkingStylePayload): Promise<{ message: string; data: ThinkingStyle }> => {
-  const response = await api.put(`/admin/thinking-styles/${id}`, payload);
+  const response = await api.put(`/admin/thinking-style/${id}`, payload);
   return response.data;
 };
 
 export const deleteThinkingStyle = async (id: number): Promise<{ message: string }> => {
-  const response = await api.delete(`/admin/thinking-styles/${id}`);
+  const response = await api.delete(`/admin/thinking-style/${id}`);
   return response.data;
 };
 
 export const restoreThinkingStyle = async (id: number): Promise<{ message: string; data: ThinkingStyle }> => {
-  const response = await api.patch(`/admin/thinking-styles/${id}/restore`);
+  const response = await api.patch(`/admin/thinking-style/${id}/restore`);
   return response.data;
 };
 
 export const bulkUpdateThinkingStyles = async (payload: BulkUpdatePayload): Promise<{ message: string; data: ThinkingStyle[] }> => {
-  const response = await api.post('/admin/thinking-styles/bulk-update', payload);
+  const response = await api.post('/admin/thinking-style/bulk-update', payload);
   return response.data;
 };

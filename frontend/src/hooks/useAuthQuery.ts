@@ -41,6 +41,7 @@ export const useRegisterUser = () => {
           fullname: userData.fullname,
           address: userData.address,
           phoneNumber: userData.phoneNumber,
+          mitraId: userData.mitraId,
         }
       );
     },

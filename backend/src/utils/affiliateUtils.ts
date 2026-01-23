@@ -8,12 +8,14 @@ const COMMISSION_CONFIG = {
   DEFAULT_COMMISSION_RATE: 0, // Default rate jika package tidak ditemukan (0% = tidak ada komisi)
 };
 
+import TokenPurchase from '../models/TokenPurchase';
+
 /**
  * Menambahkan komisi dari token purchase dengan dynamic commission rate
  * @param tokenPurchaseId - ID dari token purchase
  * @param referrerId - ID affiliator yang mendapat komisi
  * @param userId - ID user yang melakukan purchase
- * @param totalAmount - Total amount dari token purchase
+ * @param commissionAmount - Amount komisi untuk affiliator
  * @param packageId - ID package untuk menentukan commission rate
  */
 export const addTokenPurchaseCommission = async (
@@ -28,7 +30,7 @@ export const addTokenPurchaseCommission = async (
       return null;
     }
 
-    // Buat record komisi
+    // Buat record komisi untuk Affiliator
     const commission = await AffiliateCommission.create({
       referrerId,
       referredUserId: userId,
@@ -39,13 +41,71 @@ export const addTokenPurchaseCommission = async (
       sourceId: tokenPurchaseId,
     });
 
-    // Update atau buat affiliate balance
+    // Update atau buat affiliate balance untuk Affiliator
     await updateAffiliateBalance(referrerId, commissionAmount);
+
+    // --- LOGIC MITRA COMMISSION ---
+    // Cek apakah affiliator memiliki parent (Mitra)
+    const referrer = await User.findByPk(referrerId);
+    if (referrer && referrer.parentId) {
+      const mitraId = referrer.parentId;
+      
+      // Ambil data token purchase untuk mendapatkan total token
+      const tokenPurchase = await TokenPurchase.findByPk(tokenPurchaseId);
+      
+      if (tokenPurchase) {
+        // Hitung komisi mitra
+        const mitraCommissionAmount = await calculateMitraCommission(packageId, tokenPurchase.totalToken);
+        
+        if (mitraCommissionAmount > 0) {
+          // Buat record komisi untuk Mitra
+          await AffiliateCommission.create({
+            referrerId: mitraId,
+            referredUserId: userId, // User yang beli (atau bisa referrerId jika ingin tracking downline)
+            testCompleted: false,
+            amount: mitraCommissionAmount,
+            status: 'paid',
+            source: 'token_purchase', // Tetap gunakan token_purchase
+            sourceId: tokenPurchaseId,
+          });
+
+          // Update balance Mitra
+          await updateAffiliateBalance(mitraId, mitraCommissionAmount);
+        }
+      }
+    }
 
     return commission;
   } catch (error) {
     console.error('Error adding token purchase commission:', error);
     throw error;
+  }
+};
+
+/**
+ * Menghitung komisi mitra berdasarkan total tokens yang dibeli
+ * @param packageId - ID package
+ * @param totalTokens - Total tokens yang dibeli
+ * @returns Jumlah komisi yang akan diberikan ke mitra
+ */
+export const calculateMitraCommission = async (packageId: number, totalTokens: number): Promise<number> => {
+  try {
+    const packageData = await Package.findByPk(packageId);
+    if (!packageData) {
+      console.warn(`Package with ID ${packageId} not found, no mitra commission will be calculated`);
+      return 0;
+    }
+    
+    // Rumus: price_per_token = package.price / package.defaultTokenAmount
+    const pricePerToken = packageData.price / packageData.defaultTokenAmount;
+    
+    // Rumus: commission = total_tokens × price_per_token × mitra_commission_rate
+    const commissionAmount = totalTokens * pricePerToken * (packageData.mitraCommissionRate / 100);
+    
+    return Math.floor(commissionAmount);
+  } catch (error) {
+    console.error('Error calculating mitra commission:', error);
+    return 0;
   }
 };
 

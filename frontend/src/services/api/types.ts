@@ -10,6 +10,7 @@ export interface CreateUserPayload {
   phoneNumber: string;
   address: string;
   roleId?: number;
+  mitraId?: string; // Optional Mitra ID for member registration
   bankAccountName?: string;
   bankAccountNumber?: string;
   bankName?: string;
@@ -26,6 +27,7 @@ export interface PackagePayload {
   description : string;
   defaultTokenAmount: number;
   commissionRate: number;
+  mitraCommissionRate?: number;
   price: number;
 }
 
@@ -57,7 +59,7 @@ export interface ThinkingStyleResult {
   id: number;
   userId: number;
   fullname: string;
-  birthdate: string; // ISO date string
+  birthdate?: string | null; // ISO date string
   resultDigit: number;
   thinkingStyleId : number;
   thinkingStyle : ThinkingStyle
@@ -65,4 +67,38 @@ export interface ThinkingStyleResult {
   referrerId: number | null;
   updatedAt: string; // ISO datetime
   createdAt: string; // ISO datetime
+  testType?: 'THINKING_STYLE' | 'DISC';
+  // DISC fields (optional)
+  dScore?: number;
+  iScore?: number;
+  sScore?: number;
+  cScore?: number;
+  dominantType?: string;
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  roleId: number;
+  fullname: string;
+  address: string;
+  phoneNumber: string;
+  tokens: number;
+  parentId?: number;
+  packageId?: number;
+  bankName?: string;
+  bankAccountNumber?: string;
+  bankAccountName?: string;
+  createdAt: string;
+  updatedAt: string;
+  role?: Role;
+  parent?: User; // Mitra/Affiliator yang mereferensikan
 }

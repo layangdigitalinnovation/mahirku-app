@@ -119,15 +119,19 @@ export default function TokenPackages({
 
       const result = await purchaseToken(purchaseData);
 
-      if (result) {
+      if (result && result.paymentUrl) {
         setPaymentMessage("Redirecting you to Xendit for payment...");
         // redirect ke xendit setelah beberapa detik
         setTimeout(() => {
           window.location.href = result.paymentUrl!;
         }, 1500);
       } else {
-        setPaymentMessage("Purchase successful! Tokens will be added shortly.");
+        setPaymentMessage("Pembayaran berhasil! Token telah ditambahkan.");
         setIsProcessingPayment(false);
+        setTimeout(() => {
+          setOpen(false);
+          window.location.reload(); // Reload to update token balance
+        }, 1500);
       }
     } catch (err) {
       setPaymentMessage(

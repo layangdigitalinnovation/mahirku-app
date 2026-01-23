@@ -1,0 +1,52 @@
+services:
+  frontend:
+    image: layangdigital/mahirku-frontend:latest
+    depends_on:
+      - backend
+    networks:
+      - nginx-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+
+  backend:
+    image: layangdigital/mahirku-backend:latest
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - DATABASE_URL=${DATABASE_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST:-db}
+      - PORT=${PORT:-5000}
+      - JWT_SECRET=${JWT_SECRET}
+      - XENDIT_API_KEY=${XENDIT_API_KEY}
+      - XENDIT_PUBLIC_KEY=${XENDIT_PUBLIC_KEY}
+      - XENDIT_BASE_URL=${XENDIT_BASE_URL:-https://api.xendit.co}
+      - XENDIT_CALLBACK_URL=${XENDIT_CALLBACK_URL}
+      - XENDIT_SUCCESS_REDIRECT_URL=${XENDIT_SUCCESS_REDIRECT_URL}
+      - XENDIT_FAILURE_REDIRECT_URL=${XENDIT_FAILURE_REDIRECT_URL}
+      - XENDIT_CALLBACK_TOKEN=${XENDIT_CALLBACK_TOKEN}
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
+      - RUN_SEEDS=${RUN_SEEDS:-false}
+    networks:
+      - nginx-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+
+
+networks:
+  nginx-network:
+    external: true

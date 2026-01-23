@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Users,  TrendingUp, Package, Gift, Wallet, Lightbulb, List } from "lucide-react";
+import { Users, TrendingUp, Package, Gift, Wallet, Lightbulb, List, ListChecks } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import AppSidebar from "@/components/ui/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -52,6 +52,12 @@ export default function SuperAdminDashboardLayout() {
       title: "Manajemen Thinking Style",
     },
     {
+      label: "Manajemen DISC",
+      path: "/admin/dashboard/disc-questions",
+      icon: ListChecks,
+      title: "Manajemen DISC Questions",
+    },
+    {
       label: "Manajemen Invoice",
       path: "/admin/dashboard/invoice",
       icon: List,
@@ -60,14 +66,14 @@ export default function SuperAdminDashboardLayout() {
   ];
 
   // Get current page title based on location
-const getCurrentPageTitle = () => {
-  // Cari menu item yang path-nya paling panjang dan tetap cocok dengan pathname
-  const currentItem = menuItems
-    .filter(item => location.pathname.startsWith(item.path))
-    .sort((a, b) => b.path.length - a.path.length)[0]; // ambil yang paling spesifik
-  
-  return currentItem ? currentItem.title : "Dashboard";
-};
+  const getCurrentPageTitle = () => {
+    // Cari menu item yang path-nya paling panjang dan tetap cocok dengan pathname
+    const currentItem = menuItems
+      .filter(item => location.pathname.startsWith(item.path))
+      .sort((a, b) => b.path.length - a.path.length)[0]; // ambil yang paling spesifik
+
+    return currentItem ? currentItem.title : "Dashboard";
+  };
 
   return (
     <>
@@ -93,7 +99,7 @@ const getCurrentPageTitle = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="w-full h-full">
                 <Outlet />
               </div>

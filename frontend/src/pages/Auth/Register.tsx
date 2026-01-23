@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { UserPlus, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { useRegisterUser } from "@/hooks/useAuthQuery";
+import { getReferralId } from "@/utils/referral";
 
 const formSchema = z
   .object({
@@ -25,6 +26,7 @@ const formSchema = z
     phoneNumber: z.string().min(8, "Nomor HP tidak valid"),
     address: z.string().min(5, "Alamat wajib diisi"),
     email: z.string().email("Email tidak valid"),
+    mitraId: z.string().optional(),
     password: z.string().min(6, "Password minimal 6 karakter"),
     confirmPassword: z
       .string()
@@ -38,10 +40,22 @@ const formSchema = z
 type RegisterForm = z.infer<typeof formSchema>;
 
 export const Register: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const mitraParam = searchParams.get('mitra');
+  const refParam = searchParams.get('ref');
+  
+  // Hanya gunakan refParam jika angka (asumsi ID Mitra), hindari format aff...
+  const mitraIdParam = mitraParam || (refParam && !isNaN(Number(refParam)) ? refParam : "") || "";
+  
   const { mutateAsync: registerUser } = useRegisterUser();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Ensure referral cookie is set if ref param exists (e.g. from direct link)
+  useEffect(() => {
+    getReferralId();
+  }, []);
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(formSchema),
@@ -51,6 +65,7 @@ export const Register: React.FC = () => {
       phoneNumber: "",
       address: "",
       email: "",
+      mitraId: mitraIdParam,
       password: "",
       confirmPassword: "",
     },
@@ -66,6 +81,7 @@ export const Register: React.FC = () => {
         phoneNumber: values.phoneNumber,
         email: values.email,
         password: values.password,
+        mitraId: values.mitraId,
       };
       // Tidak perlu ambil referrerId karena backend akan ambil dari cookie
       await registerUser(payload);
@@ -229,6 +245,20 @@ export const Register: React.FC = () => {
                         )}
                       </button>
                     </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="mitraId"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>ID Mitra / Kode Referral (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan ID Mitra (jika ada)" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

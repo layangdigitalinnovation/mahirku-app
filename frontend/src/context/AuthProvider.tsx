@@ -21,6 +21,7 @@ interface RegisterDetails {
   fullname?: string;
   address?: string;
   phoneNumber?: string;
+  mitraId?: string;
   bankAccountName?: string;
   bankAccountNumber?: string;
   bankName?: string;
@@ -53,7 +54,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const dashboardRoutes = {
       super_admin: '/admin/dashboard',
       affiliator: '/affiliator/dashboard',
-      user: '/customer/dashboard'
+      user: '/customer/dashboard',
+      mitra: '/mitra/dashboard/overview'
     };
     return dashboardRoutes[role as keyof typeof dashboardRoutes] || '/login';
   };
@@ -148,6 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           fullname: details.fullname || '',
           address: details.address || '',
           phoneNumber: details.phoneNumber || '',
+          mitraId: details.mitraId,
           bankAccountName: details.bankAccountName || '',
           bankAccountNumber: details.bankAccountNumber || '',
           bankName: details.bankName || '',

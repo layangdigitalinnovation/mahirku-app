@@ -1,341 +1,206 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Fingerprint,
-  Brain,
   Coins,
   AlertCircle,
+  Brain,
+  FileQuestion,
+  Smartphone,
   CheckCircle,
   ShoppingCart,
+  ChevronRight
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { scanFingerprint } from "@/utils/fingerprint";
-import { getReferralId } from "@/utils/referral";
 import { useMeQuery } from "@/hooks/useAuthQuery";
 import TokenPackages from "@/components/ui/TokenPackage";
 import { usePackages } from "@/hooks/usePackage";
-import { ThinkingStyleRequest } from "@/services/api";
-import { TestForm } from "@/components/form/TestForm";
-import { useSubmitTest } from "@/hooks/useThinkingStyleTest";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const CognitiveTest: React.FC = () => {
-  const [birthDate, setBirthDate] = useState("");
-  const [fullname, setFullname] = useState("");
-  const [step, setStep] = useState<
-    "token-check" | "birthdate" | "fingerprint" | "processing"
-  >("token-check");
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
   const { data } = useMeQuery();
-
+  const navigate = useNavigate();
   const token = data?.user?.tokens || 0;
   const { data: tokenPackages } = usePackages();
-  const { mutateAsync: submitTest } = useSubmitTest();
+  const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
 
-  const handleStartTest = () => {
-    if (!user) {
-      alert("Silakan login untuk mengikuti tes");
-      return;
-    }
-
-    if (token <= 0) {
-      alert("Token tidak mencukupi. Silakan beli token untuk mengikuti tes.");
-      return;
-    }
-
-    setStep("birthdate");
-  };
-
-  const handleFingerprintScan = async () => {
-    setStep("processing");
-
-    try {
-      const fingerprintId = await scanFingerprint();
-      // Delay 2 menit untuk simulasi proses scan fingerprint
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 2 menit
-
-      const referrerId = getReferralId();
-      const referrerIdNumber = referrerId?.split("aff")[1];
-
-      const testData: ThinkingStyleRequest = {
-        fullname,
-        birthdate: birthDate,
-        fingerPrintId: fingerprintId as string,
-        referrerId: referrerIdNumber,
-      };
-
-      // ⬇️ Ambil langsung result dari API
-      const result = await submitTest(testData);
-
-      console.log(result.data);
-
-      // ⬇️ Arahkan ke result page
-      navigate("/customer/dashboard/test/result", {
-        state: { testResult: result?.data },
-      });
-    } catch (error) {
-      console.error("Error saving test result:", error);
-      navigate("/test/result", {
-        state: {
-          testResult: {
-            id: "temp",
-            fullname,
-            birthdate: birthDate,
-            fingerprintId: null,
-          },
-        },
-      });
-    }
-  };
-
-  if (step === "processing") {
+  if (!tokenPackages) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4">
-          <CardContent className="text-center p-8">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <h3 className="text-xl font-semibold mb-2">
-              Memproses Hasil Tes Anda
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Sedang menganalisis gaya kognitif Anda...
-            </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-              <p className="text-sm text-blue-700">
-                <strong>Catatan:</strong> Proses ini membutuhkan waktu sekitar 2
-                menit untuk memastikan akurasi hasil analisis fingerprint dan
-                gaya berpikir Anda.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 -mt-2 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl relative mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Token Display Header */}
-            <Card className="w-full left-0 z-[99] max-w-screen mx-auto block top-20 bg-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Coins className="h-8 w-8 text-yellow-500" />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">
-                        Token Tes Anda
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Setiap tes membutuhkan 1 token
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-yellow-600">
-                      {token}
-                    </div>
-                    <p className="text-sm text-gray-500">Tersedia</p>
-                  </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto space-y-8">
+
+        {/* Token Balance Header */}
+        <Card className="bg-white border-blue-100 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-100 rounded-full -mr-16 -mt-16 opacity-20 pointer-events-none" />
+          <CardContent className="p-6 relative">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-yellow-50 rounded-2xl">
+                  <Coins className="h-8 w-8 text-yellow-600" />
                 </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Token Tes Anda
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Gunakan untuk mengakses tes premium
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-4xl font-bold text-yellow-600 font-mono tracking-tight">
+                  {token}
+                </div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-1">Token Tersedia</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Test Selection Grid */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Pilih Tes</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+
+            {/* Cognitive Style Test Card */}
+            <Card className="hover:shadow-lg transition-all duration-300 border-blue-100 cursor-pointer group" onClick={() => setIsMobileModalOpen(true)}>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors duration-300">
+                    <Brain className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
+                  </div>
+                  {data?.user?.parentId && (
+                     <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-full shadow-sm">
+                       Unlock Affiliator
+                     </span>
+                  )}
+                </div>
+                <CardTitle className="text-xl text-blue-900">Tes Gaya Kognitif</CardTitle>
+                <CardDescription>
+                  Analisis mendalam tentang cara Anda memproses informasi dan belajar menggunakan data biometrik.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 mb-4">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                    Analisis Biometrik Sidik Jari
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                    Laporan Komprehensif
+                  </li>
+                </ul>
               </CardContent>
+              <CardFooter>
+                <Button className="w-full group-hover:translate-x-1 transition-transform" variant="outline">
+                  Mulai Tes <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </CardFooter>
             </Card>
 
-            {step === "token-check" && (
-              <Card className="bg-white">
-                <CardHeader className="text-center">
-                  <Brain className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Tes Gaya Kognitif
-                  </h1>
-                  <p className="text-gray-600">
-                    Temukan pola berpikir unik Anda
-                  </p>
-                </CardHeader>
-
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h3 className="font-semibold text-blue-900 mb-2">
-                        Cara kerja:
-                      </h3>
-                      <ol className="text-sm text-blue-800 space-y-1">
-                        <li>1. Satu token diperlukan untuk setiap tes</li>
-                        <li>
-                          2. Masukkan tanggal lahir Anda dalam format apa pun
-                          (DD-MM-YYYY, MM/DD/YYYY, dll.)
-                        </li>
-                        <li>3. Sistem kami memproses data anda</li>
-                        <li>
-                          4. Kami memetakan ini ke salah satu dari beberapa gaya
-                          kognitif
-                        </li>
-                        <li>
-                          5. Opsional: Verifikasi dengan pemindaian sidik jari
-                          biometrik
-                        </li>
-                      </ol>
-                    </div>
-
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                        <h3 className="font-semibold text-green-900">
-                          Manfaat Tes:
-                        </h3>
-                      </div>
-                      <ul className="text-sm text-green-800 space-y-1">
-                        <li>• Analisis gaya kognitif yang dipersonalisasi</li>
-                        <li>• Wawasan kepribadian yang detail</li>
-                        <li>• Rekomendasi karier dan hubungan</li>
-                        <li>• Verifikasi biometrik yang aman</li>
-                        <li>• Sertifikat hasil yang dapat dibagikan</li>
-                      </ul>
-                    </div>
-
-                    <Button
-                      onClick={handleStartTest}
-                      className="w-full"
-                      size="lg"
-                      disabled={!user || token <= 0}
-                    >
-                      {!user
-                        ? "Silakan Login Terlebih Dahulu"
-                        : token <= 0
-                        ? "Token Tidak Mencukupi"
-                        : "Mulai Tes (1 Token)"}
-                    </Button>
-
-                    {!user && (
-                      <p className="text-center text-sm text-gray-500">
-                        Silakan login ke akun Anda untuk mengikuti tes
-                      </p>
-                    )}
+            {/* DISC Test Card */}
+            <Card className="hover:shadow-lg transition-all duration-300 border-indigo-100 cursor-pointer group" onClick={() => navigate('/customer/dashboard/disc-test')}>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 transition-colors duration-300">
+                    <FileQuestion className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors duration-300" />
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {step === "birthdate" && (
-              <Card className="bg-white">
-                <CardHeader className="text-center">
-                  <Brain className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Tes Gaya Kognitif
-                  </h1>
-                  <p className="text-gray-600">
-                    Masukkan tanggal lahir Anda untuk memulai analisis
-                  </p>
-                </CardHeader>
-
-                <CardContent>
-                  <TestForm
-                    onSubmit={(values) => {
-                      setFullname(values.fullname);
-                      setBirthDate(values.birthdate);
-                      setStep("fingerprint");
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            )}
-
-            {step === "fingerprint" && (
-              <Card className="bg-white">
-                <CardHeader className="text-center">
-                  <Fingerprint className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Verifikasi Biometrik
-                  </h2>
-                  <p className="text-gray-600">
-                    Amankan hasil tes Anda dengan autentikasi sidik jari
-                  </p>
-                </CardHeader>
-
-                <CardContent className="space-y-6">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                      <span className="font-semibold text-green-900">
-                        Token Berhasil Digunakan
-                      </span>
-                    </div>
-                    <p className="text-sm text-green-800">
-                      Analisis tes Anda telah selesai. Sisa token: {token}
-                    </p>
-                  </div>
-
-                  <div className="text-center space-y-4">
-                    <p className="text-gray-600">
-                      Apakah Anda ingin mengamankan hasil dengan verifikasi
-                      biometrik?
-                    </p>
-
-                    <div className="space-y-3">
-                      <Button
-                        onClick={handleFingerprintScan}
-                        className="w-full"
-                        size="lg"
-                      >
-                        Pindai
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="text-xs text-gray-500 text-center">
-                    <p>
-                      • Data sidik jari diproses dengan aman dan tidak disimpan
-                      sebagai gambar
-                    </p>
-                    <p>
-                      • Hanya pengenal unik yang disimpan untuk tujuan
-                      verifikasi
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Right Column - Token Purchase Menu */}
-          <div className="lg:col-span-1">
-            <Card className="top-4 bg-white">
-              <CardHeader className="text-center pb-4">
-                <ShoppingCart className="h-12 w-12 text-green-600 mx-auto mb-2" />
-                <h2 className="text-xl font-bold text-gray-900">Beli Token</h2>
-                <p className="text-sm text-gray-600">
-                  Pilih paket yang sesuai dengan kebutuhan Anda
-                </p>
-              </CardHeader>
-
-              <CardContent className="p-4 space-y-4">
-                <TokenPackages tokenPackages={tokenPackages} />
-
-                <div className="mt-6 p-3 bg-blue-50 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <AlertCircle className="h-4 w-4 text-blue-500" />
-                    <h4 className="font-medium text-blue-900 text-sm">
-                      Mengapa beli token?
-                    </h4>
-                  </div>
-                  <ul className="text-xs text-blue-800 space-y-1">
-                    <li>• Ambil beberapa tes kapan saja</li>
-                    <li>• Tidak ada tanggal kedaluwarsa</li>
-                    <li>• Nilai lebih baik dengan paket bundel</li>
-                    <li>• Aktivasi instan</li>
-                  </ul>
+                  {data?.user?.parentId && (
+                     <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-full shadow-sm">
+                       Unlock Affiliator
+                     </span>
+                  )}
                 </div>
+                <CardTitle className="text-xl text-indigo-900">Tes Kepribadian DISC</CardTitle>
+                <CardDescription>
+                  Pahami tipe kepribadian Dominance, Influence, Steadiness, dan Compliance Anda.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 mb-4">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                    Kuesioner Psikologi
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                    Hasil Instan
+                  </li>
+                </ul>
               </CardContent>
+              <CardFooter>
+                <Button className="w-full group-hover:translate-x-1 transition-transform" variant="outline">
+                  Mulai Tes <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </CardFooter>
             </Card>
           </div>
         </div>
+
+        {/* Token Purchase Section */}
+        <div className="pt-8 border-t border-gray-200">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <ShoppingCart className="h-6 w-6 text-green-700" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Isi Ulang Token</h2>
+          </div>
+
+          <TokenPackages tokenPackages={tokenPackages} />
+        </div>
+
       </div>
+
+      {/* Mobile App Redirect Modal */}
+      <Dialog open={isMobileModalOpen} onOpenChange={setIsMobileModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Smartphone className="w-6 h-6 text-blue-600" />
+              Download Aplikasi Mahirku
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-base">
+              Tes Gaya Kognitif menggunakan pemindaian sidik jari biometrik yang hanya tersedia di aplikasi mobile kami.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="bg-blue-50 p-4 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+              <p className="text-sm text-blue-800">
+                Silakan unduh aplikasi Mahirku di Google Play Store untuk melanjutkan tes ini. Token Anda akan tersinkronisasi otomatis.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 mt-2">
+              <Button
+                className="w-full gap-2 bg-green-600 hover:bg-green-700"
+                onClick={() => window.open('https://play.google.com/store/apps/details?id=com.mahirku', '_blank')}
+              >
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.523 15.3414C17.5158 15.3585 17.5026 15.3717 17.4855 15.379L5.78369 22.0305C5.46271 22.2131 5.04858 22.0988 4.86621 21.7778C4.81445 21.6865 4.78711 21.583 4.78711 21.478V2.51953C4.78711 2.15088 5.08545 1.85254 5.45410 1.85254C5.56006 1.85254 5.66357 1.88037 5.75586 1.93262L17.4849 8.60156C17.5019 8.60889 17.5151 8.62207 17.5224 8.63867L12.5273 11.9902L17.523 15.3414ZM22.4229 12.8091L18.6758 14.9385L13.626 11.9902L18.6748 9.04102L22.4229 11.1714C22.7539 11.3594 22.8682 11.7788 22.6807 12.1104C22.6221 12.2148 22.5352 12.3013 22.4229 12.499V12.8091Z" /></svg>
+                Buka di Play Store
+              </Button>
+              <Button variant="ghost" onClick={() => setIsMobileModalOpen(false)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

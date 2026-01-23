@@ -10,10 +10,13 @@ const AffiliateWithdrawPage = () => {
   const { data: balanceData, isLoading: balanceLoading, error: balanceError, refetch: refetchBalance } = useAffiliateBalanceDetail();
   const { data: withdrawHistoryData, isLoading: historyLoading, error: historyError, refetch: refetchHistory } = useGetWithdrawHistory();
   const createWithdrawMutation = useCreateWithdrawRequest();
-  
+
   // Local state
   const [submitting, setSubmitting] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountName, setAccountName] = useState('');
   const [showWithdrawForm, setShowWithdrawForm] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -29,7 +32,13 @@ const AffiliateWithdrawPage = () => {
 
     try {
       const amount = parseFloat(withdrawAmount);
-      
+
+      if (!withdrawAmount || amount <= 0) {
+        setError('Masukkan jumlah penarikan yang valid');
+        setSubmitting(false);
+        return;
+      }
+
       if (amount < 100000) {
         setError('Minimum withdraw adalah Rp 100.000');
         setSubmitting(false);
@@ -42,8 +51,17 @@ const AffiliateWithdrawPage = () => {
         return;
       }
 
+      if (!bankName || !accountNumber || !accountName) {
+        setError('Mohon lengkapi data rekening bank');
+        setSubmitting(false);
+        return;
+      }
+
       const payload: CreateWithdrawPayload = {
         amount,
+        bankName,
+        accountNumber,
+        accountName,
       };
 
       await createWithdrawMutation.mutateAsync(payload);
@@ -51,11 +69,14 @@ const AffiliateWithdrawPage = () => {
       setSuccess('Permintaan withdraw berhasil diajukan! Tim kami akan memproses dalam 1-3 hari kerja.');
       setShowWithdrawForm(false);
       setWithdrawAmount('');
-      
+      setBankName('');
+      setAccountNumber('');
+      setAccountName('');
+
       // Refresh data
       refetchBalance();
       refetchHistory();
-      
+
     } catch (error: any) {
       setError(error.response?.data?.message || 'Terjadi kesalahan saat mengajukan withdraw');
     } finally {
@@ -81,7 +102,7 @@ const AffiliateWithdrawPage = () => {
     });
   };
 
-  const getStatusIcon = (status : string) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
         return <Clock className="w-4 h-4 text-yellow-500" />;
@@ -100,7 +121,7 @@ const AffiliateWithdrawPage = () => {
     }
   };
 
-  const getStatusText = (status : string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case 'pending':
         return 'Menunggu Proses';
@@ -120,7 +141,7 @@ const AffiliateWithdrawPage = () => {
     }
   };
 
-  const getStatusColor = (status : string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
@@ -157,7 +178,7 @@ const AffiliateWithdrawPage = () => {
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <p className="text-red-600 mb-4">Terjadi kesalahan saat memuat data</p>
-          <button 
+          <button
             onClick={() => {
               refetchBalance();
               refetchHistory();
@@ -187,7 +208,7 @@ const AffiliateWithdrawPage = () => {
             {error}
           </div>
         )}
-        
+
         {success && (
           <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md flex items-center">
             <Check className="w-5 h-5 mr-2" />
@@ -251,14 +272,20 @@ const AffiliateWithdrawPage = () => {
 
         {/* Withdraw Form Modal */}
         {showWithdrawForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-md flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Ajukan Penarikan</h2>
-              
+
+              {/* Balance Info */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-600 mb-1">Saldo Tersedia:</p>
+                <p className="text-2xl font-bold text-blue-600">{formatCurrency(balanceData?.effectiveAvailableBalance || 0)}</p>
+              </div>
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Jumlah Penarikan
+                    Jumlah Penarikan <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -268,15 +295,69 @@ const AffiliateWithdrawPage = () => {
                       setWithdrawAmount(value);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="100.000"
+                    placeholder="100000"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Tersedia: {formatCurrency(balanceData?.effectiveAvailableBalance || 0)}
+                    Minimum penarikan: Rp 100.000
                   </p>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nama Bank <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Contoh: BCA, Mandiri, BNI"
+                    required
+                  />
+                </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nomor Rekening <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={accountNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setAccountNumber(value);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1234567890"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nama Pemilik Rekening <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={accountName}
+                    onChange={(e) => setAccountName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Sesuai buku rekening"
+                    required
+                  />
+                </div>
+
+                {/* Important Info */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-xs font-semibold text-yellow-900 mb-2">Informasi Penting:</p>
+                  <ul className="text-xs text-yellow-800 space-y-1">
+                    <li>• Minimum penarikan adalah Rp 100.000</li>
+                    <li>• Penarikan akan diproses dalam 1-3 hari kerja</li>
+                    <li>• Pastikan data rekening bank sudah benar</li>
+                    <li>• Penarikan hanya bisa dilakukan ke rekening atas nama yang sama dengan akun affiliator</li>
+                  </ul>
+                </div>
 
                 <div className="flex space-x-3 mt-6">
                   <button
@@ -318,7 +399,7 @@ const AffiliateWithdrawPage = () => {
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">Riwayat Penarikan</h2>
           </div>
-          
+
           <div className="p-6">
             {withdrawHistory.length === 0 ? (
               <div className="text-center py-8">
@@ -327,7 +408,7 @@ const AffiliateWithdrawPage = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {withdrawHistory.map((withdraw : any) => (
+                {withdrawHistory.map((withdraw: any) => (
                   <div key={withdraw.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center">
@@ -340,9 +421,10 @@ const AffiliateWithdrawPage = () => {
                         {getStatusText(withdraw.status)}
                       </span>
                     </div>
-                    
+
                     <div className="text-sm text-gray-600 space-y-1">
-                      <p><span className="font-medium">Bank:</span> {withdraw.affiliate?.bankName || '-'} - {withdraw.affiliate?.bankAccountNumber}</p>
+                      <p><span className="font-medium">Bank:</span> {withdraw.bankName || '-'} - {withdraw.accountNumber || '-'}</p>
+                      <p><span className="font-medium">Nama Pemilik:</span> {withdraw.accountName || '-'}</p>
                       <p><span className="font-medium">Tanggal Pengajuan:</span> {formatDate(withdraw.createdAt)}</p>
                       {withdraw.processedAt && (
                         <p><span className="font-medium">Tanggal Diproses:</span> {formatDate(withdraw.processedAt)}</p>
@@ -358,7 +440,7 @@ const AffiliateWithdrawPage = () => {
           </div>
         </div>
 
-        
+
       </div>
     </div>
   );

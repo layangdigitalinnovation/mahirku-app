@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAllUsers, createUser } from '../services/api';
+import { getAllUsers, createUser, updateUser, deleteUser } from '../services/api';
 import { CreateUserPayload } from '../services/api/types';
 
 // Key untuk query cache
@@ -27,6 +27,31 @@ export const useCreateUser = () => {
     mutationFn: (newUser: CreateUserPayload) => createUser(newUser),
     onSuccess: () => {
       // Invalidate dan refetch
+      queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
+    },
+  });
+};
+
+// Hook untuk update user
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<CreateUserPayload> }) => 
+      updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
+    },
+  });
+};
+
+// Hook untuk delete user
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id: number) => deleteUser(id),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
     },
   });

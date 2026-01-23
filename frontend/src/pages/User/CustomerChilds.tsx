@@ -34,7 +34,7 @@ export default function CustomerChilds() {
   const [filterPackage] = useState("All");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const columns = getColumns(transferMutation.mutateAsync, () => {});
+  const columns = getColumns(transferMutation.mutateAsync, () => { });
 
   const filteredChildren = children?.filter((child) => {
     if (!child) return false;
@@ -68,8 +68,8 @@ export default function CustomerChilds() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
-      <div className="max-w-screen-xl md:px-10 mx-auto">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
+      <div className="max-w-7xl md:px-10 mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
@@ -126,7 +126,7 @@ export default function CustomerChilds() {
           <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Total Anak</p>
+                <p className="text-gray-600 text-sm">Total Member</p>
                 <p className="text-2xl font-bold text-gray-800">
                   {children?.length || 0}
                 </p>

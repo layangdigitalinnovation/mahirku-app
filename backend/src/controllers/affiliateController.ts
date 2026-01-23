@@ -2,6 +2,8 @@ import { Response } from 'express';
 import AffiliateCommission from '../models/AffiliateCommission';
 import WithdrawRequest from '../models/WithdrawRequest';
 import User from '../models/User';
+import ThinkingStyleResult from '../models/ThinkingStyleResult';
+import DiscResult from '../models/DiscResult';
 import { AuthRequest } from '../middlewares/authMiddleware';
 import { getAffiliateBalance } from '../utils/affiliateUtils';
 import { sequelize } from '../config/database';
@@ -87,6 +89,81 @@ export const getAffiliateStats = async (req: AuthRequest, res: Response): Promis
     console.error('getAffiliateStats error:', error);
     res.status(500).json({ error: 'Gagal mengambil data statistik affiliator' });
   }
+};
+
+export const checkMitraEligibility = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user?.userId;
+        
+        // Cari child yang sudah menjadi affiliator (roleId = 2)
+        const eligibleChild = await User.findOne({
+            where: {
+                parentId: userId,
+                roleId: 2 
+            }
+        });
+
+        // Cek apakah user (parent) sudah melakukan tes sendiri
+        const hasThinkingStyleResult = await ThinkingStyleResult.findOne({ where: { userId } });
+        const hasDiscResult = await DiscResult.findOne({ where: { user_id: userId } });
+        const hasCompletedTest = !!hasThinkingStyleResult || !!hasDiscResult;
+
+        const isEligible = !!eligibleChild && hasCompletedTest;
+
+        let message = "Not eligible";
+        if (isEligible) {
+            message = "Eligible for upgrade";
+        } else if (eligibleChild && !hasCompletedTest) {
+            message = "Anda harus menyelesaikan tes terlebih dahulu.";
+        } else if (!eligibleChild) {
+            message = "Anda belum memiliki member Affiliator.";
+        }
+
+        res.status(200).json({ 
+            eligible: isEligible,
+            message: message
+        });
+    } catch (error: any) {
+        console.error('checkMitraEligibility error:', error);
+        res.status(500).json({ error: 'Gagal mengecek eligibility mitra' });
+    }
+};
+
+export const upgradeToMitra = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user?.userId;
+        
+        // Verifikasi ulang eligibility
+        const eligibleChild = await User.findOne({
+            where: {
+                parentId: userId,
+                roleId: 2
+            }
+        });
+
+        // Cek apakah user (parent) sudah melakukan tes sendiri
+        const hasThinkingStyleResult = await ThinkingStyleResult.findOne({ where: { userId } });
+        const hasDiscResult = await DiscResult.findOne({ where: { user_id: userId } });
+        const hasCompletedTest = !!hasThinkingStyleResult || !!hasDiscResult;
+
+        if (!eligibleChild) {
+             res.status(400).json({ message: "Anda belum memenuhi syarat untuk upgrade ke Mitra (Belum memiliki member Affiliator)." });
+             return;
+        }
+
+        if (!hasCompletedTest) {
+             res.status(400).json({ message: "Anda harus menyelesaikan tes (Cognitive Style atau DISC) terlebih dahulu untuk upgrade ke Mitra." });
+             return;
+        }
+
+        // Upgrade ke Mitra (roleId = 4)
+        await User.update({ roleId: 4 }, { where: { id: userId } });
+        
+        res.status(200).json({ message: "Selamat! Anda telah berhasil upgrade ke Mitra." });
+    } catch (error: any) {
+        console.error('upgradeToMitra error:', error);
+        res.status(500).json({ error: 'Gagal upgrade ke mitra' });
+    }
 };
 
 // 4. Get detailed balance information

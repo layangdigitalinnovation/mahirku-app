@@ -99,13 +99,13 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   };
 
   const getLogoLink = () => {
-    return variant === "affiliator" ? "/affiliator" : "/";
+    return variant === "affiliator" ? "/affiliator-landing" : "/";
   };
 
   const handleSectionClick = (sectionId: SectionName) => {
     setActive(sectionId);
     setIsMobileMenuOpen(false);
-    
+
     if (variant === "affiliator" && sectionId === ("daftar" as SectionName)) {
       navigate("/affiliator/register");
       return;
@@ -113,7 +113,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
     if (sectionId === "kontak") {
       if (variant === "affiliator") {
-        navigate("/affiliator/contact");
+        navigate("/affiliator-landing/contact");
       } else {
         navigate("/kontak");
       }
@@ -188,9 +188,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                               onClick={() => handleSectionClick(section.id)}
                               className="relative px-2 py-1"
                             >
-                              <span className={`relative z-10 ${
-                                variant === "affiliator" ? "text-white" : "text-primary-900"
-                              } hover:text-primary-200`}>
+                              <span className={`relative z-10 ${variant === "affiliator" ? "text-white" : "text-primary-900"
+                                } hover:text-primary-200`}>
                                 {section.label}
                               </span>
                               {isActive && (
@@ -213,15 +212,14 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                             key={section.id}
                             href={
                               variant === "affiliator"
-                                ? `/affiliator/#${section.id}`
+                                ? `/affiliator-landing/#${section.id}`
                                 : `/#${section.id}`
                             }
                             onClick={() => setActive(section.id)}
                             className="relative px-2 py-1"
                           >
-                            <span className={`relative z-10 ${
-                              variant === "affiliator" ? "text-white" : "text-primary-900"
-                            } hover:text-primary-200`}>
+                            <span className={`relative z-10 ${variant === "affiliator" ? "text-white" : "text-primary-900"
+                              } hover:text-primary-200`}>
                               {section.label}
                             </span>
                             {isActive && (
@@ -261,8 +259,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                               {user.role === "super_admin"
                                 ? "Super Admin"
                                 : user.role === "affiliator"
-                                ? "Affiliator"
-                                : "User"}
+                                  ? "Affiliator"
+                                  : "User"}
                             </span>
                           </div>
                           <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -289,7 +287,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                             </Button>
                           </Link>
                           {variant === "customer" && (
-                            <Link to="/affiliator">
+                            <Link to="/affiliator-landing">
                               <Button variant="ghost" size="sm" className="text-xs">
                                 <DollarSign className="w-4 h-4 mr-1" />
                                 Jadi Partner
@@ -366,7 +364,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                             key={section.id}
                             href={
                               variant === "affiliator"
-                                ? `/affiliator/#${section.id}`
+                                ? `/affiliator-landing/#${section.id}`
                                 : `/#${section.id}`
                             }
                             onClick={() => setActive(section.id)}
@@ -412,8 +410,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                               {user.role === "super_admin"
                                 ? "Super Admin"
                                 : user.role === "affiliator"
-                                ? "Affiliator"
-                                : "User"}
+                                  ? "Affiliator"
+                                  : "User"}
                             </span>
                           </div>
                           <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -440,7 +438,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                             </Button>
                           </Link>
                           {variant === "customer" && (
-                            <Link to="/affiliator">
+                            <Link to="/affiliator-landing">
                               <Button variant="ghost" size="sm" className="text-xs">
                                 <DollarSign className="w-4 h-4 mr-1" />
                                 Jadi Partner
@@ -467,9 +465,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               <Link to={getLogoLink()} className="flex items-center space-x-2">
                 <img src={mahirkuLogo} alt="Mahirku Logo" className="h-8" />
                 <div className="flex flex-col">
-                  <span className={`text-base font-heading font-bold ${
-                variant === "affiliator" ? "text-primary-900" : "text-primary-900"
-                  }`}>
+                  <span className={`text-base font-heading font-bold ${variant === "affiliator" ? "text-primary-900" : "text-primary-900"
+                    }`}>
                     Mahirku
                   </span>
                   {variant === "affiliator" && (
@@ -484,17 +481,16 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               {user && (
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 text-sm">
-                    {React.createElement(getRoleIcon(user.role), { 
+                    {React.createElement(getRoleIcon(user.role), {
                       size: 14,
-                      className: isOnHero 
+                      className: isOnHero
                         ? variant === "affiliator" ? "text-white" : "text-primary-900"
                         : "text-gray-900"
                     })}
-                    <span className={`max-w-20 truncate text-xs ${
-                      isOnHero 
+                    <span className={`max-w-20 truncate text-xs ${isOnHero
                         ? variant === "affiliator" ? "text-white" : "text-primary-900"
                         : "text-gray-900"
-                    }`}>
+                      }`}>
                       {user.email}
                     </span>
                   </div>
@@ -504,11 +500,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`p-2 rounded-lg transition-colors ${
-                    variant === "affiliator" 
-                      ? "text-gray-900 hover:bg-primary-100/10" 
-                      : "text-primary-900 hover:bg-primary-100/20"
-                }`}
+                className={`p-2 rounded-lg transition-colors ${variant === "affiliator"
+                    ? "text-gray-900 hover:bg-primary-100/10"
+                    : "text-primary-900 hover:bg-primary-100/20"
+                  }`}
                 aria-label="Toggle mobile menu"
               >
                 {isMobileMenuOpen ? (
@@ -580,11 +575,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                           <button
                             key={section.id}
                             onClick={() => handleSectionClick(section.id)}
-                            className={`w-full text-left px-4 py-3 text-base font-medium transition-colors ${
-                              isActive
+                            className={`w-full text-left px-4 py-3 text-base font-medium transition-colors ${isActive
                                 ? "text-blue-600 bg-blue-50 border-r-2 border-blue-600"
                                 : "text-gray-900 hover:bg-gray-50"
-                            }`}
+                              }`}
                           >
                             {section.label}
                           </button>
@@ -596,18 +590,17 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                           key={section.id}
                           href={
                             variant === "affiliator"
-                              ? `/affiliator/#${section.id}`
+                              ? `/affiliator-landing/#${section.id}`
                               : `/#${section.id}`
                           }
                           onClick={() => {
                             setActive(section.id);
                             closeMobileMenu();
                           }}
-                          className={`block px-4 py-3 text-base font-medium transition-colors ${
-                            isActive
+                          className={`block px-4 py-3 text-base font-medium transition-colors ${isActive
                               ? "text-blue-600 bg-blue-50 border-r-2 border-blue-600"
                               : "text-gray-900 hover:bg-gray-50"
-                          }`}
+                            }`}
                         >
                           {section.label}
                         </a>
@@ -621,8 +614,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                       <div className="space-y-3">
                         {/* User info */}
                         <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                          {React.createElement(getRoleIcon(user.role), { 
-                            size: 20, 
+                          {React.createElement(getRoleIcon(user.role), {
+                            size: 20,
                             className: "text-gray-600"
                           })}
                           <div className="flex-1 min-w-0">
@@ -637,8 +630,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                               {user.role === "super_admin"
                                 ? "Super Admin"
                                 : user.role === "affiliator"
-                                ? "Affiliator"
-                                : "User"}
+                                  ? "Affiliator"
+                                  : "User"}
                             </span>
                           </div>
                         </div>
@@ -652,8 +645,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                         </Link>
 
                         {/* Logout button */}
-                        <Button 
-                          className="w-full justify-start" 
+                        <Button
+                          className="w-full justify-start"
                           variant="outline"
                           onClick={handleLogout}
                         >
@@ -665,17 +658,17 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                       <div className="space-y-3">
                         {/* Auth buttons */}
                         <Link to={config.authButtons.login.path} onClick={closeMobileMenu}>
-                          <Button 
-                            className="w-full" 
+                          <Button
+                            className="w-full"
                             variant={variant === "affiliator" ? "outline" : "secondary"}
                           >
                             {config.authButtons.login.text}
                           </Button>
                         </Link>
-                        
+
                         <Link to={config.authButtons.register.path} onClick={closeMobileMenu}>
-                          <Button 
-                            className="w-full" 
+                          <Button
+                            className="w-full"
                             variant={variant === "affiliator" ? "default" : "default"}
                           >
                             {config.authButtons.register.text}
@@ -684,7 +677,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
                         {/* Cross-link for switching between customer and affiliator */}
                         {variant === "customer" && (
-                          <Link to="/affiliator" onClick={closeMobileMenu}>
+                          <Link to="/affiliator-landing" onClick={closeMobileMenu}>
                             <Button variant="ghost" className="w-full justify-start">
                               <DollarSign className="w-4 h-4 mr-2" />
                               Jadi Partner
