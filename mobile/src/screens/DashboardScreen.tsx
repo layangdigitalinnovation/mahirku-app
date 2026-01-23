@@ -71,8 +71,11 @@ export default function DashboardScreen({ navigation }: any) {
   }, [isError, error, navigation]);
 
   const startTest = (testKey: string) => {
+    const isFree = testKey === 'disc';
     const userTokens = data?.user?.tokens ?? 0;
-    if (userTokens <= 0) {
+
+    // Only check tokens if the test is NOT free
+    if (!isFree && userTokens <= 0) {
       Alert.alert(
         'Token Tidak Cukup',
         'Anda memerlukan minimal 1 token untuk melakukan tes. Silakan beli token terlebih dahulu.',
@@ -91,9 +94,9 @@ export default function DashboardScreen({ navigation }: any) {
     }
   };
   const tests = useMemo(() => [
-    { key: 'cst', title: 'Cognitive Style', subtitle: 'Analisis Pola Pikir', desc: 'Temukan potensi dan gaya berpikir unik Anda.', icon: 'brain', iconLib: 'MaterialCommunityIcons', color: '#4F46E5', available: true },
-    { key: 'disc', title: 'DISC Personality', subtitle: 'Profil Kepribadian', desc: 'Pahami karakter dan cara Anda berinteraksi.', icon: 'account-group', iconLib: 'MaterialCommunityIcons', color: '#0EA5E9', available: true },
-    { key: 'grp', title: 'Graphology', subtitle: 'Analisis Tulisan', desc: 'Ungkap karakter tersembunyi dari tulisan tangan.', icon: 'edit-3', iconLib: 'Feather', color: '#8B5CF6', available: false },
+    { key: 'cst', title: 'Cognitive Style', subtitle: 'Analisis Pola Pikir', desc: 'Temukan potensi dan gaya berpikir unik Anda.', icon: 'brain', iconLib: 'MaterialCommunityIcons', color: '#4F46E5', available: true, isFree: false },
+    { key: 'disc', title: 'DISC Personality', subtitle: 'Profil Kepribadian', desc: 'Pahami karakter dan cara Anda berinteraksi.', icon: 'account-group', iconLib: 'MaterialCommunityIcons', color: '#0EA5E9', available: true, isFree: true },
+    { key: 'grp', title: 'Graphology', subtitle: 'Analisis Tulisan', desc: 'Ungkap karakter tersembunyi dari tulisan tangan.', icon: 'edit-3', iconLib: 'Feather', color: '#8B5CF6', available: false, isFree: false },
   ], []);
 
   const getInitials = (name: string) => {
@@ -145,43 +148,73 @@ export default function DashboardScreen({ navigation }: any) {
               </Pressable>
             </View>
 
-            {/* Token Card */}
+            {/* Token Card - Modern E-Wallet Design */}
             <View style={styles.tokenCardWrapper}>
               <LinearGradient
-                colors={['#4F46E5', '#4338CA']}
+                colors={['#6366F1', '#8B5CF6', '#EC4899']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.tokenCardGradient}
               >
-                <View style={styles.tokenCardContent}>
-                  <View>
-                    <Text style={styles.tokenLabel}>Saldo Token</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-                      <Text style={styles.tokenValue}>{data?.user?.tokens ?? 0}</Text>
-                      <Text style={styles.tokenUnit}>Token</Text>
-                    </View>
-                  </View>
-                  <View style={styles.tokenIconContainer}>
-                    <MaterialCommunityIcons name="ticket-percent-outline" size={32} color="#FFFFFF" />
-                  </View>
-                </View>
+                {/* Decorative Background Elements */}
+                <View style={styles.decorativeCircle1} />
+                <View style={styles.decorativeCircle2} />
+                <View style={styles.decorativeCircle3} />
 
-                <View style={styles.actionButtonsRow}>
-                  <PrimaryButton
-                    title="Top Up"
-                    leftIcon={<Feather name="plus-circle" size={18} color="#4F46E5" />}
-                    onPress={() => navigation.navigate('TokenPackages')}
-                    style={styles.topUpBtn}
-                    textStyle={{ color: '#4F46E5', fontSize: 14 }}
-                  />
-                  <PrimaryButton
-                    title="Add Member"
-                    leftIcon={<Feather name="user-plus" size={18} color="#FFFFFF" />}
-                    onPress={() => navigation.navigate('AddMember')}
-                    disabled={(data?.user?.tokens ?? 0) <= 1}
-                    style={styles.addMemberBtn}
-                    textStyle={{ color: '#FFFFFF', fontSize: 14 }}
-                  />
+                {/* Glassmorphism Overlay */}
+                <View style={styles.glassOverlay}>
+                  <View style={styles.tokenCardContent}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.tokenLabel}>Saldo Token</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
+                        <Text style={styles.tokenValue}>{data?.user?.tokens ?? 0}</Text>
+                        <Text style={styles.tokenUnit}>Token</Text>
+                      </View>
+                      <Text style={styles.tokenSubtext}>Tersedia untuk digunakan</Text>
+                    </View>
+
+                    <LinearGradient
+                      colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.1)']}
+                      style={styles.tokenIconContainer}
+                    >
+                      <View style={styles.iconGlow} />
+                      <MaterialCommunityIcons name="wallet" size={28} color="#FFFFFF" />
+                    </LinearGradient>
+                  </View>
+
+                  <View style={styles.actionButtonsRow}>
+                    <Pressable
+                      onPress={() => navigation.navigate('TokenPackages')}
+                      style={({ pressed }) => [
+                        styles.topUpBtn,
+                        pressed && { transform: [{ scale: 0.98 }], opacity: 0.95 }
+                      ]}
+                    >
+                      <LinearGradient
+                        colors={['#FFFFFF', '#F8FAFC']}
+                        style={styles.buttonGradient}
+                      >
+                        <Feather name="plus-circle" size={18} color="#6366F1" />
+                        <Text style={styles.topUpBtnText}>Top Up</Text>
+                      </LinearGradient>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => navigation.navigate('AddMember')}
+                      disabled={(data?.user?.tokens ?? 0) <= 1}
+                      style={({ pressed }) => [
+                        styles.addMemberBtn,
+                        (data?.user?.tokens ?? 0) <= 1 && styles.addMemberBtnDisabled,
+                        pressed && !((data?.user?.tokens ?? 0) <= 1) && { transform: [{ scale: 0.98 }], opacity: 0.85 }
+                      ]}
+                    >
+                      <Feather name="user-plus" size={18} color={(data?.user?.tokens ?? 0) <= 1 ? '#94A3B8' : '#FFFFFF'} />
+                      <Text style={[
+                        styles.addMemberBtnText,
+                        (data?.user?.tokens ?? 0) <= 1 && styles.addMemberBtnTextDisabled
+                      ]}>Add Member</Text>
+                    </Pressable>
+                  </View>
                 </View>
               </LinearGradient>
             </View>
@@ -224,9 +257,16 @@ export default function DashboardScreen({ navigation }: any) {
 
                   <View style={styles.testCardFooter}>
                     {t.available ? (
-                      <View style={[styles.playBtn, { backgroundColor: t.color }]}>
-                        <Text style={styles.playBtnText}>Mulai Tes</Text>
-                        <Feather name="arrow-right" size={16} color="#FFF" />
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                        {t.isFree ? (
+                          <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 }}>
+                            <Text style={{ color: '#166534', fontSize: 12, fontWeight: '700' }}>Free Access</Text>
+                          </View>
+                        ) : null}
+                        <View style={[styles.playBtn, { backgroundColor: t.color, flex: 1 }]}>
+                          <Text style={styles.playBtnText}>Mulai Tes</Text>
+                          <Feather name="arrow-right" size={16} color="#FFF" />
+                        </View>
                       </View>
                     ) : (
                       <View style={styles.soonBtn}>
@@ -366,17 +406,183 @@ const styles = StyleSheet.create({
   avatarText: { color: '#FFFFFF', fontSize: 20, fontWeight: '700' },
   onlineIndicator: { position: 'absolute', bottom: 2, right: 2, width: 14, height: 14, borderRadius: 7, backgroundColor: '#10B981', borderWidth: 2, borderColor: '#FFFFFF' },
 
-  tokenCardWrapper: { borderRadius: 24, shadowColor: '#4F46E5', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20, elevation: 8, marginBottom: 32 },
-  tokenCardGradient: { borderRadius: 24, padding: 24 },
-  tokenCardContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
-  tokenLabel: { color: '#E0E7FF', fontSize: 14, fontWeight: '500', marginBottom: 4 },
-  tokenValue: { color: '#FFFFFF', fontSize: 36, fontWeight: '800', letterSpacing: -1 },
-  tokenUnit: { color: '#E0E7FF', fontSize: 16, fontWeight: '600' },
-  tokenIconContainer: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  // Enhanced Token Card Styles - Modern E-Wallet Design
+  tokenCardWrapper: {
+    borderRadius: 28,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.35,
+    shadowRadius: 24,
+    elevation: 12,
+    marginBottom: 32,
+    overflow: 'hidden'
+  },
+  tokenCardGradient: {
+    borderRadius: 28,
+    padding: 0,
+    position: 'relative',
+    overflow: 'hidden'
+  },
 
-  actionButtonsRow: { flexDirection: 'row', gap: 12 },
-  topUpBtn: { flex: 1, backgroundColor: '#FFFFFF', height: 44, borderRadius: 12 },
-  addMemberBtn: { flex: 1, backgroundColor: 'rgba(255,255,255,0.2)', height: 44, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+  // Decorative Elements
+  decorativeCircle1: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    top: -60,
+    right: -40,
+    opacity: 0.6
+  },
+  decorativeCircle2: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    bottom: -20,
+    left: -30,
+    opacity: 0.5
+  },
+  decorativeCircle3: {
+    position: 'absolute',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    top: 100,
+    left: 30,
+    opacity: 0.4
+  },
+
+  // Glassmorphism Overlay
+  glassOverlay: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 28,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)'
+  },
+
+  tokenCardContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 28
+  },
+  tokenLabel: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 8,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase'
+  },
+  tokenValue: {
+    color: '#FFFFFF',
+    fontSize: 42,
+    fontWeight: '800',
+    letterSpacing: -1.5,
+    textShadowColor: 'rgba(0,0,0,0.15)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4
+  },
+  tokenUnit: {
+    color: 'rgba(255,255,255,0.90)',
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.2
+  },
+  tokenSubtext: {
+    color: 'rgba(255,255,255,0.70)',
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 2
+  },
+  tokenIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.25)',
+    position: 'relative',
+    overflow: 'hidden'
+  },
+  iconGlow: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    top: 12,
+    left: 12,
+    opacity: 0.6
+  },
+
+  // Enhanced Button Styles
+  actionButtonsRow: {
+    flexDirection: 'row',
+    gap: 12
+  },
+  topUpBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 14,
+    overflow: 'hidden',
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6
+  },
+  buttonGradient: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14
+  },
+  topUpBtnText: {
+    color: '#6366F1',
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 0.3
+  },
+  addMemberBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.25)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3
+  },
+  addMemberBtnDisabled: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.15)',
+    opacity: 0.6
+  },
+  addMemberBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 0.3
+  },
+  addMemberBtnTextDisabled: {
+    color: '#94A3B8'
+  },
 
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   sectionTitle: { color: '#1E293B', fontSize: 18, fontWeight: '700', letterSpacing: -0.5 },
