@@ -303,10 +303,6 @@ export default function AuthScreen({ navigation, route }: any) {
                                 loading={loginLoading}
                                 style={{ marginTop: 16, backgroundColor: '#2563EB', borderRadius: 24, height: 52 }}
                             />
-                            <View style={{ alignItems: 'center', marginTop: 16 }}>
-                                <Text style={{ color: '#64748B' }}>Or login with</Text>
-                            </View>
-                            <SocialAuthRow onGooglePress={loginWithGoogle} />
                         </Card>
                     </ScrollView>
 

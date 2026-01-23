@@ -171,7 +171,7 @@ export default function AffiliatorDashboardScreen({ navigation }: any) {
                             >
                                 <View style={styles.walletCardTop}>
                                     <View>
-                                        <Text style={styles.walletLabel}>Detail Dompet Digital</Text>
+                                        <Text style={styles.walletLabel}>Komisi Affiliator</Text>
                                         <Text style={styles.walletTitle}>Total Penghasilan</Text>
                                     </View>
                                     <View style={styles.walletIconBg}>

@@ -27,19 +27,19 @@ interface SlideItem {
 const slides: SlideItem[] = [
     {
         id: '1',
-        image: require('../../assets/onboarding/onboarding-1.jpeg'),
+        image: require('../../assets/onboarding/onboarding-1.png'),
         title: 'Temukan Potensi Dirimu',
         description: 'Kenali dirimu lebih dalam melalui berbagai tes psikologi yang akurat dan terpercaya',
     },
     {
         id: '2',
-        image: require('../../assets/onboarding/onboarding-2.jpeg'),
+        image: require('../../assets/onboarding/onboarding-2.png'),
         title: 'Tes Kepribadian Lengkap',
         description: 'Akses tes DISC, potensi diri, minat & bakat untuk pengembangan karier yang lebih baik',
     },
     {
         id: '3',
-        image: require('../../assets/onboarding/onboarding-3.jpeg'),
+        image: require('../../assets/onboarding/onboarding-3.png'),
         title: 'Mulai Perjalananmu',
         description: 'Dapatkan hasil tes instan dan rekomendasi personal untuk masa depan yang lebih cerah',
     },
@@ -85,14 +85,47 @@ const OnboardingScreen = ({ navigation }: any) => {
         }
     };
 
-    const renderSlide = ({ item }: { item: SlideItem }) => {
+    const renderSlide = ({ item, index }: { item: SlideItem; index: number }) => {
+        const inputRange = [
+            (index - 1) * width,
+            index * width,
+            (index + 1) * width,
+        ];
+
+        const scale = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.8, 1, 0.8],
+            extrapolate: 'clamp',
+        });
+
+        const opacity = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.4, 1, 0.4],
+            extrapolate: 'clamp',
+        });
+
         return (
             <View style={styles.slide}>
-                <View style={styles.imageContainer}>
-                    <View style={styles.imageWrapper}>
-                        <Image source={item.image} style={styles.image} resizeMode="contain" />
-                    </View>
-                </View>
+                <Animated.View
+                    style={[
+                        styles.imageContainer,
+                        {
+                            transform: [{ scale }],
+                            opacity,
+                        }
+                    ]}
+                >
+                    <LinearGradient
+                        colors={['#F8F7FF', '#EEF2FF', '#E8EAFF']}
+                        style={styles.imageWrapper}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                    >
+                        <View style={styles.imageInnerGlow}>
+                            <Image source={item.image} style={styles.image} resizeMode="contain" />
+                        </View>
+                    </LinearGradient>
+                </Animated.View>
                 <View style={styles.textContainer}>
                     <Text style={styles.title}>{item.title}</Text>
                     <Text style={styles.description}>{item.description}</Text>
@@ -113,19 +146,19 @@ const OnboardingScreen = ({ navigation }: any) => {
 
                     const dotWidth = scrollX.interpolate({
                         inputRange,
-                        outputRange: [10, 28, 10],
+                        outputRange: [8, 32, 8],
+                        extrapolate: 'clamp',
+                    });
+
+                    const dotHeight = scrollX.interpolate({
+                        inputRange,
+                        outputRange: [8, 8, 8],
                         extrapolate: 'clamp',
                     });
 
                     const backgroundColor = scrollX.interpolate({
                         inputRange,
-                        outputRange: ['#E0E7FF', '#6366F1', '#E0E7FF'],
-                        extrapolate: 'clamp',
-                    });
-
-                    const opacity = scrollX.interpolate({
-                        inputRange,
-                        outputRange: [0.5, 1, 0.5],
+                        outputRange: ['#C7D2FE', '#6366F1', '#C7D2FE'],
                         extrapolate: 'clamp',
                     });
 
@@ -136,8 +169,8 @@ const OnboardingScreen = ({ navigation }: any) => {
                                 styles.dot,
                                 {
                                     width: dotWidth,
+                                    height: dotHeight,
                                     backgroundColor,
-                                    opacity,
                                 },
                             ]}
                         />
@@ -148,13 +181,25 @@ const OnboardingScreen = ({ navigation }: any) => {
     };
 
     return (
-        <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <LinearGradient
+            colors={['#FFFFFF', '#FAFAFF', '#F5F3FF']}
+            style={styles.container}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+        >
+            <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
-            {/* Skip Button */}
-            <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-                <Text style={styles.skipText}>Skip</Text>
-            </TouchableOpacity>
+            {/* Header with Skip Button */}
+            <View style={styles.header}>
+                <View style={styles.headerSpacer} />
+                <TouchableOpacity
+                    style={styles.skipButton}
+                    onPress={handleSkip}
+                    activeOpacity={0.7}
+                >
+                    <Text style={styles.skipText}>Lewati</Text>
+                </TouchableOpacity>
+            </View>
 
             {/* Slides */}
             <FlatList
@@ -169,6 +214,7 @@ const OnboardingScreen = ({ navigation }: any) => {
                 onMomentumScrollEnd={handleMomentumScrollEnd}
                 scrollEventThrottle={16}
                 bounces={false}
+                contentContainerStyle={styles.flatListContent}
             />
 
             {/* Bottom Section */}
@@ -176,141 +222,191 @@ const OnboardingScreen = ({ navigation }: any) => {
                 {renderDots()}
 
                 {/* Next/Get Started Button */}
-                <TouchableOpacity onPress={handleNext} activeOpacity={0.8}>
+                <TouchableOpacity
+                    onPress={handleNext}
+                    activeOpacity={0.85}
+                    style={styles.buttonWrapper}
+                >
                     <LinearGradient
-                        colors={['#6366F1', '#8B5CF6', '#A855F7']}
+                        colors={['#7C3AED', '#6366F1', '#8B5CF6']}
                         start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
+                        end={{ x: 1, y: 1 }}
                         style={styles.nextButton}
                     >
                         <Text style={styles.nextButtonText}>
                             {currentIndex === slides.length - 1 ? 'Mulai Sekarang' : 'Lanjut'}
                         </Text>
                         {currentIndex < slides.length - 1 && (
-                            <Text style={styles.arrowIcon}>→</Text>
+                            <View style={styles.arrowContainer}>
+                                <Text style={styles.arrowIcon}>→</Text>
+                            </View>
                         )}
                     </LinearGradient>
                 </TouchableOpacity>
+
+                {/* Progress indicator */}
+                <Text style={styles.progressText}>
+                    {currentIndex + 1} / {slides.length}
+                </Text>
             </View>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 16 : 56,
+        paddingBottom: 8,
+    },
+    headerSpacer: {
+        width: 80,
     },
     skipButton: {
-        position: 'absolute',
-        top: 50,
-        right: 24,
-        zIndex: 10,
-        paddingVertical: 8,
-        paddingHorizontal: 16,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        backgroundColor: 'rgba(99, 102, 241, 0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(99, 102, 241, 0.15)',
     },
     skipText: {
-        fontSize: 16,
+        fontSize: 15,
         color: '#6366F1',
         fontWeight: '600',
+        letterSpacing: 0.3,
+    },
+    flatListContent: {
+        alignItems: 'center',
     },
     slide: {
         width,
         flex: 1,
-        paddingTop: 100,
+        justifyContent: 'flex-start',
+        paddingTop: 20,
     },
     imageContainer: {
-        flex: 0.55,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: 24,
+        marginBottom: 20,
     },
     imageWrapper: {
-        width: width * 0.85,
-        height: width * 0.85,
-        borderRadius: 30,
-        backgroundColor: '#F8FAFC',
+        width: width * 0.88,
+        height: width * 0.75,
+        borderRadius: 32,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#6366F1',
         shadowOffset: {
             width: 0,
-            height: 10,
+            height: 16,
         },
-        shadowOpacity: 0.15,
-        shadowRadius: 20,
-        elevation: 10,
-        overflow: 'hidden',
+        shadowOpacity: 0.12,
+        shadowRadius: 32,
+        elevation: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.8)',
+    },
+    imageInnerGlow: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
     },
     image: {
-        width: '90%',
-        height: '90%',
+        width: '85%',
+        height: '85%',
     },
     textContainer: {
-        flex: 0.35,
-        paddingHorizontal: 40,
-        paddingTop: 40,
+        flex: 1,
+        paddingHorizontal: 32,
+        paddingTop: 24,
         alignItems: 'center',
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
+        fontSize: 30,
+        fontWeight: '800',
         color: '#1E1B4B',
         textAlign: 'center',
         marginBottom: 16,
-        letterSpacing: -0.5,
+        letterSpacing: -0.8,
+        lineHeight: 38,
     },
     description: {
         fontSize: 16,
         color: '#64748B',
         textAlign: 'center',
         lineHeight: 26,
-        paddingHorizontal: 10,
+        paddingHorizontal: 16,
+        fontWeight: '400',
     },
     bottomContainer: {
         paddingHorizontal: 24,
-        paddingBottom: 50,
+        paddingBottom: 40,
         alignItems: 'center',
     },
     dotsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 32,
+        marginBottom: 28,
     },
     dot: {
-        height: 10,
-        borderRadius: 5,
-        marginHorizontal: 5,
+        borderRadius: 4,
+        marginHorizontal: 4,
+    },
+    buttonWrapper: {
+        shadowColor: '#6366F1',
+        shadowOffset: {
+            width: 0,
+            height: 12,
+        },
+        shadowOpacity: 0.4,
+        shadowRadius: 20,
+        elevation: 12,
     },
     nextButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 48,
-        borderRadius: 30,
-        minWidth: 200,
-        shadowColor: '#6366F1',
-        shadowOffset: {
-            width: 0,
-            height: 8,
-        },
-        shadowOpacity: 0.35,
-        shadowRadius: 12,
-        elevation: 8,
+        paddingVertical: 18,
+        paddingHorizontal: 56,
+        borderRadius: 28,
+        minWidth: 220,
     },
     nextButtonText: {
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: '700',
         color: '#FFFFFF',
         letterSpacing: 0.5,
     },
+    arrowContainer: {
+        marginLeft: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderRadius: 12,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
     arrowIcon: {
-        fontSize: 20,
+        fontSize: 16,
         color: '#FFFFFF',
-        marginLeft: 10,
         fontWeight: '700',
+    },
+    progressText: {
+        marginTop: 20,
+        fontSize: 13,
+        color: '#A5B4FC',
+        fontWeight: '600',
+        letterSpacing: 1,
     },
 });
 
