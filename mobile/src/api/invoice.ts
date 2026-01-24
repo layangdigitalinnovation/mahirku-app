@@ -13,7 +13,7 @@ export interface Invoice {
   Package?: {
     id: number;
     name: string;
-    tokens: number;
+    defaultTokenAmount: number;
     price: number;
   };
 }

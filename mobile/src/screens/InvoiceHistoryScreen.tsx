@@ -110,7 +110,7 @@ export default function InvoiceHistoryScreen({ navigation }: any) {
                         <Text style={[styles.statusText, status === 'paid' ? styles.textPaid : status === 'pending' ? styles.textPending : styles.textFailed]}>{statusText}</Text>
                       </View>
                     </View>
-                    <Text style={styles.itemSubtitle}>{invoice.Package?.name || 'N/A'} • {invoice.Package?.tokens || 0} Token</Text>
+                    <Text style={styles.itemSubtitle}>{invoice.Package?.name || 'N/A'} • {invoice.Package?.defaultTokenAmount || 0} Token</Text>
 
                     <View style={styles.divider} />
 
