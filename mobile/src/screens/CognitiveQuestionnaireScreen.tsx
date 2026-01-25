@@ -47,10 +47,84 @@ const QUESTIONS: Question[] = [
   { id: 36, text: 'Saya lebih suka aktivitas yang tenang dan terstruktur.' },
 ];
 
+// Kuesioner untuk Anak Usia Dini (0-6 tahun) - Diisi oleh observer (guru/orang tua)
+const QUESTIONS_EARLY_CHILDHOOD: Question[] = [
+  // Observer (1-6)
+  { id: 1, text: 'Anak memperhatikan detail saat bermain atau belajar.' },
+  { id: 2, text: 'Anak memperhatikan perubahan kecil di sekitarnya.' },
+  { id: 3, text: 'Anak mengamati sebelum bertindak.' },
+  { id: 4, text: 'Anak memperhatikan ekspresi orang lain.' },
+  { id: 5, text: 'Anak suka mengamati teman sebelum ikut bermain.' },
+  { id: 6, text: 'Anak mengingat detail kejadian.' },
+  // Analyzer (7-12)
+  { id: 7, text: 'Anak berpikir sebelum menjawab pertanyaan.' },
+  { id: 8, text: 'Anak bertanya untuk memahami sesuatu.' },
+  { id: 9, text: 'Anak menyusun mainan secara teratur.' },
+  { id: 10, text: 'Anak mengikuti aturan permainan.' },
+  { id: 11, text: 'Anak mencoba memecahkan masalah sendiri.' },
+  { id: 12, text: 'Anak menyukai aktivitas logika sederhana.' },
+  // Empath (13-18)
+  { id: 13, text: 'Anak peduli perasaan teman.' },
+  { id: 14, text: 'Anak membantu teman yang kesulitan.' },
+  { id: 15, text: 'Anak menunjukkan rasa sayang.' },
+  { id: 16, text: 'Anak merasa sedih saat temannya sedih.' },
+  { id: 17, text: 'Anak mudah memaafkan.' },
+  { id: 18, text: 'Anak suka berbagi.' },
+  // Visionary (19-24)
+  { id: 19, text: 'Anak memiliki ide bermain sendiri.' },
+  { id: 20, text: 'Anak suka berimajinasi.' },
+  { id: 21, text: 'Anak membuat cerita sendiri.' },
+  { id: 22, text: 'Anak mencoba cara baru.' },
+  { id: 23, text: 'Anak tertarik hal baru.' },
+  { id: 24, text: 'Anak kreatif dalam bermain.' },
+  // Navigator (25-30)
+  { id: 25, text: 'Anak cepat bereaksi.' },
+  { id: 26, text: 'Anak berani mencoba.' },
+  { id: 27, text: 'Anak tidak mudah takut.' },
+  { id: 28, text: 'Anak sigap membantu.' },
+  { id: 29, text: 'Anak aktif bergerak.' },
+  { id: 30, text: 'Anak tanggap situasi.' },
+  // Sosial (31-36)
+  { id: 31, text: 'Anak senang bermain dengan banyak teman.' },
+  { id: 32, text: 'Anak nyaman tampil di depan.' },
+  { id: 33, text: 'Anak mudah beradaptasi.' },
+  { id: 34, text: 'Anak suka berbicara.' },
+  { id: 35, text: 'Anak percaya diri.' },
+  { id: 36, text: 'Anak aktif dalam kelompok.' },
+];
+
+// Helper: Calculate age from birthdate (DD-MM-YYYY format)
+const calculateAge = (dobString: string): number => {
+  const parts = dobString.split('-');
+  if (parts.length !== 3) return 99; // fallback for invalid format
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // month is 0-indexed
+  const year = parseInt(parts[2], 10);
+  const birthDate = new Date(year, month, day);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+// Helper: Check if user is in early childhood range (0-6 years)
+const isEarlyChildhood = (dobString: string): boolean => {
+  const age = calculateAge(dobString);
+  return age >= 0 && age <= 6;
+};
+
 export default function CognitiveQuestionnaireScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const dob = route?.params?.dob as string | undefined;
   const bloodType = route?.params?.bloodType as string | undefined;
+
+  // Determine questionnaire type based on age
+  const isChildQuestionnaire = dob ? isEarlyChildhood(dob) : false;
+  const questions = isChildQuestionnaire ? QUESTIONS_EARLY_CHILDHOOD : QUESTIONS;
+
   const [answers, setAnswers] = useState<number[]>(Array(36).fill(0));
   const setAnswer = (index: number, val: number) => {
     setAnswers(prev => {
@@ -62,14 +136,22 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
 
   const domainScores = useMemo(() => {
     const sum = (idxs: number[]) => idxs.reduce((acc, i) => acc + answers[i - 1], 0);
-    return {
+    const baseScores = {
       Observer: sum([1, 2, 3, 4, 5, 6]),
       Analyzer: sum([7, 8, 9, 10, 11, 12]),
       Empath: sum([13, 14, 15, 16, 17, 18]),
       Visionary: sum([19, 20, 21, 22, 23, 24]),
       Navigator: sum([25, 26, 27, 28, 29, 30]),
     };
-  }, [answers]);
+    // Add Sosial domain for early childhood questionnaire
+    if (isChildQuestionnaire) {
+      return {
+        ...baseScores,
+        Sosial: sum([31, 32, 33, 34, 35, 36]),
+      };
+    }
+    return baseScores;
+  }, [answers, isChildQuestionnaire]);
 
   const eScore = useMemo(() => {
     const idxs = [3, 10, 16, 23, 31, 33, 35];
@@ -87,8 +169,16 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
     return max[0];
   }, [domainScores]);
 
-  const eiType = useMemo(() => (eScore > iScore ? 'Ekstrovert' : 'Introvert'), [eScore, iScore]);
-  const finalType = useMemo(() => (tipeUtama === 'Navigator' ? 'Navigator' : `${tipeUtama} ${eiType}`), [tipeUtama, eiType]);
+  // E/I type only for regular questionnaire (not early childhood)
+  const eiType = useMemo(() => {
+    if (isChildQuestionnaire) return ''; // No E/I scoring for early childhood
+    return eScore > iScore ? 'Ekstrovert' : 'Introvert';
+  }, [eScore, iScore, isChildQuestionnaire]);
+
+  const finalType = useMemo(() => {
+    if (isChildQuestionnaire) return tipeUtama; // No E/I suffix for early childhood
+    return tipeUtama === 'Navigator' ? 'Navigator' : `${tipeUtama} ${eiType}`;
+  }, [tipeUtama, eiType, isChildQuestionnaire]);
   const questionnairePercent = useMemo(() => Math.round((answers.reduce((a, b) => a + b, 0) / (36 * 5)) * 100), [answers]);
 
   const proceed = async () => {
@@ -112,7 +202,7 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
     };
     try {
       await AsyncStorage.setItem('cst:lastQuestionnaire', JSON.stringify(payload));
-    } catch {}
+    } catch { }
     navigation.navigate('CognitiveTestIntro', {
       fromQuestionnaire: true,
       dob,
@@ -128,10 +218,16 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
           <Pressable style={styles.backBtn} android_ripple={{ color: '#E2E8F0' }} onPress={() => navigation.goBack()}>
             <Ionicons name="chevron-back" size={20} color="#475569" />
           </Pressable>
-          <Text style={styles.pageTitle}>Kuesioner Cognitive Style</Text>
+          <Text style={styles.pageTitle}>
+            {isChildQuestionnaire ? 'Kuesioner Cognitive Style Anak Usia Dini' : 'Kuesioner Cognitive Style'}
+          </Text>
           <View style={{ width: 40 }} />
         </View>
-        <Text style={styles.pageSubtitle}>Isi data diri dan jawaban Anda sebelum verifikasi sidik jari.</Text>
+        <Text style={styles.pageSubtitle}>
+          {isChildQuestionnaire
+            ? 'Kuesioner diisi oleh guru/orang tua berdasarkan pengamatan terhadap anak.'
+            : 'Isi data diri dan jawaban Anda sebelum verifikasi sidik jari.'}
+        </Text>
 
         <Card style={{ marginTop: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
@@ -150,9 +246,13 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
             <View style={styles.iconWrap}><Feather name="clipboard" size={18} color="#4F46E5" /></View>
             <Text style={styles.sectionTitle}>Pertanyaan</Text>
           </View>
-          <Text style={styles.helper}>Skala Likert 1–5 (1 = Sangat Tidak Setuju, 5 = Sangat Setuju)</Text>
+          <Text style={styles.helper}>
+            {isChildQuestionnaire
+              ? 'Skala 1–5 (1 = Sangat Tidak Sesuai, 5 = Sangat Sesuai)'
+              : 'Skala Likert 1–5 (1 = Sangat Tidak Setuju, 5 = Sangat Setuju)'}
+          </Text>
           <View style={{ marginTop: 8, gap: 16 }}>
-            {QUESTIONS.map((q, idx) => (
+            {questions.map((q, idx) => (
               <View key={q.id} style={styles.qItem}>
                 <Text style={styles.qText}>{q.id}. {q.text}</Text>
                 <View style={styles.scaleRow}>
