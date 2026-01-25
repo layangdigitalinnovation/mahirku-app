@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { DollarSign, TrendingUp, Target, Gift } from "lucide-react";
+import { DollarSign, TrendingUp, Target, Gift, User, Users, Building2, Briefcase } from "lucide-react";
 import { useSectionObserver } from "@/hooks/useSectionObserver";
 import dots from "@/assets/Dots.png";
 import { ActiveSectionProvider } from "@/context/ActiveSectionContext";
@@ -85,7 +85,7 @@ export const AffiliatorLanding: React.FC = () => {
       <ActiveSectionProvider>
         <section
           id="beranda"
-          className="relative pt-40 pb-20 bg-gradient-to-br from-primary-600 to-primary-800 text-white overflow-hidden"
+          className="relative pt-40 pb-20 bg-linear-to-br from-primary-600 to-primary-800 text-white overflow-hidden"
         >
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -191,7 +191,7 @@ export const AffiliatorLanding: React.FC = () => {
         </section>
 
         {/* How It Works */}
-        <section id="cara-kerja" className="py-20 bg-gray-50">
+        <section id="cara-kerja" className="py-20 bg-linear-to-b from-white to-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-heading2 font-heading font-bold text-primary-900 mb-4">
@@ -201,27 +201,85 @@ export const AffiliatorLanding: React.FC = () => {
                 Proses yang mudah dan straightforward untuk memulai earning Anda
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {steps.map((step, index) => (
-                <div key={index} className="text-center relative">
-                  <div className="bg-primary-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-heading4 font-bold">
-                    {step.step}
-                  </div>
-                  <h3 className="text-heading5 font-heading font-semibold mb-3 text-primary-900">
-                    {step.title}
-                  </h3>
-                  <p className="font-body text-gray-600">{step.description}</p>
-                  {index < steps.length - 1 && (
-                    <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-primary-200 -translate-x-1/2"></div>
-                  )}
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {steps.map((step, index) => {
+                // Gradient colors for each step
+                const stepColors = [
+                  {
+                    gradient: 'from-blue-500 to-cyan-500',
+                    bgGradient: 'from-blue-50 to-cyan-50',
+                    shadow: 'hover:shadow-blue-200',
+                  },
+                  {
+                    gradient: 'from-purple-500 to-pink-500',
+                    bgGradient: 'from-purple-50 to-pink-50',
+                    shadow: 'hover:shadow-purple-200',
+                  },
+                  {
+                    gradient: 'from-emerald-500 to-teal-500',
+                    bgGradient: 'from-emerald-50 to-teal-50',
+                    shadow: 'hover:shadow-emerald-200',
+                  },
+                  {
+                    gradient: 'from-amber-500 to-orange-500',
+                    bgGradient: 'from-amber-50 to-orange-50',
+                    shadow: 'hover:shadow-amber-200',
+                  },
+                ];
+                const colors = stepColors[index];
+
+                return (
+                  <Card
+                    key={index}
+                    className={`group relative overflow-hidden border-0 shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 ${colors.shadow}`}
+                  >
+                    {/* Background Gradient */}
+                    <div className={`absolute inset-0 bg-linear-to-br ${colors.bgGradient} opacity-50 group-hover:opacity-70 transition-opacity duration-300`}></div>
+
+                    {/* Decorative Elements */}
+                    <div className="absolute -top-16 -right-16 w-32 h-32 bg-white/30 rounded-full blur-3xl"></div>
+                    <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-white/20 rounded-full blur-2xl"></div>
+
+                    <CardContent className="relative z-10 p-8 text-center">
+                      {/* Step Number Badge */}
+                      <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br ${colors.gradient} shadow-lg mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
+                        <span className="text-3xl font-heading font-extrabold text-white">
+                          {step.step}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-base sm:text-lg font-heading font-bold mb-3 text-primary-900 group-hover:text-primary-700 transition-colors duration-300">
+                        {step.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm font-body text-gray-600 leading-relaxed">
+                        {step.description}
+                      </p>
+
+                      {/* Progress Indicator - Small dot at bottom */}
+                      <div className="mt-6 flex justify-center gap-1.5">
+                        {steps.map((_, dotIndex) => (
+                          <div
+                            key={dotIndex}
+                            className={`h-1.5 rounded-full transition-all duration-300 ${dotIndex === index
+                                ? `w-8 bg-linear-to-r ${colors.gradient}`
+                                : 'w-1.5 bg-gray-300'
+                              }`}
+                          ></div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* Commission Structure */}
-        <section id="komisi" className="py-20 bg-white">
+        <section id="komisi" className="py-20 bg-linear-to-b from-gray-50 to-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-heading2 font-heading font-bold text-primary-900 mb-4">
@@ -232,26 +290,84 @@ export const AffiliatorLanding: React.FC = () => {
                 dapatkan
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {packageCommission &&
                 packageCommission.length > 0 &&
-                packageCommission.map((pkg: PackagePayload, index: number) => (
-                  <Card
-                    key={index}
-                    className={`p-8 text-center relative overflow-hidden`}
-                  >
-                    <CardHeader>
-                      <h3 className="text-heading3 font-bold text-primary-900 mb-2">
-                        {pkg.name}
-                      </h3>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-heading1 font-heading font-bold text-secondary-300 mb-4">
-                        {pkg.commissionRate}%
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                packageCommission.map((pkg: PackagePayload, index: number) => {
+                  // Define icons and colors for each category
+                  const categoryConfig: Record<string, { icon: any, gradient: string, iconBg: string, iconColor: string }> = {
+                    'Personal': {
+                      icon: User,
+                      gradient: 'from-blue-500 via-blue-400 to-cyan-400',
+                      iconBg: 'bg-blue-100',
+                      iconColor: 'text-blue-600'
+                    },
+                    'Keluarga': {
+                      icon: Users,
+                      gradient: 'from-purple-500 via-purple-400 to-pink-400',
+                      iconBg: 'bg-purple-100',
+                      iconColor: 'text-purple-600'
+                    },
+                    'Lembaga / Komunitas': {
+                      icon: Building2,
+                      gradient: 'from-emerald-500 via-emerald-400 to-teal-400',
+                      iconBg: 'bg-emerald-100',
+                      iconColor: 'text-emerald-600'
+                    },
+                    'Bisnis': {
+                      icon: Briefcase,
+                      gradient: 'from-amber-500 via-orange-400 to-yellow-400',
+                      iconBg: 'bg-amber-100',
+                      iconColor: 'text-amber-600'
+                    }
+                  };
+
+                  const config = categoryConfig[pkg.name] || {
+                    icon: Target,
+                    gradient: 'from-gray-500 via-gray-400 to-slate-400',
+                    iconBg: 'bg-gray-100',
+                    iconColor: 'text-gray-600'
+                  };
+
+                  const IconComponent = config.icon;
+
+                  return (
+                    <Card
+                      key={index}
+                      className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+                    >
+                      {/* Gradient Background */}
+                      <div className={`absolute inset-0 bg-linear-to-br ${config.gradient} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}></div>
+
+                      {/* Decorative Circle */}
+                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+
+                      <CardHeader className="pb-4 pt-8 relative z-10">
+                        {/* Icon */}
+                        <div className={`${config.iconBg} w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
+                          <IconComponent className={`w-8 h-8 ${config.iconColor}`} />
+                        </div>
+
+                        {/* Category Name */}
+                        <h3 className="text-xs sm:text-sm font-heading font-bold text-primary-900 mb-1 whitespace-nowrap px-4 text-center">
+                          {pkg.name}
+                        </h3>
+                      </CardHeader>
+
+                      <CardContent className="pb-8 relative z-10 text-center">
+                        {/* Commission Rate */}
+                        <div className={`text-5xl font-heading font-extrabold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-300`}>
+                          {Math.round(pkg.commissionRate)}%
+                        </div>
+
+                        {/* Label */}
+                        <div className="inline-block px-4 py-1.5 bg-linear-to-r from-primary-50 to-primary-100 rounded-full">
+                          <span className="text-xs font-semibold text-primary-700">Komisi</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
             </div>
           </div>
         </section>
