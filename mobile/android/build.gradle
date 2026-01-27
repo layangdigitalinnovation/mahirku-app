@@ -39,3 +39,19 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
+
+// Apply Kotlin compiler options to all subprojects (including expo-modules-core)
+subprojects {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+            freeCompilerArgs += [
+                "-Xno-param-assertions",
+                "-Xno-call-assertions",
+                "-Xno-receiver-assertions",
+                "-Xallow-unstable-dependencies"
+            ]
+        }
+    }
+}
+
