@@ -1,19 +1,387 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/src/index.css">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <title>Mahirku - Discover Your Cognitive Style</title>
-    <meta name="description" content="Discover your unique thinking patterns with NeuroScan's advanced cognitive style assessment. Secure biometric verification and comprehensive insights." />
-  </head>
-  <body >
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/icon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Meta Tags -->
+  <title>Mahirku - Tes Kepribadian Online & Cognitive Style Test Indonesia Terpercaya</title>
+  <meta name="title" content="Mahirku - Tes Kepribadian Online & Cognitive Style Test Indonesia Terpercaya" />
+  <meta name="description"
+    content="Platform tes kepribadian online Indonesia terpercaya. Cognitive Style Test, tes DISC online, tes gaya berpikir, graphology test, dan tes potensi diri menggunakan teknologi sidik jari. Temukan karakter diri Anda dengan Mahirku personality test." />
+  <meta name="keywords"
+    content="cognitive style test indonesia, tes gaya berpikir online, graphology test indonesia, tes tulisan tangan kepribadian, tes DISC online indonesia, tes kepribadian online indonesia, personality test indonesia, tes karakter diri online, tes potensi diri online, mahirku personality test, tes psikometri online, tes sidik jari indonesia" />
+  <meta name="author" content="Mahirku" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="Indonesian" />
+  <meta name="revisit-after" content="7 days" />
+  <meta name="theme-color" content="#4F46E5" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mahirku.com/" />
+  <meta property="og:title" content="Mahirku - Tes Kepribadian Online & Cognitive Style Test Indonesia" />
+  <meta property="og:description"
+    content="Platform tes kepribadian online terpercaya dengan Cognitive Style Test, tes DISC online, dan tes potensi diri menggunakan teknologi sidik jari. Temukan gaya berpikir Anda!" />
+  <meta property="og:image" content="https://mahirku.com/og-image.png" />
+  <meta property="og:locale" content="id_ID" />
+  <meta property="og:site_name" content="Mahirku" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://mahirku.com/" />
+  <meta name="twitter:title" content="Mahirku - Tes Kepribadian Online & Cognitive Style Test Indonesia" />
+  <meta name="twitter:description"
+    content="Platform tes kepribadian online terpercaya dengan Cognitive Style Test, tes DISC online, dan tes potensi diri menggunakan teknologi sidik jari." />
+  <meta name="twitter:image" content="https://mahirku.com/twitter-image.png" />
+
+  <!-- Additional SEO -->
+  <link rel="canonical" href="https://mahirku.com/" />
+  <meta name="geo.region" content="ID" />
+  <meta name="geo.placename" content="Indonesia" />
+
+  <!-- Structured Data / JSON-LD -->
+  <!-- Enhanced Organization Schema with E-A-T Signals for AI Overview -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Mahirku",
+    "url": "https://mahirku.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://mahirku.com/icon.png",
+      "width": "512",
+      "height": "512"
+    },
+    "description": "Platform tes kepribadian dan cognitive style test terpercaya di Indonesia menggunakan teknologi sidik jari dan metodologi ilmiah psikometri",
+    "slogan": "Temukan Potensi Diri dengan Teknologi Psikometri",
+    "foundingDate": "2024",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "layanggroup@gmail.com",
+      "contactType": "Customer Support",
+      "areaServed": "ID",
+      "availableLanguage": ["Indonesian", "English"]
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "ID",
+      "addressRegion": "Indonesia"
+    },
+    "sameAs": [
+      "https://mahirku.com"
+    ],
+    "knowsAbout": [
+      "Cognitive Style Test",
+      "DISC Personality Test",
+      "Graphology Test",
+      "Psychometric Assessment",
+      "Fingerprint Analysis",
+      "Personality Assessment"
+    ],
+    "areaServed": {
+      "@type": "Country",
+      "name": "Indonesia"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Mahirku",
+    "alternateName": "Mahirku Personality Test",
+    "description": "Platform tes kepribadian online Indonesia dengan Cognitive Style Test, tes DISC online, dan tes potensi diri",
+    "url": "https://mahirku.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://mahirku.com/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Mahirku"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Mahirku Cognitive Style Test",
+    "description": "Tes gaya berpikir online menggunakan analisis sidik jari dan metodologi ilmiah untuk mengidentifikasi potensi diri dan kepribadian",
+    "brand": {
+      "@type": "Brand",
+      "name": "Mahirku"
+    },
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "IDR",
+      "availability": "https://schema.org/InStock"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "250"
+    }
+  }
+  </script>
+
+  <!-- Expanded FAQ Schema for AI Overview Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Apa itu Mahirku?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mahirku adalah platform psikometri digital terpercaya di Indonesia yang menyediakan tes kepribadian online seperti Cognitive Style Test dan DISC Test. Kami menggunakan metodologi ilmiah dan teknologi analisis sidik jari untuk membantu Anda memahami gaya berpikir, kepribadian, dan potensi diri dengan hasil yang akurat dan personal."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Tes apa saja yang tersedia di Mahirku?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mahirku menyediakan Cognitive Style Test (CST) yang menganalisis gaya berpikir berdasarkan sidik jari, dan DISC Test untuk profil kepribadian. Tersedia juga graphology test untuk analisis tulisan tangan. Setiap tes dirancang dengan metodologi ilmiah untuk memberikan insight mendalam tentang karakteristik unik Anda."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Bagaimana cara kerja Cognitive Style Test di Mahirku?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Cognitive Style Test Mahirku menggunakan teknologi analisis sidik jari yang dikombinasikan dengan metodologi psikometri ilmiah. Anda melakukan scan sidik jari, sistem menganalisis pola unik Anda, dan menghasilkan laporan komprehensif tentang gaya berpikir, potensi, dan rekomendasi pengembangan diri."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Apakah tes kepribadian online Mahirku akurat?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ya, tes kepribadian Mahirku menggunakan metodologi ilmiah yang telah tervalidasi. Cognitive Style Test berbasis analisis biometrik sidik jari dan DISC Test menggunakan framework psikologi yang teruji. Lebih dari 250 pengguna memberikan rating 4.8/5 untuk akurasi hasil tes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Berapa biaya tes di Mahirku?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mahirku menggunakan sistem token. Anda dapat membeli paket token sesuai kebutuhan untuk mengakses berbagai tes. DISC Test tersedia gratis, sementara Cognitive Style Test memerlukan token. Cek halaman paket untuk informasi harga terkini."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Apakah data pribadi saya aman di Mahirku?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Keamanan data adalah prioritas kami. Semua data pribadi dan biometrik dienkripsi dengan standar industri. Data sidik jari disimpan terpisah dan hanya digunakan untuk analisis tes. Kami tidak menjual atau membagikan data Anda ke pihak ketiga. Lihat kebijakan privasi untuk detail lengkap."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Apa manfaat mengikuti tes kepribadian di Mahirku?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Manfaat tes Mahirku mencakup: memahami gaya berpikir dan kepribadian Anda, mengidentifikasi kekuatan dan area pengembangan, mendapat rekomendasi karir yang sesuai, meningkatkan self-awareness, dan mendapat sertifikat digital hasil tes yang dapat digunakan untuk pengembangan profesional."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Berapa lama waktu yang dibutuhkan untuk menyelesaikan tes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Cognitive Style Test memerlukan waktu sekitar 15-20 menit, termasuk scan sidik jari dan pertanyaan pendukung. DISC Test memerlukan sekitar 10-15 menit. Hasil tes tersedia langsung setelah Anda menyelesaikan tes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Apakah saya perlu alat khusus untuk mengikuti tes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Untuk Cognitive Style Test, Anda memerlukan smartphone atau perangkat dengan kamera untuk scan sidik jari. DISC Test hanya memerlukan akses internet. Semua tes dapat diakses melalui website atau aplikasi mobile Mahirku."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Bagaimana cara mendapatkan sertifikat hasil tes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Setelah menyelesaikan tes, Anda dapat mengunduh sertifikat digital dalam format PDF dari halaman hasil tes. Sertifikat mencakup nama Anda, jenis tes, hasil, dan tanggal pelaksanaan. Sertifikat dapat digunakan untuk keperluan profesional dan pengembangan karir."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- HowTo Schema for AI Understanding of User Journey -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Cara Mengikuti Tes Kepribadian di Mahirku",
+    "description": "Panduan lengkap untuk mengikuti Cognitive Style Test dan tes kepribadian online di platform Mahirku",
+    "totalTime": "PT20M",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "Daftar Akun",
+        "text": "Buat akun Mahirku dengan email dan password. Isi data diri untuk profil Anda.",
+        "url": "https://mahirku.com/register"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "Pilih Tes",
+        "text": "Pilih jenis tes yang ingin Anda ikuti: Cognitive Style Test atau DISC Personality Test.",
+        "url": "https://mahirku.com/tests"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "Beli Token (jika perlu)",
+        "text": "Untuk Cognitive Style Test, beli token terlebih dahulu. DISC Test gratis.",
+        "url": "https://mahirku.com/packages"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 4,
+        "name": "Mulai Tes",
+        "text": "Klik 'Mulai Tes' dan ikuti instruksi. Untuk CST, scan sidik jari Anda menggunakan kamera.",
+        "url": "https://mahirku.com/test/start"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 5,
+        "name": "Lihat Hasil",
+        "text": "Setelah selesai, lihat hasil lengkap dan unduh sertifikat digital Anda.",
+        "url": "https://mahirku.com/results"
+      }
+    ]
+  }
+  </script>
+
+  <!-- Service Schema for Business Offerings -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": "Tes Kepribadian dan Psikometri Online",
+    "provider": {
+      "@type": "Organization",
+      "name": "Mahirku"
+    },
+    "areaServed": {
+      "@type": "Country",
+      "name": "Indonesia"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Layanan Tes Mahirku",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cognitive Style Test",
+            "description": "Tes gaya berpikir menggunakan analisis sidik jari dan metodologi psikometri ilmiah"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "DISC Personality Test",
+            "description": "Tes kepribadian DISC untuk profil perilaku dan komunikasi"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Graphology Test",
+            "description": "Analisis kepribadian berdasarkan tulisan tangan"
+          }
+        }
+      ]
+    },
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Individu yang ingin memahami kepribadian dan potensi diri"
+    }
+  }
+  </script>
+
+  <!-- Speakable Schema for Voice Search Optimization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Mahirku - Platform Tes Kepribadian Online Indonesia",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": ["h1", ".description", ".main-content"]
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "Tes kepribadian online dan cognitive style test",
+      "description": "Platform psikometri digital untuk tes gaya berpikir, DISC personality test, dan graphology test menggunakan teknologi sidik jari"
+    }
+  }
+  </script>
+
+  <!-- BreadcrumbList Schema for Site Structure -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://mahirku.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Tes",
+        "item": "https://mahirku.com/tests"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "FAQ",
+        "item": "https://mahirku.com/faq"
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="/src/index.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
