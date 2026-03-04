@@ -3,7 +3,7 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: /api
+        VITE_API_URL: https://api.mahirku.com/api
     depends_on:
       - backend
     networks:
@@ -29,7 +29,7 @@ services:
       - XENDIT_API_KEY=xnd_production_lYDUN855uViCro9u25cRH9M3vSHgMQRzaTei2Y6RnV48cY0UbeC6tyD05nEN
       - XENDIT_PUBLIC_KEY=xnd_public_production_vf34AtLlXwlWJzrORt0uzkJOl4NVBx78HZ7L_MwKbmwaVMwa6lu8eha1AkGjbN0N
       - XENDIT_BASE_URL=https://api.xendit.co
-      - XENDIT_CALLBACK_URL=https://mahirku.com/api/payment/callback
+      - XENDIT_CALLBACK_URL=https://api.mahirku.com/api/payment/callback
       - XENDIT_SUCCESS_REDIRECT_URL=https://mahirku.com/payment-success
       - XENDIT_FAILURE_REDIRECT_URL=https://mahirku.com/payment-failed
       - XENDIT_CALLBACK_TOKEN=yyI0FqtmZBd1yczzKHZ0dzF2bwfzabmq8cx2N03KwiqJHgox
@@ -41,8 +41,7 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`mahirku.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.rule=Host(`api.mahirku.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=myresolver"
       - "traefik.http.services.backend.loadbalancer.server.port=5000"
