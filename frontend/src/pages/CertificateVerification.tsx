@@ -25,7 +25,7 @@ export default function CertificateVerificationPage() {
             setLoading(true);
             try {
                 const response = await fetch(
-                    `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/certificates/verify/${certificateId}`
+                    `${import.meta.env.VITE_API_URL || 'https://api.mahirku.com'}/api/certificates/verify/${certificateId}`
                 );
                 const data = await response.json();
                 setVerificationData(data);
