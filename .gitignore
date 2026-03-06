@@ -24,3 +24,23 @@ dist-ssr
 *.sw?
 .env
 .expo/
+
+# Environment files
+.env
+.env.*
+!.env.example
+*.env
+
+# Secret files
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+*_TROUBLESHOOTING.md
+
+# Specific leaks prevention
+backend/XENDIT_PAYOUT_TROUBLESHOOTING.md
+
+# Docker environment
+docker-compose.override.yml
