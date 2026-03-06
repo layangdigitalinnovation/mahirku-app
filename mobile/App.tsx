@@ -38,6 +38,7 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { saveReferralCode } from './src/store/referral';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
@@ -109,42 +110,44 @@ export default function App() {
   }
 
   return (
-    <PaperProvider>
-      <QueryClientProvider client={queryClient}>
-        <NavigationContainer linking={linking}>
-          <Stack.Navigator initialRouteName={showOnboarding ? "Onboarding" : "Auth"} screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            <Stack.Screen name="Auth" component={AuthScreen} />
-            <Stack.Screen name="Dashboard" component={DashboardScreen} />
-            <Stack.Screen name="AffiliatorDashboard" component={AffiliatorNavigator} />
-            <Stack.Screen name="MitraDashboard" component={MitraNavigator} />
-            <Stack.Screen name="MitraWithdraw" component={MitraWithdrawScreen} />
-            <Stack.Screen name="MitraCommissionHistory" component={MitraCommissionHistoryScreen} />
-            <Stack.Screen name="TestStart" component={TestStartScreen} />
-            <Stack.Screen name="TransferToken" component={TransferTokenScreen} />
-            <Stack.Screen name="Tests" component={TestScreen} />
-            <Stack.Screen name="Reports" component={ReportsScreen} />
-            <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
-            <Stack.Screen name="InvoiceHistory" component={InvoiceHistoryScreen} />
-            <Stack.Screen name="TokenPackages" component={TokenPackagesScreen} />
-            <Stack.Screen name="PurchaseConfirmation" component={PurchaseConfirmationScreen} />
-            <Stack.Screen name="PaymentStatus" component={PaymentStatusScreen} />
-            <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
-            <Stack.Screen name="PaymentWebView" component={PaymentWebViewScreen} />
-            <Stack.Screen name="CognitiveDataEntry" component={CognitiveDataEntryScreen} />
-            <Stack.Screen name="CognitiveQuestionnaire" component={CognitiveQuestionnaireScreen} />
-            <Stack.Screen name="CognitiveTestIntro" component={CognitiveTestIntroScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-            <Stack.Screen name="DiscTest" component={DiscTestScreen} />
-            <Stack.Screen name="DiscResult" component={DiscResultScreen} />
-            <Stack.Screen name="AddMember" component={AddMemberScreen} />
-            <Stack.Screen name="MemberList" component={MemberListScreen} />
-            <Stack.Screen name="TermsOfUse" component={TermsOfUseScreen} />
-            <Stack.Screen name="FAQ" component={FAQScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </QueryClientProvider>
-    </PaperProvider>
+    <ErrorBoundary>
+      <PaperProvider>
+        <QueryClientProvider client={queryClient}>
+          <NavigationContainer linking={linking}>
+            <Stack.Navigator initialRouteName={showOnboarding ? "Onboarding" : "Auth"} screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+              <Stack.Screen name="Auth" component={AuthScreen} />
+              <Stack.Screen name="Dashboard" component={DashboardScreen} />
+              <Stack.Screen name="AffiliatorDashboard" component={AffiliatorNavigator} />
+              <Stack.Screen name="MitraDashboard" component={MitraNavigator} />
+              <Stack.Screen name="MitraWithdraw" component={MitraWithdrawScreen} />
+              <Stack.Screen name="MitraCommissionHistory" component={MitraCommissionHistoryScreen} />
+              <Stack.Screen name="TestStart" component={TestStartScreen} />
+              <Stack.Screen name="TransferToken" component={TransferTokenScreen} />
+              <Stack.Screen name="Tests" component={TestScreen} />
+              <Stack.Screen name="Reports" component={ReportsScreen} />
+              <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
+              <Stack.Screen name="InvoiceHistory" component={InvoiceHistoryScreen} />
+              <Stack.Screen name="TokenPackages" component={TokenPackagesScreen} />
+              <Stack.Screen name="PurchaseConfirmation" component={PurchaseConfirmationScreen} />
+              <Stack.Screen name="PaymentStatus" component={PaymentStatusScreen} />
+              <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
+              <Stack.Screen name="PaymentWebView" component={PaymentWebViewScreen} />
+              <Stack.Screen name="CognitiveDataEntry" component={CognitiveDataEntryScreen} />
+              <Stack.Screen name="CognitiveQuestionnaire" component={CognitiveQuestionnaireScreen} />
+              <Stack.Screen name="CognitiveTestIntro" component={CognitiveTestIntroScreen} />
+              <Stack.Screen name="Profile" component={ProfileScreen} />
+              <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+              <Stack.Screen name="DiscTest" component={DiscTestScreen} />
+              <Stack.Screen name="DiscResult" component={DiscResultScreen} />
+              <Stack.Screen name="AddMember" component={AddMemberScreen} />
+              <Stack.Screen name="MemberList" component={MemberListScreen} />
+              <Stack.Screen name="TermsOfUse" component={TermsOfUseScreen} />
+              <Stack.Screen name="FAQ" component={FAQScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </QueryClientProvider>
+      </PaperProvider>
+    </ErrorBoundary>
   );
 }

@@ -33,7 +33,15 @@ export default function CognitiveTestIntroScreen({ route }: any) {
     const [userFullname, setUserFullname] = useState('');
 
     // Use useRef to maintain stable biometrics instance
-    const rnBiometricsRef = useRef(new ReactNativeBiometrics());
+    // Wrapped in try-catch to prevent crash if native module is unavailable
+    const rnBiometricsRef = useRef<ReactNativeBiometrics | null>(null);
+    if (!rnBiometricsRef.current) {
+        try {
+            rnBiometricsRef.current = new ReactNativeBiometrics();
+        } catch (e) {
+            console.warn('ReactNativeBiometrics initialization failed:', e);
+        }
+    }
 
     // Animation for biometric icon
     const scale = useSharedValue(1);
@@ -120,6 +128,11 @@ export default function CognitiveTestIntroScreen({ route }: any) {
 
             const headers = { Authorization: `Bearer ${token}` };
             const rnBiometrics = rnBiometricsRef.current;
+            if (!rnBiometrics) {
+                Alert.alert('Biometrik Tidak Tersedia', 'Modul biometrik tidak dapat dimuat. Silakan restart aplikasi.');
+                setLoading(false);
+                return;
+            }
 
             const keysExist = await (rnBiometrics as any).biometricKeysExist?.();
             let publicKey: string | undefined;
