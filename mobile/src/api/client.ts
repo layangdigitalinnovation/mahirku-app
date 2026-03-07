@@ -56,7 +56,7 @@ const resolveBaseURL = () => {
     console.warn('resolveBaseURL error, falling back to production:', e);
   }
 
-  return 'https://mahirku.com';
+  return 'https://api.mahirku.com';
 };
 
 const baseURL = resolveBaseURL();
