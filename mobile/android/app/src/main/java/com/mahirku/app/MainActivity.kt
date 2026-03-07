@@ -10,13 +10,8 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 
 import expo.modules.ReactActivityDelegateWrapper
 
-import androidx.activity.enableEdgeToEdge
-
 class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
-    // Enable edge-to-edge display (required for Android 15+ / targetSdk 35)
-    // Prevents use of deprecated setStatusBarColor / setNavigationBarColor APIs
-    enableEdgeToEdge()
     // Set the theme to AppTheme BEFORE onCreate to support
     // coloring the background, status bar, and navigation bar.
     // This is required for expo-splash-screen.

@@ -7,15 +7,10 @@
 build/
 .idea
 .gradle
-gradle.properties
 local.properties
 *.iml
 *.hprof
 .cxx/
-
-# Keystore files (CRITICAL: Never commit these!)
-*.keystore
-*.jks
 
 # Bundle artifacts
 *.jsbundle
