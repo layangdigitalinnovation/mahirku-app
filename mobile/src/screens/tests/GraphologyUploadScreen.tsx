@@ -24,7 +24,13 @@ export default function GraphologyUploadScreen() {
     const user = data?.user;
 
     const pickImage = async () => {
-        // Determine permission requesting logic based on platform/needs
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert("Akses Galeri Ditolak", "Izinkan akses galeri untuk memilih foto tulisan Anda.");
+            return;
+        }
+
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
