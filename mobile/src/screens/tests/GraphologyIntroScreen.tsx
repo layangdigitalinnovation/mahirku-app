@@ -26,9 +26,9 @@ export default function GraphologyIntroScreen() {
                     >
                         <MaterialCommunityIcons name="draw-pen" size={42} color="#FFFFFF" />
                     </LinearGradient>
-                    <Text variant="headlineMedium" style={styles.title}>Graphology AI Test</Text>
+                    <Text variant="headlineMedium" style={styles.title}>Graphology Test</Text>
                     <Text variant="bodyLarge" style={styles.subtitle}>
-                        Kenali potensi kepribadian Anda melalui analisis cerdas berbasis AI dari tulisan tangan dan tanda tangan.
+                        Kenali potensi kepribadian Anda melalui analisis cerdas dari tulisan tangan dan tanda tangan.
                     </Text>
                 </View>
 

@@ -50,7 +50,7 @@ export const GraphologyTest: React.FC = () => {
                     if (result.status === 'completed') {
                         navigate(`/customer/dashboard/graphology-result/${testId}`);
                     } else if (result.status === 'failed') {
-                        alert('AI gagal memproses tulisan Anda. Silakan coba unggah gambar yang lebih jelas.');
+                        alert('Sistem gagal memproses tulisan Anda. Silakan coba unggah gambar yang lebih jelas.');
                         setCurrentStep('upload');
                     }
                 } catch (error) {
@@ -77,14 +77,14 @@ export const GraphologyTest: React.FC = () => {
                 <div className="w-12 h-0.5 bg-gray-200 mx-4"></div>
                 <div className={`flex items-center ${currentStep === 'processing' ? 'text-blue-600' : 'text-gray-400'}`}>
                     <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-current shrink-0">3</div>
-                    <span className="ml-2 hidden sm:block">Analisis AI</span>
+                    <span className="ml-2 hidden sm:block">Analisis</span>
                 </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
                 {currentStep === 'intro' && (
                     <div className="space-y-6">
-                        <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Graphology AI Test</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Graphology Test</h1>
 
                         <div className="grid md:grid-cols-2 gap-8">
                             <div className="space-y-4">
@@ -187,7 +187,7 @@ export const GraphologyTest: React.FC = () => {
                                         Mengunggah...
                                     </>
                                 ) : (
-                                    'Mulai Analisis AI'
+                                    'Mulai Analisis'
                                 )}
                             </button>
                         </div>
@@ -205,7 +205,7 @@ export const GraphologyTest: React.FC = () => {
                         </div>
 
                         <div className="text-center space-y-2">
-                            <h2 className="text-2xl font-bold text-gray-900">AI Sedang Menganalisis...</h2>
+                            <h2 className="text-2xl font-bold text-gray-900">Sistem Sedang Menganalisis...</h2>
                             <p className="text-gray-500 max-w-sm mx-auto">
                                 Sistem kami sedang membaca bentuk tulisan dan tanda tangan Anda untuk menyusun profil kepribadian. Mohon tunggu sekitar 10-20 detik.
                             </p>

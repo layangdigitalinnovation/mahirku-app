@@ -68,7 +68,7 @@ export default function GraphologyProcessingScreen() {
                     Sedang Menganalisis{dots}
                 </Text>
                 <Text variant="bodyMedium" style={styles.subtitle}>
-                    AI sedang mengekstrak tulisan dan tanda tangan Anda untuk dianalisis profil kepribadiannya.
+                    Sistem sedang mengekstrak tulisan dan tanda tangan Anda untuk dianalisis profil kepribadiannya.
                 </Text>
             </View>
         </SafeAreaView>

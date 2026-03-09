@@ -174,7 +174,7 @@ export default function GraphologyUploadScreen() {
                     loading={isUploading}
                     buttonColor="#4F46E5"
                 >
-                    {isUploading ? 'Sedang Diproses...' : 'Kirim untuk Analisis AI'}
+                    {isUploading ? 'Sedang Diproses...' : 'Kirim untuk Analisis'}
                 </Button>
             </Surface>
         </SafeAreaView>
