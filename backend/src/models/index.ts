@@ -12,6 +12,7 @@ import BiometricKey from './BiometricKey';
 import DiscQuestion from './DiscQuestion';
 import DiscOption from './DiscOption';
 import DiscResult from './DiscResult';
+import GraphologyTest from './GraphologyTest';
 
 const models = {
   User,
@@ -28,6 +29,7 @@ const models = {
   DiscQuestion,
   DiscOption,
   DiscResult,
+  GraphologyTest,
 };
 
 // Registrasi association

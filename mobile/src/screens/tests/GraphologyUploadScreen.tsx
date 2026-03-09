@@ -1,0 +1,292 @@
+import React, { useState } from 'react';
+import { View, StyleSheet, Image, Alert, Platform } from 'react-native';
+import { Text, Button, Surface, useTheme, ActivityIndicator } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
+import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+import { graphologyApi } from '../../api/graphology';
+import { useQuery } from '@tanstack/react-query';
+import { meApi } from '../../api/auth';
+import { LinearGradient } from 'expo-linear-gradient';
+
+export default function GraphologyUploadScreen() {
+    const theme = useTheme();
+    const navigation = useNavigation<any>();
+    const [image, setImage] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    type Me = { user?: { id?: number; fullname?: string; tokens?: number } };
+    const { data } = useQuery<Me>({
+        queryKey: ['me'],
+        queryFn: async () => (await meApi()).data,
+    });
+    const user = data?.user;
+
+    const pickImage = async () => {
+        // Determine permission requesting logic based on platform/needs
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            setImage(result.assets[0].uri);
+        }
+    };
+
+    const takePhoto = async () => {
+        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert("Akses Kamera Ditolak", "Izinkan akses kamera untuk mengambil foto tulisan Anda.");
+            return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            setImage(result.assets[0].uri);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!image) {
+            Alert.alert('Gambar Belum Dipilih', 'Silakan pilih atau ambil foto terlebih dahulu.');
+            return;
+        }
+
+        if (!user || user.id === undefined) {
+            Alert.alert('Sesi Berakhir', 'Silakan login kembali.');
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            const response = await graphologyApi.uploadImage(image, user.id);
+            if (response.status === 'processing' && response.test_id) {
+                navigation.replace('GraphologyProcessing', { testId: response.test_id });
+            } else {
+                Alert.alert('Upload Gagal', response.message || 'Terjadi kesalahan');
+            }
+        } catch (error: any) {
+            console.error('Upload Error:', error);
+            Alert.alert('Upload Gagal', error.message || 'Gagal menyambung ke server');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    return (
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <LinearGradient
+                colors={['#EEF2FF', '#F1F5F9', '#F8FAFC']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
+
+            <View style={styles.content}>
+                <View style={styles.header}>
+                    <LinearGradient
+                        colors={['#8B5CF6', '#6366F1']}
+                        style={styles.iconBackground}
+                    >
+                        <MaterialCommunityIcons name="cloud-upload-outline" size={36} color="#FFF" />
+                    </LinearGradient>
+                    <Text variant="headlineSmall" style={styles.title}>Unggah Foto Tulisan</Text>
+                    <Text variant="bodyMedium" style={styles.subtitle}>
+                        Pilih dari galeri atau ambil foto langsung tulisan tangan beserta tanda tangan Anda.
+                    </Text>
+                </View>
+
+                <Surface style={styles.imagePreviewContainer} elevation={4}>
+                    {image ? (
+                        <>
+                            <Image source={{ uri: image }} style={styles.imagePreview} />
+                            <View style={styles.imageOverlay}>
+                                <MaterialCommunityIcons name="check-circle" size={48} color="#10B981" />
+                                <Text style={styles.successText}>Gambar Berhasil Dipilih</Text>
+                            </View>
+                        </>
+                    ) : (
+                        <View style={styles.placeholder}>
+                            <View style={styles.dashedBox}>
+                                <MaterialCommunityIcons name="image-plus" size={48} color="#94A3B8" />
+                                <Text style={styles.placeholderText}>Belum ada foto yang dipilih</Text>
+                                <Text style={styles.placeholderSubtext}>Format: JPG, PNG (Max. 5MB)</Text>
+                            </View>
+                        </View>
+                    )}
+                </Surface>
+
+                <View style={styles.actionRow}>
+                    <Button
+                        mode="contained-tonal"
+                        icon={() => <Feather name="camera" size={20} color="#6366F1" />}
+                        onPress={takePhoto}
+                        style={styles.pickerButton}
+                        labelStyle={{ color: '#6366F1', fontWeight: 'bold' }}
+                        disabled={isUploading}
+                    >
+                        Buka Kamera
+                    </Button>
+                    <Button
+                        mode="contained-tonal"
+                        icon={() => <Feather name="image" size={20} color="#4F46E5" />}
+                        onPress={pickImage}
+                        style={styles.pickerButton}
+                        labelStyle={{ color: '#4F46E5', fontWeight: 'bold' }}
+                        disabled={isUploading}
+                    >
+                        Buka Galeri
+                    </Button>
+                </View>
+            </View>
+
+            <Surface style={styles.footer} elevation={5}>
+                <Button
+                    mode="contained"
+                    onPress={handleUpload}
+                    style={[styles.submitButton, (!image || isUploading) && { backgroundColor: '#CBD5E1' }]}
+                    labelStyle={styles.submitButtonText}
+                    disabled={!image || isUploading}
+                    loading={isUploading}
+                    buttonColor="#4F46E5"
+                >
+                    {isUploading ? 'Sedang Diproses...' : 'Kirim untuk Analisis AI'}
+                </Button>
+            </Surface>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: { flex: 1 },
+    content: {
+        flex: 1,
+        padding: 24,
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 32,
+        marginTop: 10,
+    },
+    iconBackground: {
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+        shadowColor: '#8B5CF6',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
+    },
+    title: {
+        fontWeight: '800',
+        marginBottom: 8,
+        color: '#1E293B',
+        textAlign: 'center',
+    },
+    subtitle: {
+        textAlign: 'center',
+        color: '#64748B',
+        paddingHorizontal: 10,
+        lineHeight: 22,
+    },
+    imagePreviewContainer: {
+        width: '100%',
+        aspectRatio: 3 / 4,
+        borderRadius: 24,
+        overflow: 'hidden',
+        backgroundColor: '#FFFFFF',
+        marginBottom: 24,
+        shadowColor: '#64748B',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 16,
+    },
+    imagePreview: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    imageOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    successText: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        marginTop: 12,
+        fontSize: 16,
+    },
+    placeholder: {
+        flex: 1,
+        padding: 16,
+    },
+    dashedBox: {
+        flex: 1,
+        borderWidth: 2,
+        borderColor: '#E2E8F0',
+        borderStyle: 'dashed',
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F8FAFC',
+    },
+    placeholderText: {
+        color: '#64748B',
+        fontWeight: '600',
+        fontSize: 16,
+        marginTop: 16,
+    },
+    placeholderSubtext: {
+        color: '#94A3B8',
+        fontSize: 13,
+        marginTop: 8,
+    },
+    actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        gap: 16,
+    },
+    pickerButton: {
+        flex: 1,
+        borderRadius: 16,
+        paddingVertical: 6,
+        backgroundColor: '#EEF2FF',
+    },
+    footer: {
+        padding: 24,
+        paddingBottom: Platform.OS === 'ios' ? 34 : 24,
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+    },
+    submitButton: {
+        borderRadius: 16,
+        shadowColor: '#4F46E5',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    submitButtonText: {
+        paddingVertical: 8,
+        fontSize: 16,
+        fontWeight: 'bold',
+        letterSpacing: 0.5,
+    },
+});

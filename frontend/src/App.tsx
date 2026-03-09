@@ -8,6 +8,8 @@ import { Register } from './pages/Auth/Register';
 import PublicRoute from './components/PublicRoute';
 import { CognitiveTest } from './pages/Test/CognitiveTest';
 import { TestResult } from './pages/Test/TestResult';
+import { GraphologyTest } from './pages/Test/GraphologyTest';
+import { GraphologyResult } from './pages/Test/GraphologyResult';
 import Contact from './pages/Contact';
 import Faq from './pages/Faq';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -206,6 +208,10 @@ function AppRoutes() {
         {/* DISC Test */}
         <Route path="disc-test" element={<DiscTest />} />
         <Route path="disc-result" element={<DiscResult />} />
+
+        {/* Graphology Test */}
+        <Route path="graphology-test" element={<GraphologyTest />} />
+        <Route path="graphology-result/:test_id" element={<GraphologyResult />} />
 
       </Route>
 

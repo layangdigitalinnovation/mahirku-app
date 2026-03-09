@@ -29,18 +29,22 @@
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "google-auth-library": "^10.5.0",
+    "groq-sdk": "^0.37.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.1.1",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "qrcode": "^1.5.4",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.1.0",
     "@types/node": "^24.0.8",
     "@types/pdfkit": "^0.17.4",
     "@types/qrcode": "^1.5.5",

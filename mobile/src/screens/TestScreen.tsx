@@ -15,7 +15,7 @@ export default function TestScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const { data } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
   const tokens = data?.user?.tokens ?? 0;
-  
+
   const startCognitive = () => {
     if (tokens <= 0) {
       Alert.alert(
@@ -29,6 +29,21 @@ export default function TestScreen({ navigation }: any) {
       return;
     }
     navigation.navigate('CognitiveDataEntry');
+  };
+
+  const startGraphology = () => {
+    if (tokens <= 0) {
+      Alert.alert(
+        'Token Tidak Cukup',
+        'Anda memerlukan minimal 1 token untuk melakukan tes. Silakan beli token terlebih dahulu.',
+        [
+          { text: 'Batal', style: 'cancel' },
+          { text: 'Beli Token', onPress: () => navigation.navigate('TokenPackages') }
+        ]
+      );
+      return;
+    }
+    navigation.navigate('GraphologyIntro');
   };
 
   const startDisc = () => navigation.navigate('DiscTest');
@@ -69,8 +84,10 @@ export default function TestScreen({ navigation }: any) {
       icon: 'edit-3',
       iconLib: 'Feather',
       color: '#8B5CF6',
-      available: false,
-      onPress: () => { }
+      available: true,
+      meta: `${tokens} Token tersedia`,
+      metaIcon: 'database' as const,
+      onPress: startGraphology
     },
   ];
 

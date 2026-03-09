@@ -91,12 +91,14 @@ export default function DashboardScreen({ navigation }: any) {
       navigation.navigate('CognitiveDataEntry');
     } else if (testKey === 'disc') {
       navigation.navigate('DiscTest');
+    } else if (testKey === 'grp') {
+      navigation.navigate('GraphologyIntro');
     }
   };
   const tests = useMemo(() => [
     { key: 'cst', title: 'Cognitive Style', subtitle: 'Analisis Pola Pikir', desc: 'Temukan potensi dan gaya berpikir unik Anda.', icon: 'brain', iconLib: 'MaterialCommunityIcons', color: '#4F46E5', available: true, isFree: false },
     { key: 'disc', title: 'DISC Personality', subtitle: 'Profil Kepribadian', desc: 'Pahami karakter dan cara Anda berinteraksi.', icon: 'account-group', iconLib: 'MaterialCommunityIcons', color: '#0EA5E9', available: true, isFree: true },
-    { key: 'grp', title: 'Graphology', subtitle: 'Analisis Tulisan', desc: 'Ungkap karakter tersembunyi dari tulisan tangan.', icon: 'edit-3', iconLib: 'Feather', color: '#8B5CF6', available: false, isFree: false },
+    { key: 'grp', title: 'Graphology', subtitle: 'Analisis Tulisan', desc: 'Ungkap karakter tersembunyi dari tulisan tangan.', icon: 'edit-3', iconLib: 'Feather', color: '#8B5CF6', available: true, isFree: false },
   ], []);
 
   const getInitials = (name: string) => {

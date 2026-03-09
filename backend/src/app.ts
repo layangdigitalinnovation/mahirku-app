@@ -21,6 +21,7 @@ import discRoutes from './routes/discRoutes';
 import discAdminRoutes from './routes/admin/discAdminRoutes';
 import certificateRoutes from './routes/certificateRoutes';
 import mitraRoutes from './routes/mitraRoutes';
+import graphologyRoutes from './routes/graphology.routes';
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.use('/api/disc', discRoutes);
 app.use('/api/admin/disc', discAdminRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/mitra', mitraRoutes);
+app.use('/api/graphology', graphologyRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
