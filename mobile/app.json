@@ -3,7 +3,7 @@
     "name": "Mahirku",
     "slug": "mahirku-mobile",
     "scheme": "mahirku",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "platforms": [
       "android"
     ],
@@ -44,6 +44,13 @@
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true
           }
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aplikasi membutuhkan izin galeri untuk mengunggah foto tulisan Anda.",
+          "cameraPermission": "Aplikasi membutuhkan izin kamera untuk mengambil foto tulisan Anda."
         }
       ]
     ],
