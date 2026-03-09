@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Alert, Platform } from 'react-native';
+import { View, StyleSheet, Image, Alert, Platform, TouchableOpacity } from 'react-native';
 import { Text, Button, Surface, useTheme, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -55,6 +55,18 @@ export default function GraphologyUploadScreen() {
         }
     };
 
+    const handleSelectImageMode = () => {
+        Alert.alert(
+            'Pilih Sumber Foto',
+            'Apakah Anda ingin mengambil foto menggunakan kamera atau memilih dari galeri?',
+            [
+                { text: 'Kamera', onPress: takePhoto },
+                { text: 'Galeri', onPress: pickImage },
+                { text: 'Batal', style: 'cancel' }
+            ]
+        );
+    };
+
     const handleUpload = async () => {
         if (!image) {
             Alert.alert('Gambar Belum Dipilih', 'Silakan pilih atau ambil foto terlebih dahulu.');
@@ -105,25 +117,28 @@ export default function GraphologyUploadScreen() {
                     </Text>
                 </View>
 
-                <Surface style={styles.imagePreviewContainer} elevation={4}>
-                    {image ? (
-                        <>
-                            <Image source={{ uri: image }} style={styles.imagePreview} />
-                            <View style={styles.imageOverlay}>
-                                <MaterialCommunityIcons name="check-circle" size={48} color="#10B981" />
-                                <Text style={styles.successText}>Gambar Berhasil Dipilih</Text>
+                <TouchableOpacity onPress={handleSelectImageMode} activeOpacity={0.8} disabled={isUploading}>
+                    <Surface style={styles.imagePreviewContainer} elevation={4}>
+                        {image ? (
+                            <>
+                                <Image source={{ uri: image }} style={styles.imagePreview} />
+                                <View style={styles.imageOverlay}>
+                                    <MaterialCommunityIcons name="check-circle" size={48} color="#10B981" />
+                                    <Text style={styles.successText}>Gambar Berhasil Dipilih</Text>
+                                    <Text style={styles.reselectText}>Ketuk untuk mengubah foto</Text>
+                                </View>
+                            </>
+                        ) : (
+                            <View style={styles.placeholder}>
+                                <View style={styles.dashedBox}>
+                                    <MaterialCommunityIcons name="image-plus" size={48} color="#94A3B8" />
+                                    <Text style={styles.placeholderText}>Belum ada foto yang dipilih</Text>
+                                    <Text style={styles.placeholderSubtext}>Format: JPG, PNG (Max. 5MB)</Text>
+                                </View>
                             </View>
-                        </>
-                    ) : (
-                        <View style={styles.placeholder}>
-                            <View style={styles.dashedBox}>
-                                <MaterialCommunityIcons name="image-plus" size={48} color="#94A3B8" />
-                                <Text style={styles.placeholderText}>Belum ada foto yang dipilih</Text>
-                                <Text style={styles.placeholderSubtext}>Format: JPG, PNG (Max. 5MB)</Text>
-                            </View>
-                        </View>
-                    )}
-                </Surface>
+                        )}
+                    </Surface>
+                </TouchableOpacity>
 
                 <View style={styles.actionRow}>
                     <Button
@@ -230,6 +245,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginTop: 12,
         fontSize: 16,
+    },
+    reselectText: {
+        color: '#E2E8F0',
+        fontSize: 14,
+        marginTop: 8,
     },
     placeholder: {
         flex: 1,
