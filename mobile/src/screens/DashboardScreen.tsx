@@ -205,16 +205,34 @@ export default function DashboardScreen({ navigation }: any) {
                       onPress={() => navigation.navigate('AddMember')}
                       disabled={(data?.user?.tokens ?? 0) <= 1}
                       style={({ pressed }) => [
-                        styles.addMemberBtn,
+                        styles.addMemberBtnOuter,
                         (data?.user?.tokens ?? 0) <= 1 && styles.addMemberBtnDisabled,
-                        pressed && !((data?.user?.tokens ?? 0) <= 1) && { transform: [{ scale: 0.98 }], opacity: 0.85 }
+                        pressed && !((data?.user?.tokens ?? 0) <= 1) && { transform: [{ scale: 0.97 }], opacity: 0.92 }
                       ]}
                     >
-                      <Feather name="user-plus" size={18} color={(data?.user?.tokens ?? 0) <= 1 ? '#94A3B8' : '#FFFFFF'} />
-                      <Text style={[
-                        styles.addMemberBtnText,
-                        (data?.user?.tokens ?? 0) <= 1 && styles.addMemberBtnTextDisabled
-                      ]}>Add Member</Text>
+                      <LinearGradient
+                        colors={(data?.user?.tokens ?? 0) <= 1
+                          ? ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.08)']
+                          : ['#FFFFFF', '#FDF2F8']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.addMemberBtnGradient}
+                      >
+                        <View style={[
+                          styles.addMemberIconBadge,
+                          (data?.user?.tokens ?? 0) <= 1 && { backgroundColor: 'rgba(148,163,184,0.15)' }
+                        ]}>
+                          <Feather
+                            name="user-plus"
+                            size={16}
+                            color={(data?.user?.tokens ?? 0) <= 1 ? '#94A3B8' : '#EC4899'}
+                          />
+                        </View>
+                        <Text style={[
+                          styles.addMemberBtnText,
+                          (data?.user?.tokens ?? 0) <= 1 && styles.addMemberBtnTextDisabled
+                        ]}>Add Member</Text>
+                      </LinearGradient>
                     </Pressable>
                   </View>
                 </View>
@@ -291,7 +309,18 @@ export default function DashboardScreen({ navigation }: any) {
                   data={activityData}
                   scrollEnabled={false}
                   renderItem={({ item, index }) => {
-                    const date = new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const isDisc = item.testType === 'DISC';
+                    const rawDate = new Date(item.createdAt);
+                    const isValidDate = !isNaN(rawDate.getTime());
+                    const date = isValidDate
+                      ? rawDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                      : null;
+                    const discNameMap: Record<string, string> = {
+                      D: 'Dominance',
+                      I: 'Influence',
+                      S: 'Steadiness',
+                      C: 'Compliance',
+                    };
                     const isLast = index === activityData.length - 1;
                     return (
                       <View style={[styles.activityItem, !isLast && styles.activityDivider]}>
@@ -305,12 +334,19 @@ export default function DashboardScreen({ navigation }: any) {
                           <Text style={styles.activityResult}>
                             Hasil: <Text style={{ fontWeight: '600', color: '#4F46E5' }}>
                               {item.testType === 'DISC'
-                                ? `${item.thinkingStyle?.type || ''} (${item.thinkingStyle?.code || ''})`
+                                ? (() => {
+                                  const code = item.thinkingStyle?.code || '';
+                                  const name = discNameMap[code] || item.thinkingStyle?.type || code;
+                                  return `${code} (${name})`;
+                                })()
                                 : (item.thinkingStyle?.type || 'Unknown')}
                             </Text>
                           </Text>
                         </View>
-                        <Text style={styles.activityDate}>{date}</Text>
+                        {/* Only show date when valid and not DISC */}
+                        {!isDisc && date && (
+                          <Text style={styles.activityDate}>{date}</Text>
+                        )}
                       </View>
                     );
                   }}
@@ -554,36 +590,45 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.3
   },
-  addMemberBtn: {
+  addMemberBtnOuter: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.15)',
     height: 48,
     borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.25)',
+    overflow: 'hidden',
+    shadowColor: '#EC4899',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  addMemberBtnGradient: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+  },
+  addMemberIconBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    backgroundColor: 'rgba(236,72,153,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addMemberBtnDisabled: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderColor: 'rgba(255,255,255,0.15)',
-    opacity: 0.6
+    opacity: 0.55,
   },
   addMemberBtnText: {
-    color: '#FFFFFF',
+    color: '#EC4899',
     fontSize: 15,
-    fontWeight: '700',
-    letterSpacing: 0.3
+    fontWeight: '800',
+    letterSpacing: 0.2,
   },
   addMemberBtnTextDisabled: {
-    color: '#94A3B8'
+    color: '#94A3B8',
   },
 
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },

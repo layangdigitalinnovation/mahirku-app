@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Alert, Platform, TouchableOpacity } from 'react-native';
-import { Text, Button, Surface, useTheme, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, Image, Alert, Platform, TouchableOpacity, Linking } from 'react-native';
+import { Text, Button, Surface, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,6 +16,10 @@ export default function GraphologyUploadScreen() {
     const [image, setImage] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
+    // Gunakan permission hooks dari expo-image-picker (lebih aman & React-friendly)
+    const [cameraPermission, requestCameraPermission] = ImagePicker.useCameraPermissions();
+    const [libraryPermission, requestLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
+
     type Me = { user?: { id?: number; fullname?: string; tokens?: number } };
     const { data } = useQuery<Me>({
         queryKey: ['me'],
@@ -23,16 +27,36 @@ export default function GraphologyUploadScreen() {
     });
     const user = data?.user;
 
-    const pickImage = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    /** Arahkan user ke pengaturan sistem jika izin ditolak permanen */
+    const openAppSettings = () => Linking.openSettings();
 
-        if (permissionResult.granted === false) {
-            Alert.alert("Akses Galeri Ditolak", "Izinkan akses galeri untuk memilih foto tulisan Anda.");
-            return;
+    const pickImage = async () => {
+        // Minta izin galeri jika belum granted
+        if (!libraryPermission?.granted) {
+            const result = await requestLibraryPermission();
+            if (!result.granted) {
+                if (!result.canAskAgain) {
+                    // Ditolak permanen — arahkan ke Pengaturan
+                    Alert.alert(
+                        'Akses Foto Diperlukan',
+                        'Izin galeri ditolak secara permanen. Silakan aktifkan akses foto di Pengaturan aplikasi.',
+                        [
+                            { text: 'Batal', style: 'cancel' },
+                            { text: 'Buka Pengaturan', onPress: openAppSettings },
+                        ]
+                    );
+                } else {
+                    Alert.alert(
+                        'Akses Ditolak',
+                        'Izin akses foto diperlukan untuk memilih foto tulisan Anda dari galeri.'
+                    );
+                }
+                return;
+            }
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
+            mediaTypes: ['images'], // hanya foto, BUKAN video
             allowsEditing: true,
             quality: 0.8,
         });
@@ -43,15 +67,32 @@ export default function GraphologyUploadScreen() {
     };
 
     const takePhoto = async () => {
-        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-
-        if (permissionResult.granted === false) {
-            Alert.alert("Akses Kamera Ditolak", "Izinkan akses kamera untuk mengambil foto tulisan Anda.");
-            return;
+        // Minta izin kamera jika belum granted
+        if (!cameraPermission?.granted) {
+            const result = await requestCameraPermission();
+            if (!result.granted) {
+                if (!result.canAskAgain) {
+                    // Ditolak permanen — arahkan ke Pengaturan
+                    Alert.alert(
+                        'Akses Kamera Diperlukan',
+                        'Izin kamera ditolak secara permanen. Silakan aktifkan akses kamera di Pengaturan aplikasi.',
+                        [
+                            { text: 'Batal', style: 'cancel' },
+                            { text: 'Buka Pengaturan', onPress: openAppSettings },
+                        ]
+                    );
+                } else {
+                    Alert.alert(
+                        'Akses Ditolak',
+                        'Izin kamera diperlukan untuk mengambil foto tulisan Anda.'
+                    );
+                }
+                return;
+            }
         }
 
         const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ['images'],
+            mediaTypes: ['images'], // hanya foto, BUKAN video
             allowsEditing: true,
             quality: 0.8,
         });
