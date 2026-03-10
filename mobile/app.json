@@ -26,8 +26,6 @@
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.CAMERA",
-        "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
       ],
@@ -52,7 +50,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Aplikasi membutuhkan akses foto untuk mengunggah foto tulisan tangan analisis grafologi Anda.",
+          "photosPermission": false,
           "cameraPermission": "Aplikasi membutuhkan akses kamera untuk mengambil foto tulisan tangan analisis grafologi Anda.",
           "microphonePermission": false
         }

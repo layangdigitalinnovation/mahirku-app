@@ -4,6 +4,7 @@ import { Text, Button, Surface, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { graphologyApi } from '../../api/graphology';
 import { useQuery } from '@tanstack/react-query';
@@ -26,48 +27,35 @@ export default function GraphologyUploadScreen() {
     /** Arahkan user ke pengaturan jika izin ditolak permanen */
     const openAppSettings = () => Linking.openSettings();
 
-
+    /**
+     * GALERI — Gunakan expo-document-picker (bukan expo-image-picker)
+     * Keuntungan:
+     * - Menggunakan Android Storage Access Framework (SAF)
+     * - TIDAK BUTUH permission apa pun (no READ_MEDIA_IMAGES)
+     * - Selalu berfungsi reliable di semua versi Android
+     * - Google Play compliant
+     */
     const pickImage = async () => {
-        // Gunakan static functions — tidak trigger re-render, flow tidak terputus
-        const current = await ImagePicker.getMediaLibraryPermissionsAsync();
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
+                copyToCacheDirectory: true,  // Pastikan file bisa diakses oleh app
+            });
 
-        if (!current.granted) {
-            if (!current.canAskAgain) {
-                Alert.alert(
-                    'Akses Foto Diperlukan',
-                    'Izin galeri ditolak secara permanen. Aktifkan di Pengaturan.',
-                    [
-                        { text: 'Batal', style: 'cancel' },
-                        { text: 'Buka Pengaturan', onPress: openAppSettings },
-                    ]
-                );
-                return;
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                setImage(result.assets[0].uri);
             }
-            // Minta izin — tunggu user respond
-            const asked = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (!asked.granted) {
-                Alert.alert(
-                    'Akses Ditolak',
-                    'Izin akses foto diperlukan untuk memilih foto tulisan Anda.'
-                );
-                return;
-            }
-        }
-
-        // Izin sudah ada — buka galeri langsung
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            quality: 0.8,
-        });
-
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-            setImage(result.assets[0].uri);
+        } catch (error) {
+            console.error('Document Picker Error:', error);
+            Alert.alert('Gagal Memilih Foto', 'Terjadi kesalahan saat membuka galeri. Silakan coba lagi.');
         }
     };
 
+    /**
+     * KAMERA — Tetap gunakan expo-image-picker
+     * Camera permission straightforward dan tidak pernah bermasalah
+     */
     const takePhoto = async () => {
-        // Gunakan static functions — tidak trigger re-render
         const current = await ImagePicker.getCameraPermissionsAsync();
 
         if (!current.granted) {
@@ -92,7 +80,6 @@ export default function GraphologyUploadScreen() {
             }
         }
 
-        // Izin sudah ada — buka kamera langsung
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
@@ -208,7 +195,7 @@ export default function GraphologyUploadScreen() {
                         labelStyle={{ color: '#4F46E5', fontWeight: 'bold' }}
                         disabled={isUploading}
                     >
-                        Buka Galeri
+                        Pilih File
                     </Button>
                 </View>
             </View>
