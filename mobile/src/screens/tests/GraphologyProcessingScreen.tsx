@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -35,7 +35,8 @@ export default function GraphologyProcessingScreen() {
                 if (result.status === 'completed') {
                     navigation.replace('GraphologyResult', { testId, result });
                 } else if (result.status === 'failed') {
-                    alert('Gagal menganalisis gambar. Pastikan gambar jelas.');
+                    const msg = result.message || 'Gagal menganalisis gambar. Pastikan gambar jelas.';
+                    Alert.alert('Analisis Gagal', msg);
                     navigation.goBack();
                 }
             } catch (error) {

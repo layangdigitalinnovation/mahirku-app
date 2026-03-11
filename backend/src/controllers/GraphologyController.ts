@@ -69,11 +69,13 @@ const processGraphologyAI = async (testId: string, imagePath: string) => {
         testRecord.aiResult = result;
 
         await testRecord.save();
-    } catch (error) {
+    } catch (error: any) {
         console.error(`AI Analysis failed for test ${testId}:`, error);
         const testRecord = await GraphologyTest.findByPk(testId);
         if (testRecord) {
             testRecord.status = 'failed';
+            // Save error message to aiResult for debugging
+            testRecord.aiResult = { error: error?.message || 'Unknown AI processing error' };
             await testRecord.save();
         }
     }
@@ -90,9 +92,14 @@ export const getGraphologyResult = async (req: Request, res: Response): Promise<
         }
 
         if (testRecord.status !== 'completed') {
+            const errorDetails = testRecord.status === 'failed' && testRecord.aiResult?.error
+                ? ` Alasan: ${testRecord.aiResult.error}`
+                : '';
             res.status(200).json({
                 status: testRecord.status,
-                message: testRecord.status === 'failed' ? 'Process failed.' : 'Still processing.',
+                message: testRecord.status === 'failed'
+                    ? `Proses gagal.${errorDetails}`
+                    : 'Sedang diproses.',
             });
             return;
         }
