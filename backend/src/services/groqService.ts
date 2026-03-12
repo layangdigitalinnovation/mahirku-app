@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import fs from 'fs';
+import sharp from 'sharp';
 
 export class GroqService {
     private groq: Groq;
@@ -16,13 +17,18 @@ export class GroqService {
                 throw new Error('GROQ_API_KEY is not configured in environment variables.');
             }
 
-            // Read image file and convert to base64
-            const imageBuffer = fs.readFileSync(imagePath);
+            // Optimize image with sharp: resize and convert to JPEG
+            // Groq Llama 4 Scout has strict limits on image dimensions and sizes
+            const imageBuffer = await sharp(imagePath)
+                .resize(1024, 1024, {
+                    fit: 'inside',
+                    withoutEnlargement: true,
+                })
+                .jpeg({ quality: 80 })
+                .toBuffer();
+
             const base64Image = imageBuffer.toString('base64');
-            let mimeType = 'image/jpeg';
-            if (imagePath.endsWith('.png')) mimeType = 'image/png';
-            else if (imagePath.endsWith('.webp')) mimeType = 'image/webp';
-            const dataUrl = `data:${mimeType};base64,${base64Image}`;
+            const dataUrl = `data:image/jpeg;base64,${base64Image}`;
 
             const prompt = `You are a professional graphology expert.
 Analyze the personality based on the provided handwriting sample and signature in the image.
