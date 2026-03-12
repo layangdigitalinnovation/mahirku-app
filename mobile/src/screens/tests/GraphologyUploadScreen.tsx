@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { graphologyApi } from '../../api/graphology';
 import { useQuery } from '@tanstack/react-query';
@@ -117,16 +116,7 @@ export default function GraphologyUploadScreen() {
 
         setIsUploading(true);
         try {
-            // Kompresi gambar sebelum dikirim untuk menghemat bandwidth dan mencegah payload too large di backend/Groq
-            const manipResult = await ImageManipulator.manipulateAsync(
-                image,
-                [{ resize: { width: 1024 } }],
-                { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
-            );
-
-            const compressedImageUri = manipResult.uri;
-
-            const response = await graphologyApi.uploadImage(compressedImageUri, user.id);
+            const response = await graphologyApi.uploadImage(image, user.id);
             if (response.status === 'processing' && response.test_id) {
                 navigation.replace('GraphologyProcessing', { testId: response.test_id });
             } else {
