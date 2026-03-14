@@ -11,7 +11,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function CognitiveDataEntryScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const [dob, setDob] = useState('');
-  const [bloodType, setBloodType] = useState('');
   const [dobDate, setDobDate] = useState<Date | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -24,13 +23,8 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
 
   const next = () => {
     const effectiveDob = dobDate ? formatDate(dobDate) : dob;
-    const blood = (bloodType || '').trim().toUpperCase();
-    if (!effectiveDob || !blood) {
-      Alert.alert('Data Belum Lengkap', 'Mohon isi Tanggal Lahir dan Golongan Darah Anda.');
-      return;
-    }
-    if (!/^A|B|AB|O$/.test(blood)) {
-      Alert.alert('Golongan Darah Tidak Valid', 'Masukkan salah satu: A, B, AB, atau O.');
+    if (!effectiveDob) {
+      Alert.alert('Data Belum Lengkap', 'Mohon isi Tanggal Lahir Anda.');
       return;
     }
     const fnv1a = (str: string) => {
@@ -50,7 +44,7 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
           return;
         }
       }
-      navigation.navigate('CognitiveQuestionnaire', { dob: effectiveDob, bloodType: blood });
+      navigation.navigate('CognitiveQuestionnaire', { dob: effectiveDob });
     });
   };
 
@@ -90,7 +84,6 @@ export default function CognitiveDataEntryScreen({ navigation }: any) {
                 />
               </View>
             ) : null}
-            <TextField label="Golongan Darah" placeholder="A / B / AB / O" value={bloodType} onChangeText={setBloodType} onFocus={() => setPickerOpen(false)} startIcon={<Feather name="droplet" size={18} color="#64748B" />} />
           </View>
           <PrimaryButton title="Lanjutkan" onPress={next} style={{ marginTop: 16 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
         </Card>

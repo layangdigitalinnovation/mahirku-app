@@ -115,6 +115,19 @@ export default function GraphologyUploadScreen() {
             return;
         }
 
+        const tokens = user.tokens ?? 0;
+        if (tokens <= 0) {
+            Alert.alert(
+                'Token Tidak Cukup',
+                'Anda memerlukan minimal 1 token untuk melakukan tes. Silakan beli token terlebih dahulu.',
+                [
+                    { text: 'Batal', style: 'cancel' },
+                    { text: 'Beli Token', onPress: () => navigation.navigate('TokenPackages') }
+                ]
+            );
+            return;
+        }
+
         setIsUploading(true);
         try {
             let imageToUpload = image;
@@ -140,7 +153,19 @@ export default function GraphologyUploadScreen() {
             }
         } catch (error: any) {
             console.error('Upload Error:', error);
-            Alert.alert('Upload Gagal', error.message || 'Gagal menyambung ke server');
+            const status = error?.response?.status;
+            if (status === 403) {
+                Alert.alert(
+                    'Token Tidak Cukup',
+                    'Token Anda tidak mencukupi untuk melakukan tes.',
+                    [
+                        { text: 'Batal', style: 'cancel' },
+                        { text: 'Beli Token', onPress: () => navigation.navigate('TokenPackages') }
+                    ]
+                );
+                return;
+            }
+            Alert.alert('Upload Gagal', error?.response?.data?.message || error.message || 'Gagal menyambung ke server');
         } finally {
             setIsUploading(false);
         }

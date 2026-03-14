@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Text, Button, Surface, useTheme, Divider, Chip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,12 +6,43 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { GraphologyResultData } from '../../api/graphology';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useQueryClient } from '@tanstack/react-query';
+import ShareResultModal from '../../components/ui/ShareResultModal';
+import { buildShareCaption, shareResultPosterPDF, shareResultText } from '../../utils/testResultShare';
 
 export default function GraphologyResultScreen() {
     const theme = useTheme();
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
     const { result } = route.params as { result: GraphologyResultData };
+    const queryClient = useQueryClient();
+    const [shareOpen, setShareOpen] = useState(false);
+    const me = queryClient.getQueryData<any>(['me']);
+    const userName = me?.user?.fullname || 'Pengguna';
+
+    useEffect(() => {
+        queryClient.invalidateQueries({ queryKey: ['me'] });
+    }, [queryClient]);
+
+    const shareTheme = useMemo(() => ({ a: '#8B5CF6', b: '#6366F1' }), []);
+    const sharePrimary = result?.personality_type || 'Graphology';
+    const shareSecondary = [result?.thinking_style, result?.emotional_tendency].filter(Boolean).join(' • ');
+    const shareHighlights = useMemo(
+        () => (result?.strengths || []).slice(0, 4),
+        [result?.strengths]
+    );
+    const shareCaption = useMemo(
+        () =>
+            buildShareCaption({
+                type: 'grp',
+                userName,
+                createdAtISO: new Date().toISOString(),
+                primary: sharePrimary,
+                secondary: shareSecondary,
+                highlights: shareHighlights,
+            }),
+        [shareHighlights, sharePrimary, shareSecondary, userName]
+    );
 
     if (!result) {
         return (
@@ -120,6 +151,15 @@ export default function GraphologyResultScreen() {
             </ScrollView>
             <Surface style={styles.footer} elevation={5}>
                 <Button
+                    mode="contained-tonal"
+                    onPress={() => setShareOpen(true)}
+                    style={styles.shareBtn}
+                    labelStyle={styles.shareBtnText}
+                    textColor="#4F46E5"
+                >
+                    Bagikan Hasil
+                </Button>
+                <Button
                     mode="contained"
                     onPress={() => navigation.navigate('Dashboard')}
                     style={styles.doneBtn}
@@ -129,6 +169,36 @@ export default function GraphologyResultScreen() {
                     Selesai & Kembali ke Dashboard
                 </Button>
             </Surface>
+            <ShareResultModal
+                visible={shareOpen}
+                onClose={() => setShareOpen(false)}
+                title="Graphology"
+                subtitle="Analisis tulisan tangan"
+                primary={sharePrimary}
+                secondary={shareSecondary}
+                theme={shareTheme}
+                caption={shareCaption}
+                onSharePoster={() =>
+                    shareResultPosterPDF({
+                        type: 'grp',
+                        userName,
+                        createdAtISO: new Date().toISOString(),
+                        primary: sharePrimary,
+                        secondary: shareSecondary,
+                        highlights: shareHighlights,
+                    })
+                }
+                onShareText={() =>
+                    shareResultText({
+                        type: 'grp',
+                        userName,
+                        createdAtISO: new Date().toISOString(),
+                        primary: sharePrimary,
+                        secondary: shareSecondary,
+                        highlights: shareHighlights,
+                    })
+                }
+            />
         </SafeAreaView>
     );
 }
@@ -160,7 +230,9 @@ const styles = StyleSheet.create({
     chipTextValue: { color: '#334155', fontSize: 15, lineHeight: 22, flex: 1 },
     careerPill: { backgroundColor: '#EEF2FF', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: '#DBEAFE' },
     careerPillText: { color: '#4F46E5', fontWeight: '600', fontSize: 14 },
-    footer: { padding: 24, paddingBottom: Platform.OS === 'ios' ? 34 : 24, backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32 },
+    footer: { padding: 24, paddingBottom: Platform.OS === 'ios' ? 34 : 24, backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32, gap: 10 },
+    shareBtn: { borderRadius: 16, height: 52, justifyContent: 'center', backgroundColor: '#EEF2FF' },
+    shareBtnText: { fontSize: 15, fontWeight: 'bold', letterSpacing: 0.2 },
     doneBtn: { borderRadius: 16, height: 56, justifyContent: 'center' },
     doneBtnText: { fontSize: 16, fontWeight: 'bold', letterSpacing: 0.5 },
 });

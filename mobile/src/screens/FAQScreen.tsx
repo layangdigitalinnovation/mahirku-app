@@ -21,7 +21,7 @@ export default function FAQScreen({ navigation }: any) {
         {
             category: 'Umum',
             question: 'Apa itu Mahirku?',
-            answer: 'Mahirku adalah platform psikometri digital yang menyediakan berbagai tes untuk membantu Anda memahami gaya berpikir, kepribadian, dan potensi diri. Kami menggunakan metodologi ilmiah dan teknologi sidik jari untuk memberikan hasil yang akurat dan personal.'
+            answer: 'Mahirku adalah platform psikometri digital yang menyediakan berbagai tes untuk membantu Anda memahami gaya berpikir, kepribadian, dan potensi diri. Kami menggunakan metodologi ilmiah dan kuesioner terstruktur untuk memberikan hasil yang informatif dan personal.'
         },
         {
             category: 'Umum',
@@ -46,12 +46,12 @@ export default function FAQScreen({ navigation }: any) {
         {
             category: 'Test',
             question: 'Bagaimana cara melakukan Cognitive Style Test?',
-            answer: 'Pilih Cognitive Style Test dari dashboard, isi data diri (tanggal lahir dan golongan darah), lalu lakukan verifikasi sidik jari. Anda juga dapat mengisi kuesioner tambahan untuk hasil yang lebih akurat. Tes akan menganalisis pola sidik jari dan jawaban Anda.'
+            answer: 'Pilih Cognitive Style Test dari dashboard, isi tanggal lahir, lalu isi kuesioner sesuai instruksi. Hasil tes dihitung dari jawaban kuesioner yang Anda isi.'
         },
         {
             category: 'Test',
-            question: 'Mengapa harus menggunakan sidik jari?',
-            answer: 'Sidik jari mengandung pola unik yang dapat memberikan insight tentang karakteristik kognitif seseorang. Teknologi kami menganalisis pola ini dengan metode ilmiah untuk memberikan hasil yang lebih personal dan akurat.'
+            question: 'Mengapa harus mengisi kuesioner?',
+            answer: 'Kuesioner membantu memetakan preferensi dan kecenderungan cara berpikir melalui pertanyaan yang terstruktur. Semakin jujur dan konsisten jawaban Anda, semakin relevan hasil yang didapat.'
         },
         {
             category: 'Test',

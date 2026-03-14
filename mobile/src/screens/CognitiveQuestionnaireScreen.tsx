@@ -119,7 +119,6 @@ const isEarlyChildhood = (dobString: string): boolean => {
 export default function CognitiveQuestionnaireScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const dob = route?.params?.dob as string | undefined;
-  const bloodType = route?.params?.bloodType as string | undefined;
 
   // Determine questionnaire type based on age
   const isChildQuestionnaire = dob ? isEarlyChildhood(dob) : false;
@@ -182,7 +181,7 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
   const questionnairePercent = useMemo(() => Math.round((answers.reduce((a, b) => a + b, 0) / (36 * 5)) * 100), [answers]);
 
   const proceed = async () => {
-    if (!dob || !bloodType) return;
+    if (!dob) return;
     if (answers.includes(0)) {
       Alert.alert('Belum Lengkap', 'Mohon isi semua pertanyaan kuesioner sebelum melanjutkan.');
       return;
@@ -190,7 +189,6 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
     const payload = {
       savedAt: new Date().toISOString(),
       dob,
-      bloodType,
       answers,
       domainScores,
       eScore,
@@ -206,7 +204,6 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
     navigation.navigate('CognitiveTestIntro', {
       fromQuestionnaire: true,
       dob,
-      bloodType,
       questionnaire: payload,
     });
   };
@@ -226,7 +223,7 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
         <Text style={styles.pageSubtitle}>
           {isChildQuestionnaire
             ? 'Kuesioner diisi oleh guru/orang tua berdasarkan pengamatan terhadap anak.'
-            : 'Isi data diri dan jawaban Anda sebelum verifikasi sidik jari.'}
+            : 'Isi kuesioner untuk mengetahui gaya berpikir Anda.'}
         </Text>
 
         <Card style={{ marginTop: 16 }}>
@@ -234,10 +231,9 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
             <View style={styles.iconWrap}><Feather name="user" size={18} color="#4F46E5" /></View>
             <Text style={styles.sectionTitle}>Data Diri</Text>
           </View>
-          <Text style={styles.helper}>Konfirmasi data yang akan digunakan untuk verifikasi.</Text>
+          <Text style={styles.helper}>Tanggal lahir digunakan untuk menentukan jenis kuesioner yang ditampilkan.</Text>
           <View style={{ gap: 8, marginTop: 8 }}>
             <Text style={styles.summaryText}>Tanggal Lahir: {dob}</Text>
-            <Text style={styles.summaryText}>Golongan Darah: {bloodType}</Text>
           </View>
         </Card>
 
@@ -268,7 +264,7 @@ export default function CognitiveQuestionnaireScreen({ navigation, route }: any)
         </Card>
 
         <View style={{ marginTop: 16 }}>
-          <PrimaryButton title="Simpan Kuesioner & Verifikasi" onPress={proceed} style={{ marginTop: 12 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
+          <PrimaryButton title="Simpan & Lihat Hasil" onPress={proceed} style={{ marginTop: 12 }} leftIcon={<Feather name="arrow-right" size={18} color="#FFFFFF" />} />
         </View>
       </ScrollView>
     </View>

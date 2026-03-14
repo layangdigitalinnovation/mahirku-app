@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -8,13 +8,20 @@ import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import BottomTabs from '../components/navigation/BottomTabs';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Me = { user?: { tokens?: number } };
 
 export default function TestScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
-  const { data } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
+  const { data, refetch } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
   const tokens = data?.user?.tokens ?? 0;
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   const startCognitive = () => {
     if (tokens <= 0) {

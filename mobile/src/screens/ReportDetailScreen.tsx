@@ -1,27 +1,50 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { generateCertificatePDF } from '../utils/certificateGenerator';
 import { meApi } from '../api/auth';
 import { useQuery } from '@tanstack/react-query';
+import ShareResultModal from '../components/ui/ShareResultModal';
+import { buildShareCaption, shareResultPosterPDF, shareResultText, type ShareTestType } from '../utils/testResultShare';
 
 
 export default function ReportDetailScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const r = route?.params?.report as { title: string; date: string; summary: string; type: string; fullData?: any } | undefined;
   const thinkingStyle = r?.fullData?.thinkingStyle;
-  const combine = (route?.params?.report as any)?.combine as { finalPercent: number; fingerprintPercent?: number; questionnairePercent?: number; questionnaire?: any } | undefined;
+  const combine = (route?.params?.report as any)?.combine as { finalPercent?: number; questionnairePercent?: number; questionnaire?: any } | undefined;
   const fromFingerprint = route?.params?.fromFingerprint as boolean | undefined;
-  const fpType = thinkingStyle?.type as string | undefined;
-  const q = combine?.questionnaire as any;
-  const eLetter = q?.eiType === 'Ekstrovert' ? 'E' : 'I';
-  const qLabel = q ? `${q.tipeUtama}${q.tipeUtama === 'Navigator' ? '' : `-${eLetter}`}` : '';
-  const sameType = Boolean(fpType && q?.tipeUtama && fpType === q.tipeUtama);
   const [downloading, setDownloading] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const reportId = (r as any)?.id as string | undefined;
+  const [questionnaire, setQuestionnaire] = useState<any | undefined>(combine?.questionnaire);
+
+  useEffect(() => {
+    if (r?.type !== 'cst') return;
+    if (questionnaire) return;
+    if (!reportId) return;
+    AsyncStorage.getItem(`cst:questionnaireByTestId:${reportId}`)
+      .then((s) => {
+        if (!s) return;
+        setQuestionnaire(JSON.parse(s));
+      })
+      .catch(() => { });
+  }, [questionnaire, r?.type, reportId]);
+
+  const questionnairePercent = useMemo(() => {
+    const v = Number(questionnaire?.percent ?? combine?.questionnairePercent ?? combine?.finalPercent ?? 0);
+    return Math.max(0, Math.min(100, Math.round(v)));
+  }, [combine?.finalPercent, combine?.questionnairePercent, questionnaire?.percent]);
+
+  const questionnaireType = useMemo(() => {
+    const t = String(questionnaire?.finalType || questionnaire?.tipeUtama || '').trim();
+    return t || '';
+  }, [questionnaire?.finalType, questionnaire?.tipeUtama]);
 
   // Helper function to get full DISC type name
   const getDiscFullName = (code: string): string => {
@@ -50,6 +73,66 @@ export default function ReportDetailScreen({ navigation, route }: any) {
     queryFn: async () => (await meApi()).data,
     enabled: false, // Lazy load manually if needed, or rely on cache
   });
+
+  const shareType = (r?.type === 'disc' ? 'disc' : 'cst') as ShareTestType;
+  const shareTheme = useMemo(() => {
+    if (shareType === 'disc') return { a: '#0EA5E9', b: '#38BDF8' };
+    return { a: '#4F46E5', b: '#818CF8' };
+  }, [shareType]);
+
+  const shareUserName = useMemo(() => {
+    const fromParam = (r as any)?.fullname;
+    const fromData = r?.fullData?.fullname;
+    const fromMe = (userData as any)?.user?.fullname;
+    return fromParam || fromData || fromMe || 'Pengguna';
+  }, [r, userData]);
+
+  const discCode = r?.fullData?.thinkingStyle?.code || r?.fullData?.dominantType || '';
+  const sharePrimary = shareType === 'disc'
+    ? (discCode || 'DISC')
+    : (questionnaireType || r?.fullData?.thinkingStyle?.type || 'Cognitive Style');
+  const shareSecondary = useMemo(() => {
+    if (shareType === 'disc') {
+      const fullName = getDiscFullName(discCode);
+      return discCode ? `${discCode} (${fullName})` : '';
+    }
+    const suffix = questionnaireType ? `Skor ${questionnairePercent}%` : '';
+    return suffix || r?.summary || '';
+  }, [discCode, questionnairePercent, questionnaireType, r?.summary, shareType]);
+
+  const shareHighlights = useMemo(() => {
+    if (shareType === 'disc') {
+      const d = r?.fullData?.dScore;
+      const i = r?.fullData?.iScore;
+      const s = r?.fullData?.sScore;
+      const c = r?.fullData?.cScore;
+      return [
+        typeof d === 'number' ? `D: ${d}` : '',
+        typeof i === 'number' ? `I: ${i}` : '',
+        typeof s === 'number' ? `S: ${s}` : '',
+        typeof c === 'number' ? `C: ${c}` : '',
+      ].filter(Boolean);
+    }
+
+    return [
+      `Skor: ${questionnairePercent}%`,
+      questionnaire?.tipeUtama ? `Domain Utama: ${questionnaire.tipeUtama}` : '',
+      questionnaire?.eiType ? `E/I: ${questionnaire.eiType}` : '',
+    ].filter(Boolean);
+  }, [questionnaire?.eiType, questionnaire?.tipeUtama, questionnairePercent, r?.fullData?.cScore, r?.fullData?.dScore, r?.fullData?.iScore, r?.fullData?.sScore, shareType]);
+
+  const shareCaption = useMemo(
+    () =>
+      buildShareCaption({
+        type: shareType,
+        userName: shareUserName,
+        createdAtISO: r?.fullData?.createdAt || r?.fullData?.created_at || new Date().toISOString(),
+        primary: sharePrimary,
+        secondary: shareSecondary,
+        highlights: shareHighlights,
+      }),
+    [r?.fullData?.createdAt, r?.fullData?.created_at, shareHighlights, sharePrimary, shareSecondary, shareType, shareUserName]
+  );
 
   const dlCert = async () => {
     try {
@@ -91,7 +174,9 @@ export default function ReportDetailScreen({ navigation, route }: any) {
         const fullName = getDiscFullName(code);
         resultTitle = `${code} (${fullName})`;
       } else {
-        resultTitle = `${r.fullData.thinkingStyle?.type || ''} (${r.fullData.thinkingStyle?.code || ''})`;
+        resultTitle = questionnaireType
+          ? questionnaireType
+          : `${r.fullData.thinkingStyle?.type || ''} (${r.fullData.thinkingStyle?.code || ''})`;
       }
 
       // Format the date properly for the certificate
@@ -215,7 +300,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
           )}
 
           {/* Thinking Style Type (for CST) */}
-          {r?.type !== 'disc' && thinkingStyle?.type && (
+          {r?.type === 'cst' && (questionnaireType || thinkingStyle?.type) && (
             <>
               <Text style={styles.sectionHeader}>Tipe Gaya Berpikir</Text>
               <LinearGradient
@@ -224,14 +309,14 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text style={styles.typeText}>{thinkingStyle.type}</Text>
-                <Text style={styles.codeText}>({thinkingStyle.code})</Text>
+                <Text style={styles.typeText}>{questionnaireType || thinkingStyle?.type}</Text>
+                <Text style={styles.codeText}>{`Skor ${questionnairePercent}%`}</Text>
               </LinearGradient>
             </>
           )}
 
           {/* Description (Only for non-DISC tests) */}
-          {r?.type !== 'disc' && thinkingStyle?.description && (
+          {r?.type !== 'disc' && !questionnaireType && thinkingStyle?.description && (
             <>
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Deskripsi</Text>
               <View style={styles.descCard}>
@@ -241,7 +326,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
           )}
 
           {/* Theory (Only for non-DISC tests) */}
-          {r?.type !== 'disc' && thinkingStyle?.theory && (
+          {r?.type !== 'disc' && !questionnaireType && thinkingStyle?.theory && (
             <>
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Landasan Teori</Text>
               <View style={styles.theoryCard}>
@@ -257,31 +342,24 @@ export default function ReportDetailScreen({ navigation, route }: any) {
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>Hasil Akhir</Text>
               <View style={styles.scoreCard}>
                 <View style={{ marginTop: 4 }}>
-                  {sameType ? (
-                    <>
-                      <Text style={styles.finalTypeLabel}>Tipe Gaya Berpikir Anda:</Text>
-                      <Text style={styles.finalTypeValue}>{fpType}</Text>
-                      <View style={styles.consistencyBadge}>
-                        <Feather name="check-circle" size={14} color="#10B981" />
-                        <Text style={styles.consistencyText}>Confidence</Text>
-                      </View>
-                    </>
-                  ) : (
-                    <>
-                      <Text style={styles.finalTypeLabel}>Tipe Gaya Berpikir Anda:</Text>
-                      <Text style={styles.finalTypeValue}>{fpType}</Text>
-                      <View style={styles.combinedNote}>
-                        <Feather name="info" size={14} color="#64748B" />
-                        <Text style={styles.combinedNoteText}>
-                          Hasil dari kombinasi sidik jari dan kuesioner
-                        </Text>
-                      </View>
-                    </>
-                  )}
+                  <Text style={styles.finalTypeLabel}>Hasil Anda (dari kuesioner):</Text>
+                  <Text style={styles.finalTypeValue}>{questionnaireType || thinkingStyle?.type || '-'}</Text>
+                  <View style={styles.consistencyBadge}>
+                    <Feather name="check-circle" size={14} color="#10B981" />
+                    <Text style={styles.consistencyText}>{`Skor ${questionnairePercent}%`}</Text>
+                  </View>
                 </View>
               </View>
             </>
           )}
+
+          <PrimaryButton
+            title="Bagikan Hasil"
+            leftIcon={<Feather name="share-2" size={18} color="#0F172A" />}
+            onPress={() => setShareOpen(true)}
+            style={{ marginTop: 14 }}
+            variant="secondary"
+          />
 
           <PrimaryButton
             title="Download Sertifikat"
@@ -292,6 +370,36 @@ export default function ReportDetailScreen({ navigation, route }: any) {
           />
         </Card>
       </ScrollView >
+      <ShareResultModal
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title={shareType === 'disc' ? 'DISC Personality' : 'Cognitive Style'}
+        subtitle={shareType === 'disc' ? 'Profil Kepribadian' : 'Analisis Pola Pikir'}
+        primary={sharePrimary}
+        secondary={shareSecondary}
+        theme={shareTheme}
+        caption={shareCaption}
+        onSharePoster={() =>
+          shareResultPosterPDF({
+            type: shareType,
+            userName: shareUserName,
+            createdAtISO: r?.fullData?.createdAt || r?.fullData?.created_at || new Date().toISOString(),
+            primary: sharePrimary,
+            secondary: shareSecondary,
+            highlights: shareHighlights,
+          })
+        }
+        onShareText={() =>
+          shareResultText({
+            type: shareType,
+            userName: shareUserName,
+            createdAtISO: r?.fullData?.createdAt || r?.fullData?.created_at || new Date().toISOString(),
+            primary: sharePrimary,
+            secondary: shareSecondary,
+            highlights: shareHighlights,
+          })
+        }
+      />
     </View >
   );
 }

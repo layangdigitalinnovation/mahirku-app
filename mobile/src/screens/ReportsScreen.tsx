@@ -66,14 +66,18 @@ export default function ReportsScreen({ navigation }: any) {
   const goDetail = async (item: ThinkingStyleResult) => {
     let questionnaire: any = undefined;
     try {
-      const qStr = await AsyncStorage.getItem('cst:lastQuestionnaire');
-      questionnaire = qStr ? JSON.parse(qStr) : undefined;
+      const byId = await AsyncStorage.getItem(`cst:questionnaireByTestId:${item.id}`);
+      if (byId) {
+        questionnaire = JSON.parse(byId);
+      } else {
+        const qStr = await AsyncStorage.getItem('cst:lastQuestionnaire');
+        questionnaire = qStr ? JSON.parse(qStr) : undefined;
+      }
     } catch { }
 
     const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
-    const fingerprintPercent = clamp(Number(item.resultDigit ?? 0));
     const questionnairePercent = clamp(Number(questionnaire?.percent ?? 0));
-    const finalPercent = clamp(0.6 * fingerprintPercent + 0.4 * questionnairePercent);
+    const finalPercent = questionnairePercent;
 
     navigation.navigate('ReportDetail', {
       report: {
@@ -82,13 +86,12 @@ export default function ReportsScreen({ navigation }: any) {
         date: new Date(item.createdAt || (item as any).created_at).toLocaleDateString('id-ID'),
         summary: item.testType === 'DISC'
           ? getDiscTypeName(item.thinkingStyle?.code || '')
-          : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
+          : (questionnaire?.finalType || `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`),
         type: item.testType === 'DISC' ? 'disc' : 'cst',
         fullData: item,
         fullname: item.fullname || (item as any).user?.fullname || (userData as any)?.user?.fullname,
         combine: {
           finalPercent,
-          fingerprintPercent,
           questionnairePercent,
           questionnaire,
         },

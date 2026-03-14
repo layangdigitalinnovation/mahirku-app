@@ -1,14 +1,34 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Button, Surface, useTheme, List } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useQuery } from '@tanstack/react-query';
+import { meApi } from '../../api/auth';
 
 export default function GraphologyIntroScreen() {
     const theme = useTheme();
     const navigation = useNavigation<any>();
+    type Me = { user?: { tokens?: number } };
+    const { data } = useQuery<Me>({ queryKey: ['me'], queryFn: async () => (await meApi()).data, retry: false });
+    const tokens = data?.user?.tokens ?? 0;
+
+    const startGraphology = () => {
+        if (tokens <= 0) {
+            Alert.alert(
+                'Token Tidak Cukup',
+                'Anda memerlukan minimal 1 token untuk melakukan tes. Silakan beli token terlebih dahulu.',
+                [
+                    { text: 'Batal', style: 'cancel' },
+                    { text: 'Beli Token', onPress: () => navigation.navigate('TokenPackages') }
+                ]
+            );
+            return;
+        }
+        navigation.navigate('GraphologyUpload');
+    };
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -75,7 +95,7 @@ export default function GraphologyIntroScreen() {
             <Surface style={styles.footer} elevation={5}>
                 <Button
                     mode="contained"
-                    onPress={() => navigation.navigate('GraphologyUpload')}
+                    onPress={startGraphology}
                     style={styles.startButton}
                     contentStyle={styles.startButtonContent}
                     labelStyle={styles.startButtonText}

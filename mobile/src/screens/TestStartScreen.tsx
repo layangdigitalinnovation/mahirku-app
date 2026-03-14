@@ -1,16 +1,10 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
-import ReactNativeBiometrics from 'react-native-biometrics';
-import { api } from '../api/client';
 
-export default function TestStartScreen() {
-  const startTest = async () => {
-    const { data } = await api.post('/biometrics/challenge/auth');
-    const rnBiometrics = new ReactNativeBiometrics();
-    const { success, signature } = await rnBiometrics.createSignature({ promptMessage: 'Konfirmasi Fingerprint', payload: data.challenge });
-    if (!success) return;
-    await api.post('/biometrics/verify/auth', { challengeId: data.challengeId, signature });
+export default function TestStartScreen({ navigation }: any) {
+  const startTest = () => {
+    navigation.navigate('CognitiveDataEntry');
   };
 
   return (

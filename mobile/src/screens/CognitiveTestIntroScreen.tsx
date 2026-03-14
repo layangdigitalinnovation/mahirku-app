@@ -1,100 +1,45 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Platform, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import ReactNativeBiometrics from 'react-native-biometrics';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import TextField from '../components/basic/TextField';
-import { loadToken } from '../store/auth';
 import { meApi } from '../api/auth';
 import { submitTest } from '../api/thinkingStyle';
-import { resolvedBaseURL } from '../api/client';
-
-const API_URL = `${resolvedBaseURL}/api`;
-const { width } = Dimensions.get('window');
+import PrimaryButton from '../components/basic/PrimaryButton';
 
 export default function CognitiveTestIntroScreen({ route }: any) {
     const insets = useSafeAreaInsets();
     const navigation = useNavigation<any>();
 
     const [dob, setDob] = useState('');
-    const [bloodType, setBloodType] = useState('');
     const fromQuestionnaire = route?.params?.fromQuestionnaire;
     const qDob = route?.params?.dob as string | undefined;
-    const qBlood = route?.params?.bloodType as string | undefined;
     const questionnaire = route?.params?.questionnaire as any | undefined;
     const [loading, setLoading] = useState(false);
-    const [biometricsAvailable, setBiometricsAvailable] = useState(false);
-    const [userFullname, setUserFullname] = useState('');
-
-    // Use useRef to maintain stable biometrics instance
-    // Wrapped in try-catch to prevent crash if native module is unavailable
-    const rnBiometricsRef = useRef<ReactNativeBiometrics | null>(null);
-    if (!rnBiometricsRef.current) {
-        try {
-            rnBiometricsRef.current = new ReactNativeBiometrics();
-        } catch (e) {
-            console.warn('ReactNativeBiometrics initialization failed:', e);
-        }
-    }
-
-    // Animation for biometric icon
-    const scale = useSharedValue(1);
+    const [userFullname, setUserFullname] = useState('Pengguna');
+    const [autoSubmitted, setAutoSubmitted] = useState(false);
 
     useEffect(() => {
-        scale.value = withRepeat(
-            withSequence(
-                withTiming(1.1, { duration: 1000 }),
-                withTiming(1, { duration: 1000 })
-            ),
-            -1,
-            true
-        );
-        // Fetch user name
-        meApi().then(res => {
-            if (res.data?.user?.fullname) {
-                setUserFullname(res.data.user.fullname);
-            }
-        }).catch(err => console.log('Failed to fetch user info', err));
+        meApi()
+            .then(res => {
+                if (res.data?.user?.fullname) setUserFullname(res.data.user.fullname);
+            })
+            .catch(() => { });
     }, []);
 
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
+    const resultPrimary = useMemo(() => {
+        const t = String(questionnaire?.finalType || questionnaire?.tipeUtama || '').trim();
+        return t || 'Cognitive Style';
+    }, [questionnaire?.finalType, questionnaire?.tipeUtama]);
 
-    useEffect(() => {
-        checkBiometricAvailability();
-    }, []);
-
-    const checkBiometricAvailability = async () => {
-        try {
-            const rnBiometrics = rnBiometricsRef.current;
-            if (!rnBiometrics) {
-                console.log('Biometrics instance not available');
-                setBiometricsAvailable(false);
-                return;
-            }
-
-            const { available, biometryType } = await rnBiometrics.isSensorAvailable();
-            setBiometricsAvailable(available && !!biometryType);
-
-            if (!available || !biometryType) {
-                Alert.alert(
-                    'Biometrik Tidak Tersedia',
-                    'Fitur sidik jari tidak terdeteksi atau belum diaktifkan di HP Anda. Silakan aktifkan di Pengaturan HP untuk melanjutkan.',
-                    [{ text: 'OK' }]
-                );
-            }
-        } catch (error) {
-            console.error('Biometric check error:', error);
-            setBiometricsAvailable(false);
-        }
-    };
+    const questionnairePercent = useMemo(() => {
+        const n = Number(questionnaire?.percent ?? 0);
+        return Math.max(0, Math.min(100, Math.round(n)));
+    }, [questionnaire?.percent]);
 
     const fnv1a = (str: string) => {
         let h = 0x811c9dc5;
@@ -105,11 +50,14 @@ export default function CognitiveTestIntroScreen({ route }: any) {
         return ('0000000' + h.toString(16)).slice(-8);
     };
 
-    const handleBiometricAuth = async () => {
+    const handleSubmit = useCallback(async () => {
         const effectiveDob = qDob || dob;
-        const effectiveBlood = qBlood || bloodType;
-        if (!effectiveDob || !effectiveBlood) {
-            Alert.alert('Data Belum Lengkap', 'Mohon isi Tanggal Lahir dan Golongan Darah Anda.');
+        if (!effectiveDob) {
+            Alert.alert('Data Belum Lengkap', 'Mohon isi Tanggal Lahir Anda.');
+            return;
+        }
+        if (!questionnaire) {
+            Alert.alert('Data Tidak Lengkap', 'Kuesioner tidak ditemukan. Silakan ulangi dari awal.');
             return;
         }
 
@@ -121,141 +69,79 @@ export default function CognitiveTestIntroScreen({ route }: any) {
             return;
         }
 
+        let formattedDate = effectiveDob;
+        const dobParts = effectiveDob.split('-');
+        if (dobParts.length === 3) {
+            formattedDate = `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}`;
+        }
+        if (!formattedDate || formattedDate.split('-').length !== 3) {
+            Alert.alert('Tanggal Lahir Tidak Valid', 'Gunakan format DD-MM-YYYY.');
+            return;
+        }
+
         setLoading(true);
         try {
-            const token = await loadToken();
-            if (!token) throw new Error('No auth token');
-
-            const headers = { Authorization: `Bearer ${token}` };
-            const rnBiometrics = rnBiometricsRef.current;
-            if (!rnBiometrics) {
-                Alert.alert('Biometrik Tidak Tersedia', 'Modul biometrik tidak dapat dimuat. Silakan restart aplikasi.');
-                setLoading(false);
-                return;
-            }
-
-            const keysExist = await (rnBiometrics as any).biometricKeysExist?.();
-            let publicKey: string | undefined;
-            if (!keysExist?.keysExist) {
-                const created = await rnBiometrics.createKeys();
-                publicKey = created.publicKey;
-                if (!publicKey) throw new Error('Failed to create keys');
-                await AsyncStorage.setItem('cst:fingerprintPublicKey', publicKey);
-            } else {
-                publicKey = await AsyncStorage.getItem('cst:fingerprintPublicKey') || undefined;
-            }
-
-            console.log('Registering public key with backend...');
-            await axios.post(`${API_URL}/biometrics/register-key`, { publicKey, deviceId: Platform.OS }, { headers });
-
-            // 4. Get Challenge
-            const challengeRes = await axios.get(`${API_URL}/biometrics/challenge`, { headers });
-            const { challenge } = challengeRes.data;
-
-            // 5. Prompt Fingerprint & Sign
-            const { success, signature } = await rnBiometrics.createSignature({
-                promptMessage: 'Verifikasi Identitas',
-                cancelButtonText: 'Batal',
-                payload: challenge
+            const testResult = await submitTest({
+                fullname: userFullname,
+                birthdate: formattedDate,
             });
 
-            if (success && signature) {
-                try {
-                    // 6. Verify Signature
-                    const verifyRes = await axios.post(`${API_URL}/biometrics/verify`, { signature, challenge }, { headers });
+            if (!firstDobHash) {
+                await AsyncStorage.setItem('cst:firstDobHash', currentDobHash);
+            }
 
-                    if (verifyRes.data.verified) {
-                        // 7. Submit Test to Backend
-                        try {
-                            // Convert DD-MM-YYYY to YYYY-MM-DD
-                            let formattedDate = effectiveDob;
-                            const dobParts = effectiveDob.split('-');
-                            if (dobParts.length === 3) {
-                                // Assuming format is DD-MM-YYYY
-                                formattedDate = `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}`;
-                            }
+            const testId = testResult.data.data.id.toString();
+            try {
+                await AsyncStorage.setItem('cst:lastQuestionnaire', JSON.stringify(questionnaire));
+                await AsyncStorage.setItem(`cst:questionnaireByTestId:${testId}`, JSON.stringify(questionnaire));
+            } catch { }
 
-                            const testResult = await submitTest({
-                                fullname: userFullname,
-                                birthdate: formattedDate,
-                                bloodType: effectiveBlood,
-                            });
+            const finalPercent = questionnairePercent;
+            const summary = resultPrimary;
 
-                            // Navigate to report detail with result
-                            if (!firstDobHash) {
-                                await AsyncStorage.setItem('cst:firstDobHash', currentDobHash);
-                            }
-
-                            const fingerprintVal = Number(testResult.data.data.resultDigit ?? 0);
-                            const fingerprintPercent = Math.max(0, Math.min(100, Math.round(fingerprintVal)));
-                            const questionnairePercent = Math.max(0, Math.min(100, Math.round((questionnaire?.percent ?? 0))));
-                            const finalPercent = Math.max(0, Math.min(100, Math.round(0.6 * fingerprintPercent + 0.4 * questionnairePercent)));
-
-                            navigation.replace('ReportDetail', {
-                                fromFingerprint: true,
-                                report: {
-                                    id: testResult.data.data.id.toString(),
-                                    title: 'Cognitive Style Test',
-                                    date: new Date(testResult.data.data.createdAt).toLocaleDateString('id-ID'),
-                                    summary: `${testResult.data.data.thinkingStyle?.type} (${testResult.data.data.thinkingStyle?.code})`,
-                                    type: 'cst',
-                                    fullname: userFullname,
-                                    fullData: testResult.data.data,
-                                    combine: {
-                                        finalPercent,
-                                        fingerprintPercent,
-                                        questionnairePercent,
-                                        questionnaire
-                                    }
-                                }
-                            });
-                        } catch (submitError: any) {
-                            console.error('Test submission error:', submitError);
-                            if (submitError.response?.status === 403) {
-                                Alert.alert('Token Tidak Cukup', 'Token Anda tidak mencukupi untuk melakukan tes.');
-                            } else {
-                                Alert.alert('Gagal Submit Tes', submitError.response?.data?.message || 'Terjadi kesalahan saat submit tes.');
-                            }
-                        }
-                    } else {
-                        Alert.alert('Verifikasi Gagal', 'Tanda tangan digital tidak valid.');
-                    }
-                } catch (verifyError: any) {
-                    // If 404, it means the public key is not registered in the backend
-                    if (verifyError.response?.status === 404) {
-                        console.log('Public key not found in backend, re-registering...');
-
-                        // Delete local keys and re-register
-                        await rnBiometrics.deleteKeys();
-                        const { publicKey } = await rnBiometrics.createKeys();
-
-                        if (publicKey) {
-                            await axios.post(`${API_URL}/biometrics/register-key`, { publicKey, deviceId: Platform.OS }, { headers });
-                            Alert.alert('Registrasi Ulang Berhasil', 'Silakan coba verifikasi lagi.');
-                        } else {
-                            throw new Error('Failed to recreate keys');
-                        }
-                    } else {
-                        throw verifyError;
+            navigation.replace('ReportDetail', {
+                fromFingerprint: true,
+                report: {
+                    id: testId,
+                    title: 'Cognitive Style Test',
+                    date: new Date(testResult.data.data.createdAt).toLocaleDateString('id-ID'),
+                    summary,
+                    type: 'cst',
+                    fullname: userFullname,
+                    fullData: testResult.data.data,
+                    combine: {
+                        finalPercent,
+                        questionnairePercent,
+                        questionnaire
                     }
                 }
-            }
-
-        } catch (error: any) {
-            console.error('Biometric error:', error);
-            console.error('Error details:', {
-                message: error.message,
-                status: error.response?.status,
-                url: error.config?.url,
-                data: error.response?.data
             });
-            if (error.message !== 'User cancellation') {
-                Alert.alert('Terjadi Kesalahan', 'Gagal memproses verifikasi biometrik.');
+        } catch (submitError: any) {
+            const status = submitError?.response?.status;
+            if (status === 403) {
+                Alert.alert(
+                    'Token Tidak Cukup',
+                    'Token Anda tidak mencukupi untuk melakukan tes.',
+                    [
+                        { text: 'Batal', style: 'cancel' },
+                        { text: 'Beli Token', onPress: () => navigation.navigate('TokenPackages') }
+                    ]
+                );
+                return;
             }
+            Alert.alert('Gagal Submit Tes', submitError?.response?.data?.message || 'Terjadi kesalahan saat submit tes.');
         } finally {
             setLoading(false);
         }
-    };
+    }, [dob, navigation, qDob, questionnaire, questionnairePercent, resultPrimary, userFullname]);
+
+    useEffect(() => {
+        if (!fromQuestionnaire) return;
+        if (!qDob || !questionnaire) return;
+        if (autoSubmitted) return;
+        setAutoSubmitted(true);
+        handleSubmit();
+    }, [autoSubmitted, fromQuestionnaire, handleSubmit, qDob, questionnaire]);
 
     return (
         <View style={styles.container}>
@@ -268,9 +154,9 @@ export default function CognitiveTestIntroScreen({ route }: any) {
 
                 {/* Header Section */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Feather name="arrow-left" size={24} color="#1E293B" />
-                    </TouchableOpacity>
+                    <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Ionicons name="chevron-back" size={20} color="#475569" />
+                    </Pressable>
                     <View style={styles.headerIconContainer}>
                         <LinearGradient colors={['#4F46E5', '#818CF8']} style={styles.headerIconBg}>
                             <Feather name="activity" size={32} color="#FFFFFF" />
@@ -278,7 +164,7 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                     </View>
                     <Text style={styles.title}>Cognitive Style Test</Text>
                     <Text style={styles.subtitle}>
-                        Kenali potensi diri Anda melalui analisis pola berpikir yang mendalam.
+                        Hasil tes dihitung dari kuesioner yang Anda isi.
                     </Text>
                 </View>
 
@@ -292,7 +178,8 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                     {fromQuestionnaire ? (
                         <View style={{ gap: 8 }}>
                             <Text style={styles.subtitle}>Tanggal Lahir: {qDob}</Text>
-                            <Text style={styles.subtitle}>Golongan Darah: {qBlood}</Text>
+                            <Text style={styles.subtitle}>Hasil Kuesioner: {resultPrimary}</Text>
+                            <Text style={styles.subtitle}>Skor: {questionnairePercent}%</Text>
                         </View>
                     ) : (
                         <View style={styles.inputGroup}>
@@ -304,49 +191,18 @@ export default function CognitiveTestIntroScreen({ route }: any) {
                                 startIcon={<Feather name="calendar" size={18} color="#64748B" />}
                                 containerStyle={styles.inputContainer}
                             />
-                            <TextField
-                                label="Golongan Darah"
-                                placeholder="A / B / AB / O"
-                                value={bloodType}
-                                onChangeText={setBloodType}
-                                startIcon={<Feather name="droplet" size={18} color="#64748B" />}
-                                containerStyle={styles.inputContainer}
-                            />
                         </View>
                     )}
                 </View>
 
-                {/* Biometric Section */}
-                <View style={styles.biometricContainer}>
-                    <Text style={styles.biometricTitle}>Verifikasi Biometrik</Text>
-                    <Text style={styles.biometricDesc}>
-                        Keamanan data Anda adalah prioritas kami. Gunakan sidik jari untuk memulai tes.
-                    </Text>
-                </View>
-
-                {/* Action Button */}
-                <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleBiometricAuth}
-                    disabled={loading}
-                    style={styles.buttonShadow}
-                >
-                    <LinearGradient
-                        colors={loading ? ['#94A3B8', '#CBD5E1'] : ['#4F46E5', '#4338CA']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.button}
-                    >
-                        {loading ? (
-                            <Text style={styles.buttonText}>Memproses...</Text>
-                        ) : (
-                            <>
-                                <Text style={styles.buttonText}>Verifikasi & Mulai</Text>
-                                <Feather name="arrow-right" size={20} color="#FFFFFF" style={{ marginLeft: 8 }} />
-                            </>
-                        )}
-                    </LinearGradient>
-                </TouchableOpacity>
+                <PrimaryButton
+                    title={loading ? 'Memproses...' : 'Kirim & Lihat Hasil'}
+                    onPress={handleSubmit}
+                    loading={loading}
+                    disabled={!fromQuestionnaire || !questionnaire}
+                    style={{ marginTop: 2 }}
+                    leftIcon={!loading ? <Feather name="arrow-right" size={18} color="#FFFFFF" /> : undefined}
+                />
 
             </ScrollView>
         </View>
