@@ -7,6 +7,7 @@ import { meApi } from '../api/auth';
 import { clearToken } from '../store/auth';
 import { getHistory } from '../api/thinkingStyle';
 import { getChildrenUsers, transferTokenToChild, type ChildUser } from '../api/childUser';
+import { getDiscQuestions } from '../api/disc';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import Card from '../components/basic/Card';
@@ -14,6 +15,7 @@ import PrimaryButton from '../components/basic/PrimaryButton';
 import BottomTabs from '../components/navigation/BottomTabs';
 import FlatItemList from '../components/list/FlatItemList';
 import TextField from '../components/basic/TextField';
+import TestPrepSheet, { type TestPrepChip } from '../components/ui/TestPrepSheet';
 import { AntDesign, Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { useFocusEffect } from '@react-navigation/native';
@@ -54,6 +56,9 @@ export default function DashboardScreen({ navigation }: any) {
 
 
   const [active, setActive] = useState(0);
+  const [prepKey, setPrepKey] = useState<'cst' | 'disc' | null>(null);
+  const [discQCount, setDiscQCount] = useState<number | null>(null);
+  const [discQLoading, setDiscQLoading] = useState(false);
   const fadeIn = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
   useEffect(() => {
@@ -87,14 +92,67 @@ export default function DashboardScreen({ navigation }: any) {
       return;
     }
 
-    if (testKey === 'cst') {
-      navigation.navigate('CognitiveDataEntry');
-    } else if (testKey === 'disc') {
-      navigation.navigate('DiscTest');
-    } else if (testKey === 'grp') {
-      navigation.navigate('GraphologyIntro');
-    }
+    if (testKey === 'cst') setPrepKey('cst');
+    else if (testKey === 'disc') setPrepKey('disc');
+    else if (testKey === 'grp') navigation.navigate('GraphologyIntro');
   };
+
+  useEffect(() => {
+    if (prepKey !== 'disc') return;
+    if (discQLoading) return;
+    if (discQCount !== null) return;
+    setDiscQLoading(true);
+    getDiscQuestions()
+      .then((qs) => setDiscQCount(qs.length))
+      .catch(() => setDiscQCount(null))
+      .finally(() => setDiscQLoading(false));
+  }, [discQCount, discQLoading, prepKey]);
+
+  const closePrep = () => setPrepKey(null);
+  const startFromPrep = () => {
+    const key = prepKey;
+    closePrep();
+    if (key === 'cst') navigation.navigate('CognitiveDataEntry');
+    if (key === 'disc') navigation.navigate('DiscTest');
+  };
+
+  const prepTheme = prepKey === 'disc' ? { a: '#0EA5E9', b: '#38BDF8' } : { a: '#4F46E5', b: '#818CF8' };
+  const prepTitle = prepKey === 'disc' ? 'DISC Personality' : 'Cognitive Style';
+  const prepSubtitle = prepKey === 'disc' ? 'Profil Kepribadian' : 'Analisis Pola Pikir';
+  const prepChips: TestPrepChip[] = useMemo(() => {
+    if (!prepKey) return [];
+    if (prepKey === 'disc') {
+      return [
+        { value: discQLoading ? '...' : discQCount !== null ? String(discQCount) : '—', label: 'Soal', tone: 'primary' },
+        { value: '±5', label: 'menit', tone: 'warning' },
+        { value: 'Free', label: 'Access', tone: 'success' },
+      ];
+    }
+    return [
+      { value: '36', label: 'Soal', tone: 'primary' },
+      { value: '±7', label: 'menit', tone: 'warning' },
+      { value: '1', label: 'Token', tone: 'neutral' },
+    ];
+  }, [discQCount, discQLoading, prepKey]);
+
+  const prepAboutTitle = 'Tentang Assessment';
+  const prepAboutBody = prepKey === 'disc'
+    ? 'DISC Personality membantu Anda memahami kecenderungan perilaku dan cara berinteraksi (Dominance, Influence, Steadiness, Compliance). Hasil bersifat informatif untuk pengembangan diri.'
+    : 'Cognitive Style membantu Anda memahami pola berpikir dominan, cara memproses informasi, serta strategi belajar dan bekerja yang paling cocok untuk Anda.';
+
+  const prepInstructions = prepKey === 'disc'
+    ? [
+      'Tidak ada jawaban benar atau salah. Pilih opsi yang paling menggambarkan diri Anda.',
+      'Jawab sesuai kondisi Anda saat ini, bukan versi ideal.',
+      'Pastikan Anda berada di kondisi yang kondusif agar bisa fokus.',
+      'Selesaikan semua soal untuk mendapatkan hasil yang akurat.',
+    ]
+    : [
+      'Tidak ada jawaban benar atau salah. Pilih jawaban yang paling sesuai dengan diri Anda.',
+      'Jawab apa adanya dan konsisten untuk hasil yang lebih relevan.',
+      'Pastikan Anda berada di kondisi yang kondusif agar bisa fokus.',
+      'Tes biasanya dapat diselesaikan dalam beberapa menit.',
+    ];
   const tests = useMemo(() => [
     { key: 'cst', title: 'Cognitive Style', subtitle: 'Analisis Pola Pikir', desc: 'Temukan potensi dan gaya berpikir unik Anda.', icon: 'brain', iconLib: 'MaterialCommunityIcons', color: '#4F46E5', available: true, isFree: false },
     { key: 'disc', title: 'DISC Personality', subtitle: 'Profil Kepribadian', desc: 'Pahami karakter dan cara Anda berinteraksi.', icon: 'account-group', iconLib: 'MaterialCommunityIcons', color: '#0EA5E9', available: true, isFree: true },
@@ -428,6 +486,20 @@ export default function DashboardScreen({ navigation }: any) {
           }}
         />
       </Animated.View>
+      <TestPrepSheet
+        visible={prepKey !== null}
+        onClose={closePrep}
+        title={prepTitle}
+        subtitle={prepSubtitle}
+        theme={prepTheme}
+        chips={prepChips}
+        aboutTitle={prepAboutTitle}
+        aboutBody={prepAboutBody}
+        instructions={prepInstructions}
+        startLabel="Mulai Tes"
+        onStart={startFromPrep}
+        startDisabled={prepKey === 'disc' && discQLoading}
+      />
     </View>
   );
 }

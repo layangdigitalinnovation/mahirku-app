@@ -1,16 +1,21 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import fs from 'fs';
-import path from 'path';
 import GraphologyTest from '../models/GraphologyTest';
 import { GroqService } from '../services/groqService';
+import User from '../models/User';
+import { sequelize } from '../config/database';
+import { AuthRequest } from '../middlewares/authMiddleware';
 
 const groqService = new GroqService();
 
-export const uploadGraphologyImage = async (req: Request, res: Response): Promise<void> => {
+export const uploadGraphologyImage = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const userId = req.body.user_id || req.body.userId; // Handle both cases for flexibility
-        if (!userId) {
-            res.status(400).json({ status: 'failed', message: 'userId is required' });
+        const authUserId = req.user?.userId;
+        if (!authUserId) {
+            if (req.file?.path) {
+                fs.promises.unlink(req.file.path).catch(() => { });
+            }
+            res.status(401).json({ status: 'failed', message: 'Unauthorized' });
             return;
         }
 
@@ -22,15 +27,26 @@ export const uploadGraphologyImage = async (req: Request, res: Response): Promis
         const imageUrl = `/uploads/${req.file.filename}`;
         const imagePath = req.file.path;
 
-        // TODO: Verify if the user has enough tokens and deduct 1 token from the user if applicable.
-        // Since token handling is complex without checking User model current implementation, we assume valid tokens.
+        const newTest = await sequelize.transaction(async (t) => {
+            const user = await User.findByPk(authUserId, { transaction: t, lock: t.LOCK.UPDATE });
+            if (!user) {
+                throw Object.assign(new Error('User tidak ditemukan'), { statusCode: 404 });
+            }
+            if ((user.tokens ?? 0) <= 0) {
+                throw Object.assign(new Error('Token tidak mencukupi'), { statusCode: 403 });
+            }
+            user.tokens = (user.tokens ?? 0) - 1;
+            await user.save({ transaction: t });
 
-        // Create new test record
-        const newTest = await GraphologyTest.create({
-            userId,
-            imageUrl,
-            status: 'processing',
-            tokensUsed: 1, // Assume 1 token per test
+            return GraphologyTest.create(
+                {
+                    userId: authUserId,
+                    imageUrl,
+                    status: 'processing',
+                    tokensUsed: 1,
+                },
+                { transaction: t }
+            );
         });
 
         res.status(202).json({
@@ -44,7 +60,19 @@ export const uploadGraphologyImage = async (req: Request, res: Response): Promis
             console.error('Background AI processing failed:', err);
         });
 
-    } catch (error) {
+    } catch (error: any) {
+        if (req.file?.path) {
+            fs.promises.unlink(req.file.path).catch(() => { });
+        }
+        const statusCode = error?.statusCode;
+        if (statusCode === 403) {
+            res.status(403).json({ status: 'failed', message: 'Token tidak mencukupi' });
+            return;
+        }
+        if (statusCode === 404) {
+            res.status(404).json({ status: 'failed', message: 'User tidak ditemukan' });
+            return;
+        }
         console.error('Error uploading graphology image:', error);
         res.status(500).json({ status: 'failed', message: 'Internal server error' });
     }
@@ -81,13 +109,22 @@ const processGraphologyAI = async (testId: string, imagePath: string) => {
     }
 };
 
-export const getGraphologyResult = async (req: Request, res: Response): Promise<void> => {
+export const getGraphologyResult = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const { test_id } = req.params;
+        const authUserId = req.user?.userId;
+        if (!authUserId) {
+            res.status(401).json({ status: 'failed', message: 'Unauthorized' });
+            return;
+        }
 
         const testRecord = await GraphologyTest.findByPk(test_id);
         if (!testRecord) {
             res.status(404).json({ status: 'failed', message: 'Graphology test not found' });
+            return;
+        }
+        if (testRecord.userId !== authUserId) {
+            res.status(403).json({ status: 'failed', message: 'Forbidden' });
             return;
         }
 

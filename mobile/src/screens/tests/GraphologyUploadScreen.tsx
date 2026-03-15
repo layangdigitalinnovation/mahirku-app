@@ -8,13 +8,14 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { graphologyApi } from '../../api/graphology';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { meApi } from '../../api/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function GraphologyUploadScreen() {
     const theme = useTheme();
     const navigation = useNavigation<any>();
+    const queryClient = useQueryClient();
     const [image, setImage] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
@@ -147,6 +148,10 @@ export default function GraphologyUploadScreen() {
 
             const response = await graphologyApi.uploadImage(imageToUpload, user.id);
             if (response.status === 'processing' && response.test_id) {
+                try {
+                    await queryClient.invalidateQueries({ queryKey: ['me'] });
+                    await queryClient.refetchQueries({ queryKey: ['me'] });
+                } catch { }
                 navigation.replace('GraphologyProcessing', { testId: response.test_id });
             } else {
                 Alert.alert('Upload Gagal', response.message || 'Terjadi kesalahan');

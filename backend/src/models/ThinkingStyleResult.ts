@@ -12,6 +12,12 @@ interface ThinkingStyleResultAttributes {
   thinkingStyleId : number;
   fingerprintId?: string | null;
   referrerId?: number | null;
+  questionnaire?: any | null;
+  questionnairePercent?: number | null;
+  aiReport?: any | null;
+  aiReportStatus?: 'pending' | 'processing' | 'completed' | 'failed';
+  aiReportError?: string | null;
+  aiReportGeneratedAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -31,6 +37,12 @@ class ThinkingStyleResult extends Model<
   public thinkingStyleId!: number;
   public fingerprintId!: string | null;
   public referrerId!: number | null;
+  public questionnaire!: any | null;
+  public questionnairePercent!: number | null;
+  public aiReport!: any | null;
+  public aiReportStatus!: 'pending' | 'processing' | 'completed' | 'failed';
+  public aiReportError!: string | null;
+  public aiReportGeneratedAt!: Date | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -69,6 +81,31 @@ ThinkingStyleResult.init(
     },
     referrerId: {
       type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    questionnaire: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+    questionnairePercent: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    aiReport: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+    aiReportStatus: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'pending',
+    },
+    aiReportError: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    aiReportGeneratedAt: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },

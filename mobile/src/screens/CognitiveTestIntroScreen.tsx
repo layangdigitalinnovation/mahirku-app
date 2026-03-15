@@ -84,6 +84,7 @@ export default function CognitiveTestIntroScreen({ route }: any) {
             const testResult = await submitTest({
                 fullname: userFullname,
                 birthdate: formattedDate,
+                questionnaire,
             });
 
             if (!firstDobHash) {

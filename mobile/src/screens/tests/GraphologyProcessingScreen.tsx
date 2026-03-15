@@ -6,12 +6,14 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { graphologyApi } from '../../api/graphology';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function GraphologyProcessingScreen() {
     const theme = useTheme();
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
     const { testId } = route.params || {};
+    const queryClient = useQueryClient();
 
     const [dots, setDots] = useState('');
 
@@ -33,6 +35,10 @@ export default function GraphologyProcessingScreen() {
             try {
                 const result = await graphologyApi.getResult(testId);
                 if (result.status === 'completed') {
+                    try {
+                        await queryClient.invalidateQueries({ queryKey: ['me'] });
+                        await queryClient.refetchQueries({ queryKey: ['me'] });
+                    } catch { }
                     navigation.replace('GraphologyResult', { testId, result });
                 } else if (result.status === 'failed') {
                     const msg = result.message || 'Gagal menganalisis gambar. Pastikan gambar jelas.';
@@ -46,7 +52,7 @@ export default function GraphologyProcessingScreen() {
 
         const intervalId = setInterval(pollResult, 3000);
         return () => clearInterval(intervalId);
-    }, [testId, navigation]);
+    }, [testId, navigation, queryClient]);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>

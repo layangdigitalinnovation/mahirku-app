@@ -3,9 +3,9 @@ import { api } from './client';
 export interface SubmitTestRequest {
     fullname: string;
     birthdate: string;
-    bloodType?: string;
     fingerprintId?: string;
     referrerId?: number;
+    questionnaire?: any;
 }
 
 export interface ThinkingStyleResult {
@@ -32,6 +32,9 @@ export interface ThinkingStyleResult {
         theory: string;
         detailPage: string;
     };
+    questionnaire?: any;
+    questionnairePercent?: number | null;
+    aiReportStatus?: 'pending' | 'processing' | 'completed' | 'failed';
 }
 
 export const submitTest = (data: SubmitTestRequest) =>
@@ -44,3 +47,13 @@ export const downloadPDF = (resultId: number) =>
     api.get(`/thinking-style/pdf/${resultId}`, {
         responseType: 'blob' as any
     });
+
+export type ThinkingStyleAiReportResponse = {
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    report: any | null;
+    error: string | null;
+    generatedAt: string | null;
+};
+
+export const getAiReport = (resultId: number) =>
+    api.get<{ message: string; data: ThinkingStyleAiReportResponse }>(`/thinking-style/ai-report/${resultId}`);

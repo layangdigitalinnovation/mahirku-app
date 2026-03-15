@@ -21,7 +21,19 @@ export default function GraphologyResultScreen() {
     const userName = me?.user?.fullname || 'Pengguna';
 
     useEffect(() => {
-        queryClient.invalidateQueries({ queryKey: ['me'] });
+        let t: any = undefined;
+        (async () => {
+            try {
+                await queryClient.invalidateQueries({ queryKey: ['me'] });
+                await queryClient.refetchQueries({ queryKey: ['me'] });
+            } catch { }
+            t = setTimeout(() => {
+                queryClient.refetchQueries({ queryKey: ['me'] }).catch(() => { });
+            }, 1200);
+        })();
+        return () => {
+            if (t) clearTimeout(t);
+        };
     }, [queryClient]);
 
     const shareTheme = useMemo(() => ({ a: '#8B5CF6', b: '#6366F1' }), []);

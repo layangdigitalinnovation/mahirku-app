@@ -56,7 +56,7 @@ export const shareResultText = async (payload: SharePayload) => {
 export const shareResultPosterPDF = async (payload: SharePayload) => {
   const theme = getTheme(payload.type);
   const dateLabel = formatDateId(payload.createdAtISO);
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://mahirku.com`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=https://mahirku.com`;
   const primary = escapeHtml(payload.primary);
   const secondary = payload.secondary ? escapeHtml(payload.secondary) : '';
   const userName = escapeHtml(payload.userName || 'Pengguna');
@@ -84,196 +84,225 @@ export const shareResultPosterPDF = async (payload: SharePayload) => {
         -webkit-print-color-adjust: exact;
         background: #0B1220;
       }
-      .bg {
+      .page {
         width: 100%;
         height: 100vh;
-        padding: 40px;
-        background: radial-gradient(1200px 600px at 20% 10%, ${theme.b}33, transparent 55%),
-                    radial-gradient(900px 500px at 90% 20%, ${theme.a}33, transparent 55%),
-                    linear-gradient(135deg, #0B1220 0%, #0F172A 100%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .card {
-        width: 840px;
-        height: 520px;
-        border-radius: 28px;
-        overflow: hidden;
+        background:
+          radial-gradient(900px 900px at 25% 10%, ${theme.b}40, transparent 60%),
+          radial-gradient(900px 900px at 85% 20%, ${theme.a}45, transparent 60%),
+          radial-gradient(1200px 900px at 50% 110%, rgba(255,255,255,0.10), transparent 55%),
+          linear-gradient(180deg, #0B1220 0%, #0F172A 100%);
         position: relative;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.45);
-        background: linear-gradient(135deg, ${theme.a} 0%, ${theme.b} 100%);
+        overflow: hidden;
       }
-      .glass {
+      .glow1 {
         position: absolute;
-        inset: 0;
-        padding: 32px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.10) 100%);
+        width: 820px;
+        height: 820px;
+        left: -240px;
+        top: -260px;
+        background: radial-gradient(circle, ${theme.a}55, transparent 70%);
+        filter: blur(2px);
+        opacity: 0.9;
       }
-      .top {
+      .glow2 {
+        position: absolute;
+        width: 920px;
+        height: 920px;
+        right: -340px;
+        top: 120px;
+        background: radial-gradient(circle, ${theme.b}55, transparent 72%);
+        filter: blur(2px);
+        opacity: 0.9;
+      }
+      .safe {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 120px 86px 92px 86px;
         display: flex;
+        flex-direction: column;
+      }
+      .header {
+        display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 12px;
       }
       .brand {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
       }
       .brandName {
         font-weight: 900;
         letter-spacing: 3px;
         color: rgba(255,255,255,0.95);
-        font-size: 18px;
+        font-size: 22px;
       }
       .brandSub {
         color: rgba(255,255,255,0.82);
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: 700;
       }
       .badge {
-        padding: 10px 14px;
+        padding: 12px 16px;
         border-radius: 999px;
         background: rgba(255,255,255,0.20);
         border: 1px solid rgba(255,255,255,0.25);
         color: rgba(255,255,255,0.92);
         font-weight: 700;
-        font-size: 13px;
+        font-size: 14px;
       }
-      .main {
-        margin-top: 34px;
-        display: flex;
-        gap: 28px;
-        align-items: stretch;
-      }
-      .left {
-        flex: 1;
-        padding: 22px 24px;
-        border-radius: 22px;
-        background: rgba(15, 23, 42, 0.26);
-        border: 1px solid rgba(255,255,255,0.20);
+      .hero {
+        margin-top: 26px;
+        padding: 34px 34px;
+        border-radius: 34px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.18);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.28);
       }
       .label {
         color: rgba(255,255,255,0.82);
-        font-size: 12px;
-        letter-spacing: 1.6px;
+        font-size: 13px;
+        letter-spacing: 2px;
         font-weight: 800;
       }
       .primary {
         margin-top: 10px;
         font-weight: 900;
         color: rgba(255,255,255,0.98);
-        font-size: 46px;
-        line-height: 1.05;
+        font-size: 78px;
+        line-height: 1.03;
+        letter-spacing: -1px;
+        word-break: break-word;
       }
       .secondary {
-        margin-top: 10px;
+        margin-top: 14px;
         color: rgba(255,255,255,0.92);
-        font-size: 18px;
-        line-height: 1.35;
+        font-size: 20px;
+        line-height: 1.4;
+        font-weight: 700;
       }
       .chips {
-        margin-top: 16px;
+        margin-top: 18px;
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
       }
       .chip {
-        padding: 10px 12px;
+        padding: 12px 14px;
         border-radius: 999px;
         background: rgba(255,255,255,0.18);
         border: 1px solid rgba(255,255,255,0.22);
         color: rgba(255,255,255,0.92);
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
       }
-      .right {
-        width: 260px;
-        padding: 22px 22px;
-        border-radius: 22px;
-        background: rgba(255,255,255,0.14);
-        border: 1px solid rgba(255,255,255,0.20);
+      .footer {
+        margin-top: auto;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        align-items: flex-end;
         justify-content: space-between;
+        gap: 18px;
+        padding-top: 22px;
       }
       .who {
         display: flex;
         flex-direction: column;
         gap: 10px;
+        padding: 22px 22px;
+        border-radius: 26px;
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.16);
+        flex: 1;
       }
       .name {
         color: rgba(255,255,255,0.96);
         font-weight: 900;
-        font-size: 18px;
+        font-size: 20px;
       }
       .meta {
         color: rgba(255,255,255,0.86);
-        font-size: 13px;
-        line-height: 1.35;
+        font-size: 14px;
+        line-height: 1.45;
       }
       .qrWrap {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
         align-items: flex-start;
+        padding: 22px 22px;
+        border-radius: 26px;
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.16);
       }
       .qr {
-        width: 120px;
-        height: 120px;
-        border-radius: 16px;
-        border: 2px solid rgba(255,255,255,0.22);
+        width: 200px;
+        height: 200px;
+        border-radius: 24px;
+        border: 2px solid rgba(255,255,255,0.18);
         background: rgba(255,255,255,0.90);
-        padding: 6px;
+        padding: 10px;
       }
       .hint {
         color: rgba(255,255,255,0.92);
         font-weight: 800;
         font-size: 12px;
-        letter-spacing: 1px;
+        letter-spacing: 1.2px;
       }
       .watermark {
         position: absolute;
-        right: -30px;
-        bottom: -40px;
-        font-size: 160px;
-        opacity: 0.10;
+        right: -36px;
+        bottom: -36px;
+        font-size: 210px;
+        opacity: 0.12;
         filter: blur(0.3px);
+        pointer-events: none;
+      }
+      .site {
+        color: rgba(255,255,255,0.92);
+        font-weight: 900;
+        font-size: 14px;
+        letter-spacing: 0.6px;
       }
     </style>
   </head>
   <body>
-    <div class="bg">
-      <div class="card">
-        <div class="watermark">${theme.icon}</div>
-        <div class="glass">
-          <div class="top">
-            <div class="brand">
-              <div class="brandName">MAHIRKU</div>
-              <div class="brandSub">${escapeHtml(theme.name)} Result</div>
-            </div>
-            <div class="badge">${dateLabel ? escapeHtml(dateLabel) : 'Hasil Tes'}</div>
+    <div class="page">
+      <div class="glow1"></div>
+      <div class="glow2"></div>
+      <div class="watermark">${theme.icon}</div>
+      <div class="safe">
+        <div class="header">
+          <div class="brand">
+            <div class="brandName">MAHIRKU</div>
+            <div class="brandSub">${escapeHtml(theme.name)} Result</div>
           </div>
-          <div class="main">
-            <div class="left">
-              <div class="label">HASIL UTAMA</div>
-              <div class="primary">${primary}</div>
-              ${secondary ? `<div class="secondary">${secondary}</div>` : ''}
-              ${highlightHtml}
+          <div class="badge">${dateLabel ? escapeHtml(dateLabel) : 'Hasil Tes'}</div>
+        </div>
+
+        <div class="hero">
+          <div class="label">HASIL UTAMA</div>
+          <div class="primary">${primary}</div>
+          ${secondary ? `<div class="secondary">${secondary}</div>` : ''}
+          ${highlightHtml}
+        </div>
+
+        <div class="footer">
+          <div class="who">
+            <div class="label">PEMILIK HASIL</div>
+            <div class="name">${userName}</div>
+            <div class="meta">
+              Bagikan hasil tes Anda untuk menginspirasi teman-teman mencoba Mahirku.
             </div>
-            <div class="right">
-              <div class="who">
-                <div class="label">PEMILIK HASIL</div>
-                <div class="name">${userName}</div>
-                <div class="meta">
-                  Bagikan hasil tes Anda untuk menginspirasi teman-teman mencoba Mahirku.
-                </div>
-              </div>
-              <div class="qrWrap">
-                <div class="hint">SCAN UNTUK COBA MAHIRKU</div>
-                <img class="qr" src="${qrUrl}" />
-                <div class="meta">mahirku.com</div>
-              </div>
-            </div>
+          </div>
+          <div class="qrWrap">
+            <div class="hint">SCAN UNTUK COBA MAHIRKU</div>
+            <img class="qr" src="${qrUrl}" />
+            <div class="site">mahirku.com</div>
           </div>
         </div>
       </div>
@@ -282,7 +311,7 @@ export const shareResultPosterPDF = async (payload: SharePayload) => {
 </html>
   `;
 
-  const { uri } = await Print.printToFileAsync({ html, width: 1123, height: 794 });
+  const { uri } = await Print.printToFileAsync({ html, width: 1080, height: 1920 });
   await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
 };
 
