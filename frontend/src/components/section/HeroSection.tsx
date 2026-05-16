@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import dots from "@/assets/Dots.png";
 
 import heroImg from "@/assets/Online Learning 5.png";
+import googlePlayBadge from "@/assets/google-play-badge.svg";
 import { Link } from "react-router-dom";
 
 export const HeroSection = () => {
@@ -22,9 +23,14 @@ export const HeroSection = () => {
           <p className="text-body1 text-neutral-900 max-w-2xl mx-auto font-body">
             temukan semua potensi diri anda dari kemampuan daya pikir, psikologi, dan mental untuk menuju kesuksesan
           </p>
-          <Button asChild size="lg" variant="secondary">
-            <Link to="/register">Mulai Tes Sekarang</Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button asChild size="lg" variant="secondary">
+              <Link to="/register">Mulai Tes Sekarang</Link>
+            </Button>
+            <a href="https://play.google.com/store/apps/details?id=com.mahirku.app" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+              <img src={googlePlayBadge} alt="Get it on Google Play" className="h-14 w-auto" />
+            </a>
+          </div>
         </div>
         <div className="bg-white pt-40 pb-20 px-8 border border-neutral-200 rounded-2xs">
           <img src={heroImg} alt="" />
