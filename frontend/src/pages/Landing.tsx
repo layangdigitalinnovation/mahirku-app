@@ -68,7 +68,7 @@ export const Landing: React.FC = () => {
       description: "Tes Graphology (Pengetahuan Tangan) adalah metode yang menggunakan analisis tangan untuk mengidentifikasi sifat-sifat psikologis seseorang.",
       icon: PenTool,
       link: "",
-      available: false
+      available: true
     }
   ]
 

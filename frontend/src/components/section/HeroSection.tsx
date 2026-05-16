@@ -28,7 +28,7 @@ export const HeroSection = () => {
               <Link to="/register">Mulai Tes Sekarang</Link>
             </Button>
             <a href="https://play.google.com/store/apps/details?id=com.mahirku.app" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-              <img src={googlePlayBadge} alt="Get it on Google Play" className="h-14 w-auto" />
+              <img src={googlePlayBadge} alt="Get it on Google Play" className="h-11 w-auto" />
             </a>
           </div>
         </div>
