@@ -108,7 +108,7 @@ export const
           aiReportStatus: 'processing',
         } as any, { transaction: t });
 
-        lockedUser.tokens -= 1;
+        await lockedUser.decrement('tokens', { by: 1, transaction: t });
 
         if (lockedUser.parentId) {
           const userRole = await Role.findOne({ where: { name: 'user' }, transaction: t });

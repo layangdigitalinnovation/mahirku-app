@@ -18,9 +18,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDownloadPDFTest } from "@/hooks/useThinkingStyleTest";
-import { useMeQuery } from "@/hooks/useAuthQuery";
 import { useAuth } from "@/hooks/useAuth";
+import { useMeQuery } from "@/hooks/useAuthQuery";
+import { generateCertificatePDF } from "@/utils/certificateGenerator";
 
 export const TestResult: React.FC = () => {
   const location = useLocation();
@@ -44,14 +44,11 @@ export const TestResult: React.FC = () => {
     await logout();
   };
 
-  // Hook download PDF
-  const { refetch, isFetching } = useDownloadPDFTest(testResult?.id);
-  console.log(testResult);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (!testResult) {
-      // Redirect if no test result
-      window.location.href = "/test";
+      window.location.href = "/customer/dashboard/test";
     }
   }, [testResult]);
 
@@ -59,28 +56,33 @@ export const TestResult: React.FC = () => {
     return <div>Memuat...</div>;
   }
 
-  // Kalau pdfBlob ada, trigger download
-
   const handleDownloadCertificate = async () => {
+    setIsGenerating(true);
     try {
-      const { data: blob } = await refetch(); // manual trigger dari hook
-      if (!blob) return;
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Hasil_Tes_${testResult.fullname}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      const certificateId = `CST-${testResult.id}-${Date.now().toString(36).toUpperCase()}`;
+      const data = {
+        studentName: testResult.fullname || user?.fullname || 'Peserta',
+        courseName: 'Cognitive Style Assessment',
+        completionDate: new Date(testResult.createdAt || new Date()).toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        }),
+        certificateId,
+        resultTitle: testResult.thinkingStyle?.type || 'Hasil Test',
+      };
+      
+      await generateCertificatePDF(data, `Sertifikat_CognitiveStyle_${testResult.fullname || 'Peserta'}.pdf`);
     } catch (err) {
       console.error("Gagal mengunduh sertifikat:", err);
+      alert("Terjadi kesalahan saat membuat sertifikat.");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
@@ -92,14 +94,14 @@ export const TestResult: React.FC = () => {
 
         {/* Info Upgrade Affiliator */}
         {user?.parent && (
-          <Card className="mb-8 bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 overflow-hidden relative">
+          <Card className="mb-8 bg-linear-to-r from-yellow-50 to-orange-50 border-yellow-200 overflow-hidden relative">
             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-orange-200 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
             <CardContent className="p-6 relative z-10">
               <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
-                <div className="flex-shrink-0 p-4 bg-yellow-100 rounded-full text-yellow-600 shadow-sm">
+                <div className="shrink-0 p-4 bg-yellow-100 rounded-full text-yellow-600 shadow-sm">
                   <TrendingUp className="w-8 h-8" />
                 </div>
-                <div className="flex-grow space-y-2">
+                <div className="grow space-y-2">
                   <h3 className="text-xl font-bold text-gray-900">
                     Selamat! Akun Anda Telah Di-Upgrade
                   </h3>
@@ -108,7 +110,7 @@ export const TestResult: React.FC = () => {
                     Anda sekarang memiliki akses ke Dashboard Affiliator untuk mulai menghasilkan pendapatan.
                   </p>
                 </div>
-                <div className="flex-shrink-0 w-full sm:w-auto">
+                <div className="shrink-0 w-full sm:w-auto">
                   <Button 
                     onClick={handleLogout}
                     className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg shadow-yellow-200/50 transition-all hover:scale-105"
@@ -187,9 +189,9 @@ export const TestResult: React.FC = () => {
                 onClick={handleDownloadCertificate}
                 variant="secondary"
                 className="w-full"
-                disabled={isFetching}
+                disabled={isGenerating}
               >
-                {isFetching ? "Mengunduh..." : "Download Sertifikat"}
+                {isGenerating ? "Membuat Sertifikat..." : "Download Sertifikat"}
               </Button>
             </CardFooter>
           </Card>

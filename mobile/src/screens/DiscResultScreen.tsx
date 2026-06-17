@@ -57,8 +57,9 @@ export default function DiscResultScreen() {
         primary: sharePrimary,
         secondary: shareSecondary,
         highlights: shareHighlights,
+        description: getTypeDescription(result?.dominantType || ''),
       }),
-    [shareHighlights, sharePrimary, shareSecondary, userName]
+    [shareHighlights, sharePrimary, shareSecondary, userName, result?.dominantType]
   );
 
   const maxScore = Math.max(1, result?.dScore || 0, result?.iScore || 0, result?.sScore || 0, result?.cScore || 0, 40);
@@ -157,6 +158,7 @@ export default function DiscResultScreen() {
             primary: sharePrimary,
             secondary: shareSecondary,
             highlights: shareHighlights,
+            description: getTypeDescription(result?.dominantType || ''),
           })
         }
         onShareText={() =>
@@ -167,6 +169,7 @@ export default function DiscResultScreen() {
             primary: sharePrimary,
             secondary: shareSecondary,
             highlights: shareHighlights,
+            description: getTypeDescription(result?.dominantType || ''),
           })
         }
       />

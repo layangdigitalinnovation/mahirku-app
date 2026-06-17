@@ -7,6 +7,9 @@ import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
 import PublicRoute from './components/PublicRoute';
 import { CognitiveTest } from './pages/Test/CognitiveTest';
+import { CognitiveDataEntry } from './pages/Test/CognitiveDataEntry';
+import { CognitiveQuestionnaire } from './pages/Test/CognitiveQuestionnaire';
+import { CognitiveTestIntro } from './pages/Test/CognitiveTestIntro';
 import { TestResult } from './pages/Test/TestResult';
 import { GraphologyTest } from './pages/Test/GraphologyTest';
 import { GraphologyResult } from './pages/Test/GraphologyResult';
@@ -203,6 +206,9 @@ function AppRoutes() {
 
         {/* Test */}
         <Route path="test" element={<CognitiveTest />} />
+        <Route path="cognitive-data-entry" element={<CognitiveDataEntry />} />
+        <Route path="cognitive-questionnaire" element={<CognitiveQuestionnaire />} />
+        <Route path="cognitive-test-intro" element={<CognitiveTestIntro />} />
         <Route path="test/result" element={<TestResult />} />
 
         {/* DISC Test */}

@@ -288,6 +288,13 @@ export default function ReportDetailScreen({ navigation, route }: any) {
     ].filter(Boolean);
   }, [questionnaire?.eiType, questionnaire?.tipeUtama, questionnairePercent, r?.fullData?.cScore, r?.fullData?.dScore, r?.fullData?.iScore, r?.fullData?.sScore, shareType]);
 
+  const shareDescription = useMemo(() => {
+    if (shareType === 'disc') {
+      return getDiscDescription(discCode);
+    }
+    return effectiveReport.profile_summary || '';
+  }, [discCode, effectiveReport.profile_summary, shareType]);
+
   const shareCaption = useMemo(
     () =>
       buildShareCaption({
@@ -297,8 +304,9 @@ export default function ReportDetailScreen({ navigation, route }: any) {
         primary: sharePrimary,
         secondary: shareSecondary,
         highlights: shareHighlights,
+        description: shareDescription,
       }),
-    [r?.fullData?.createdAt, r?.fullData?.created_at, shareHighlights, sharePrimary, shareSecondary, shareType, shareUserName]
+    [r?.fullData?.createdAt, r?.fullData?.created_at, shareHighlights, sharePrimary, shareSecondary, shareType, shareUserName, shareDescription]
   );
 
   const dlCert = async () => {
@@ -739,6 +747,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             primary: sharePrimary,
             secondary: shareSecondary,
             highlights: shareHighlights,
+            description: shareDescription,
           })
         }
         onShareText={() =>
@@ -749,6 +758,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
             primary: sharePrimary,
             secondary: shareSecondary,
             highlights: shareHighlights,
+            description: shareDescription,
           })
         }
       />

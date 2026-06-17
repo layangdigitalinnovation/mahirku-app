@@ -5,7 +5,8 @@ export interface ThinkingStyleRequest {
     fullname : string;
     birthdate : string;
     fingerPrintId? : string;
-    referrerId? : string | null
+    referrerId? : string | null;
+    questionnaire?: any;
 }
 
 export const submitThinkingStyleTest = async (data : ThinkingStyleRequest) => {

@@ -43,6 +43,10 @@ export default function GraphologyResultScreen() {
         () => (result?.strengths || []).slice(0, 4),
         [result?.strengths]
     );
+    const shareDescription = useMemo(
+        () => `Kekuatan utama: ${(result?.strengths || []).slice(0, 3).join(', ')}. Cocok di bidang: ${(result?.career_recommendations || []).slice(0, 2).join(', ')}.`,
+        [result?.strengths, result?.career_recommendations]
+    );
     const shareCaption = useMemo(
         () =>
             buildShareCaption({
@@ -52,8 +56,9 @@ export default function GraphologyResultScreen() {
                 primary: sharePrimary,
                 secondary: shareSecondary,
                 highlights: shareHighlights,
+                description: shareDescription,
             }),
-        [shareHighlights, sharePrimary, shareSecondary, userName]
+        [shareHighlights, sharePrimary, shareSecondary, userName, shareDescription]
     );
 
     if (!result) {
@@ -198,6 +203,7 @@ export default function GraphologyResultScreen() {
                         primary: sharePrimary,
                         secondary: shareSecondary,
                         highlights: shareHighlights,
+                        description: shareDescription,
                     })
                 }
                 onShareText={() =>
@@ -208,6 +214,7 @@ export default function GraphologyResultScreen() {
                         primary: sharePrimary,
                         secondary: shareSecondary,
                         highlights: shareHighlights,
+                        description: shareDescription,
                     })
                 }
             />

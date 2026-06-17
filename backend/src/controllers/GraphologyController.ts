@@ -35,8 +35,7 @@ export const uploadGraphologyImage = async (req: AuthRequest, res: Response): Pr
             if ((user.tokens ?? 0) <= 0) {
                 throw Object.assign(new Error('Token tidak mencukupi'), { statusCode: 403 });
             }
-            user.tokens = (user.tokens ?? 0) - 1;
-            await user.save({ transaction: t });
+            await user.decrement('tokens', { by: 1, transaction: t });
 
             return GraphologyTest.create(
                 {

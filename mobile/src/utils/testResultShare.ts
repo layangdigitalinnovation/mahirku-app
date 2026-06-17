@@ -11,6 +11,7 @@ type SharePayload = {
   primary: string;
   secondary?: string;
   highlights?: string[];
+  description?: string;
 };
 
 const escapeHtml = (value: string) =>
@@ -29,9 +30,9 @@ const formatDateId = (iso?: string) => {
 };
 
 const getTheme = (type: ShareTestType) => {
-  if (type === 'cst') return { a: '#4F46E5', b: '#818CF8', icon: '🧠', name: 'Cognitive Style' };
-  if (type === 'disc') return { a: '#0EA5E9', b: '#38BDF8', icon: '👥', name: 'DISC Personality' };
-  return { a: '#8B5CF6', b: '#6366F1', icon: '✍️', name: 'Graphology' };
+  if (type === 'cst') return { a: '#3B82F6', b: '#2563EB', icon: '🧠', name: 'Cognitive Style' };
+  if (type === 'disc') return { a: '#0EA5E9', b: '#0284C7', icon: '👥', name: 'DISC Personality' };
+  return { a: '#0D9488', b: '#0F766E', icon: '✍️', name: 'Graphology' };
 };
 
 export const buildShareCaption = (payload: SharePayload) => {
@@ -82,44 +83,27 @@ export const shareResultPosterPDF = async (payload: SharePayload) => {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         -webkit-print-color-adjust: exact;
-        background: #0B1220;
+        background: #F8FAFC;
+        color: #0F172A;
       }
       .page {
         width: 100%;
         height: 100vh;
-        background:
-          radial-gradient(900px 900px at 25% 10%, ${theme.b}40, transparent 60%),
-          radial-gradient(900px 900px at 85% 20%, ${theme.a}45, transparent 60%),
-          radial-gradient(1200px 900px at 50% 110%, rgba(255,255,255,0.10), transparent 55%),
-          linear-gradient(180deg, #0B1220 0%, #0F172A 100%);
         position: relative;
         overflow: hidden;
       }
-      .glow1 {
+      .bg-pattern {
         position: absolute;
-        width: 820px;
-        height: 820px;
-        left: -240px;
-        top: -260px;
-        background: radial-gradient(circle, ${theme.a}55, transparent 70%);
-        filter: blur(2px);
-        opacity: 0.9;
-      }
-      .glow2 {
-        position: absolute;
-        width: 920px;
-        height: 920px;
-        right: -340px;
-        top: 120px;
-        background: radial-gradient(circle, ${theme.b}55, transparent 72%);
-        filter: blur(2px);
-        opacity: 0.9;
+        top: 0; left: 0; right: 0; height: 600px;
+        background: linear-gradient(135deg, ${theme.a} 0%, ${theme.b} 100%);
+        z-index: 0;
       }
       .safe {
         position: relative;
+        z-index: 1;
         width: 100%;
         height: 100%;
-        padding: 120px 86px 92px 86px;
+        padding: 90px 70px 70px 70px;
         display: flex;
         flex-direction: column;
       }
@@ -127,154 +111,158 @@ export const shareResultPosterPDF = async (payload: SharePayload) => {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 12px;
+        margin-bottom: 40px;
+        color: #FFFFFF;
       }
       .brand {
         display: flex;
         flex-direction: column;
-        gap: 8px;
       }
       .brandName {
         font-weight: 900;
         letter-spacing: 3px;
-        color: rgba(255,255,255,0.95);
-        font-size: 22px;
+        font-size: 26px;
       }
       .brandSub {
-        color: rgba(255,255,255,0.82);
         font-size: 16px;
-        font-weight: 700;
+        font-weight: 600;
+        opacity: 0.9;
+        margin-top: 4px;
       }
       .badge {
-        padding: 12px 16px;
+        padding: 10px 18px;
         border-radius: 999px;
-        background: rgba(255,255,255,0.20);
-        border: 1px solid rgba(255,255,255,0.25);
-        color: rgba(255,255,255,0.92);
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.4);
         font-weight: 700;
         font-size: 14px;
       }
-      .hero {
-        margin-top: 26px;
-        padding: 34px 34px;
-        border-radius: 34px;
-        background: rgba(255,255,255,0.12);
-        border: 1px solid rgba(255,255,255,0.18);
-        box-shadow: 0 30px 80px rgba(0,0,0,0.28);
+      
+      .hero-card {
+        background: #FFFFFF;
+        border-radius: 32px;
+        padding: 50px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        border: 1px solid #E2E8F0;
+        margin-bottom: 30px;
       }
-      .label {
-        color: rgba(255,255,255,0.82);
-        font-size: 13px;
+      .label-top {
+        color: ${theme.a};
+        font-size: 14px;
         letter-spacing: 2px;
         font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 12px;
       }
       .primary {
-        margin-top: 10px;
         font-weight: 900;
-        color: rgba(255,255,255,0.98);
-        font-size: 78px;
-        line-height: 1.03;
+        color: #0F172A;
+        font-size: 64px;
+        line-height: 1.1;
         letter-spacing: -1px;
+        margin-bottom: 16px;
         word-break: break-word;
       }
       .secondary {
-        margin-top: 14px;
-        color: rgba(255,255,255,0.92);
-        font-size: 20px;
-        line-height: 1.4;
+        color: #475569;
+        font-size: 22px;
         font-weight: 700;
+        line-height: 1.4;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #F1F5F9;
+        padding-bottom: 24px;
       }
+      .description {
+        color: #334155;
+        font-size: 18px;
+        line-height: 1.6;
+        margin-bottom: 24px;
+      }
+      
       .chips {
-        margin-top: 18px;
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
       }
       .chip {
-        padding: 12px 14px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.18);
-        border: 1px solid rgba(255,255,255,0.22);
-        color: rgba(255,255,255,0.92);
-        font-size: 14px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        background: #F1F5F9;
+        color: #0F172A;
+        font-size: 16px;
         font-weight: 700;
+        border: 1px solid #E2E8F0;
       }
+      
       .footer {
         margin-top: auto;
         display: flex;
         flex-direction: row;
-        align-items: flex-end;
+        align-items: center;
         justify-content: space-between;
-        gap: 18px;
-        padding-top: 22px;
+        gap: 20px;
+        background: #FFFFFF;
+        padding: 30px 40px;
+        border-radius: 28px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        border: 1px solid #E2E8F0;
       }
       .who {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 22px 22px;
-        border-radius: 26px;
-        background: rgba(255,255,255,0.10);
-        border: 1px solid rgba(255,255,255,0.16);
         flex: 1;
       }
+      .label-footer {
+        color: #64748B;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
       .name {
-        color: rgba(255,255,255,0.96);
+        color: #0F172A;
         font-weight: 900;
-        font-size: 20px;
+        font-size: 24px;
+        margin-bottom: 8px;
       }
       .meta {
-        color: rgba(255,255,255,0.86);
-        font-size: 14px;
-        line-height: 1.45;
+        color: #475569;
+        font-size: 15px;
+        line-height: 1.5;
       }
       .qrWrap {
         display: flex;
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-        padding: 22px 22px;
-        border-radius: 26px;
-        background: rgba(255,255,255,0.10);
-        border: 1px solid rgba(255,255,255,0.16);
+        flex-direction: row;
+        align-items: center;
+        gap: 20px;
       }
-      .qr {
-        width: 200px;
-        height: 200px;
-        border-radius: 24px;
-        border: 2px solid rgba(255,255,255,0.18);
-        background: rgba(255,255,255,0.90);
-        padding: 10px;
+      .qr-text {
+        text-align: right;
       }
       .hint {
-        color: rgba(255,255,255,0.92);
+        color: #0F172A;
         font-weight: 800;
-        font-size: 12px;
-        letter-spacing: 1.2px;
-      }
-      .watermark {
-        position: absolute;
-        right: -36px;
-        bottom: -36px;
-        font-size: 210px;
-        opacity: 0.12;
-        filter: blur(0.3px);
-        pointer-events: none;
+        font-size: 13px;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
       }
       .site {
-        color: rgba(255,255,255,0.92);
-        font-weight: 900;
-        font-size: 14px;
-        letter-spacing: 0.6px;
+        color: ${theme.a};
+        font-weight: 800;
+        font-size: 16px;
+      }
+      .qr {
+        width: 100px;
+        height: 100px;
+        border-radius: 16px;
+        border: 2px solid #E2E8F0;
+        background: #FFFFFF;
+        padding: 6px;
       }
     </style>
   </head>
   <body>
     <div class="page">
-      <div class="glow1"></div>
-      <div class="glow2"></div>
-      <div class="watermark">${theme.icon}</div>
+      <div class="bg-pattern"></div>
       <div class="safe">
         <div class="header">
           <div class="brand">
@@ -284,25 +272,28 @@ export const shareResultPosterPDF = async (payload: SharePayload) => {
           <div class="badge">${dateLabel ? escapeHtml(dateLabel) : 'Hasil Tes'}</div>
         </div>
 
-        <div class="hero">
-          <div class="label">HASIL UTAMA</div>
+        <div class="hero-card">
+          <div class="label-top">HASIL UTAMA</div>
           <div class="primary">${primary}</div>
           ${secondary ? `<div class="secondary">${secondary}</div>` : ''}
+          ${payload.description ? `<div class="description">${escapeHtml(payload.description)}</div>` : ''}
           ${highlightHtml}
         </div>
 
         <div class="footer">
           <div class="who">
-            <div class="label">PEMILIK HASIL</div>
+            <div class="label-footer">MILIK PENGGUNA</div>
             <div class="name">${userName}</div>
             <div class="meta">
-              Bagikan hasil tes Anda untuk menginspirasi teman-teman mencoba Mahirku.
+              Pindai QR code di samping untuk mencoba tes ini atau kunjungi situs kami.
             </div>
           </div>
           <div class="qrWrap">
-            <div class="hint">SCAN UNTUK COBA MAHIRKU</div>
+            <div class="qr-text">
+              <div class="hint">COBA MAHIRKU</div>
+              <div class="site">mahirku.com</div>
+            </div>
             <img class="qr" src="${qrUrl}" />
-            <div class="site">mahirku.com</div>
           </div>
         </div>
       </div>
@@ -314,4 +305,3 @@ export const shareResultPosterPDF = async (payload: SharePayload) => {
   const { uri } = await Print.printToFileAsync({ html, width: 1080, height: 1920 });
   await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
 };
-
