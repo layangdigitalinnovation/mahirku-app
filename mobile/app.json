@@ -3,7 +3,7 @@
     "name": "Mahirku",
     "slug": "mahirku-mobile",
     "scheme": "mahirku",
-    "version": "1.0.21",
+    "version": "1.0.22",
     "platforms": [
       "android"
     ],
@@ -20,7 +20,7 @@
     },
     "android": {
       "package": "com.mahirku.app",
-      "versionCode": 7,
+      "versionCode": 8,
       "jsEngine": "hermes",
       "permissions": [
         "android.permission.INTERNET",
