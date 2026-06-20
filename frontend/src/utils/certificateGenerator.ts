@@ -12,8 +12,6 @@ interface CertificateData {
 export const generateCertificatePDF = async (data: CertificateData, fileName: string = 'Sertifikat_Mahirku.pdf') => {
   const { studentName, courseName, completionDate, certificateId, resultTitle } = data;
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mahirku.com/verify-certificate/${certificateId}`;
-
   const html = `
     <div style="width: 1122px; height: 793px; display: flex; justify-content: center; align-items: center; padding: 40px; box-sizing: border-box; background-color: #f7fafc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
       <div style="width: 100%; height: 100%; border: 10px solid #4F46E5; padding: 5px; box-sizing: border-box; background: white; position: relative;">
@@ -67,7 +65,9 @@ export const generateCertificatePDF = async (data: CertificateData, fileName: st
                 <div style="font-size: 14px; font-weight: 700; color: #1E293B;">MAHIRKU Verify</div>
                 <div style="font-size: 12px; color: #64748B;">Official Document</div>
               </div>
-              <img src="${qrUrl}" style="width: 60px; height: 60px; border: 2px solid #E2E8F0; padding: 2px;" crossorigin="anonymous" />
+              <div style="width: 60px; height: 60px; border: 2px solid #E2E8F0; padding: 2px; display: flex; justify-content: center; align-items: center; background-color: #F8FAFC;">
+                <span style="font-size: 10px; color: #94A3B8; text-align: center;">Scan<br/>Valid</span>
+              </div>
             </div>
           </div>
 
@@ -98,7 +98,40 @@ export const generateCertificatePDF = async (data: CertificateData, fileName: st
     await html2pdf().from(container.firstElementChild as HTMLElement).set(opt).save();
   } catch (error) {
     console.error('Error generating certificate:', error);
-    throw error;
+    
+    // Fallback to window.print()
+    try {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>${fileName}</title>
+              <style>
+                @page { size: A4 landscape; margin: 0; }
+                body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f7fafc; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              </style>
+            </head>
+            <body>
+              ${html}
+              <script>
+                window.onload = function() {
+                  setTimeout(function() {
+                    window.print();
+                  }, 500);
+                };
+              </script>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+      } else {
+        throw new Error("Popup blocked");
+      }
+    } catch (fallbackErr) {
+      console.error("Fallback failed", fallbackErr);
+      throw error;
+    }
   } finally {
     // Always clean up the DOM
     if (document.body.contains(container)) {
