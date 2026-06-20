@@ -37,23 +37,26 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
   const [isCertModalOpen, setIsCertModalOpen] = useState(false);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
 
-  const handleDownloadCert = async (result: ThinkingStyleResult) => {
+  const handleDownloadCert = async (result: any) => {
     setGeneratingId(result.id);
     try {
       const certificateId = `CST-${result.id}-${Date.now().toString(36).toUpperCase()}`;
+      
+      const courseName = result.testType === 'DISC' ? 'DISC Personality Assessment' :
+                         result.testType === 'Graphology' ? 'Graphology Assessment' :
+                         'Cognitive Style Assessment';
+
+      const resultTitle = result.thinkingStyle?.type || result.type || 'Hasil Test';
+
       const data = {
         studentName: result.fullname || user?.fullname || 'Peserta',
-        courseName: 'Cognitive Style Assessment',
-        completionDate: new Date(result.createdAt || new Date()).toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }),
+        courseName: courseName,
+        completionDate: '',
         certificateId,
-        resultTitle: result.thinkingStyle?.type || 'Hasil Test',
+        resultTitle: resultTitle,
       };
       
-      await generateCertificatePDF(data, `Sertifikat_CognitiveStyle_${result.fullname || 'Peserta'}.pdf`);
+      await generateCertificatePDF(data, `Sertifikat_${courseName.replace(/\s+/g, '')}_${result.fullname || 'Peserta'}.pdf`);
     } catch (err) {
       console.error("Gagal mengunduh sertifikat:", err);
       alert("Terjadi kesalahan saat membuat sertifikat.");
@@ -218,14 +221,20 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
             {results.length === 0 ? (
               <p className="text-center text-gray-500 py-4">Belum ada sertifikat tersedia. Selesaikan test terlebih dahulu.</p>
             ) : (
-              results.map((result) => (
+              results.map((result: any) => (
                 <div key={result.id} className="p-4 border rounded-xl flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-gray-50 hover:bg-gray-100 transition-colors">
                   <div>
-                    <h4 className="font-semibold text-gray-900">{result.thinkingStyle?.type || 'Hasil Test'}</h4>
+                    <h4 className="font-semibold text-gray-900">
+                      {result.testType === 'DISC' ? 'Tes Kepribadian DISC' : 
+                       result.testType === 'Graphology' ? 'Tes Graphology' : 
+                       'Tes Gaya Kognitif'}
+                    </h4>
+                    {result.thinkingStyle?.type && (
+                      <p className="text-xs font-medium text-blue-600 mb-1">
+                        Tipe: {result.thinkingStyle.type}
+                      </p>
+                    )}
                     <p className="text-sm text-gray-500">{result.fullname || user?.fullname}</p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {new Date(result.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </p>
                   </div>
                   <Button 
                     onClick={() => handleDownloadCert(result)}
