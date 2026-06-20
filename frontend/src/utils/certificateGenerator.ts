@@ -77,13 +77,20 @@ export const generateCertificatePDF = async (data: CertificateData, fileName: st
   `;
 
   const container = document.createElement('div');
+  // Hide the container off-screen so it doesn't affect the layout
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '-9999px';
   container.innerHTML = html;
+  
+  // html2canvas requires the element to be in the DOM to compute styles properly
+  document.body.appendChild(container);
 
   const opt: any = {
     margin: 0,
     filename: fileName,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, logging: true },
     jsPDF: { unit: 'px', format: [1122, 793], orientation: 'landscape' } // A4 Landscape roughly
   };
 
@@ -92,5 +99,10 @@ export const generateCertificatePDF = async (data: CertificateData, fileName: st
   } catch (error) {
     console.error('Error generating certificate:', error);
     throw error;
+  } finally {
+    // Always clean up the DOM
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
   }
 };
