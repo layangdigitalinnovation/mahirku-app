@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Download,
   Target,
@@ -7,6 +7,9 @@ import {
   PlusCircle
 } from 'lucide-react';
 import { ThinkingStyleResult } from '@/services/api';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { generateCertificatePDF } from '@/utils/certificateGenerator';
 
 // Card components defined inline
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -31,6 +34,33 @@ interface DashboardQuickActionsProps {
 
 export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ user, results }) => {
   const totalTests = results.length;
+  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
+  const [generatingId, setGeneratingId] = useState<number | null>(null);
+
+  const handleDownloadCert = async (result: ThinkingStyleResult) => {
+    setGeneratingId(result.id);
+    try {
+      const certificateId = `CST-${result.id}-${Date.now().toString(36).toUpperCase()}`;
+      const data = {
+        studentName: result.fullname || user?.fullname || 'Peserta',
+        courseName: 'Cognitive Style Assessment',
+        completionDate: new Date(result.createdAt || new Date()).toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        }),
+        certificateId,
+        resultTitle: result.thinkingStyle?.type || 'Hasil Test',
+      };
+      
+      await generateCertificatePDF(data, `Sertifikat_CognitiveStyle_${result.fullname || 'Peserta'}.pdf`);
+    } catch (err) {
+      console.error("Gagal mengunduh sertifikat:", err);
+      alert("Terjadi kesalahan saat membuat sertifikat.");
+    } finally {
+      setGeneratingId(null);
+    }
+  };
 
 
 
@@ -41,7 +71,8 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
     action,
     color = "blue",
     badge,
-    to
+    to,
+    onClick
   }: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     icon: any;
@@ -51,6 +82,7 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
     color?: "blue" | "green" | "purple" | "orange" | "pink" | "indigo" | "amber";
     badge?: string;
     to?: string;
+    onClick?: () => void;
   }) => {
     const colorClasses = {
       blue: "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200",
@@ -63,7 +95,7 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
     };
 
     const CardWrapper = to ? 'a' : 'div';
-    const cardProps = to ? { href: to } : {};
+    const cardProps = to ? { href: to } : { onClick };
 
     return (
       <CardWrapper {...cardProps}>
@@ -109,7 +141,7 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
   return (
     <div className="space-y-6 mb-8">
       {/* Welcome Section dengan Stats */}
-      <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0">
+      <Card className="bg-linear-to-r from-blue-500 to-purple-600 text-white border-0">
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="mb-4 md:mb-0">
@@ -124,7 +156,7 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
               </div>
             </div>
 
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center">
                 <Sparkles className="h-10 w-10 text-yellow-300" />
               </div>
@@ -168,17 +200,54 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
             action="Download"
             color="indigo"
             badge={`${totalTests} File`}
-            to="/numerology/export"
+            onClick={() => setIsCertModalOpen(true)}
           />
         </div>
       </div>
+
+      {/* Certificate Modal */}
+      <Dialog open={isCertModalOpen} onOpenChange={setIsCertModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Download Sertifikat</DialogTitle>
+            <DialogDescription>
+              Pilih sertifikat hasil test yang ingin Anda download.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+            {results.length === 0 ? (
+              <p className="text-center text-gray-500 py-4">Belum ada sertifikat tersedia. Selesaikan test terlebih dahulu.</p>
+            ) : (
+              results.map((result) => (
+                <div key={result.id} className="p-4 border rounded-xl flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{result.thinkingStyle?.type || 'Hasil Test'}</h4>
+                    <p className="text-sm text-gray-500">{result.fullname || user?.fullname}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {new Date(result.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => handleDownloadCert(result)}
+                    disabled={generatingId === result.id}
+                    size="sm"
+                    className="w-full sm:w-auto"
+                  >
+                    {generatingId === result.id ? 'Membuat...' : 'Download'}
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Tips Section */}
       {totalTests === 0 && (
         <Card className="bg-yellow-50 border-yellow-200">
           <CardContent className="p-6">
             <div className="flex items-start">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Target className="h-6 w-6 text-yellow-600 mt-1" />
               </div>
               <div className="ml-4">

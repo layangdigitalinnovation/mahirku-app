@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { graphologyService } from '../../services/graphology.service';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, FileText, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle2, ChevronRight, Loader2, ChevronLeft } from 'lucide-react';
 
 type Step = 'intro' | 'upload' | 'processing';
 
@@ -63,6 +63,17 @@ export const GraphologyTest: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto p-6 mt-8">
+            {/* Back Button */}
+            <div className="mb-6">
+                <button 
+                    onClick={() => navigate('/customer/dashboard/test')}
+                    className="flex items-center text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                >
+                    <ChevronLeft className="w-5 h-5 mr-1" />
+                    Kembali
+                </button>
+            </div>
+
             {/* Steps Indicator */}
             <div className="flex items-center justify-center mb-10 text-sm font-medium">
                 <div className={`flex items-center ${currentStep === 'intro' ? 'text-blue-600' : 'text-gray-400'}`}>

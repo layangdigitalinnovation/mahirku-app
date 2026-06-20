@@ -33,7 +33,19 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
   const user = data?.user;
 
   // cari menuItem aktif berdasarkan path sekarang
-  const activeItem = menuItems.find((item) => item.path === location.pathname);
+  const activeItem = menuItems.find((item) => {
+    if (item.path === location.pathname) return true;
+    if (item.path.endsWith('/test')) {
+      const testPaths = [
+        'cognitive-data-entry', 'cognitive-questionnaire', 'cognitive-test-intro',
+        'disc-test', 'disc-result', 'graphology-test', 'graphology-result', 'test/result'
+      ];
+      if (testPaths.some(p => location.pathname.includes(p))) {
+        return true;
+      }
+    }
+    return false;
+  });
 
   const handleLogout = () => {
     console.log("Logout clicked");
@@ -48,7 +60,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
       <header className="fixed top-0 left-0 w-full bg-primary-600 text-body2 text-white z-50">
         <div className="mx-auto flex justify-between items-center px-4 md:px-6 h-16 md:h-18 border-b-2 border-neutral-400">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex mx-auto justify-between items-center gap-6 h-full container max-w-screen-xl">
+          <nav className="hidden md:flex mx-auto justify-between items-center gap-6 h-full container max-w-7xl">
             <div className="flex gap-28 items-center h-full">
               <div className="flex gap-2 items-center">
                 <img src={logo} alt="logo" className="w-8 h-8" />
@@ -76,7 +88,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                     {item.icon && <item.icon className="w-5 h-5" />}
                     {item.label}
                     {/* Active Indicator */}
-                    {item.path === location.pathname && (
+                    {activeItem === item && (
                       <motion.div
                         layoutId="activeIndicator"
                         className="absolute left-0 -bottom-1 h-[5px] w-full bg-secondary-300 rounded-full"
@@ -108,7 +120,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                 align="end"
                 side="bottom"
                 sideOffset={8}
-                className="w-[280px] bg-white border border-gray-200 shadow-lg rounded-lg p-2 z-[9999]"
+                className="w-[280px] bg-white border border-gray-200 shadow-lg rounded-lg p-2 z-9999"
               >
                 <div className="px-4 py-3 border-b border-gray-100">
                   <p className="text-sm font-medium text-gray-900">{user?.fullname}</p>
@@ -154,7 +166,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
                 align="end"
                 side="bottom"
                 sideOffset={8}
-                className="w-[280px] bg-white border border-gray-200 shadow-lg rounded-lg p-2 z-[9999]"
+                className="w-[280px] bg-white border border-gray-200 shadow-lg rounded-lg p-2 z-9999"
               >
                 <div className="px-4 py-3 border-b border-gray-100">
                   <p className="text-sm font-medium text-gray-900">{user?.fullname}</p>
@@ -178,7 +190,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
       </header>
 
       {/* Page Content */}
-      <main className="w-full mx-auto min-h-screen pt-16 md:pt-20 pb-20 md:pb-0 px-4 md:px-6 lg:px-12 xl:px-20 bg-gradient-to-br from-blue-50 via-indigo-50">
+      <main className="w-full mx-auto min-h-screen pt-16 md:pt-20 pb-20 md:pb-0 px-4 md:px-6 lg:px-12 xl:px-20 bg-linear-to-br from-blue-50 via-indigo-50">
         {children}
       </main>
 
@@ -186,7 +198,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ menuItems, children }) => {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-padding">
         <div className="flex justify-around items-center px-2 py-2">
           {menuItems.map((item) => {
-            const isActive = item.path === location.pathname;
+            const isActive = activeItem === item;
             return (
               <button
                 key={item.path}

@@ -64,7 +64,7 @@ export const CognitiveTest: React.FC = () => {
         {/* Test Selection Grid */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Pilih Tes</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
 
             {/* Cognitive Style Test Card */}
             <Card className="hover:shadow-lg transition-all duration-300 border-blue-100 cursor-pointer group" onClick={() => navigate('/customer/dashboard/cognitive-data-entry')}>
@@ -163,10 +163,6 @@ export const CognitiveTest: React.FC = () => {
                   <li className="flex items-center text-sm text-gray-600">
                     <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
                     Upload Tulisan Tangan
-                  </li>
-                  <li className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
-                    Analisis AI Akurat
                   </li>
                 </ul>
               </CardContent>

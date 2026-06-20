@@ -15,6 +15,7 @@ import {
     Paper,
     Chip
 } from '@mui/material';
+import { ChevronLeft } from 'lucide-react';
 
 interface Option {
     id: number;
@@ -110,6 +111,16 @@ const DiscTest: React.FC = () => {
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Box sx={{ mb: 2 }}>
+                <Button 
+                    startIcon={<ChevronLeft size={20} />} 
+                    onClick={() => navigate('/customer/dashboard/test')}
+                    color="inherit"
+                    sx={{ textTransform: 'none', fontWeight: 'bold' }}
+                >
+                    Kembali
+                </Button>
+            </Box>
             <Box sx={{ mb: 4, textAlign: 'center' }}>
                 <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                     DISC Personality Test
