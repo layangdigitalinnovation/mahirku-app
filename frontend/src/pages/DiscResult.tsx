@@ -37,8 +37,6 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-
-import { Brain } from 'lucide-react';
 import { useDiscAiReport } from '@/hooks/useAiReports';
 
 interface DiscResultData {
@@ -50,56 +48,134 @@ interface DiscResultData {
     dominantType: string;
 }
 
+export interface DiscAiReportData {
+  profile_summary: string;
+  communication_style: string;
+  behavior_traits: string[];
+  strengths: string[];
+  challenges: string[];
+  work_environment: string;
+  career_recommendations: string[];
+  collaboration_tips: string[];
+  conflict_risks: string[];
+  dev_tips: string[];
+}
+
 const AiReportSection = ({ resultId }: { resultId: number }) => {
-  const { data: aiReport, isLoading } = useDiscAiReport(resultId);
+  const { data: aiReport } = useDiscAiReport(resultId);
 
-  if (isLoading) {
+  const report = aiReport?.report as DiscAiReportData | undefined;
+  if (!report || typeof report !== 'object') return null;
+
+  const renderList = (items?: string[]) => {
+    if (!items || !Array.isArray(items)) return null;
     return (
-      <Paper elevation={3} sx={{ p: 4, mt: 4, textAlign: 'center' }}>
-        <div className="flex items-center space-x-4 animate-pulse justify-center">
-            <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
-            <div className="space-y-2 flex-1 max-w-sm">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          </div>
-          <p className="mt-4 text-gray-500 text-sm">Sedang membuat detail laporan assessment dengan AI...</p>
-      </Paper>
+      <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-700">
+        {items.map((item, idx) => (
+          <li key={idx}>{item}</li>
+        ))}
+      </ul>
     );
-  }
-
-  if (aiReport?.status === 'processing' || aiReport?.status === 'pending') {
-    return (
-      <Paper elevation={3} sx={{ p: 4, mt: 4, textAlign: 'center' }}>
-        <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="text-gray-500 text-sm">Laporan AI Anda sedang diproses...</p>
-          </div>
-      </Paper>
-    );
-  }
-
-  if (aiReport?.error || aiReport?.status === 'failed') {
-    return (
-      <Paper elevation={3} sx={{ p: 4, mt: 4, bgcolor: '#fef2f2', border: '1px solid #fca5a5' }}>
-        <Typography color="error" align="center">Gagal memuat laporan AI. {aiReport?.error}</Typography>
-      </Paper>
-    );
-  }
-
-  if (!aiReport?.report) return null;
+  };
 
   return (
-    <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-      <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-        <Brain className="text-blue-500" />
+    <div className="mt-8 mb-4">
+      <Typography variant="h6" sx={{ fontSize: 18, fontWeight: 900, color: '#0F172A', mb: 3 }}>
         Detail Laporan Assessment
       </Typography>
-      <div 
-        className="prose prose-sm max-w-none text-gray-700 space-y-2"
-        dangerouslySetInnerHTML={{ __html: aiReport.report.replace(/\n/g, '<br/>') }}
-      />
-    </Paper>
+
+      <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #0EA5E9', bgcolor: '#F8FAFC' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
+          Ringkasan Profil
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#334155', lineHeight: 1.6 }}>
+          {report.profile_summary}
+        </Typography>
+      </Paper>
+
+      <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #3B82F6', bgcolor: '#EFF6FF' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1E3A8A', mb: 1 }}>
+          Gaya Komunikasi Utama
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#1E40AF', lineHeight: 1.6 }}>
+          {report.communication_style}
+        </Typography>
+      </Paper>
+
+      {report.behavior_traits && (
+        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #E2E8F0', borderRadius: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
+            Karakter Perilaku
+          </Typography>
+          {renderList(report.behavior_traits)}
+        </Paper>
+      )}
+
+      {report.strengths && (
+        <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #22C55E', bgcolor: '#F0FDF4' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#166534', mb: 1 }}>
+            Kekuatan Utama
+          </Typography>
+          {renderList(report.strengths)}
+        </Paper>
+      )}
+
+      {report.challenges && (
+        <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #EF4444', bgcolor: '#FEF2F2' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#991B1B', mb: 1 }}>
+            Tantangan & Titik Buta
+          </Typography>
+          {renderList(report.challenges)}
+        </Paper>
+      )}
+
+      {report.work_environment && (
+        <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #F59E0B', bgcolor: '#FFFBEB' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#92400E', mb: 1 }}>
+            Lingkungan Kerja Ideal
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#B45309', lineHeight: 1.6 }}>
+            {report.work_environment}
+          </Typography>
+        </Paper>
+      )}
+
+      {report.career_recommendations && (
+        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #E2E8F0', borderRadius: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
+            Rekomendasi Karir
+          </Typography>
+          {renderList(report.career_recommendations)}
+        </Paper>
+      )}
+
+      {report.collaboration_tips && (
+        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #E2E8F0', borderRadius: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
+            Tips Kolaborasi
+          </Typography>
+          {renderList(report.collaboration_tips)}
+        </Paper>
+      )}
+
+      {report.conflict_risks && (
+        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #E2E8F0', borderRadius: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
+            Potensi Konflik
+          </Typography>
+          {renderList(report.conflict_risks)}
+        </Paper>
+      )}
+
+      {report.dev_tips && (
+        <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #8B5CF6', bgcolor: '#F5F3FF' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#5B21B6', mb: 1 }}>
+            Tips Pengembangan Diri
+          </Typography>
+          {renderList(report.dev_tips)}
+        </Paper>
+      )}
+    </div>
   );
 };
 

@@ -224,6 +224,7 @@ export default function MemberReportsListScreen() {
             )}
           </>
         )}
+      </ScrollView>
       <Modal visible={modalVisible} transparent={true} animationType="fade" onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>

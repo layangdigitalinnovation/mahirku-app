@@ -1,4 +1,4 @@
-// Imports removed for web
+import QRCode from 'qrcode';
 import { getCertificateCSS } from './certificateStyles';
 
 export interface GraphologyCertificateData {
@@ -24,7 +24,7 @@ export interface GraphologyCertificateData {
   devTips: string[];
 }
 
-export const getGraphologyCertificateHtml = (data: GraphologyCertificateData) => {
+export const getGraphologyCertificateHtml = async (data: GraphologyCertificateData) => {
   const colorMap: Record<string, string> = {
     'GRP-8-TRLBLZ': 'indigo',
     'GRP-8-PRCDRV': 'emerald',
@@ -50,6 +50,13 @@ export const getGraphologyCertificateHtml = (data: GraphologyCertificateData) =>
   };
 
   const c = colorClasses[colorKey];
+
+  let qrCodeDataUrl = '';
+  try {
+      qrCodeDataUrl = await QRCode.toDataURL(`https://mahirku.com/verify/certificate/${data.certificateId}`, { width: 150, margin: 0 });
+  } catch (err) {
+      console.error('Error generating QR code', err);
+  }
 
   const html = `
 <!DOCTYPE html>
@@ -136,7 +143,7 @@ export const getGraphologyCertificateHtml = (data: GraphologyCertificateData) =>
                     <p class="text-[11px] font-semibold text-indigo-500 uppercase tracking-wide">Official Document</p>
                 </div>
                 <div class="w-16 h-16 bg-white border-2 border-slate-200 p-1 rounded-lg flex items-center justify-center shadow-sm">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mahirku.com/verify/certificate/${data.certificateId}" class="w-full h-full" />
+                    <img src="${qrCodeDataUrl}" class="w-full h-full" />
                 </div>
             </div>
         </div>

@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
-  CardTitle,
 } from "../../components/ui/card";
 import {
   AlertDialog,
@@ -26,66 +25,141 @@ import { getCSTCertificateHTML } from "@/utils/cstCertificateGenerator";
 import { useThinkingStyleAiReport } from "@/hooks/useAiReports";
 import { getThinkingStyleAiReport } from "@/services/api/aiReports";
 
+export interface CSTAiReportData {
+  profile_summary: string;
+  thinking_process: string;
+  cognitive_characteristics: string[];
+  strengths: string[];
+  challenges: string[];
+  decision_making: string;
+  learning_style: string;
+  career_recommendations: string[];
+  collaboration_tips: string[];
+  conflict_potential: string[];
+  self_development_tips: string[];
+}
+
 const AiReportSection = ({ resultId }: { resultId: number }) => {
-  const { data: aiReport, isLoading } = useThinkingStyleAiReport(resultId);
+  const { data: aiReport } = useThinkingStyleAiReport(resultId);
 
-  if (isLoading) {
+  const report = aiReport?.report as CSTAiReportData | undefined;
+  if (!report || typeof report !== 'object') return null;
+
+  const renderList = (items?: string[]) => {
+    if (!items || !Array.isArray(items)) return null;
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center space-x-4 animate-pulse">
-            <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
-            <div className="space-y-2 flex-1">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          </div>
-          <p className="text-center mt-4 text-gray-500 text-sm">Sedang membuat detail laporan assessment dengan AI...</p>
-        </CardContent>
-      </Card>
+      <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-700">
+        {items.map((item, idx) => (
+          <li key={idx}>{item}</li>
+        ))}
+      </ul>
     );
-  }
-
-  if (aiReport?.status === 'processing' || aiReport?.status === 'pending') {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="text-center text-gray-500 text-sm">Laporan AI Anda sedang diproses...</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (aiReport?.error || aiReport?.status === 'failed') {
-    return (
-      <Card className="border-red-200 bg-red-50">
-        <CardContent className="p-6">
-          <p className="text-red-600 text-sm text-center">Gagal memuat laporan AI. {aiReport?.error}</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!aiReport?.report) return null;
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl flex items-center gap-2">
-          <Brain className="h-5 w-5 text-blue-500" />
-          Detail Laporan Assessment
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div 
-          className="prose prose-sm max-w-none text-gray-700 space-y-2"
-          dangerouslySetInnerHTML={{ __html: aiReport.report.replace(/\n/g, '<br/>') }}
-        />
-      </CardContent>
-    </Card>
+    <div className="mt-8 mb-4">
+      <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <Brain className="h-6 w-6 text-blue-600" />
+        Detail Laporan Assessment
+      </h3>
+
+      <div className="space-y-6">
+        <Card className="border-l-4 border-l-blue-500 bg-slate-50">
+          <CardContent className="p-6">
+            <h4 className="font-bold text-slate-900 mb-2">Ringkasan Profil</h4>
+            <p className="text-slate-700 leading-relaxed">{report.profile_summary}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-indigo-500 bg-indigo-50">
+          <CardContent className="p-6">
+            <h4 className="font-bold text-indigo-900 mb-2">Cara Memproses Informasi</h4>
+            <p className="text-indigo-800 leading-relaxed">{report.thinking_process}</p>
+          </CardContent>
+        </Card>
+
+        {report.cognitive_characteristics && (
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-bold text-slate-900 mb-2">Karakteristik Kognitif</h4>
+              {renderList(report.cognitive_characteristics)}
+            </CardContent>
+          </Card>
+        )}
+
+        {report.strengths && (
+          <Card className="border-l-4 border-l-green-500 bg-green-50">
+            <CardContent className="p-6">
+              <h4 className="font-bold text-green-900 mb-2">Kekuatan Utama</h4>
+              {renderList(report.strengths)}
+            </CardContent>
+          </Card>
+        )}
+
+        {report.challenges && (
+          <Card className="border-l-4 border-l-red-500 bg-red-50">
+            <CardContent className="p-6">
+              <h4 className="font-bold text-red-900 mb-2">Tantangan & Hambatan</h4>
+              {renderList(report.challenges)}
+            </CardContent>
+          </Card>
+        )}
+
+        {report.decision_making && (
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-bold text-slate-900 mb-2">Gaya Pengambilan Keputusan</h4>
+              <p className="text-slate-700 leading-relaxed">{report.decision_making}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {report.learning_style && (
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-bold text-slate-900 mb-2">Gaya Belajar Efektif</h4>
+              <p className="text-slate-700 leading-relaxed">{report.learning_style}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {report.career_recommendations && (
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-bold text-slate-900 mb-2">Rekomendasi Karir</h4>
+              {renderList(report.career_recommendations)}
+            </CardContent>
+          </Card>
+        )}
+
+        {report.collaboration_tips && (
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-bold text-slate-900 mb-2">Tips Kolaborasi</h4>
+              {renderList(report.collaboration_tips)}
+            </CardContent>
+          </Card>
+        )}
+
+        {report.conflict_potential && (
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-bold text-slate-900 mb-2">Potensi Konflik</h4>
+              {renderList(report.conflict_potential)}
+            </CardContent>
+          </Card>
+        )}
+
+        {report.self_development_tips && (
+          <Card className="border-l-4 border-l-purple-500 bg-purple-50">
+            <CardContent className="p-6">
+              <h4 className="font-bold text-purple-900 mb-2">Tips Pengembangan Diri</h4>
+              {renderList(report.self_development_tips)}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
   );
 };
 
@@ -127,7 +201,7 @@ export const TestResult: React.FC = () => {
     setIsGenerating(true);
     try {
       const certificateId = `CRT-${testResult.id}-${Date.now().toString(36).toUpperCase()}`;
-      const studentName = testResult.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : (testResult.fullname || user?.fullname || 'Peserta');
+      const studentName = testResult.fullname || user?.fullname || 'Peserta';
       
       const aiData = await getThinkingStyleAiReport(testResult.id);
       const data = {
@@ -149,7 +223,7 @@ export const TestResult: React.FC = () => {
         devTips: []
       };
       
-      const html = getCSTCertificateHTML(data);
+      const html = await getCSTCertificateHTML(data);
       await downloadPdfFromHtml(html, `Sertifikat_CognitiveStyle_${studentName}.pdf`);
     } catch (err) {
       console.error("Gagal mengunduh sertifikat:", err);

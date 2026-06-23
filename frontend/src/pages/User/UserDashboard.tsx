@@ -41,8 +41,10 @@ export const UserDashboard: React.FC = () => {
     );
   }
 
+  const userResults = numerologyResults?.filter((result: ThinkingStyleResult) => result.userId === user?.id) ?? [];
+
   const filteredResults =
-    numerologyResults?.filter((result: ThinkingStyleResult) => {
+    userResults.filter((result: ThinkingStyleResult) => {
       const searchQueryLower = searchQuery.toLowerCase().trim();
       const fullnameLower = result.fullname.toLowerCase();
       const birthdateFormatted = result.birthdate
@@ -53,7 +55,7 @@ export const UserDashboard: React.FC = () => {
         fullnameLower.includes(searchQueryLower) ||
         birthdateFormatted.includes(searchQueryLower)
       );
-    }) ?? [];
+    });
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 pt-24 pb-12">
@@ -143,7 +145,7 @@ export const UserDashboard: React.FC = () => {
         )}
 
         <DashboardQuickActions
-          results={numerologyResults as ThinkingStyleResult[]}
+          results={userResults as ThinkingStyleResult[]}
           user={user}
         />
         <Card className="bg-white">
@@ -184,7 +186,7 @@ export const UserDashboard: React.FC = () => {
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
                           <h3 className="font-heading text-lg font-semibold text-gray-900">
-                            {result.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : result.fullname}
+                            {result.fullname || 'Pengguna'}
                           </h3>
                           {isBirthDateValid && birthDate && (
                             <p className="text-sm text-gray-600">

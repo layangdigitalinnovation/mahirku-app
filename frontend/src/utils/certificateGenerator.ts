@@ -14,7 +14,10 @@ export const downloadPdfFromHtml = async (html: string, fileName: string = 'Sert
   container.style.position = 'absolute';
   container.style.left = '-9999px';
   container.style.top = '-9999px';
-  container.innerHTML = html;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  container.appendChild(wrapper);
+  
   document.body.appendChild(container);
 
   const opt: any = {
@@ -26,7 +29,7 @@ export const downloadPdfFromHtml = async (html: string, fileName: string = 'Sert
   };
 
   try {
-    await html2pdf().from(container.firstElementChild as HTMLElement).set(opt).save();
+    await html2pdf().from(wrapper).set(opt).save();
   } catch (error) {
     console.error('Error generating certificate:', error);
   } finally {

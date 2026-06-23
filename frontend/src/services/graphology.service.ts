@@ -12,13 +12,20 @@ export interface GraphologyUploadResponse {
 export interface GraphologyResultData {
     status: string;
     message?: string;
-    personality_type?: string;
-    thinking_style?: string;
-    emotional_tendency?: string;
-    communication_style?: string;
+    type_id?: string;
+    title?: string;
+    subtitle?: string;
+    match_score?: string;
+    summary?: string;
+    brain_process?: string;
+    work_environment?: string;
+    traits?: string[];
     strengths?: string[];
-    weaknesses?: string[];
-    career_recommendations?: string[];
+    challenges?: string[];
+    careers?: string[];
+    collab_tips?: string[];
+    conflict_risks?: string[];
+    dev_tips?: string[];
     extracted_text?: string;
 }
 

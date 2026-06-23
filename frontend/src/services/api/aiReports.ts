@@ -1,8 +1,8 @@
 import api from "@/utils/axios";
 
-export interface AiReportResponse {
+export interface AiReportResponse<T = any> {
   status: string;
-  report: string | null;
+  report: T | null;
   error: string | null;
   generatedAt: string | null;
 }

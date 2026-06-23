@@ -42,11 +42,12 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
     setGeneratingId(result.id);
     try {
       const certificateId = `CRT-${result.id}-${Date.now().toString(36).toUpperCase()}`;
-      const studentName = result.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : (result.fullname || user?.fullname || 'Peserta');
+      const studentName = result.fullname || user?.fullname || 'Peserta';
       let html = '';
 
       if (result.testType === 'DISC') {
         const aiData = await getDiscAiReport(result.id);
+        const report = aiData?.report || {};
         const data = {
           studentName,
           completionDate: new Date().toLocaleDateString('id-ID'),
@@ -55,20 +56,21 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
           resultSubtitle: 'DISC Profile',
           score: '100%',
           code: result.dominantType,
-          summary: aiData?.report || 'Tidak ada deskripsi AI.',
-          commStyle: '',
-          traits: [],
-          strengths: [],
-          challenges: [],
-          workEnv: '',
-          careers: [],
-          collabTips: [],
-          conflictRisks: [],
-          devTips: []
+          summary: report.profile_summary || 'Tidak ada deskripsi AI.',
+          commStyle: report.communication_style || '',
+          traits: report.behavior_traits || [],
+          strengths: report.strengths || [],
+          challenges: report.challenges || [],
+          workEnv: report.work_environment || '',
+          careers: report.career_recommendations || [],
+          collabTips: report.collaboration_tips || [],
+          conflictRisks: report.conflict_risks || [],
+          devTips: report.dev_tips || []
         };
-        html = getDiscCertificateHtml(data);
+        html = await getDiscCertificateHtml(data);
       } else if (result.testType === 'Graphology') {
         const aiData = await getGraphologyAiReport(result.id);
+        const report = aiData?.report || {};
         const data = {
           studentName,
           completionDate: new Date().toLocaleDateString('id-ID'),
@@ -77,20 +79,21 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
           title: result.personality_type || 'Graphology Profile',
           subtitle: result.thinking_style || '',
           matchScore: '100%',
-          summary: aiData?.report || 'Tidak ada deskripsi AI.',
-          brainProcess: '',
-          workEnv: '',
+          summary: report.summary || 'Tidak ada deskripsi AI.',
+          brainProcess: report.brain_process || '',
+          workEnv: report.work_environment || '',
           traits: [],
-          strengths: result.strengths || [],
-          challenges: result.weaknesses || [],
-          careers: result.career_recommendations || [],
+          strengths: report.strengths || [],
+          challenges: report.challenges || [],
+          careers: report.career_recommendations || [],
           collabTips: [],
           conflictRisks: [],
           devTips: []
         };
-        html = getGraphologyCertificateHtml(data);
+        html = await getGraphologyCertificateHtml(data);
       } else {
         const aiData = await getThinkingStyleAiReport(result.id);
+        const report = aiData?.report || {};
         const data = {
           studentName,
           completionDate: new Date().toLocaleDateString('id-ID'),
@@ -98,24 +101,24 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
           resultTitle: result.thinkingStyle?.type || 'CST Profile',
           resultSubtitle: '',
           score: result.percent ? `${result.percent}%` : '100%',
-          summary: aiData?.report || 'Tidak ada deskripsi AI.',
-          brainProcess: '',
-          traits: [],
-          strengths: [],
-          challenges: [],
-          workEnv: '',
-          careers: [],
-          collabTips: [],
-          conflictRisks: [],
-          devTips: []
+          summary: report.profile_summary || 'Tidak ada deskripsi AI.',
+          brainProcess: report.thinking_process || '',
+          traits: report.cognitive_characteristics || [],
+          strengths: report.strengths || [],
+          challenges: report.challenges || [],
+          workEnv: report.learning_style || '',
+          careers: report.career_recommendations || [],
+          collabTips: report.collaboration_tips || [],
+          conflictRisks: report.conflict_potential || [],
+          devTips: report.self_development_tips || []
         };
-        html = getCSTCertificateHTML(data);
+        html = await getCSTCertificateHTML(data);
       }
 
       await downloadPdfFromHtml(html, `Sertifikat_${result.testType || 'CST'}_${studentName}.pdf`);
     } catch (err) {
       console.error("Gagal mengunduh sertifikat:", err);
-      alert("Terjadi kesalahan saat membuat sertifikat.");
+      alert("Terjadi kesalahan saat membuat sertifikat: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setGeneratingId(null);
     }
