@@ -63,7 +63,15 @@ export default function ReportsScreen({ navigation }: any) {
     return typeMap[code] || code;
   };
 
-  const goDetail = async (item: ThinkingStyleResult) => {
+  const goDetail = async (item: any) => {
+    if (item.testType === 'Graphology') {
+      navigation.navigate('GraphologyResult', {
+        result: item.aiResult,
+        memberName: item.fullname || (item as any).user?.fullname || (userData as any)?.user?.fullname,
+      });
+      return;
+    }
+
     let questionnaire: any = undefined;
     try {
       const byId = await AsyncStorage.getItem(`cst:questionnaireByTestId:${item.id}`);
@@ -172,12 +180,12 @@ export default function ReportsScreen({ navigation }: any) {
                 <Card key={item.id} style={styles.reportCard}>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                     <View style={styles.testIconWrap}>
-                      <MaterialCommunityIcons name="brain" size={24} color="#4F46E5" />
+                      <MaterialCommunityIcons name={item.testType === 'Graphology' ? "fountain-pen-tip" : "brain"} size={24} color="#4F46E5" />
                     </View>
                     <View style={{ flex: 1 }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                         <Text style={styles.itemTitle}>
-                          {item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test'}
+                          {item.testType === 'DISC' ? 'DISC Test' : item.testType === 'Graphology' ? 'Graphology Test' : 'Cognitive Style Test'}
                         </Text>
                         <View style={styles.dateBadge}>
                           <Text style={styles.itemDate}>
@@ -188,7 +196,9 @@ export default function ReportsScreen({ navigation }: any) {
                       <Text style={styles.itemSubtitle}>
                         {item.testType === 'DISC'
                           ? getDiscTypeName(item.thinkingStyle?.code || '')
-                          : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`
+                          : item.testType === 'Graphology'
+                            ? item.thinkingStyle?.type
+                            : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`
                         }
                       </Text>
 

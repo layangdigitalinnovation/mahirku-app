@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import ThinkingStyleResult from "../models/ThinkingStyleResult";
 import ThinkingStyle from "../models/ThinkingStyle";
 import DiscResult from "../models/DiscResult";
+import GraphologyTest from "../models/GraphologyTest";
 import User from "../models/User";
 import Role from "../models/Role";
 import QRCode from "qrcode";
@@ -252,6 +253,12 @@ export const getThinkingStyleHistory = async (
       order: [["created_at", "DESC"]]
     });
 
+    // Fetch Graphology Results
+    const graphologyHistory = await GraphologyTest.findAll({
+      where: { userId },
+      order: [["createdAt", "DESC"]]
+    });
+
     // Attempt to find a birthdate from existing Thinking Style results
     // Since DISC doesn't store it and User doesn't have it.
     const derivedBirthdate = thinkingStyleHistory.length > 0 ? thinkingStyleHistory[0].birthdate : null;
@@ -293,7 +300,24 @@ export const getThinkingStyleHistory = async (
       };
     });
 
-    const combinedHistory = [...mappedThinkingStyle, ...mappedDisc].sort(
+    const mappedGraphology = graphologyHistory.map((item: any) => {
+      const json = item.toJSON();
+      return {
+        ...json,
+        fullname: user.fullname,
+        birthdate: derivedBirthdate,
+        testType: 'Graphology',
+        thinkingStyle: {
+          id: item.id,
+          type: item.aiResult?.title || 'Graphology',
+          code: item.aiResult?.type_id || 'GRP',
+          description: 'Graphology & Talent Mapping Assessment',
+        },
+        sortDate: new Date(item.createdAt)
+      };
+    });
+
+    const combinedHistory = [...mappedThinkingStyle, ...mappedDisc, ...mappedGraphology].sort(
       (a, b) => b.sortDate.getTime() - a.sortDate.getTime()
     );
 

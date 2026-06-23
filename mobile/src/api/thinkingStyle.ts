@@ -17,7 +17,7 @@ export interface ThinkingStyleResult {
     thinkingStyleId: number;
     createdAt: string;
     updatedAt: string;
-    testType?: 'THINKING_STYLE' | 'DISC'; // Added to distinguish test type
+    testType?: 'THINKING_STYLE' | 'DISC' | 'Graphology'; // Added to distinguish test type
     // DISC specific fields
     dScore?: number;
     iScore?: number;
