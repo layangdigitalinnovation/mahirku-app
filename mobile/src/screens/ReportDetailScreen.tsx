@@ -340,8 +340,8 @@ export default function ReportDetailScreen({ navigation, route }: any) {
       // Try to get fullname from params/data first
       let studentName = route?.params?.memberName || (r as any).fullname || r.fullData.fullname;
 
-      // If missing, check if it's "Student" or empty, and try to fetch current user
-      if (!studentName || studentName === 'Student') {
+      // If missing, check if it's "Student" or "Pengguna" or empty, and try to fetch current user
+      if (!studentName || studentName === 'Student' || studentName === 'Pengguna') {
         try {
           // Use cached data if available or fetch fresh
           const meRes = await meApi();

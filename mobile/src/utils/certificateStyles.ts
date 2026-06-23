@@ -155,10 +155,10 @@ export const getCertificateCSS = () => `
   .border { border-width: 1px; border-style: solid; }
   .border-2 { border-width: 2px; border-style: solid; }
   .border-4 { border-width: 4px; border-style: solid; }
-  .border-t { border-top-width: 1px; border-style: solid; }
-  .border-b { border-bottom-width: 1px; border-style: solid; }
-  .border-b-2 { border-bottom-width: 2px; border-style: solid; }
-  .border-l-4 { border-left-width: 4px; border-style: solid; }
+  .border-t { border-top-width: 1px; border-top-style: solid; }
+  .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
+  .border-b-2 { border-bottom-width: 2px; border-bottom-style: solid; }
+  .border-l-4 { border-left-width: 4px; border-left-style: solid; }
   .border-indigo-100 { border-color: #e0e7ff; }
   .border-indigo-200 { border-color: #c7d2fe; }
   .border-indigo-500 { border-color: #6366f1; }
