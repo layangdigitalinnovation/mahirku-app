@@ -13,6 +13,7 @@ export interface DiscQuestion {
 }
 
 export interface DiscResultData {
+    id?: number;
     dScore: number;
     iScore: number;
     sScore: number;

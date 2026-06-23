@@ -3,9 +3,9 @@ import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Text, Button, Surface, useTheme } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { DiscResultData } from '../api/disc';
+import { DiscResultData, getDiscAiReport } from '../api/disc';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import ShareResultModal from '../components/ui/ShareResultModal';
 import { buildShareCaption, shareResultPosterPDF, shareResultText } from '../utils/testResultShare';
 
@@ -16,6 +16,18 @@ export default function DiscResultScreen() {
   const theme = useTheme();
   const queryClient = useQueryClient();
   const [shareOpen, setShareOpen] = useState(false);
+
+  const { data: aiReportRes } = useQuery({
+    queryKey: ['discAiReport', result?.id],
+    queryFn: () => getDiscAiReport(result?.id!),
+    enabled: !!result?.id,
+    refetchInterval: (q: any) => {
+      const status = q?.state?.data?.data?.data?.status;
+      if (!status || status === 'pending' || status === 'processing') return 3000;
+      return false;
+    },
+  });
+  const effectiveDiscAiReport = aiReportRes?.data?.data?.report;
 
   const me = queryClient.getQueryData<any>(['me']);
   const userName = me?.user?.fullname || 'Pengguna';
@@ -124,6 +136,83 @@ export default function DiscResultScreen() {
           <ScoreBar label="Steadiness (S)" score={result?.sScore || 0} color="#FBBF24" />
           <ScoreBar label="Compliance (C)" score={result?.cScore || 0} color="#34D399" />
         </Surface>
+
+        {effectiveDiscAiReport && (
+          <View style={{ marginTop: 24, marginBottom: 12 }}>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#0F172A', marginBottom: 16 }}>Detail Laporan Assessment</Text>
+            
+            <View style={styles.block}>
+              <Text style={styles.blockTitle}>Ringkasan Profil</Text>
+              <Text style={styles.blockBody}>{effectiveDiscAiReport.profile_summary}</Text>
+            </View>
+
+            <View style={styles.block}>
+              <Text style={styles.blockTitle}>Gaya Komunikasi Utama</Text>
+              <Text style={styles.blockBody}>{effectiveDiscAiReport.communication_style}</Text>
+            </View>
+
+            {Array.isArray(effectiveDiscAiReport.behavior_traits) && effectiveDiscAiReport.behavior_traits.length > 0 && (
+              <View style={styles.block}>
+                <Text style={styles.blockTitle}>Karakter Perilaku</Text>
+                <View style={{ gap: 8, marginTop: 10 }}>
+                  {effectiveDiscAiReport.behavior_traits.map((it: string, idx: number) => (
+                    <View key={`trait-${idx}`} style={styles.bulletRow}>
+                      <View style={styles.bulletDot} />
+                      <Text style={styles.bulletText}>{it}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {Array.isArray(effectiveDiscAiReport.strengths) && effectiveDiscAiReport.strengths.length > 0 && (
+              <View style={styles.block}>
+                <Text style={styles.blockTitle}>Kekuatan Utama</Text>
+                <View style={{ gap: 8, marginTop: 10 }}>
+                  {effectiveDiscAiReport.strengths.map((it: string, idx: number) => (
+                    <View key={`str-${idx}`} style={styles.bulletRow}>
+                      <Feather name="check" size={16} color="#10B981" />
+                      <Text style={styles.bulletText}>{it}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {Array.isArray(effectiveDiscAiReport.challenges) && effectiveDiscAiReport.challenges.length > 0 && (
+              <View style={styles.block}>
+                <Text style={styles.blockTitle}>Titik Buta (Blind Spots)</Text>
+                <View style={{ gap: 8, marginTop: 10 }}>
+                  {effectiveDiscAiReport.challenges.map((it: string, idx: number) => (
+                    <View key={`chal-${idx}`} style={styles.bulletRow}>
+                      <Feather name="alert-triangle" size={16} color="#F59E0B" />
+                      <Text style={styles.bulletText}>{it}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            <View style={styles.block}>
+              <Text style={styles.blockTitle}>Lingkungan Kerja Ideal</Text>
+              <Text style={styles.blockBody}>{effectiveDiscAiReport.work_environment}</Text>
+            </View>
+
+            {Array.isArray(effectiveDiscAiReport.career_recommendations) && effectiveDiscAiReport.career_recommendations.length > 0 && (
+              <View style={styles.block}>
+                <Text style={styles.blockTitle}>Rekomendasi Karir Digital</Text>
+                <View style={{ gap: 8, marginTop: 10 }}>
+                  {effectiveDiscAiReport.career_recommendations.map((it: string, idx: number) => (
+                    <View key={`car-${idx}`} style={styles.bulletRow}>
+                      <MaterialCommunityIcons name="briefcase-outline" size={16} color="#0EA5E9" />
+                      <Text style={styles.bulletText}>{it}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       <Surface style={styles.footer} elevation={5}>
@@ -206,4 +295,11 @@ const styles = StyleSheet.create({
   shareBtnText: { fontSize: 15, fontWeight: 'bold', letterSpacing: 0.2 },
   doneBtn: { borderRadius: 16, height: 56, justifyContent: 'center' },
   doneBtnText: { fontSize: 16, fontWeight: 'bold', letterSpacing: 0.5 },
+
+  block: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.05, shadowRadius: 16, elevation: 2 },
+  blockTitle: { fontWeight: '800', color: '#0F172A', fontSize: 15, marginBottom: 8 },
+  blockBody: { color: '#475569', fontSize: 14, lineHeight: 24 },
+  bulletRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8 },
+  bulletDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#0EA5E9', marginTop: 8, marginRight: 10 },
+  bulletText: { flex: 1, color: '#475569', fontSize: 14, lineHeight: 22 },
 });

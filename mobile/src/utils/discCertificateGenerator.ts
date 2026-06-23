@@ -134,7 +134,7 @@ export const generateDISCCertificatePDF = async (data: DISCCertificateData) => {
     </div>
 
     <!-- PAGE 2: DETAIL LAPORAN -->
-    <div class="a4-page py-8 px-10 flex flex-col bg-white">
+    <div class="a4-report py-8 px-10 flex flex-col bg-white">
         <div class="flex items-center justify-between border-b pb-4 mb-5">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl shadow-sm">

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, StyleSheet, ScrollView, Platform, Pressable, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Platform, Pressable, TextInput, Alert, Modal, TouchableOpacity } from 'react-native';
 import { Text, Surface, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -40,6 +40,9 @@ export default function MemberReportsListScreen() {
     return filteredReports.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredReports, page, itemsPerPage]);
 
+  const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const getDiscTypeName = (code: string) => {
     const typeMap: { [key: string]: string } = {
       'D': 'D - Dominance',
@@ -55,17 +58,37 @@ export default function MemberReportsListScreen() {
       Alert.alert('Info', 'Member belum menyelesaikan tes apa pun.');
       return;
     }
-    const test = memberReport.tests[0];
+    setSelectedMember(memberReport);
+    setModalVisible(true);
+  };
+
+  const handleSelectTest = (test: any, memberName: string) => {
+    setModalVisible(false);
     const item = test.rawResult;
-    const memberName = memberReport.member.fullname;
     
     if (test.testType === 'Graphology') {
       navigation.navigate('GraphologyResult', {
         result: item.aiResult,
         memberName: memberName
       });
-    } else {
-      navigation.navigate('ReportDetail', {
+      return;
+    }
+    
+    if (test.testType === 'DISC') {
+      navigation.navigate('DiscResult', {
+        result: {
+          id: item.id,
+          dScore: item.dScore ?? item.d_score,
+          iScore: item.iScore ?? item.i_score,
+          sScore: item.sScore ?? item.s_score,
+          cScore: item.cScore ?? item.c_score,
+          dominantType: item.dominantType ?? item.dominant_type,
+        }
+      });
+      return;
+    }
+
+    navigation.navigate('ReportDetail', {
         report: {
           id: item.id.toString(),
           title: test.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test',
@@ -84,7 +107,6 @@ export default function MemberReportsListScreen() {
           fullname: memberName,
         },
       });
-    }
   };
 
   return (
@@ -202,7 +224,51 @@ export default function MemberReportsListScreen() {
             )}
           </>
         )}
-      </ScrollView>
+      <Modal visible={modalVisible} transparent={true} animationType="fade" onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Riwayat Test Member</Text>
+              <Pressable onPress={() => setModalVisible(false)} style={styles.closeModalBtn}>
+                <Feather name="x" size={24} color="#64748B" />
+              </Pressable>
+            </View>
+            <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+              {selectedMember?.tests?.map((test: any, index: number) => {
+                const dateStr = new Date(test.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                return (
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.testItemCard}
+                    onPress={() => handleSelectTest(test, selectedMember.member.fullname)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.testItemHeader}>
+                      <View style={styles.testItemIcon}>
+                        <MaterialCommunityIcons name={test.testType === 'Graphology' ? "fountain-pen-tip" : "brain"} size={20} color="#4F46E5" />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.testItemTitle}>
+                           {test.testType === 'DISC' ? 'DISC Test' : test.testType === 'Graphology' ? 'Graphology Test' : 'Cognitive Style Test'}
+                        </Text>
+                        <Text style={styles.testItemDate}>{dateStr}</Text>
+                      </View>
+                      <Feather name="chevron-right" size={20} color="#94A3B8" />
+                    </View>
+                    <Text style={styles.testItemSubtitle}>
+                      {test.testType === 'DISC' 
+                        ? getDiscTypeName(test.result?.type || test.rawResult?.dominant_type || '') 
+                        : test.testType === 'Graphology'
+                          ? test.result?.type
+                          : `${test.result?.type || test.rawResult?.thinkingStyle?.type} (${test.result?.code || test.rawResult?.thinkingStyle?.code})`}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -390,5 +456,74 @@ const styles = StyleSheet.create({
   pageIndicator: {
     fontSize: 14,
     color: '#64748B',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
+    minHeight: '40%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  closeModalBtn: {
+    padding: 4,
+  },
+  modalScroll: {
+    padding: 20,
+  },
+  testItemCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+  },
+  testItemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  testItemIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  testItemTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 2,
+  },
+  testItemDate: {
+    fontSize: 12,
+    color: '#94A3B8',
+  },
+  testItemSubtitle: {
+    fontSize: 14,
+    color: '#475569',
+    marginTop: 4,
+    marginLeft: 52,
   },
 });

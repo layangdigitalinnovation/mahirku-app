@@ -109,6 +109,7 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
         res.status(201).json({
             message: 'Test submitted successfully',
             result: {
+                id: result.id,
                 dScore,
                 iScore,
                 sScore,

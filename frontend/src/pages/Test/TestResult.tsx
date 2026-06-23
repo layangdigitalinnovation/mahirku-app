@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
+  CardTitle,
 } from "../../components/ui/card";
 import {
   AlertDialog,
@@ -20,7 +21,73 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useMeQuery } from "@/hooks/useAuthQuery";
-import { generateCertificatePDF } from "@/utils/certificateGenerator";
+import { downloadPdfFromHtml } from "@/utils/certificateGenerator";
+import { getCSTCertificateHTML } from "@/utils/cstCertificateGenerator";
+import { useThinkingStyleAiReport } from "@/hooks/useAiReports";
+import { getThinkingStyleAiReport } from "@/services/api/aiReports";
+
+const AiReportSection = ({ resultId }: { resultId: number }) => {
+  const { data: aiReport, isLoading } = useThinkingStyleAiReport(resultId);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-4 animate-pulse">
+            <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+            <div className="space-y-2 flex-1">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+          <p className="text-center mt-4 text-gray-500 text-sm">Sedang membuat detail laporan assessment dengan AI...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (aiReport?.status === 'processing' || aiReport?.status === 'pending') {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="text-center text-gray-500 text-sm">Laporan AI Anda sedang diproses...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (aiReport?.error || aiReport?.status === 'failed') {
+    return (
+      <Card className="border-red-200 bg-red-50">
+        <CardContent className="p-6">
+          <p className="text-red-600 text-sm text-center">Gagal memuat laporan AI. {aiReport?.error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!aiReport?.report) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl flex items-center gap-2">
+          <Brain className="h-5 w-5 text-blue-500" />
+          Detail Laporan Assessment
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div 
+          className="prose prose-sm max-w-none text-gray-700 space-y-2"
+          dangerouslySetInnerHTML={{ __html: aiReport.report.replace(/\n/g, '<br/>') }}
+        />
+      </CardContent>
+    </Card>
+  );
+};
 
 export const TestResult: React.FC = () => {
   const location = useLocation();
@@ -59,20 +126,31 @@ export const TestResult: React.FC = () => {
   const handleDownloadCertificate = async () => {
     setIsGenerating(true);
     try {
-      const certificateId = `CST-${testResult.id}-${Date.now().toString(36).toUpperCase()}`;
+      const certificateId = `CRT-${testResult.id}-${Date.now().toString(36).toUpperCase()}`;
+      const studentName = testResult.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : (testResult.fullname || user?.fullname || 'Peserta');
+      
+      const aiData = await getThinkingStyleAiReport(testResult.id);
       const data = {
-        studentName: testResult.fullname || user?.fullname || 'Peserta',
-        courseName: 'Cognitive Style Assessment',
-        completionDate: new Date(testResult.createdAt || new Date()).toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }),
+        studentName,
+        completionDate: new Date().toLocaleDateString('id-ID'),
         certificateId,
-        resultTitle: testResult.thinkingStyle?.type || 'Hasil Test',
+        resultTitle: testResult.thinkingStyle?.type || 'CST Profile',
+        resultSubtitle: '',
+        score: testResult.percent ? `${testResult.percent}%` : '100%',
+        summary: aiData?.report || 'Tidak ada deskripsi AI.',
+        brainProcess: '',
+        traits: [],
+        strengths: [],
+        challenges: [],
+        workEnv: '',
+        careers: [],
+        collabTips: [],
+        conflictRisks: [],
+        devTips: []
       };
       
-      await generateCertificatePDF(data, `Sertifikat_CognitiveStyle_${testResult.fullname || 'Peserta'}.pdf`);
+      const html = getCSTCertificateHTML(data);
+      await downloadPdfFromHtml(html, `Sertifikat_CognitiveStyle_${studentName}.pdf`);
     } catch (err) {
       console.error("Gagal mengunduh sertifikat:", err);
       alert("Terjadi kesalahan saat membuat sertifikat.");
@@ -165,6 +243,12 @@ export const TestResult: React.FC = () => {
                       <span className="font-medium">Hasil Test:</span>{" "}
                       {testResult.thinkingStyle.type}
                     </p>
+                    {testResult.percent !== undefined && testResult.percent !== null && (
+                      <p>
+                        <span className="font-medium">Akurasi / Persentase:</span>{" "}
+                        {testResult.percent}%
+                      </p>
+                    )}
                     {testResult.fingerprintId && (
                       <p className="flex items-center">
                         <Shield size={16} className="mr-1 text-green-500" />
@@ -196,8 +280,11 @@ export const TestResult: React.FC = () => {
             </CardFooter>
           </Card>
 
-          {/* QR Code & Actions */}
-          <div className="space-y-6">
+          {/* AI Report Card */}
+          <div className="lg:col-span-1 space-y-6">
+            <AiReportSection resultId={testResult.id} />
+
+            {/* QR Code & Actions */}
             <Card>
               <CardHeader>
                 <h3 className="text-xl font-semibold">Apa Selanjutnya?</h3>

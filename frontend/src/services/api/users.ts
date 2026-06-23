@@ -42,3 +42,13 @@ export const deleteUser = async (id: number) => {
     throw new Error(e.response?.data?.message || 'Failed to delete user');
   }
 };
+
+// Get all member reports (for parent/HRD)
+export const getMemberReports = async () => {
+  try {
+    const response = await api.get('/users/members/reports');
+    return response.data?.data || response.data;
+  } catch (e: any) {
+    throw new Error(e.response?.data?.message || 'Failed to fetch member reports');
+  }
+};

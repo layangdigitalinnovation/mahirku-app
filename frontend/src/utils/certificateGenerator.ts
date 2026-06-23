@@ -9,11 +9,36 @@ interface CertificateData {
   resultDescription?: string;
 }
 
+export const downloadPdfFromHtml = async (html: string, fileName: string = 'Sertifikat_Mahirku.pdf') => {
+  const container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '-9999px';
+  container.innerHTML = html;
+  document.body.appendChild(container);
+
+  const opt: any = {
+    margin: 0,
+    filename: fileName,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  try {
+    await html2pdf().from(container.firstElementChild as HTMLElement).set(opt).save();
+  } catch (error) {
+    console.error('Error generating certificate:', error);
+  } finally {
+    document.body.removeChild(container);
+  }
+};
+
 export const generateCertificatePDF = async (data: CertificateData, fileName: string = 'Sertifikat_Mahirku.pdf') => {
   const { studentName, courseName, completionDate, certificateId, resultTitle } = data;
-
+  
   const html = `
-    <div style="width: 1122px; height: 793px; display: flex; justify-content: center; align-items: center; padding: 40px; box-sizing: border-box; background-color: #f7fafc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <div style="width: 297mm; height: 210mm; display: flex; justify-content: center; align-items: center; padding: 40px; box-sizing: border-box; background-color: #f7fafc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
       <div style="width: 100%; height: 100%; border: 10px solid #4F46E5; padding: 5px; box-sizing: border-box; background: white; position: relative;">
         <div style="width: 100%; height: 100%; border: 2px solid #C7D2FE; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; align-items: center; text-align: center; background-image: radial-gradient(#EEF2FF 1px, transparent 1px); background-size: 20px 20px;">
           
@@ -66,7 +91,7 @@ export const generateCertificatePDF = async (data: CertificateData, fileName: st
                 <div style="font-size: 12px; color: #64748B;">Official Document</div>
               </div>
               <div style="width: 60px; height: 60px; border: 2px solid #E2E8F0; padding: 2px; display: flex; justify-content: center; align-items: center; background-color: #F8FAFC;">
-                <span style="font-size: 10px; color: #94A3B8; text-align: center;">Scan<br/>Valid</span>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mahirku.com/verify/certificate/${certificateId}" style="width: 100%; height: 100%;" />
               </div>
             </div>
           </div>
@@ -77,65 +102,26 @@ export const generateCertificatePDF = async (data: CertificateData, fileName: st
   `;
 
   const container = document.createElement('div');
-  // Hide the container off-screen so it doesn't affect the layout
   container.style.position = 'absolute';
   container.style.left = '-9999px';
   container.style.top = '-9999px';
   container.innerHTML = html;
   
-  // html2canvas requires the element to be in the DOM to compute styles properly
   document.body.appendChild(container);
 
   const opt: any = {
     margin: 0,
     filename: fileName,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, logging: true },
-    jsPDF: { unit: 'px', format: [1122, 793], orientation: 'landscape' } // A4 Landscape roughly
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
   };
 
   try {
     await html2pdf().from(container.firstElementChild as HTMLElement).set(opt).save();
   } catch (error) {
     console.error('Error generating certificate:', error);
-    
-    // Fallback to window.print()
-    try {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>${fileName}</title>
-              <style>
-                @page { size: A4 landscape; margin: 0; }
-                body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f7fafc; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-              </style>
-            </head>
-            <body>
-              ${html}
-              <script>
-                window.onload = function() {
-                  setTimeout(function() {
-                    window.print();
-                  }, 500);
-                };
-              </script>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-      } else {
-        throw new Error("Popup blocked");
-      }
-    } catch (fallbackErr) {
-      console.error("Fallback failed", fallbackErr);
-      throw error;
-    }
   } finally {
-    // Always clean up the DOM
-    if (document.body.contains(container)) {
-      document.body.removeChild(container);
-    }
+    document.body.removeChild(container);
   }
 };

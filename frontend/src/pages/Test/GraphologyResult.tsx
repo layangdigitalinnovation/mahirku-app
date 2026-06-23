@@ -2,6 +2,62 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { graphologyService, GraphologyResultData } from '../../services/graphology.service';
 import { BrainCircuit, CheckCircle, Quote, Briefcase, AlertTriangle, MessageSquare, Share2 } from 'lucide-react';
+import { useGraphologyAiReport } from '../../hooks/useAiReports';
+
+const AiReportSection = ({ resultId }: { resultId: number }) => {
+  const { data: aiReport, isLoading } = useGraphologyAiReport(resultId);
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mt-6">
+        <div className="flex items-center space-x-4 animate-pulse justify-center">
+            <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+            <div className="space-y-2 flex-1 max-w-sm">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+          <p className="text-center mt-4 text-gray-500 text-sm">Sedang membuat detail laporan assessment dengan AI...</p>
+      </div>
+    );
+  }
+
+  if (aiReport?.status === 'processing' || aiReport?.status === 'pending') {
+    return (
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mt-6">
+        <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="text-center text-gray-500 text-sm">Laporan AI Anda sedang diproses...</p>
+          </div>
+      </div>
+    );
+  }
+
+  if (aiReport?.error || aiReport?.status === 'failed') {
+    return (
+      <div className="bg-red-50 rounded-2xl p-6 border border-red-200 shadow-sm mt-6">
+        <p className="text-red-600 text-sm text-center">Gagal memuat laporan AI. {aiReport?.error}</p>
+      </div>
+    );
+  }
+
+  if (!aiReport?.report) return null;
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mt-6 mb-6">
+      <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <BrainCircuit className="w-5 h-5 text-blue-600" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">Detail Laporan Assessment</h3>
+      </div>
+      <div 
+        className="prose prose-sm max-w-none text-gray-700 space-y-2"
+        dangerouslySetInnerHTML={{ __html: aiReport.report.replace(/\n/g, '<br/>') }}
+      />
+    </div>
+  );
+};
 
 export const GraphologyResult: React.FC = () => {
     const { test_id } = useParams<{ test_id: string }>();
@@ -146,6 +202,8 @@ export const GraphologyResult: React.FC = () => {
                     </ul>
                 </div>
             </div>
+
+            <AiReportSection resultId={parseInt(test_id!)} />
 
             {/* Recommended Career */}
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">

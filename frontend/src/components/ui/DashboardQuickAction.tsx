@@ -9,7 +9,11 @@ import {
 import { ThinkingStyleResult } from '@/services/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { generateCertificatePDF } from '@/utils/certificateGenerator';
+import { getThinkingStyleAiReport, getDiscAiReport, getGraphologyAiReport } from '@/services/api/aiReports';
+import { getCSTCertificateHTML } from '@/utils/cstCertificateGenerator';
+import { getDiscCertificateHtml } from '@/utils/discCertificateGenerator';
+import { getGraphologyCertificateHtml } from '@/utils/graphologyCertificateGenerator';
+import { downloadPdfFromHtml } from '@/utils/certificateGenerator';
 
 // Card components defined inline
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -18,14 +22,11 @@ const Card = ({ children, className = "" }: { children: React.ReactNode; classNa
   </div>
 );
 
-
 const CardContent = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <div className={className}>
     {children}
   </div>
 );
-
-
 
 interface DashboardQuickActionsProps {
   user?: { fullname: string; email?: string; };
@@ -40,23 +41,78 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
   const handleDownloadCert = async (result: any) => {
     setGeneratingId(result.id);
     try {
-      const certificateId = `CST-${result.id}-${Date.now().toString(36).toUpperCase()}`;
-      
-      const courseName = result.testType === 'DISC' ? 'DISC Personality Assessment' :
-                         result.testType === 'Graphology' ? 'Graphology Assessment' :
-                         'Cognitive Style Assessment';
+      const certificateId = `CRT-${result.id}-${Date.now().toString(36).toUpperCase()}`;
+      const studentName = result.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : (result.fullname || user?.fullname || 'Peserta');
+      let html = '';
 
-      const resultTitle = result.thinkingStyle?.type || result.type || 'Hasil Test';
+      if (result.testType === 'DISC') {
+        const aiData = await getDiscAiReport(result.id);
+        const data = {
+          studentName,
+          completionDate: new Date().toLocaleDateString('id-ID'),
+          certificateId,
+          resultTitle: result.dominantType,
+          resultSubtitle: 'DISC Profile',
+          score: '100%',
+          code: result.dominantType,
+          summary: aiData?.report || 'Tidak ada deskripsi AI.',
+          commStyle: '',
+          traits: [],
+          strengths: [],
+          challenges: [],
+          workEnv: '',
+          careers: [],
+          collabTips: [],
+          conflictRisks: [],
+          devTips: []
+        };
+        html = getDiscCertificateHtml(data);
+      } else if (result.testType === 'Graphology') {
+        const aiData = await getGraphologyAiReport(result.id);
+        const data = {
+          studentName,
+          completionDate: new Date().toLocaleDateString('id-ID'),
+          certificateId,
+          typeId: 'GRP-8',
+          title: result.personality_type || 'Graphology Profile',
+          subtitle: result.thinking_style || '',
+          matchScore: '100%',
+          summary: aiData?.report || 'Tidak ada deskripsi AI.',
+          brainProcess: '',
+          workEnv: '',
+          traits: [],
+          strengths: result.strengths || [],
+          challenges: result.weaknesses || [],
+          careers: result.career_recommendations || [],
+          collabTips: [],
+          conflictRisks: [],
+          devTips: []
+        };
+        html = getGraphologyCertificateHtml(data);
+      } else {
+        const aiData = await getThinkingStyleAiReport(result.id);
+        const data = {
+          studentName,
+          completionDate: new Date().toLocaleDateString('id-ID'),
+          certificateId,
+          resultTitle: result.thinkingStyle?.type || 'CST Profile',
+          resultSubtitle: '',
+          score: result.percent ? `${result.percent}%` : '100%',
+          summary: aiData?.report || 'Tidak ada deskripsi AI.',
+          brainProcess: '',
+          traits: [],
+          strengths: [],
+          challenges: [],
+          workEnv: '',
+          careers: [],
+          collabTips: [],
+          conflictRisks: [],
+          devTips: []
+        };
+        html = getCSTCertificateHTML(data);
+      }
 
-      const data = {
-        studentName: result.fullname || user?.fullname || 'Peserta',
-        courseName: courseName,
-        completionDate: '',
-        certificateId,
-        resultTitle: resultTitle,
-      };
-      
-      await generateCertificatePDF(data, `Sertifikat_${courseName.replace(/\s+/g, '')}_${result.fullname || 'Peserta'}.pdf`);
+      await downloadPdfFromHtml(html, `Sertifikat_${result.testType || 'CST'}_${studentName}.pdf`);
     } catch (err) {
       console.error("Gagal mengunduh sertifikat:", err);
       alert("Terjadi kesalahan saat membuat sertifikat.");
@@ -234,7 +290,7 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
                         Tipe: {result.thinkingStyle.type}
                       </p>
                     )}
-                    <p className="text-sm text-gray-500">{result.fullname || user?.fullname}</p>
+                    <p className="text-sm text-gray-500">{result.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : (result.fullname || user?.fullname)}</p>
                   </div>
                   <Button 
                     onClick={() => handleDownloadCert(result)}

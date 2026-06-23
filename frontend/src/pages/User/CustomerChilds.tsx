@@ -23,6 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import ChildrenForm, { ChildFormValues } from "@/components/form/ChildrenForm";
+import MemberTestHistoryModal from "@/components/modal/MemberTestHistoryModal";
 
 export default function CustomerChilds() {
   const { data: children = [], isLoading, error } = useGetAllChildUser();
@@ -33,8 +34,15 @@ export default function CustomerChilds() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPackage] = useState("All");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [selectedHistoryMemberId, setSelectedHistoryMemberId] = useState<number | null>(null);
 
-  const columns = getColumns(transferMutation.mutateAsync, () => { });
+  const handleViewHistory = (userId: number) => {
+    setSelectedHistoryMemberId(userId);
+    setHistoryModalOpen(true);
+  };
+
+  const columns = getColumns(transferMutation.mutateAsync, () => { }, handleViewHistory);
 
   const filteredChildren = children?.filter((child) => {
     if (!child) return false;
@@ -155,6 +163,12 @@ export default function CustomerChilds() {
           columns={columns}
           isLoading={isLoading}
           data={filteredChildren as ChildUser[]}
+        />
+        
+        <MemberTestHistoryModal 
+          isOpen={historyModalOpen} 
+          onClose={() => setHistoryModalOpen(false)} 
+          memberId={selectedHistoryMemberId} 
         />
       </div>
     </div>

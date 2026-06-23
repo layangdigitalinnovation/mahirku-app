@@ -27,7 +27,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   const [shareOpen, setShareOpen] = useState(false);
   const reportId = (r as any)?.id as string | undefined;
   const reportIdNum = reportId ? Number(reportId) : NaN;
-  const [questionnaire, setQuestionnaire] = useState<any | undefined>(combine?.questionnaire);
+  const [questionnaire, setQuestionnaire] = useState<any | undefined>(combine?.questionnaire ?? r?.fullData?.questionnaire);
 
   useEffect(() => {
     if (r?.type !== 'cst') return;
@@ -42,9 +42,9 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   }, [questionnaire, r?.type, reportId]);
 
   const questionnairePercent = useMemo(() => {
-    const v = Number(questionnaire?.percent ?? combine?.questionnairePercent ?? combine?.finalPercent ?? 0);
+    const v = Number(r?.fullData?.questionnairePercent ?? questionnaire?.percent ?? combine?.questionnairePercent ?? combine?.finalPercent ?? 0);
     return Math.max(0, Math.min(100, Math.round(v)));
-  }, [combine?.finalPercent, combine?.questionnairePercent, questionnaire?.percent]);
+  }, [r?.fullData?.questionnairePercent, combine?.finalPercent, combine?.questionnairePercent, questionnaire?.percent]);
 
   const questionnaireType = useMemo(() => {
     const t = String(questionnaire?.finalType || questionnaire?.tipeUtama || '').trim();

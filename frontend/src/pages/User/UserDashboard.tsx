@@ -184,7 +184,7 @@ export const UserDashboard: React.FC = () => {
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
                           <h3 className="font-heading text-lg font-semibold text-gray-900">
-                            {result.fullname}
+                            {result.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : result.fullname}
                           </h3>
                           {isBirthDateValid && birthDate && (
                             <p className="text-sm text-gray-600">
@@ -211,8 +211,12 @@ export const UserDashboard: React.FC = () => {
                         </div>
 
                         <Link
-                          to={result.testType === 'DISC' ? '/customer/dashboard/disc-result' : `/thinking-style/${result.thinkingStyle.id}`}
-                          state={result.testType === 'DISC' ? { result: result } : undefined}
+                          to={result.testType === 'DISC' ? '/customer/dashboard/disc-result' : String(result.testType) === 'Graphology' ? '/customer/dashboard/graphology-result' : '/customer/dashboard/test/result'}
+                          state={
+                            result.testType === 'DISC' ? { result: result } : 
+                            result.testType === 'THINKING_STYLE' || String(result.testType) === 'CST' ? { testResult: result, fromFingerprint: true } : 
+                            undefined
+                          }
                           className="mt-4 md:mt-0"
                         >
                           <Button variant="outline" size="sm">

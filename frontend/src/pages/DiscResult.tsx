@@ -38,13 +38,70 @@ ChartJS.register(
     Legend
 );
 
+import { Brain } from 'lucide-react';
+import { useDiscAiReport } from '@/hooks/useAiReports';
+
 interface DiscResultData {
+    id: number;
     dScore: number;
     iScore: number;
     sScore: number;
     cScore: number;
     dominantType: string;
 }
+
+const AiReportSection = ({ resultId }: { resultId: number }) => {
+  const { data: aiReport, isLoading } = useDiscAiReport(resultId);
+
+  if (isLoading) {
+    return (
+      <Paper elevation={3} sx={{ p: 4, mt: 4, textAlign: 'center' }}>
+        <div className="flex items-center space-x-4 animate-pulse justify-center">
+            <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+            <div className="space-y-2 flex-1 max-w-sm">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+          <p className="mt-4 text-gray-500 text-sm">Sedang membuat detail laporan assessment dengan AI...</p>
+      </Paper>
+    );
+  }
+
+  if (aiReport?.status === 'processing' || aiReport?.status === 'pending') {
+    return (
+      <Paper elevation={3} sx={{ p: 4, mt: 4, textAlign: 'center' }}>
+        <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="text-gray-500 text-sm">Laporan AI Anda sedang diproses...</p>
+          </div>
+      </Paper>
+    );
+  }
+
+  if (aiReport?.error || aiReport?.status === 'failed') {
+    return (
+      <Paper elevation={3} sx={{ p: 4, mt: 4, bgcolor: '#fef2f2', border: '1px solid #fca5a5' }}>
+        <Typography color="error" align="center">Gagal memuat laporan AI. {aiReport?.error}</Typography>
+      </Paper>
+    );
+  }
+
+  if (!aiReport?.report) return null;
+
+  return (
+    <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
+      <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+        <Brain className="text-blue-500" />
+        Detail Laporan Assessment
+      </Typography>
+      <div 
+        className="prose prose-sm max-w-none text-gray-700 space-y-2"
+        dangerouslySetInnerHTML={{ __html: aiReport.report.replace(/\n/g, '<br/>') }}
+      />
+    </Paper>
+  );
+};
 
 const DiscResult: React.FC = () => {
     const location = useLocation();
@@ -246,6 +303,8 @@ const DiscResult: React.FC = () => {
                         </Card>
                     </Box>
                 </Box>
+
+                <AiReportSection resultId={result.id} />
 
                 <Box sx={{ mt: 4, textAlign: 'center' }}>
                     {!user?.parent ? (

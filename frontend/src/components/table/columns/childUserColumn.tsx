@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Mail, Phone, MapPin, Trash, SendHorizontal } from "lucide-react";
+import { Mail, Phone, MapPin, Trash, SendHorizontal, FileText } from "lucide-react";
 import ActionColumn from "../ActionColumn";
 import z from "zod";
 
@@ -24,7 +24,9 @@ export type ChildUser = {
 
 export const getColumns = ( onTransferToken: ({childUserId, tokenAmount}: {childUserId: number, tokenAmount: number}) => void,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _onDelete: (userId: number) => void) : ColumnDef<ChildUser>[] => [
+  _onDelete: (userId: number) => void,
+  onViewHistory?: (userId: number) => void
+) : ColumnDef<ChildUser>[] => [
   {
     accessorKey: "fullname",
     header: "User Info",
@@ -112,6 +114,13 @@ export const getColumns = ( onTransferToken: ({childUserId, tokenAmount}: {child
         <ActionColumn
           actions={[
             {
+              label: "Riwayat Test",
+              icon: <FileText className="h-4 w-4 text-blue-600" />,
+              onClick: () => {
+                if (onViewHistory) onViewHistory(user.id);
+              },
+            },
+            {
               label: "Transfer Token",
               icon: <SendHorizontal className="h-4 w-4" />,
               confirm: true,
@@ -124,8 +133,6 @@ export const getColumns = ( onTransferToken: ({childUserId, tokenAmount}: {child
               }),
               defaultValues: { tokenAmount: 0 },
               onClick: (values) => {
-                console.log("Transfer token ke:", user.id, values);
-                // 👉 panggil API transfer token
                 onTransferToken({childUserId: user.id, tokenAmount: values.tokenAmount});
               },
             },

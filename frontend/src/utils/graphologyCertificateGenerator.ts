@@ -1,5 +1,4 @@
-import * as Print from 'expo-print';
-import { shareAsync } from 'expo-sharing';
+// Imports removed for web
 import { getCertificateCSS } from './certificateStyles';
 
 export interface GraphologyCertificateData {
@@ -25,7 +24,7 @@ export interface GraphologyCertificateData {
   devTips: string[];
 }
 
-export const generateGraphologyCertificatePDF = async (data: GraphologyCertificateData) => {
+export const getGraphologyCertificateHtml = (data: GraphologyCertificateData) => {
   const colorMap: Record<string, string> = {
     'GRP-8-TRLBLZ': 'indigo',
     'GRP-8-PRCDRV': 'emerald',
@@ -272,12 +271,5 @@ export const generateGraphologyCertificatePDF = async (data: GraphologyCertifica
 </body>
 </html>
   `;
-
-  try {
-    const { uri } = await Print.printToFileAsync({ html }); 
-    await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-  } catch (error) {
-    console.error('Error generating Graphology certificate:', error);
-    throw error;
-  }
+  return html;
 };

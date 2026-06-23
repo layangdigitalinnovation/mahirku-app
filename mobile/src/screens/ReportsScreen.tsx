@@ -72,19 +72,37 @@ export default function ReportsScreen({ navigation }: any) {
       return;
     }
 
-    let questionnaire: any = undefined;
-    try {
-      const byId = await AsyncStorage.getItem(`cst:questionnaireByTestId:${item.id}`);
-      if (byId) {
-        questionnaire = JSON.parse(byId);
-      } else {
-        const qStr = await AsyncStorage.getItem('cst:lastQuestionnaire');
-        questionnaire = qStr ? JSON.parse(qStr) : undefined;
-      }
-    } catch { }
+    if (item.testType === 'DISC') {
+      navigation.navigate('DiscResult', {
+        result: {
+          id: item.id,
+          dScore: item.d_score ?? item.dScore,
+          iScore: item.i_score ?? item.iScore,
+          sScore: item.s_score ?? item.sScore,
+          cScore: item.c_score ?? item.cScore,
+          dominantType: item.dominant_type ?? item.dominantType,
+        }
+      });
+      return;
+    }
+
+    let questionnaire: any = item.questionnaire;
+    if (!questionnaire) {
+      try {
+        const byId = await AsyncStorage.getItem(`cst:questionnaireByTestId:${item.id}`);
+        if (byId) {
+          questionnaire = JSON.parse(byId);
+        } else {
+          const qStr = await AsyncStorage.getItem('cst:lastQuestionnaire');
+          questionnaire = qStr ? JSON.parse(qStr) : undefined;
+        }
+      } catch { }
+    }
 
     const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
-    const questionnairePercent = clamp(Number(questionnaire?.percent ?? 0));
+    const questionnairePercent = item.questionnairePercent != null 
+      ? clamp(Number(item.questionnairePercent)) 
+      : clamp(Number(questionnaire?.percent ?? 0));
     const finalPercent = questionnairePercent;
 
     navigation.navigate('ReportDetail', {
