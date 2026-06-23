@@ -303,10 +303,11 @@ export default function DashboardScreen({ navigation }: any) {
                 onPress={() => navigation.navigate('AffiliatorDashboard')}
                 style={({ pressed }) => [
                   { 
-                    marginTop: 20, 
+                    marginTop: 0,
+                    marginBottom: 32,
                     borderRadius: 16, 
                     overflow: 'hidden',
-                    shadowColor: '#10B981',
+                    shadowColor: '#6366F1',
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: 0.3,
                     shadowRadius: 12,
@@ -316,7 +317,7 @@ export default function DashboardScreen({ navigation }: any) {
                 ]}
               >
                 <LinearGradient
-                  colors={['#10B981', '#059669']}
+                  colors={['#8B5CF6', '#6366F1']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{ padding: 16, flexDirection: 'row', alignItems: 'center' }}

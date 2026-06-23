@@ -115,7 +115,7 @@ export default function AffiliatorDashboardScreen({ navigation }: any) {
         <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
             {/* Background Gradient */}
             <LinearGradient
-                colors={['#ECFDF5', '#F0FDF4', '#F8FAFC']}
+                colors={['#F5F3FF', '#EEF2FF', '#F8FAFC']}
                 style={StyleSheet.absoluteFill}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0.4 }}
@@ -126,45 +126,40 @@ export default function AffiliatorDashboardScreen({ navigation }: any) {
                     contentContainerStyle={{ paddingBottom: insets.bottom + 30 }}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#10B981']} />
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#6366F1']} />
                     }
                 >
                     <View style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 24 }}>
 
-                        {/* Top Header */}
-                        <View style={styles.headerRow}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.greetingText}>Selamat Datang,</Text>
-                                <Text style={styles.headerName} numberOfLines={1}>
-                                    {userData?.user?.fullname || 'Affiliator'}
+                        {/* TikTok Style Header */}
+                        <View style={{ marginBottom: 24 }}>
+                            <Pressable 
+                                onPress={() => navigation.goBack()} 
+                                style={({ pressed }) => [
+                                    { alignSelf: 'flex-start', padding: 8, marginLeft: -8, marginBottom: 16 },
+                                    pressed && { opacity: 0.7 }
+                                ]}
+                            >
+                                <Feather name="x" size={28} color="#1E293B" />
+                            </Pressable>
+                            
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 24, fontWeight: '800', color: '#1E293B', letterSpacing: -0.5 }}>
+                                    Affiliate Center
                                 </Text>
-                                <View style={styles.roleBadge}>
-                                    <Feather name="shield" size={12} color="#059669" style={{ marginRight: 4 }} />
-                                    <Text style={styles.roleText}>{userData?.user?.role?.name ?? 'Affiliator'}</Text>
+                                <View style={{ backgroundColor: '#1E293B', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, flexDirection: 'row', alignItems: 'center' }}>
+                                    <Feather name="award" size={14} color="#FBBF24" style={{ marginRight: 6 }} />
+                                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>
+                                        {userData?.user?.role?.name ?? 'Affiliator'}
+                                    </Text>
                                 </View>
                             </View>
-
-                            <Pressable onPress={() => navigation.navigate('Profile')} style={styles.avatarContainer}>
-                                {userData?.user?.fullname ? (
-                                    <LinearGradient
-                                        colors={['#10B981', '#059669']}
-                                        style={styles.avatarGradient}
-                                    >
-                                        <Text style={styles.avatarText}>{getInitials(userData?.user?.fullname)}</Text>
-                                    </LinearGradient>
-                                ) : (
-                                    <View style={[styles.avatarGradient, { backgroundColor: '#D1FAE5' }]}>
-                                        <Feather name="user" size={24} color="#059669" />
-                                    </View>
-                                )}
-                                <View style={styles.onlineIndicator} />
-                            </Pressable>
                         </View>
 
                         {/* Hero Card: Digital Wallet Style */}
                         <View style={styles.walletCardWrapper}>
                             <LinearGradient
-                                colors={['#10B981', '#059669', '#047857']}
+                                colors={['#8B5CF6', '#6366F1', '#4F46E5']}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 1 }}
                                 style={styles.walletCardGradient}
@@ -198,8 +193,8 @@ export default function AffiliatorDashboardScreen({ navigation }: any) {
                         <View style={styles.statsContainer}>
                             {/* Saldo Tersedia */}
                             <Card style={styles.statCard}>
-                                <View style={[styles.statIconBox, { backgroundColor: '#ECFDF5' }]}>
-                                    <MaterialCommunityIcons name="cash-fast" size={20} color="#10B981" />
+                                <View style={[styles.statIconBox, { backgroundColor: '#F5F3FF' }]}>
+                                    <MaterialCommunityIcons name="cash-fast" size={20} color="#6366F1" />
                                 </View>
                                 <View>
                                     <Text style={styles.statValue}>{formatCurrency(statsData?.balance?.available ?? 0)}</Text>
@@ -254,7 +249,7 @@ export default function AffiliatorDashboardScreen({ navigation }: any) {
                         {/* Referral Section */}
                         <View style={styles.sectionHeader}>
                             <View style={styles.sectionIconBox}>
-                                <Feather name="share-2" size={16} color="#059669" />
+                                <Feather name="share-2" size={16} color="#6366F1" />
                             </View>
                             <Text style={styles.sectionTitle}>Referral Anda</Text>
                         </View>
@@ -285,8 +280,8 @@ export default function AffiliatorDashboardScreen({ navigation }: any) {
                                     title="Bagikan"
                                     onPress={handleShareLink}
                                     style={styles.shareBtn}
-                                    textStyle={{ fontSize: 13, fontWeight: '600', color: '#059669' }}
-                                    leftIcon={<Feather name="share" size={16} color="#059669" />}
+                                    textStyle={{ fontSize: 13, fontWeight: '600', color: '#6366F1' }}
+                                    leftIcon={<Feather name="share" size={16} color="#6366F1" />}
                                 />
                             </View>
                         </Card>
@@ -368,16 +363,16 @@ const styles = StyleSheet.create({
     onlineIndicator: { position: 'absolute', bottom: 0, right: 0, width: 14, height: 14, borderRadius: 7, backgroundColor: '#10B981', borderWidth: 2, borderColor: '#FFFFFF' },
 
     // Wallet Card
-    walletCardWrapper: { borderRadius: 24, shadowColor: '#059669', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 8, marginBottom: 24 },
+    walletCardWrapper: { borderRadius: 24, shadowColor: '#6366F1', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 8, marginBottom: 24 },
     walletCardGradient: { borderRadius: 24, padding: 24 },
     walletCardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-    walletLabel: { color: '#A7F3D0', fontSize: 12, fontWeight: '600', letterSpacing: 0.5, marginBottom: 4, textTransform: 'uppercase' },
+    walletLabel: { color: '#C4B5FD', fontSize: 12, fontWeight: '600', letterSpacing: 0.5, marginBottom: 4, textTransform: 'uppercase' },
     walletTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
     walletIconBg: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
     walletBalance: { color: '#FFFFFF', fontSize: 32, fontWeight: '800', letterSpacing: -1, marginBottom: 20 },
     walletDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginBottom: 12 },
     walletFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    walletFooterLabel: { color: '#D1FAE5', fontSize: 12 },
+    walletFooterLabel: { color: '#E0E7FF', fontSize: 12 },
     walletFooterValue: { color: '#FFFFFF', fontSize: 12, fontWeight: '600' },
 
     // Stats Grid
@@ -396,7 +391,7 @@ const styles = StyleSheet.create({
 
     // Sections
     sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 16, marginTop: 12 },
-    sectionIconBox: { width: 28, height: 28, borderRadius: 8, backgroundColor: '#ECFDF5', alignItems: 'center', justifyContent: 'center' },
+    sectionIconBox: { width: 28, height: 28, borderRadius: 8, backgroundColor: '#F5F3FF', alignItems: 'center', justifyContent: 'center' },
     sectionTitle: { color: '#1E293B', fontSize: 16, fontWeight: '700' },
 
     // Referral
@@ -406,8 +401,8 @@ const styles = StyleSheet.create({
     linkBox: { backgroundColor: '#F8FAFC', padding: 14, borderRadius: 14, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 16, borderStyle: 'dashed' },
     linkText: { color: '#1E293B', fontSize: 14, fontFamily: 'monospace', fontWeight: '500' },
     actionRow: { flexDirection: 'row', gap: 12 },
-    copyBtn: { flex: 2, height: 46, borderRadius: 12, backgroundColor: '#059669', elevation: 2 },
-    shareBtn: { flex: 1, height: 46, borderRadius: 12, backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#DCFCE7', elevation: 0 },
+    copyBtn: { flex: 2, height: 46, borderRadius: 12, backgroundColor: '#6366F1', elevation: 2 },
+    shareBtn: { flex: 1, height: 46, borderRadius: 12, backgroundColor: '#F5F3FF', borderWidth: 1, borderColor: '#EDE9FE', elevation: 0 },
 
     // History
     historyCard: { padding: 16, flexDirection: 'row', alignItems: 'center', borderRadius: 20, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#F8FAFC', shadowColor: '#64748B', shadowOpacity: 0.03, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
@@ -415,7 +410,7 @@ const styles = StyleSheet.create({
     historyTitle: { color: '#1E293B', fontSize: 14, fontWeight: '600', marginBottom: 2 },
     historyUser: { color: '#64748B', fontSize: 12, marginBottom: 4 },
     historyDate: { color: '#94A3B8', fontSize: 10, fontWeight: '500' },
-    historyAmount: { color: '#059669', fontSize: 14, fontWeight: '700' },
+    historyAmount: { color: '#6366F1', fontSize: 14, fontWeight: '700' },
 
     emptyState: { padding: 32, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: '#F1F5F9', borderStyle: 'dashed' },
     emptyIconBg: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },

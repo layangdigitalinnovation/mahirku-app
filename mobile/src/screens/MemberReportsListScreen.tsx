@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Platform, Pressable } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, StyleSheet, ScrollView, Platform, Pressable, TextInput, Alert } from 'react-native';
 import { Text, Surface, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +12,10 @@ export default function MemberReportsListScreen() {
   const theme = useTheme();
   const navigation = useNavigation<any>();
 
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 10;
+
   const { data: response, isLoading } = useQuery({
     queryKey: ['memberReports'],
     queryFn: async () => await getMemberReports(),
@@ -20,42 +24,66 @@ export default function MemberReportsListScreen() {
 
   const reports = response?.data || [];
 
-  const handlePressTest = (test: any, memberName: string) => {
+  const filteredReports = useMemo(() => {
+    if (!search) return reports;
+    const lowerSearch = search.toLowerCase();
+    return reports.filter((r: any) => 
+      r.member.fullname.toLowerCase().includes(lowerSearch) || 
+      r.member.email.toLowerCase().includes(lowerSearch)
+    );
+  }, [reports, search]);
+
+  const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
+  
+  const paginatedReports = useMemo(() => {
+    const startIndex = (page - 1) * itemsPerPage;
+    return filteredReports.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredReports, page, itemsPerPage]);
+
+  const getDiscTypeName = (code: string) => {
+    const typeMap: { [key: string]: string } = {
+      'D': 'D - Dominance',
+      'I': 'I - Influence',
+      'S': 'S - Steadiness',
+      'C': 'C - Compliance'
+    };
+    return typeMap[code] || code;
+  };
+
+  const handlePressDetail = (memberReport: any) => {
+    if (!memberReport.tests || memberReport.tests.length === 0) {
+      Alert.alert('Info', 'Member belum menyelesaikan tes apa pun.');
+      return;
+    }
+    const test = memberReport.tests[0];
+    const item = test.rawResult;
+    const memberName = memberReport.member.fullname;
+    
     if (test.testType === 'Graphology') {
       navigation.navigate('GraphologyResult', {
-        result: test.rawResult.aiResult,
+        result: item.aiResult,
         memberName: memberName
       });
     } else {
-      // For CST or DISC
       navigation.navigate('ReportDetail', {
-        item: { ...test.rawResult, testType: test.testType },
-        memberName: memberName
+        report: {
+          id: item.id.toString(),
+          title: test.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test',
+          date: new Date(item.createdAt || item.created_at).toLocaleDateString('id-ID'),
+          summary: test.testType === 'DISC'
+            ? getDiscTypeName(item.thinkingStyle?.code || item.dominant_type || '')
+            : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
+          type: test.testType === 'DISC' ? 'disc' : 'cst',
+          fullData: {
+            ...item,
+            dScore: item.dScore ?? item.d_score,
+            iScore: item.iScore ?? item.i_score,
+            sScore: item.sScore ?? item.s_score,
+            cScore: item.cScore ?? item.c_score,
+          },
+          fullname: memberName,
+        },
       });
-    }
-  };
-
-  const getTestIcon = (testType: string) => {
-    switch (testType) {
-      case 'DISC': return <MaterialCommunityIcons name="chart-pie" size={20} color="#059669" />;
-      case 'Graphology': return <MaterialCommunityIcons name="draw-pen" size={20} color="#7C3AED" />;
-      default: return <MaterialCommunityIcons name="brain" size={20} color="#2563EB" />;
-    }
-  };
-
-  const getTestBadgeStyle = (testType: string) => {
-    switch (testType) {
-      case 'DISC': return styles.badgeGreen;
-      case 'Graphology': return styles.badgePurple;
-      default: return styles.badgeBlue;
-    }
-  };
-
-  const getTestBadgeTextStyle = (testType: string) => {
-    switch (testType) {
-      case 'DISC': return styles.badgeTextGreen;
-      case 'Graphology': return styles.badgeTextPurple;
-      default: return styles.badgeTextBlue;
     }
   };
 
@@ -76,70 +104,103 @@ export default function MemberReportsListScreen() {
         <View style={{ width: 44 }} />
       </View>
 
+      <View style={styles.searchContainer}>
+        <Feather name="search" size={20} color="#94A3B8" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Cari nama atau email..."
+          placeholderTextColor="#94A3B8"
+          value={search}
+          onChangeText={(text) => {
+            setSearch(text);
+            setPage(1); // Reset page on search
+          }}
+        />
+        {search.length > 0 && (
+          <Pressable onPress={() => { setSearch(''); setPage(1); }} style={styles.clearIcon}>
+            <Feather name="x" size={18} color="#94A3B8" />
+          </Pressable>
+        )}
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <View style={styles.centerBox}>
-            <Text>Memuat data...</Text>
+            <Text style={{ color: '#64748B' }}>Memuat data...</Text>
           </View>
-        ) : reports.length === 0 ? (
+        ) : filteredReports.length === 0 ? (
           <View style={styles.centerBox}>
             <View style={styles.iconBigWrap}>
               <Feather name="users" size={32} color="#94A3B8" />
             </View>
-            <Text style={styles.emptyTitle}>Belum Ada Member</Text>
-            <Text style={styles.emptySubtitle}>Anda belum mendaftarkan member atau member Anda belum menyelesaikan test apa pun.</Text>
+            <Text style={styles.emptyTitle}>Belum Ada Data</Text>
+            <Text style={styles.emptySubtitle}>Tidak ditemukan data member sesuai kriteria.</Text>
           </View>
         ) : (
-          reports.map((report: any) => (
-            <Surface key={report.member.id} style={styles.memberCard} elevation={2}>
-              <View style={styles.memberHeader}>
-                <View style={styles.avatarBox}>
-                  <Text style={styles.avatarText}>{report.member.fullname.charAt(0).toUpperCase()}</Text>
+          <>
+            {paginatedReports.map((report: any) => (
+              <Surface key={report.member.id} style={styles.memberCard} elevation={2}>
+                <View style={styles.memberHeader}>
+                  <View style={styles.avatarBox}>
+                    <Text style={styles.avatarText}>{report.member.fullname.charAt(0).toUpperCase()}</Text>
+                  </View>
+                  <View style={styles.memberInfo}>
+                    <Text style={styles.memberName} numberOfLines={1}>{report.member.fullname}</Text>
+                    <Text style={styles.memberEmail} numberOfLines={1}>{report.member.email}</Text>
+                  </View>
                 </View>
-                <View style={styles.memberInfo}>
-                  <Text style={styles.memberName}>{report.member.fullname}</Text>
-                  <Text style={styles.memberEmail}>{report.member.email}</Text>
+                
+                <View style={styles.divider} />
+                
+                <View style={styles.cardFooter}>
+                  <Pressable 
+                    style={({ pressed }) => [
+                      styles.detailBtn,
+                      (!report.tests || report.tests.length === 0) && styles.detailBtnDisabled,
+                      pressed && !(!report.tests || report.tests.length === 0) && { opacity: 0.8 }
+                    ]}
+                    onPress={() => handlePressDetail(report)}
+                    disabled={!report.tests || report.tests.length === 0}
+                  >
+                    <Text style={[
+                      styles.detailBtnText,
+                      (!report.tests || report.tests.length === 0) && styles.detailBtnTextDisabled
+                    ]}>
+                      {(!report.tests || report.tests.length === 0) ? 'Belum Ada Test' : 'Lihat Detail'}
+                    </Text>
+                    {report.tests && report.tests.length > 0 && (
+                      <Feather name="arrow-right" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
+                    )}
+                  </Pressable>
                 </View>
+              </Surface>
+            ))}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <View style={styles.paginationContainer}>
+                <Pressable 
+                  style={[styles.pageBtn, page === 1 && styles.pageBtnDisabled]}
+                  onPress={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  <Feather name="chevron-left" size={20} color={page === 1 ? "#94A3B8" : "#4F46E5"} />
+                </Pressable>
+                
+                <Text style={styles.pageIndicator}>
+                  Page <Text style={{ fontWeight: '700' }}>{page}</Text> of {totalPages}
+                </Text>
+
+                <Pressable 
+                  style={[styles.pageBtn, page === totalPages && styles.pageBtnDisabled]}
+                  onPress={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
+                  <Feather name="chevron-right" size={20} color={page === totalPages ? "#94A3B8" : "#4F46E5"} />
+                </Pressable>
               </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.testList}>
-                {report.tests.length === 0 ? (
-                  <Text style={styles.noTestText}>Belum ada tes yang diselesaikan.</Text>
-                ) : (
-                  report.tests.map((test: any) => (
-                    <Pressable
-                      key={`${test.testType}-${test.id}`}
-                      style={styles.testItem}
-                      android_ripple={{ color: '#EEF2FF' }}
-                      onPress={() => handlePressTest(test, report.member.fullname)}
-                    >
-                      <View style={styles.testIconBox}>
-                        {getTestIcon(test.testType)}
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                          <View style={[styles.badge, getTestBadgeStyle(test.testType)]}>
-                            <Text style={[styles.badgeText, getTestBadgeTextStyle(test.testType)]}>
-                              {test.testType === 'CST' ? 'Cognitive Style' : test.testType}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text style={styles.testResultText} numberOfLines={1}>
-                          {test.result?.type || test.result?.code || 'Lihat Detail'}
-                        </Text>
-                        <Text style={styles.testDate}>
-                          {new Date(test.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </Text>
-                      </View>
-                      <Feather name="chevron-right" size={20} color="#94A3B8" />
-                    </Pressable>
-                  ))
-                )}
-              </View>
-            </Surface>
-          ))
+            )}
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -172,6 +233,36 @@ const styles = StyleSheet.create({
     elevation: 2
   },
   topTitle: { color: '#1E293B', fontSize: 18, fontWeight: '700' },
+  
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginBottom: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    height: 52,
+    shadowColor: '#64748B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  searchIcon: {
+    paddingHorizontal: 16,
+  },
+  searchInput: {
+    flex: 1,
+    height: '100%',
+    color: '#1E293B',
+    fontSize: 15,
+  },
+  clearIcon: {
+    padding: 16,
+  },
+
   scrollContent: { padding: 20, paddingBottom: 40 },
   
   centerBox: {
@@ -242,58 +333,62 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
     marginHorizontal: 20,
   },
-  testList: {
-    paddingVertical: 8,
+  cardFooter: {
+    padding: 20,
+    alignItems: 'flex-end',
+    backgroundColor: '#FFFFFF',
   },
-  noTestText: {
-    fontSize: 13,
-    color: '#94A3B8',
-    fontStyle: 'italic',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  testItem: {
+  detailBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#4F46E5',
     paddingHorizontal: 20,
-    paddingVertical: 14,
-  },
-  testIconBox: {
-    width: 40,
-    height: 40,
+    paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: '#F8FAFC',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
   },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+  detailBtnDisabled: {
+    backgroundColor: '#F1F5F9',
   },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-  badgeBlue: { backgroundColor: '#DBEAFE' },
-  badgeTextBlue: { color: '#1D4ED8' },
-  badgeGreen: { backgroundColor: '#D1FAE5' },
-  badgeTextGreen: { color: '#047857' },
-  badgePurple: { backgroundColor: '#EDE9FE' },
-  badgeTextPurple: { color: '#6D28D9' },
-  
-  testResultText: {
+  detailBtnText: {
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
-    color: '#334155',
-    marginBottom: 2,
   },
-  testDate: {
-    fontSize: 12,
+  detailBtnTextDisabled: {
     color: '#94A3B8',
+  },
+
+  paginationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    marginBottom: 20,
+  },
+  pageBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginHorizontal: 12,
+    shadowColor: '#64748B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  pageBtnDisabled: {
+    backgroundColor: '#F8FAFC',
+    borderColor: '#F1F5F9',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  pageIndicator: {
+    fontSize: 14,
+    color: '#64748B',
   },
 });
