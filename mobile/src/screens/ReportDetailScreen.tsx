@@ -7,11 +7,14 @@ import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { generateCertificatePDF } from '../utils/certificateGenerator';
+import { generateCSTCertificatePDF } from '../utils/cstCertificateGenerator';
+import { generateDISCCertificatePDF } from '../utils/discCertificateGenerator';
 import { meApi } from '../api/auth';
 import { useQuery } from '@tanstack/react-query';
 import ShareResultModal from '../components/ui/ShareResultModal';
 import { buildShareCaption, shareResultPosterPDF, shareResultText, type ShareTestType } from '../utils/testResultShare';
 import { getAiReport } from '../api/thinkingStyle';
+import { getDiscAiReport } from '../api/disc';
 
 
 export default function ReportDetailScreen({ navigation, route }: any) {
@@ -209,9 +212,22 @@ export default function ReportDetailScreen({ navigation, route }: any) {
     }
   });
 
+  const { data: discAiReportRes } = useQuery({
+    queryKey: ['discAiReport', reportIdNum],
+    queryFn: async () => (await getDiscAiReport(reportIdNum)).data.data,
+    enabled: r?.type === 'disc' && Number.isFinite(reportIdNum),
+    refetchInterval: (q) => {
+      const status = (q.state.data as any)?.status;
+      return status === 'processing' ? 2000 : false;
+    }
+  });
+
   const effectiveAiReport = (aiReportRes as any)?.report || null;
   const effectiveReport = effectiveAiReport || fallbackReport;
   const aiStatus = (aiReportRes as any)?.status as string | undefined;
+
+  const effectiveDiscAiReport = (discAiReportRes as any)?.report || null;
+  const discAiStatus = (discAiReportRes as any)?.status as string | undefined;
 
   // Helper function to get full DISC type name
   const getDiscFullName = (code: string): string => {
@@ -257,13 +273,13 @@ export default function ReportDetailScreen({ navigation, route }: any) {
   const discCode = r?.fullData?.thinkingStyle?.code || r?.fullData?.dominantType || '';
   const sharePrimary = shareType === 'disc'
     ? (discCode || 'DISC')
-    : (questionnaireType || r?.fullData?.thinkingStyle?.type || 'Cognitive Style');
+    : (r?.fullData?.thinkingStyle?.code ? `${r.fullData.thinkingStyle.type} (${r.fullData.thinkingStyle.code})` : (r?.fullData?.thinkingStyle?.type || questionnaireType || 'Cognitive Style'));
   const shareSecondary = useMemo(() => {
     if (shareType === 'disc') {
       const fullName = getDiscFullName(discCode);
       return discCode ? `${discCode} (${fullName})` : '';
     }
-    const suffix = questionnaireType ? `Skor ${questionnairePercent}%` : '';
+    const suffix = (r?.fullData?.thinkingStyle?.type || questionnaireType) ? `Skor ${questionnairePercent}%` : '';
     return suffix || r?.summary || '';
   }, [discCode, questionnairePercent, questionnaireType, r?.summary, shareType]);
 
@@ -322,7 +338,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
       const courseName = isDisc ? 'DISC Personality Test' : 'Cognitive Style Test';
 
       // Try to get fullname from params/data first
-      let studentName = (r as any).fullname || r.fullData.fullname;
+      let studentName = route?.params?.memberName || (r as any).fullname || r.fullData.fullname;
 
       // If missing, check if it's "Student" or empty, and try to fetch current user
       if (!studentName || studentName === 'Student') {
@@ -349,9 +365,9 @@ export default function ReportDetailScreen({ navigation, route }: any) {
         const fullName = getDiscFullName(code);
         resultTitle = `${code} (${fullName})`;
       } else {
-        resultTitle = questionnaireType
-          ? questionnaireType
-          : `${r.fullData.thinkingStyle?.type || ''} (${r.fullData.thinkingStyle?.code || ''})`;
+        resultTitle = r.fullData.thinkingStyle?.code 
+          ? `${r.fullData.thinkingStyle.type} (${r.fullData.thinkingStyle.code})`
+          : (questionnaireType || `${r.fullData.thinkingStyle?.type || ''}`);
       }
 
       // Format the date properly for the certificate
@@ -362,13 +378,46 @@ export default function ReportDetailScreen({ navigation, route }: any) {
         day: 'numeric'
       });
 
-      await generateCertificatePDF({
-        studentName,
-        courseName,
-        completionDate: formattedDate,
-        certificateId: certId,
-        resultTitle
-      });
+      if (isDisc) {
+        await generateDISCCertificatePDF({
+          studentName,
+          completionDate: formattedDate,
+          certificateId: certId,
+          resultTitle: resultTitle,
+          resultSubtitle: getDiscFullName(r.fullData.thinkingStyle?.code || r.fullData.dominantType || ''),
+          score: '96%', // Can be dynamic if we have a way to measure
+          code: r.fullData.thinkingStyle?.code || r.fullData.dominantType || 'D',
+          summary: effectiveDiscAiReport?.profile_summary || '',
+          commStyle: effectiveDiscAiReport?.communication_style || '',
+          traits: effectiveDiscAiReport?.behavior_traits || [],
+          strengths: effectiveDiscAiReport?.strengths || [],
+          challenges: effectiveDiscAiReport?.challenges || [],
+          workEnv: effectiveDiscAiReport?.work_environment || '',
+          careers: effectiveDiscAiReport?.career_recommendations || [],
+          collabTips: effectiveDiscAiReport?.collaboration_tips || [],
+          conflictRisks: effectiveDiscAiReport?.conflict_risks || [],
+          devTips: effectiveDiscAiReport?.dev_tips || []
+        });
+      } else {
+        await generateCSTCertificatePDF({
+          studentName,
+          completionDate: formattedDate,
+          certificateId: certId,
+          resultTitle: r.fullData.thinkingStyle?.type || questionnaireType || 'Cognitive Style',
+          resultSubtitle: r.fullData.thinkingStyle?.code || 'Analyzer-I',
+          score: `${questionnairePercent}%`,
+          summary: effectiveReport.profile_summary || '',
+          brainProcess: effectiveReport.thinking_process || '',
+          traits: effectiveReport.cognitive_characteristics || [],
+          strengths: effectiveReport.strengths || [],
+          challenges: effectiveReport.challenges || [],
+          workEnv: effectiveReport.learning_style || '',
+          careers: effectiveReport.career_recommendations || [],
+          collabTips: effectiveReport.collaboration_tips || [],
+          conflictRisks: effectiveReport.conflict_potential || [],
+          devTips: effectiveReport.self_development_tips || []
+        });
+      }
 
     } catch (error: any) {
       Alert.alert('Gagal', error?.message || 'Gagal membuat sertifikat');
@@ -414,17 +463,6 @@ export default function ReportDetailScreen({ navigation, route }: any) {
           {/* DISC Test Specific Display */}
           {r?.type === 'disc' && r?.fullData && (
             <>
-              {/* DISC Dominant Type Circle */}
-              <View style={{ alignItems: 'center', marginVertical: 24 }}>
-                <Text style={styles.discSectionLabel}>DOMINANT TYPE</Text>
-                <View style={styles.discCircle}>
-                  <Text style={styles.discCircleText}>{r.fullData.thinkingStyle?.code || 'I'}</Text>
-                </View>
-                <Text style={styles.discTypeName}>
-                  {getDiscFullName(r.fullData.thinkingStyle?.code || 'I')}: {getDiscDescription(r.fullData.thinkingStyle?.code || 'I')}
-                </Text>
-              </View>
-
               {/* DISC Detailed Scores */}
               <Text style={[styles.sectionHeader, { marginTop: 12, marginBottom: 16 }]}>Detailed Scores</Text>
 
@@ -471,11 +509,154 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                   <View style={[styles.scoreBar, { width: `${Math.min((r.fullData.cScore || 0) / 20 * 100, 100)}%`, backgroundColor: '#10B981' }]} />
                 </View>
               </View>
+
+              <Text style={[styles.sectionHeader, { marginTop: 28 }]}>
+                Detail Laporan Assessment
+              </Text>
+              <View style={styles.enhancedCard}>
+                <View style={styles.enhancedTop}>
+                  <View style={styles.enhancedIcon}>
+                    <Feather name="user" size={18} color="#7C3AED" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.enhancedTitle}>
+                      {r.fullData.thinkingStyle?.code || r.fullData.dominantType || 'DISC'} ({getDiscFullName(r.fullData.thinkingStyle?.code || r.fullData.dominantType || 'DISC')})
+                    </Text>
+                    <Text style={styles.enhancedSubtitle}>
+                      Ringkasan kepribadian dan dinamika kerja
+                    </Text>
+                  </View>
+                </View>
+
+                {effectiveDiscAiReport && (
+                  <>
+                    <View style={styles.block}>
+                      <Text style={styles.blockTitle}>Ringkasan Profil</Text>
+                      <Text style={styles.blockBody}>{effectiveDiscAiReport.profile_summary}</Text>
+                    </View>
+
+                    <View style={styles.block}>
+                      <Text style={styles.blockTitle}>Gaya Komunikasi Utama</Text>
+                      <Text style={styles.blockBody}>{effectiveDiscAiReport.communication_style}</Text>
+                    </View>
+
+                    {Array.isArray(effectiveDiscAiReport.behavior_traits) && effectiveDiscAiReport.behavior_traits.length ? (
+                      <View style={styles.block}>
+                        <Text style={styles.blockTitle}>Karakter Perilaku</Text>
+                        <View style={{ gap: 8, marginTop: 10 }}>
+                          {effectiveDiscAiReport.behavior_traits.map((it: string, idx: number) => (
+                            <View key={`trait-${idx}`} style={styles.bulletRow}>
+                              <View style={styles.bulletDot} />
+                              <Text style={styles.bulletText}>{it}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {Array.isArray(effectiveDiscAiReport.strengths) && effectiveDiscAiReport.strengths.length ? (
+                      <View style={styles.block}>
+                        <Text style={styles.blockTitle}>Kekuatan Utama</Text>
+                        <View style={{ gap: 8, marginTop: 10 }}>
+                          {effectiveDiscAiReport.strengths.map((it: string, idx: number) => (
+                            <View key={`str-${idx}`} style={styles.bulletRow}>
+                              <Feather name="check" size={16} color="#10B981" />
+                              <Text style={styles.bulletText}>{it}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {Array.isArray(effectiveDiscAiReport.challenges) && effectiveDiscAiReport.challenges.length ? (
+                      <View style={styles.block}>
+                        <Text style={styles.blockTitle}>Titik Buta (Blind Spots)</Text>
+                        <View style={{ gap: 8, marginTop: 10 }}>
+                          {effectiveDiscAiReport.challenges.map((it: string, idx: number) => (
+                            <View key={`chal-${idx}`} style={styles.bulletRow}>
+                              <Feather name="alert-triangle" size={16} color="#F59E0B" />
+                              <Text style={styles.bulletText}>{it}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    ) : null}
+
+                    <View style={styles.block}>
+                      <Text style={styles.blockTitle}>Lingkungan Kerja Ideal</Text>
+                      <Text style={styles.blockBody}>{effectiveDiscAiReport.work_environment}</Text>
+                    </View>
+
+                    {Array.isArray(effectiveDiscAiReport.career_recommendations) && effectiveDiscAiReport.career_recommendations.length ? (
+                      <View style={styles.block}>
+                        <Text style={styles.blockTitle}>Rekomendasi Karir Digital</Text>
+                        <View style={{ gap: 8, marginTop: 10 }}>
+                          {effectiveDiscAiReport.career_recommendations.map((it: string, idx: number) => (
+                            <View key={`car-${idx}`} style={styles.bulletRow}>
+                              <MaterialCommunityIcons name="briefcase-outline" size={16} color="#4F46E5" />
+                              <Text style={styles.bulletText}>{it}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {Array.isArray(effectiveDiscAiReport.collaboration_tips) && effectiveDiscAiReport.collaboration_tips.length ? (
+                      <View style={styles.block}>
+                        <Text style={styles.blockTitle}>Cara Efektif Berkolaborasi</Text>
+                        <View style={{ gap: 8, marginTop: 10 }}>
+                          {effectiveDiscAiReport.collaboration_tips.map((it: string, idx: number) => (
+                            <View key={`col-${idx}`} style={styles.bulletRow}>
+                              <Feather name="users" size={16} color="#0EA5E9" />
+                              <Text style={styles.bulletText}>{it}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {Array.isArray(effectiveDiscAiReport.conflict_risks) && effectiveDiscAiReport.conflict_risks.length ? (
+                      <View style={styles.block}>
+                        <Text style={styles.blockTitle}>Potensi Konflik</Text>
+                        <View style={{ gap: 8, marginTop: 10 }}>
+                          {effectiveDiscAiReport.conflict_risks.map((it: string, idx: number) => (
+                            <View key={`con-${idx}`} style={styles.bulletRow}>
+                              <Feather name="zap" size={16} color="#EF4444" />
+                              <Text style={styles.bulletText}>{it}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {Array.isArray(effectiveDiscAiReport.dev_tips) && effectiveDiscAiReport.dev_tips.length ? (
+                      <View style={styles.block}>
+                        <Text style={styles.blockTitle}>Tips Pengembangan Diri</Text>
+                        <View style={{ gap: 8, marginTop: 10 }}>
+                          {effectiveDiscAiReport.dev_tips.map((it: string, idx: number) => (
+                            <View key={`dev-${idx}`} style={styles.bulletRow}>
+                              <Feather name="trending-up" size={16} color="#10B981" />
+                              <Text style={styles.bulletText}>{it}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    ) : null}
+
+                    <View style={styles.disclaimer}>
+                      <Feather name="info" size={16} color="#64748B" />
+                      <Text style={styles.disclaimerText}>
+                        Hasil ini merupakan pemetaan kecenderungan perilaku dan gaya komunikasi berdasarkan metodologi DISC (Dominance, Influence, Steadiness, Compliance). Laporan ini dirancang untuk pemetaan bakat karir digital dan dinamika kolaborasi tim, bukan merupakan diagnosis psikologis klinis.
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </View>
             </>
           )}
 
           {/* Thinking Style Type (for CST) */}
-          {r?.type === 'cst' && (questionnaireType || thinkingStyle?.type) && (
+          {r?.type === 'cst' && (thinkingStyle?.type || questionnaireType) && (
             <>
               <Text style={styles.sectionHeader}>Tipe Gaya Berpikir</Text>
               <LinearGradient
@@ -484,7 +665,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text style={styles.typeText}>{questionnaireType || thinkingStyle?.type}</Text>
+                <Text style={styles.typeText}>{thinkingStyle?.code ? `${thinkingStyle.type} (${thinkingStyle.code})` : (thinkingStyle?.type || questionnaireType)}</Text>
                 <Text style={styles.codeText}>{`Skor ${questionnairePercent}%`}</Text>
               </LinearGradient>
             </>
@@ -518,7 +699,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
               <View style={styles.scoreCard}>
                 <View style={{ marginTop: 4 }}>
                   <Text style={styles.finalTypeLabel}>Hasil Anda (dari kuesioner):</Text>
-                  <Text style={styles.finalTypeValue}>{questionnaireType || thinkingStyle?.type || '-'}</Text>
+                  <Text style={styles.finalTypeValue}>{thinkingStyle?.code ? `${thinkingStyle.type} (${thinkingStyle.code})` : (questionnaireType || thinkingStyle?.type || '-')}</Text>
                   <View style={styles.consistencyBadge}>
                     <Feather name="check-circle" size={14} color="#10B981" />
                     <Text style={styles.consistencyText}>{`Skor ${questionnairePercent}%`}</Text>
@@ -561,7 +742,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
               ) : null}
 
               <Text style={[styles.sectionHeader, { marginTop: 28 }]}>
-                {effectiveAiReport ? 'Laporan Mendalam (AI)' : 'Laporan Ringkas'}
+                Detail Laporan Assessment
               </Text>
               <View style={styles.enhancedCard}>
                 <View style={styles.enhancedTop}>
@@ -570,14 +751,12 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.enhancedTitle}>
-                      {questionnaireType || thinkingStyle?.type || 'Cognitive Style'}
+                      {thinkingStyle?.code ? `${thinkingStyle.type} (${thinkingStyle.code})` : (thinkingStyle?.type || questionnaireType || 'Cognitive Style')}
                     </Text>
                     <Text style={styles.enhancedSubtitle}>
-                      {aiStatus === 'processing'
-                        ? 'Sedang menyusun analisis AI...'
-                        : cstAge
-                          ? `Dipersonalisasi dengan usia ${cstAge} tahun`
-                          : 'Ringkasan psikologi kognitif untuk pengembangan diri'}
+                      {cstAge
+                        ? `Dipersonalisasi dengan usia ${cstAge} tahun`
+                        : 'Ringkasan psikologi kognitif untuk pengembangan diri'}
                     </Text>
                   </View>
                   <View style={styles.enhancedBadge}>
@@ -597,7 +776,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
                 {Array.isArray(effectiveReport.cognitive_characteristics) && effectiveReport.cognitive_characteristics.length ? (
                   <View style={styles.block}>
-                    <Text style={styles.blockTitle}>Karakter Kognitif</Text>
+                    <Text style={styles.blockTitle}>Karakteristik Dominan</Text>
                     <View style={{ gap: 8, marginTop: 10 }}>
                       {effectiveReport.cognitive_characteristics.map((it: string, idx: number) => (
                         <View key={`${idx}-${it}`} style={styles.bulletRow}>
@@ -625,7 +804,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
                 {Array.isArray(effectiveReport.challenges) && effectiveReport.challenges.length ? (
                   <View style={styles.block}>
-                    <Text style={styles.blockTitle}>Tantangan yang Mungkin Dihadapi</Text>
+                    <Text style={styles.blockTitle}>Titik Buta (Blind Spots)</Text>
                     <View style={{ gap: 8, marginTop: 10 }}>
                       {effectiveReport.challenges.map((it: string, idx: number) => (
                         <View key={`${idx}-${it}`} style={styles.bulletRow}>
@@ -638,18 +817,13 @@ export default function ReportDetailScreen({ navigation, route }: any) {
                 ) : null}
 
                 <View style={styles.block}>
-                  <Text style={styles.blockTitle}>Cara Mengambil Keputusan</Text>
-                  <Text style={styles.blockBody}>{effectiveReport.decision_making}</Text>
-                </View>
-
-                <View style={styles.block}>
-                  <Text style={styles.blockTitle}>Cara Belajar yang Paling Cocok</Text>
+                  <Text style={styles.blockTitle}>Lingkungan Belajar & Kerja Ideal</Text>
                   <Text style={styles.blockBody}>{effectiveReport.learning_style}</Text>
                 </View>
 
                 {Array.isArray(effectiveReport.career_recommendations) && effectiveReport.career_recommendations.length ? (
                   <View style={styles.block}>
-                    <Text style={styles.blockTitle}>Rekomendasi Karir</Text>
+                    <Text style={styles.blockTitle}>Rekomendasi Karir Digital</Text>
                     <View style={{ gap: 8, marginTop: 10 }}>
                       {effectiveReport.career_recommendations.map((it: string, idx: number) => (
                         <View key={`${idx}-${it}`} style={styles.bulletRow}>
@@ -663,7 +837,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
                 {Array.isArray(effectiveReport.collaboration_tips) && effectiveReport.collaboration_tips.length ? (
                   <View style={styles.block}>
-                    <Text style={styles.blockTitle}>Cara Berkolaborasi dengan Orang Lain</Text>
+                    <Text style={styles.blockTitle}>Cara Efektif Berkolaborasi</Text>
                     <View style={{ gap: 8, marginTop: 10 }}>
                       {effectiveReport.collaboration_tips.map((it: string, idx: number) => (
                         <View key={`${idx}-${it}`} style={styles.bulletRow}>
@@ -677,7 +851,7 @@ export default function ReportDetailScreen({ navigation, route }: any) {
 
                 {Array.isArray(effectiveReport.conflict_potential) && effectiveReport.conflict_potential.length ? (
                   <View style={styles.block}>
-                    <Text style={styles.blockTitle}>Potensi Konflik</Text>
+                    <Text style={styles.blockTitle}>Potensi Friksi / Konflik</Text>
                     <View style={{ gap: 8, marginTop: 10 }}>
                       {effectiveReport.conflict_potential.map((it: string, idx: number) => (
                         <View key={`${idx}-${it}`} style={styles.bulletRow}>

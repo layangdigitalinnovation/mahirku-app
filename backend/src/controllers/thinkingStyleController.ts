@@ -110,13 +110,7 @@ export const
 
         await lockedUser.decrement('tokens', { by: 1, transaction: t });
 
-        if (lockedUser.parentId) {
-          const userRole = await Role.findOne({ where: { name: 'user' }, transaction: t });
-          const affiliatorRole = await Role.findOne({ where: { name: 'affiliator' }, transaction: t });
-          if (userRole && affiliatorRole && lockedUser.roleId === userRole.id) {
-            lockedUser.roleId = affiliatorRole.id;
-          }
-        }
+        // (Auto-upgrade role to affiliator has been removed to preserve user UX)
 
         await lockedUser.save({ transaction: t });
 

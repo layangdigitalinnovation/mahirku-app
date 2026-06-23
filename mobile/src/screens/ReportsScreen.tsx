@@ -86,7 +86,7 @@ export default function ReportsScreen({ navigation }: any) {
         date: new Date(item.createdAt || (item as any).created_at).toLocaleDateString('id-ID'),
         summary: item.testType === 'DISC'
           ? getDiscTypeName(item.thinkingStyle?.code || '')
-          : (questionnaire?.finalType || `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`),
+          : `${item.thinkingStyle?.type} (${item.thinkingStyle?.code})`,
         type: item.testType === 'DISC' ? 'disc' : 'cst',
         fullData: item,
         fullname: item.fullname || (item as any).user?.fullname || (userData as any)?.user?.fullname,

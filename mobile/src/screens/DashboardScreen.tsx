@@ -22,7 +22,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
 export default function DashboardScreen({ navigation }: any) {
-  type Me = { user?: { fullname?: string; role?: { name?: string } | null; tokens?: number } };
+  type Me = { user?: { fullname?: string; role?: { name?: string } | null; roleId?: number; tokens?: number } };
   const { data, isLoading, isError, error, refetch } = useQuery<Me, AxiosError>({
     queryKey: ['me'],
     queryFn: async () => (await meApi()).data,
@@ -296,6 +296,42 @@ export default function DashboardScreen({ navigation }: any) {
                 </View>
               </LinearGradient>
             </View>
+
+            {/* Affiliate Center Banner (For Users who have completed a test) */}
+            {data?.user?.roleId === 3 && activityData && activityData.length > 0 && (
+              <Pressable 
+                onPress={() => navigation.navigate('AffiliatorDashboard')}
+                style={({ pressed }) => [
+                  { 
+                    marginTop: 20, 
+                    borderRadius: 16, 
+                    overflow: 'hidden',
+                    shadowColor: '#10B981',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 12,
+                    elevation: 4
+                  },
+                  pressed && { transform: [{ scale: 0.98 }], opacity: 0.95 }
+                ]}
+              >
+                <LinearGradient
+                  colors={['#10B981', '#059669']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ padding: 16, flexDirection: 'row', alignItems: 'center' }}
+                >
+                  <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', marginRight: 16 }}>
+                    <MaterialCommunityIcons name="storefront-outline" size={24} color="#FFFFFF" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700', marginBottom: 4 }}>Affiliate Center</Text>
+                    <Text style={{ color: '#D1FAE5', fontSize: 13, lineHeight: 18 }}>Bagikan link Anda dan dapatkan komisi</Text>
+                  </View>
+                  <Feather name="chevron-right" size={20} color="#FFFFFF" />
+                </LinearGradient>
+              </Pressable>
+            )}
 
             {/* Tests Section */}
             <View style={styles.sectionHeader}>

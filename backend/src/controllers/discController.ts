@@ -5,6 +5,7 @@ import DiscResult from '../models/DiscResult';
 import User from '../models/User';
 import Role from '../models/Role';
 import { AuthRequest } from '../middlewares/authMiddleware';
+import { GroqService } from '../services/groqService';
 
 export const getQuestions = async (req: Request, res: Response) => {
     try {
@@ -79,20 +80,31 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
             s_score: sScore,
             c_score: cScore,
             dominant_type: dominantType,
+            ai_report_status: 'processing',
+        } as any);
+
+        const groqService = new GroqService();
+        void groqService.generateDiscReport({
+            dominant_type: dominantType,
+            d_score: dScore,
+            i_score: iScore,
+            s_score: sScore,
+            c_score: cScore,
+        }).then(async (report) => {
+            await DiscResult.update(
+                { ai_report: report, ai_report_status: 'completed', ai_report_error: null, ai_report_generated_at: new Date() } as any,
+                { where: { id: result.id, user_id: userId } }
+            );
+        }).catch(async (e: any) => {
+            await DiscResult.update(
+                { ai_report_status: 'failed', ai_report_error: e?.message || 'AI generation failed' } as any,
+                { where: { id: result.id, user_id: userId } }
+            );
         });
 
-        // Logic Mitra: Jika user punya parent (Mitra) dan masih role 'user', upgrade ke 'affiliator'
-        const user = await User.findByPk(userId);
-        if (user && user.parentId) {
-            const userRole = await Role.findOne({ where: { name: 'user' } });
-            const affiliatorRole = await Role.findOne({ where: { name: 'affiliator' } });
-            
-            if (userRole && affiliatorRole && user.roleId === userRole.id) {
-                user.roleId = affiliatorRole.id;
-                await user.save();
-                console.log(`User ${user.id} upgraded to affiliator (parent: ${user.parentId})`);
-            }
-        }
+        // Logic Mitra: (Auto-upgrade role to affiliator has been removed to preserve user UX)
+        // const user = await User.findByPk(userId);
+        // ...
 
         res.status(201).json({
             message: 'Test submitted successfully',
@@ -108,5 +120,36 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
     } catch (error) {
         console.error('Error submitting DISC test:', error);
         res.status(500).json({ message: 'Failed to submit test' });
+    }
+};
+
+export const getDiscAiReport = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user?.userId;
+        const { resultId } = req.params as any;
+
+        if (!userId) {
+            res.status(401).json({ message: 'Unauthorized' });
+            return;
+        }
+
+        const result = await DiscResult.findOne({ where: { id: resultId, user_id: userId } });
+        if (!result) {
+            res.status(404).json({ message: 'Hasil tes tidak ditemukan' });
+            return;
+        }
+
+        res.status(200).json({
+            message: 'OK',
+            data: {
+                status: (result as any).ai_report_status || 'pending',
+                report: (result as any).ai_report || null,
+                error: (result as any).ai_report_error || null,
+                generatedAt: (result as any).ai_report_generated_at || null,
+            },
+        });
+    } catch (err: any) {
+        console.error('getDiscAiReport error:', err);
+        res.status(500).json({ message: 'Terjadi kesalahan', error: err.message });
     }
 };

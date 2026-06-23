@@ -187,6 +187,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         sessionStorage.removeItem(key);
       });
 
+      // Clear all cst: cached data
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('cst:')) {
+          localStorage.removeItem(key);
+        }
+      });
+
       // Clear cookies using utility function
       clearAllCookies();
 

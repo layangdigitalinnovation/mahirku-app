@@ -67,6 +67,15 @@ export default function ProfileScreen({ navigation, ...props }: any) {
             <Feather name="chevron-right" size={18} color="#94A3B8" />
           </Pressable>
           <View style={styles.divider} />
+          <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }} onPress={() => navigation.navigate('MemberReportsList')}>
+            <View style={styles.iconWrap}><Feather name="file-text" size={18} color="#4F46E5" /></View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.itemTitle}>Hasil Test Member</Text>
+              <Text style={styles.itemSubtitle}>Lihat semua laporan test dari karyawan/member Anda</Text>
+            </View>
+            <Feather name="chevron-right" size={18} color="#94A3B8" />
+          </Pressable>
+          <View style={styles.divider} />
           <Pressable style={styles.item} android_ripple={{ color: '#F1F5F9' }} onPress={() => navigation.navigate('TermsOfUse')}>
             <View style={styles.iconWrap}><Feather name="shield" size={18} color="#4F46E5" /></View>
             <View style={{ flex: 1, marginLeft: 12 }}>

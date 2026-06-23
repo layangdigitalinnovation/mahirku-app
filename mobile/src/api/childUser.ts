@@ -41,3 +41,8 @@ export const transferTokenToChild = async (payload: TransferTokenPayload) => {
     const response = await api.post('/tokens/transfer-token', payload);
     return response.data;
 };
+
+export const getMemberReports = async () => {
+    const response = await api.get('/users/members/reports');
+    return response.data;
+};

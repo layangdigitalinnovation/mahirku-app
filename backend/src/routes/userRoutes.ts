@@ -1,9 +1,17 @@
 import express from 'express';
 import { getUsers, createUser, updateUser, deleteUser } from '../controllers/userController';
+import { getMemberReports } from '../controllers/memberController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { isAdmin } from '../middlewares/roleMiddleware';
 
 const router = express.Router();
+
+/**
+ * @route   GET /api/users/members/reports
+ * @desc    Get member reports for the logged in user
+ * @access  Protected - User
+ */
+router.get('/members/reports', authMiddleware, getMemberReports);
 
 /**
  * @route   GET /api/users

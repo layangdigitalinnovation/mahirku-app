@@ -9,6 +9,10 @@ interface DiscResultAttributes {
     s_score: number;
     c_score: number;
     dominant_type: string | null;
+    ai_report_status?: string;
+    ai_report?: any;
+    ai_report_error?: string;
+    ai_report_generated_at?: Date;
     created_at?: Date;
     updated_at?: Date;
 }
@@ -23,6 +27,10 @@ class DiscResult extends Model<DiscResultAttributes, DiscResultCreationAttribute
     public s_score!: number;
     public c_score!: number;
     public dominant_type!: string | null;
+    public ai_report_status?: string;
+    public ai_report?: any;
+    public ai_report_error?: string;
+    public ai_report_generated_at?: Date;
     public readonly created_at!: Date;
     public readonly updated_at!: Date;
 
@@ -67,6 +75,23 @@ DiscResult.init(
         },
         dominant_type: {
             type: DataTypes.STRING,
+            allowNull: true,
+        },
+        ai_report_status: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: 'pending',
+        },
+        ai_report: {
+            type: DataTypes.JSONB,
+            allowNull: true,
+        },
+        ai_report_error: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        ai_report_generated_at: {
+            type: DataTypes.DATE,
             allowNull: true,
         },
     },

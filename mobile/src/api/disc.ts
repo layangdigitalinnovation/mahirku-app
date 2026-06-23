@@ -29,3 +29,14 @@ export const submitDiscTest = async (answers: number[]): Promise<{ message: stri
     const response = await client.post('/disc/submit', { answers });
     return response.data;
 };
+
+export type DiscAiReportResponse = {
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    report: any | null;
+    error: string | null;
+    generatedAt: string | null;
+};
+
+export const getDiscAiReport = (resultId: number) =>
+    client.get<{ message: string; data: DiscAiReportResponse }>(`/disc/ai-report/${resultId}`);
+

@@ -39,6 +39,7 @@ import GraphologyIntroScreen from './src/screens/tests/GraphologyIntroScreen';
 import GraphologyUploadScreen from './src/screens/tests/GraphologyUploadScreen';
 import GraphologyProcessingScreen from './src/screens/tests/GraphologyProcessingScreen';
 import GraphologyResultScreen from './src/screens/tests/GraphologyResultScreen';
+import MemberReportsListScreen from './src/screens/MemberReportsListScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { saveReferralCode } from './src/store/referral';
@@ -148,6 +149,7 @@ export default function App() {
               <Stack.Screen name="MemberList" component={MemberListScreen} />
               <Stack.Screen name="TermsOfUse" component={TermsOfUseScreen} />
               <Stack.Screen name="FAQ" component={FAQScreen} />
+              <Stack.Screen name="MemberReportsList" component={MemberReportsListScreen} />
               <Stack.Screen name="GraphologyIntro" component={GraphologyIntroScreen} />
               <Stack.Screen name="GraphologyUpload" component={GraphologyUploadScreen} />
               <Stack.Screen name="GraphologyProcessing" component={GraphologyProcessingScreen} />

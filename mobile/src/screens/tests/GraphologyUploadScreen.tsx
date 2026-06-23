@@ -53,57 +53,7 @@ export default function GraphologyUploadScreen() {
         }
     };
 
-    /**
-     * KAMERA — Tetap gunakan expo-image-picker
-     * Camera permission straightforward dan tidak pernah bermasalah
-     */
-    const takePhoto = async () => {
-        const current = await ImagePicker.getCameraPermissionsAsync();
 
-        if (!current.granted) {
-            if (!current.canAskAgain) {
-                Alert.alert(
-                    'Akses Kamera Diperlukan',
-                    'Izin kamera ditolak secara permanen. Aktifkan di Pengaturan.',
-                    [
-                        { text: 'Batal', style: 'cancel' },
-                        { text: 'Buka Pengaturan', onPress: openAppSettings },
-                    ]
-                );
-                return;
-            }
-            const asked = await ImagePicker.requestCameraPermissionsAsync();
-            if (!asked.granted) {
-                Alert.alert(
-                    'Akses Ditolak',
-                    'Izin kamera diperlukan untuk mengambil foto tulisan Anda.'
-                );
-                return;
-            }
-        }
-
-        const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            quality: 0.8,
-        });
-
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-            setImage(result.assets[0].uri);
-        }
-    };
-
-    const handleSelectImageMode = () => {
-        Alert.alert(
-            'Pilih Sumber Foto',
-            'Apakah Anda ingin mengambil foto menggunakan kamera atau memilih dari galeri?',
-            [
-                { text: 'Kamera', onPress: takePhoto },
-                { text: 'Galeri', onPress: pickImage },
-                { text: 'Batal', style: 'cancel' }
-            ]
-        );
-    };
 
     const handleUpload = async () => {
         if (!image) {
@@ -195,11 +145,11 @@ export default function GraphologyUploadScreen() {
                     </LinearGradient>
                     <Text variant="headlineSmall" style={styles.title}>Unggah Foto Tulisan</Text>
                     <Text variant="bodyMedium" style={styles.subtitle}>
-                        Pilih dari galeri atau ambil foto langsung tulisan tangan beserta tanda tangan Anda.
+                        Untuk mengambil foto tulisan tangan, gunakan aplikasi kamera pada smartphone Anda terlebih dahulu. Kemudian, pilih dan unggah foto tersebut dari Galeri.
                     </Text>
                 </View>
 
-                <TouchableOpacity onPress={handleSelectImageMode} activeOpacity={0.8} disabled={isUploading}>
+                <TouchableOpacity onPress={pickImage} activeOpacity={0.8} disabled={isUploading}>
                     <Surface style={styles.imagePreviewContainer} elevation={4}>
                         {image ? (
                             <>
@@ -225,23 +175,13 @@ export default function GraphologyUploadScreen() {
                 <View style={styles.actionRow}>
                     <Button
                         mode="contained-tonal"
-                        icon={() => <Feather name="camera" size={20} color="#6366F1" />}
-                        onPress={takePhoto}
-                        style={styles.pickerButton}
-                        labelStyle={{ color: '#6366F1', fontWeight: 'bold' }}
-                        disabled={isUploading}
-                    >
-                        Buka Kamera
-                    </Button>
-                    <Button
-                        mode="contained-tonal"
                         icon={() => <Feather name="image" size={20} color="#4F46E5" />}
                         onPress={pickImage}
                         style={styles.pickerButton}
                         labelStyle={{ color: '#4F46E5', fontWeight: 'bold' }}
                         disabled={isUploading}
                     >
-                        Pilih File
+                        Pilih dari Galeri
                     </Button>
                 </View>
             </View>

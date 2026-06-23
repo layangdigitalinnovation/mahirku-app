@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
-import { Text, Button, Surface, useTheme, Divider, Chip } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Platform, Alert } from 'react-native';
+import { Text, Button, Surface, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useQueryClient } from '@tanstack/react-query';
 import ShareResultModal from '../../components/ui/ShareResultModal';
 import { buildShareCaption, shareResultPosterPDF, shareResultText } from '../../utils/testResultShare';
+import { generateGraphologyCertificatePDF } from '../../utils/graphologyCertificateGenerator';
 
 export default function GraphologyResultScreen() {
     const theme = useTheme();
@@ -17,8 +18,10 @@ export default function GraphologyResultScreen() {
     const { result } = route.params as { result: GraphologyResultData };
     const queryClient = useQueryClient();
     const [shareOpen, setShareOpen] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+
     const me = queryClient.getQueryData<any>(['me']);
-    const userName = me?.user?.fullname || 'Pengguna';
+    const userName = route.params?.memberName || me?.user?.fullname || 'Pengguna';
 
     useEffect(() => {
         let t: any = undefined;
@@ -36,16 +39,45 @@ export default function GraphologyResultScreen() {
         };
     }, [queryClient]);
 
+    const handleDownloadCertificate = async () => {
+        setIsDownloading(true);
+        try {
+            await generateGraphologyCertificatePDF({
+                studentName: userName,
+                completionDate: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                certificateId: result.type_id || 'GRP-8-UNKNOWN',
+                typeId: result.type_id || 'GRP-8-TRLBLZ',
+                title: result.title || 'Graphology',
+                subtitle: result.subtitle || 'Analisis Kepribadian',
+                matchScore: result.match_score || '100%',
+                summary: result.summary || '',
+                brainProcess: result.brain_process || '',
+                workEnv: result.work_environment || '',
+                traits: result.traits || [],
+                strengths: result.strengths || [],
+                challenges: result.challenges || [],
+                careers: result.careers || [],
+                collabTips: result.collab_tips || [],
+                conflictRisks: result.conflict_risks || [],
+                devTips: result.dev_tips || [],
+            });
+        } catch (error) {
+            Alert.alert('Gagal', 'Terjadi kesalahan saat mengunduh sertifikat.');
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
     const shareTheme = useMemo(() => ({ a: '#8B5CF6', b: '#6366F1' }), []);
-    const sharePrimary = result?.personality_type || 'Graphology';
-    const shareSecondary = [result?.thinking_style, result?.emotional_tendency].filter(Boolean).join(' • ');
+    const sharePrimary = result?.title || 'Graphology';
+    const shareSecondary = result?.subtitle || '';
     const shareHighlights = useMemo(
         () => (result?.strengths || []).slice(0, 4),
         [result?.strengths]
     );
     const shareDescription = useMemo(
-        () => `Kekuatan utama: ${(result?.strengths || []).slice(0, 3).join(', ')}. Cocok di bidang: ${(result?.career_recommendations || []).slice(0, 2).join(', ')}.`,
-        [result?.strengths, result?.career_recommendations]
+        () => `Kekuatan utama: ${(result?.strengths || []).slice(0, 3).join(', ')}. Cocok di bidang: ${(result?.careers || []).slice(0, 2).join(', ')}.`,
+        [result?.strengths, result?.careers]
     );
     const shareCaption = useMemo(
         () =>
@@ -71,121 +103,179 @@ export default function GraphologyResultScreen() {
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-            <LinearGradient
-                colors={['#EEF2FF', '#F1F5F9', '#F8FAFC']}
-                style={StyleSheet.absoluteFill}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-            />
+        <SafeAreaView style={[styles.container, { backgroundColor: '#F8FAFC' }]}>
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
                 <View style={styles.header}>
                     <View style={styles.headerIconWrap}>
                         <MaterialCommunityIcons name="file-certificate" size={40} color="#4F46E5" />
                     </View>
-                    <Text variant="headlineSmall" style={styles.title}>Graphology Report</Text>
-                    <Text variant="bodySmall" style={styles.subtitle}>Analisis kepribadian dari tulisan tangan Anda</Text>
+                    <Text variant="headlineSmall" style={styles.title}>Detail Laporan Assessment</Text>
+                    <Text variant="bodySmall" style={styles.subtitle}>Graphology & Talent Mapping</Text>
                 </View>
 
-                <Surface style={styles.mainCard} elevation={0}>
-                    <LinearGradient
-                        colors={['#4F46E5', '#6366F1']}
-                        style={styles.mainCardGradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                    >
-                        <View style={styles.typeContainer}>
-                            <View style={styles.typeIconBox}>
-                                <MaterialCommunityIcons name="account-search" size={32} color="#4F46E5" />
+                {/* Score Circle Card */}
+                <View style={styles.enhancedCard}>
+                    <View style={styles.enhancedTop}>
+                        <View style={styles.enhancedIcon}>
+                            <Feather name="star" size={18} color="#7C3AED" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.enhancedTitle}>
+                                {result.title}
+                            </Text>
+                            <Text style={styles.enhancedSubtitle}>
+                                {result.subtitle}
+                            </Text>
+                        </View>
+                        {result.match_score && (
+                            <View style={styles.enhancedBadge}>
+                                <Text style={styles.enhancedBadgeText}>{result.match_score}</Text>
                             </View>
-                            <View style={{ marginLeft: 16, flex: 1 }}>
-                                <Text variant="labelMedium" style={{ color: 'rgba(255,255,255,0.8)' }}>TIPE KEPRIBADIAN</Text>
-                                <Text variant="headlineSmall" style={styles.boldTextWhite}>{result.personality_type}</Text>
+                        )}
+                    </View>
+
+                    {/* AI Details Details */}
+                    {result.summary && (
+                        <View style={styles.block}>
+                            <Text style={styles.blockTitle}>Ringkasan Profil</Text>
+                            <Text style={styles.blockBody}>{result.summary}</Text>
+                        </View>
+                    )}
+
+                    {result.brain_process && (
+                        <View style={styles.block}>
+                            <Text style={styles.blockTitle}>Cara Otak Memproses Informasi</Text>
+                            <Text style={styles.blockBody}>{result.brain_process}</Text>
+                        </View>
+                    )}
+
+                    {result.traits && result.traits.length > 0 && (
+                        <View style={styles.block}>
+                            <Text style={styles.blockTitle}>Karakter Bawah Sadar</Text>
+                            {result.traits.map((t, idx) => (
+                                <View key={idx} style={styles.listItem}>
+                                    <View style={styles.bulletPoint} />
+                                    <Text style={styles.listItemText}>{t}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+
+                    {result.strengths && result.strengths.length > 0 && (
+                        <View style={[styles.block, styles.blockGreen]}>
+                            <Text style={[styles.blockTitle, { color: '#047857' }]}>Kekuatan Utama</Text>
+                            {result.strengths.map((t, idx) => (
+                                <View key={idx} style={styles.listItem}>
+                                    <Feather name="check" size={14} color="#059669" style={{ marginRight: 8, marginTop: 2 }} />
+                                    <Text style={styles.listItemText}>{t}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+
+                    {result.challenges && result.challenges.length > 0 && (
+                        <View style={[styles.block, styles.blockAmber]}>
+                            <Text style={[styles.blockTitle, { color: '#B45309' }]}>Titik Buta (Blind Spots)</Text>
+                            {result.challenges.map((t, idx) => (
+                                <View key={idx} style={styles.listItem}>
+                                    <Feather name="alert-circle" size={14} color="#D97706" style={{ marginRight: 8, marginTop: 2 }} />
+                                    <Text style={styles.listItemText}>{t}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+
+                    {result.work_environment && (
+                        <View style={styles.block}>
+                            <Text style={styles.blockTitle}>Lingkungan Kerja Ideal</Text>
+                            <Text style={styles.blockBody}>{result.work_environment}</Text>
+                        </View>
+                    )}
+
+                    {result.careers && result.careers.length > 0 && (
+                        <View style={styles.block}>
+                            <Text style={styles.blockTitle}>Rekomendasi Karir Digital</Text>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                                {result.careers.map((t, idx) => (
+                                    <View key={idx} style={styles.careerChip}>
+                                        <Text style={styles.careerChipText}>{t}</Text>
+                                    </View>
+                                ))}
                             </View>
                         </View>
-                        <Divider style={styles.dividerWhite} />
-                        <View style={styles.row}>
-                            <View style={[styles.col, { paddingRight: 10 }]}>
-                                <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.8)', marginBottom: 4 }}>Gaya Berpikir</Text>
-                                <Text variant="titleMedium" style={styles.boldTextWhite}>{result.thinking_style}</Text>
-                            </View>
-                            <View style={styles.dividerVertical} />
-                            <View style={[styles.col, { paddingLeft: 10 }]}>
-                                <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.8)', marginBottom: 4 }}>Emosi</Text>
-                                <Text variant="titleMedium" style={styles.boldTextWhite}>{result.emotional_tendency}</Text>
-                            </View>
-                        </View>
-                    </LinearGradient>
-                </Surface>
+                    )}
 
-                <View style={styles.sectionHeader}>
-                    <MaterialCommunityIcons name="format-quote-open" size={20} color="#94A3B8" />
-                    <Text variant="titleMedium" style={styles.sectionTitle}>Teks Diekstrak</Text>
-                </View>
-                <Surface style={styles.textCard} elevation={0}>
-                    <Text style={styles.extractedText}>"{result.extracted_text || 'Tidak terbaca jelas'}"</Text>
-                </Surface>
-
-                <View style={styles.sectionHeader}>
-                    <Feather name="check-circle" size={20} color="#10B981" />
-                    <Text variant="titleMedium" style={styles.sectionTitle}>Kekuatan (Strengths)</Text>
-                </View>
-                <View style={styles.chipContainer}>
-                    {result.strengths?.map((item, index) => (
-                        <View key={index} style={styles.chipItemWrapper}>
-                            <View style={styles.chipDotGreen} />
-                            <Text style={styles.chipTextValue}>{item}</Text>
+                    {result.collab_tips && result.collab_tips.length > 0 && (
+                        <View style={[styles.block, styles.blockBlue]}>
+                            <Text style={[styles.blockTitle, { color: '#1D4ED8' }]}>Cara Berkolaborasi</Text>
+                            {result.collab_tips.map((t, idx) => (
+                                <View key={idx} style={styles.listItem}>
+                                    <Feather name="users" size={14} color="#2563EB" style={{ marginRight: 8, marginTop: 2 }} />
+                                    <Text style={styles.listItemText}>{t}</Text>
+                                </View>
+                            ))}
+                            
+                            {result.conflict_risks && result.conflict_risks.length > 0 && (
+                                <>
+                                    <View style={styles.blueDivider} />
+                                    <Text style={[styles.blockTitle, { color: '#BE123C' }]}>Potensi Konflik</Text>
+                                    {result.conflict_risks.map((t, idx) => (
+                                        <View key={idx} style={styles.listItem}>
+                                            <Feather name="zap" size={14} color="#E11D48" style={{ marginRight: 8, marginTop: 2 }} />
+                                            <Text style={styles.listItemText}>{t}</Text>
+                                        </View>
+                                    ))}
+                                </>
+                            )}
                         </View>
-                    ))}
-                </View>
+                    )}
 
-                <View style={styles.sectionHeader}>
-                    <Feather name="alert-circle" size={20} color="#F43F5E" />
-                    <Text variant="titleMedium" style={styles.sectionTitle}>Area Pengembangan</Text>
-                </View>
-                <View style={styles.chipContainer}>
-                    {result.weaknesses?.map((item, index) => (
-                        <View key={index} style={styles.chipItemWrapper}>
-                            <View style={styles.chipDotRed} />
-                            <Text style={styles.chipTextValue}>{item}</Text>
+                    {result.dev_tips && result.dev_tips.length > 0 && (
+                        <View style={[styles.block, styles.blockIndigo]}>
+                            <Text style={[styles.blockTitle, { color: '#4338CA' }]}>Tips Pengembangan Diri</Text>
+                            {result.dev_tips.map((t, idx) => (
+                                <View key={idx} style={styles.listItem}>
+                                    <Feather name="trending-up" size={14} color="#4F46E5" style={{ marginRight: 8, marginTop: 2 }} />
+                                    <Text style={styles.listItemText}>{t}</Text>
+                                </View>
+                            ))}
                         </View>
-                    ))}
+                    )}
                 </View>
 
-                <View style={styles.sectionHeader}>
-                    <Feather name="briefcase" size={20} color="#3B82F6" />
-                    <Text variant="titleMedium" style={styles.sectionTitle}>Rekomendasi Karir</Text>
-                </View>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 30 }}>
-                    {result.career_recommendations?.map((item, index) => (
-                        <View key={index} style={styles.careerPill}>
-                            <Text style={styles.careerPillText}>{item}</Text>
-                        </View>
-                    ))}
-                </View>
+                {result.extracted_text && (
+                    <View style={styles.extractedCard}>
+                        <Text style={styles.extractedLabel}>Teks Diekstrak dari Gambar:</Text>
+                        <Text style={styles.extractedText}>"{result.extracted_text}"</Text>
+                    </View>
+                )}
 
             </ScrollView>
+
             <Surface style={styles.footer} elevation={5}>
                 <Button
-                    mode="contained-tonal"
-                    onPress={() => setShareOpen(true)}
-                    style={styles.shareBtn}
-                    labelStyle={styles.shareBtnText}
-                    textColor="#4F46E5"
-                >
-                    Bagikan Hasil
-                </Button>
-                <Button
                     mode="contained"
-                    onPress={() => navigation.navigate('Dashboard')}
+                    icon="download"
+                    onPress={handleDownloadCertificate}
+                    loading={isDownloading}
+                    disabled={isDownloading}
                     style={styles.doneBtn}
                     labelStyle={styles.doneBtnText}
                     buttonColor="#4F46E5"
                 >
-                    Selesai & Kembali ke Dashboard
+                    Download Sertifikat
+                </Button>
+                <Button
+                    mode="text"
+                    onPress={() => navigation.navigate('Dashboard')}
+                    textColor="#64748B"
+                    style={{ marginTop: 4 }}
+                >
+                    Kembali ke Dashboard
                 </Button>
             </Surface>
+            
             <ShareResultModal
                 visible={shareOpen}
                 onClose={() => setShareOpen(false)}
@@ -229,29 +319,38 @@ const styles = StyleSheet.create({
     headerIconWrap: { width: 64, height: 64, borderRadius: 16, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
     title: { fontWeight: '800', color: '#1E293B', marginBottom: 6 },
     subtitle: { color: '#64748B', fontSize: 14 },
-    mainCard: { borderRadius: 24, marginBottom: 32, overflow: 'hidden', shadowColor: '#4F46E5', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 8 },
-    mainCardGradient: { padding: 24 },
-    typeContainer: { flexDirection: 'row', alignItems: 'center' },
-    typeIconBox: { width: 56, height: 56, borderRadius: 16, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
-    boldTextWhite: { fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 },
-    dividerWhite: { marginVertical: 20, backgroundColor: 'rgba(255,255,255,0.2)', height: 1 },
-    dividerVertical: { width: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginHorizontal: 8 },
-    row: { flexDirection: 'row', justifyContent: 'space-between' },
-    col: { flex: 1 },
-    sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
-    sectionTitle: { fontWeight: 'bold', color: '#1E293B' },
-    textCard: { padding: 20, borderRadius: 20, backgroundColor: '#F8FAFC', marginBottom: 32, borderWidth: 1, borderColor: '#E2E8F0', borderStyle: 'dashed' },
-    extractedText: { color: '#475569', fontStyle: 'italic', lineHeight: 24, fontSize: 15 },
-    chipContainer: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 32, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-    chipItemWrapper: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingRight: 8 },
-    chipDotGreen: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981', marginRight: 12, marginTop: 2 },
-    chipDotRed: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#F43F5E', marginRight: 12, marginTop: 2 },
-    chipTextValue: { color: '#334155', fontSize: 15, lineHeight: 22, flex: 1 },
-    careerPill: { backgroundColor: '#EEF2FF', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: '#DBEAFE' },
-    careerPillText: { color: '#4F46E5', fontWeight: '600', fontSize: 14 },
+    
+    enhancedCard: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24, marginBottom: 24, shadowColor: '#94A3B8', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 5, borderWidth: 1, borderColor: '#F1F5F9' },
+    enhancedTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 24, paddingBottom: 24, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+    enhancedIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F3E8FF', alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+    enhancedTitle: { fontSize: 18, fontWeight: '800', color: '#1E293B', marginBottom: 4 },
+    enhancedSubtitle: { fontSize: 13, color: '#64748B', lineHeight: 18 },
+    enhancedBadge: { backgroundColor: '#4F46E5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, marginLeft: 12 },
+    enhancedBadgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+    
+    block: { marginBottom: 20 },
+    blockGreen: { backgroundColor: '#ECFDF5', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#D1FAE5' },
+    blockAmber: { backgroundColor: '#FFFBEB', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#FEF3C7' },
+    blockBlue: { backgroundColor: '#EFF6FF', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#DBEAFE' },
+    blockIndigo: { backgroundColor: '#EEF2FF', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#E0E7FF' },
+    
+    blockTitle: { fontSize: 14, fontWeight: '700', color: '#334155', marginBottom: 8, letterSpacing: 0.2 },
+    blockBody: { fontSize: 13.5, color: '#475569', lineHeight: 22 },
+    
+    listItem: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 6 },
+    bulletPoint: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#64748B', marginTop: 8, marginRight: 10 },
+    listItemText: { flex: 1, fontSize: 13.5, color: '#475569', lineHeight: 22 },
+    
+    careerChip: { backgroundColor: '#F1F5F9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0' },
+    careerChipText: { fontSize: 12, fontWeight: '600', color: '#475569' },
+    
+    blueDivider: { height: 1, backgroundColor: '#BFDBFE', marginVertical: 12 },
+    
+    extractedCard: { backgroundColor: '#F8FAFC', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', borderStyle: 'dashed' },
+    extractedLabel: { fontSize: 12, fontWeight: '600', color: '#94A3B8', marginBottom: 8 },
+    extractedText: { fontSize: 13, color: '#64748B', fontStyle: 'italic', lineHeight: 20 },
+
     footer: { padding: 24, paddingBottom: Platform.OS === 'ios' ? 34 : 24, backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32, gap: 10 },
-    shareBtn: { borderRadius: 16, height: 52, justifyContent: 'center', backgroundColor: '#EEF2FF' },
-    shareBtnText: { fontSize: 15, fontWeight: 'bold', letterSpacing: 0.2 },
     doneBtn: { borderRadius: 16, height: 56, justifyContent: 'center' },
     doneBtnText: { fontSize: 16, fontWeight: 'bold', letterSpacing: 0.5 },
 });
