@@ -51,7 +51,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
 
   const c = colorClasses[colorKey];
 
-  const html = \`
+  const html = `
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -112,7 +112,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
         <p class="text-slate-600 text-lg mb-4">This is to certify that</p>
         
         <h2 class="serif text-6xl text-indigo-700 font-bold mb-8 capitalize border-b-2 border-indigo-100 pb-4 px-12 inline-block">
-            \${data.studentName}
+            ${data.studentName}
         </h2>
 
         <p class="text-slate-600 text-lg max-w-lg mb-8 leading-relaxed">
@@ -120,15 +120,15 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
             <strong class="text-slate-800 font-semibold text-xl">Cognitive Style & Dimensions Assessment</strong>
         </p>
 
-        <div class="border px-10 py-5 rounded-2xl mb-16 shadow-sm transition-all duration-300 transform \${c.lightBg} \${c.border}">
+        <div class="border px-10 py-5 rounded-2xl mb-16 shadow-sm transition-all duration-300 transform ${c.lightBg} ${c.border}">
             <p class="text-sm text-indigo-500 uppercase tracking-wider mb-1 font-bold">Gaya Kognitif Dominan</p>
-            <h3 class="text-3xl font-bold mt-1 \${c.text}">\${data.resultTitle}</h3>
+            <h3 class="text-3xl font-bold mt-1 ${c.text}">${data.resultTitle}</h3>
         </div>
 
         <div class="flex justify-between w-full max-w-2xl px-8 mt-auto absolute bottom-16">
             <div class="text-left">
-                <p class="text-sm font-medium text-slate-500 mb-1">ID: <span class="text-slate-700 font-mono">\${data.certificateId}</span></p>
-                <p class="text-sm text-slate-500">Date: \${data.completionDate}</p>
+                <p class="text-sm font-medium text-slate-500 mb-1">ID: <span class="text-slate-700 font-mono">${data.certificateId}</span></p>
+                <p class="text-sm text-slate-500">Date: ${data.completionDate}</p>
             </div>
             <div class="text-right flex items-center gap-3">
                 <div class="text-right">
@@ -136,7 +136,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                     <p class="text-[11px] font-semibold text-indigo-500 uppercase tracking-wide">Official Document</p>
                 </div>
                 <div class="w-16 h-16 bg-white border-2 border-slate-200 p-1 rounded-lg flex items-center justify-center shadow-sm">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mahirku.com/verify/certificate/\${data.certificateId}" class="w-full h-full" />
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mahirku.com/verify/certificate/${data.certificateId}" class="w-full h-full" />
                 </div>
             </div>
         </div>
@@ -155,19 +155,19 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                 </div>
             </div>
             <div class="text-right">
-                <p class="text-sm font-semibold text-slate-400">\${data.studentName}</p>
-                <p class="text-xs text-slate-400">\${data.certificateId}</p>
+                <p class="text-sm font-semibold text-slate-400">${data.studentName}</p>
+                <p class="text-xs text-slate-400">${data.certificateId}</p>
             </div>
         </div>
 
-        <div class="\${c.bg} text-white rounded-2xl p-5 mb-5 flex items-center justify-between shadow-md">
+        <div class="${c.bg} text-white rounded-2xl p-5 mb-5 flex items-center justify-between shadow-md">
             <div>
                 <p class="text-indigo-100 text-xs mb-1 uppercase tracking-wider font-semibold opacity-90">Tipe Kognitif Utama</p>
-                <h3 class="text-2xl font-bold">\${data.resultTitle}</h3>
-                <p class="text-indigo-50 mt-1 text-sm opacity-90 font-medium">\${data.resultSubtitle}</p>
+                <h3 class="text-2xl font-bold">${data.resultTitle}</h3>
+                <p class="text-indigo-50 mt-1 text-sm opacity-90 font-medium">${data.resultSubtitle}</p>
             </div>
-            <div class="w-16 h-16 bg-white rounded-full flex flex-col items-center justify-center shadow-inner \${c.text}">
-                <span class="text-xl font-black">\${data.score}</span>
+            <div class="w-16 h-16 bg-white rounded-full flex flex-col items-center justify-center shadow-inner ${c.text}">
+                <span class="text-xl font-black">${data.score}</span>
                 <span class="text-[9px] uppercase font-bold opacity-75">Intensitas</span>
             </div>
         </div>
@@ -178,21 +178,21 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                 <div>
                     <h4 class="text-[14px] font-bold text-slate-800 mb-1 border-l-4 border-indigo-500 pl-3">Ringkasan Profil</h4>
                     <p class="text-[12.5px] text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        \${data.summary}
+                        ${data.summary}
                     </p>
                 </div>
 
                 <div>
                     <h4 class="text-[14px] font-bold text-slate-800 mb-1 border-l-4 border-indigo-500 pl-3">Cara Otak Memproses Informasi</h4>
                     <p class="text-[12.5px] text-slate-600 leading-relaxed px-2">
-                        \${data.brainProcess}
+                        ${data.brainProcess}
                     </p>
                 </div>
 
                 <div>
                     <h4 class="text-[14px] font-bold text-slate-800 mb-1.5 border-l-4 border-indigo-500 pl-3">Karakteristik Dominan</h4>
                     <ul class="space-y-1 pl-2">
-                        \${data.traits.map(t => \`<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-circle mt-1 text-[11px] \${c.text}"></i><span class="leading-snug font-medium">\${t}</span></li>\`).join('')}
+                        ${data.traits.map(t => `<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-circle mt-1 text-[11px] ${c.text}"></i><span class="leading-snug font-medium">${t}</span></li>`).join('')}
                     </ul>
                 </div>
 
@@ -201,7 +201,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                         <i class="fas fa-check-circle"></i> Kekuatan Utama
                     </h4>
                     <ul class="space-y-1">
-                        \${data.strengths.map(t => \`<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-check mt-1 text-[11px] text-emerald-500"></i><span class="leading-snug font-medium">\${t}</span></li>\`).join('')}
+                        ${data.strengths.map(t => `<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-check mt-1 text-[11px] text-emerald-500"></i><span class="leading-snug font-medium">${t}</span></li>`).join('')}
                     </ul>
                 </div>
                 
@@ -210,7 +210,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                         <i class="fas fa-exclamation-triangle"></i> Titik Buta (Blind Spots)
                     </h4>
                     <ul class="space-y-1">
-                        \${data.challenges.map(t => \`<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-exclamation mt-1 text-[11px] text-amber-500"></i><span class="leading-snug font-medium">\${t}</span></li>\`).join('')}
+                        ${data.challenges.map(t => `<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-exclamation mt-1 text-[11px] text-amber-500"></i><span class="leading-snug font-medium">${t}</span></li>`).join('')}
                     </ul>
                 </div>
             </div>
@@ -220,16 +220,16 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                 <div>
                     <h4 class="text-[14px] font-bold text-slate-800 mb-1 border-l-4 border-indigo-500 pl-3">Lingkungan Belajar & Kerja Ideal</h4>
                     <p class="text-[12.5px] text-slate-600 leading-relaxed px-2">
-                         \${data.workEnv}
+                         ${data.workEnv}
                     </p>
                 </div>
 
                 <div>
                     <h4 class="text-[14px] font-bold text-slate-800 mb-2 border-l-4 border-indigo-500 pl-3">Rekomendasi Karir Digital</h4>
                     <div class="grid grid-cols-2 gap-2 pl-2">
-                        \${data.careers.map((t, idx) => {
+                        ${data.careers.map((t, idx) => {
                             const colSpan = (idx === data.careers.length - 1 && data.careers.length % 2 !== 0) ? 'col-span-2' : '';
-                            return \`<div class="bg-slate-50 p-2 rounded-lg text-[12px] text-slate-700 flex items-center gap-2 border border-slate-200 font-medium shadow-sm \${colSpan}"><i class="fas fa-briefcase \${c.text} opacity-75"></i> \${t}</div>\`;
+                            return `<div class="bg-slate-50 p-2 rounded-lg text-[12px] text-slate-700 flex items-center gap-2 border border-slate-200 font-medium shadow-sm ${colSpan}"><i class="fas fa-briefcase ${c.text} opacity-75"></i> ${t}</div>`;
                         }).join('')}
                     </div>
                 </div>
@@ -239,14 +239,14 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                         <i class="fas fa-users"></i> Cara Efektif Berkolaborasi
                     </h4>
                     <ul class="space-y-1 mb-3">
-                        \${data.collabTips.map(t => \`<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-check-circle mt-1 text-[11px] text-blue-500"></i><span class="leading-snug font-medium">\${t}</span></li>\`).join('')}
+                        ${data.collabTips.map(t => `<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-check-circle mt-1 text-[11px] text-blue-500"></i><span class="leading-snug font-medium">${t}</span></li>`).join('')}
                     </ul>
 
                     <h4 class="text-[13px] font-bold text-rose-800 mb-2 flex items-center gap-2 mt-3 pt-3 border-t border-blue-200">
                         <i class="fas fa-bolt"></i> Potensi Friksi / Konflik
                     </h4>
                     <ul class="space-y-1">
-                        \${data.conflictRisks.map(t => \`<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-times-circle mt-1 text-[11px] text-rose-500"></i><span class="leading-snug font-medium">\${t}</span></li>\`).join('')}
+                        ${data.conflictRisks.map(t => `<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-times-circle mt-1 text-[11px] text-rose-500"></i><span class="leading-snug font-medium">${t}</span></li>`).join('')}
                     </ul>
                 </div>
 
@@ -255,7 +255,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                         <i class="fas fa-chart-line"></i> Tips Pengembangan Diri
                     </h4>
                     <ul class="space-y-1">
-                        \${data.devTips.map(t => \`<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-arrow-up mt-1 text-[11px] \${c.text}"></i><span class="leading-snug font-medium">\${t}</span></li>\`).join('')}
+                        ${data.devTips.map(t => `<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-arrow-up mt-1 text-[11px] ${c.text}"></i><span class="leading-snug font-medium">${t}</span></li>`).join('')}
                     </ul>
                 </div>
             </div>
@@ -270,7 +270,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
     </div>
 </body>
 </html>
-  \`;
+  `;
 
   try {
     const { uri } = await Print.printToFileAsync({ html }); 
