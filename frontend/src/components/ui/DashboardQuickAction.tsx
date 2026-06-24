@@ -7,13 +7,7 @@ import {
   PlusCircle
 } from 'lucide-react';
 import { ThinkingStyleResult } from '@/services/api';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { getThinkingStyleAiReport, getDiscAiReport, getGraphologyAiReport } from '@/services/api/aiReports';
-import { getCSTCertificateHTML } from '@/utils/cstCertificateGenerator';
-import { getDiscCertificateHtml } from '@/utils/discCertificateGenerator';
-import { getGraphologyCertificateHtml } from '@/utils/graphologyCertificateGenerator';
-import { downloadPdfFromHtml } from '@/utils/certificateGenerator';
+import { ThinkingStyleResult } from '@/services/api';
 
 // Card components defined inline
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -35,96 +29,6 @@ interface DashboardQuickActionsProps {
 
 export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ user, results }) => {
   const totalTests = results.length;
-  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
-  const [generatingId, setGeneratingId] = useState<number | null>(null);
-
-  const handleDownloadCert = async (result: any) => {
-    setGeneratingId(result.id);
-    try {
-      const certificateId = `CRT-${result.id}-${Date.now().toString(36).toUpperCase()}`;
-      const studentName = result.fullname || user?.fullname || 'Peserta';
-      let html = '';
-
-      if (result.testType === 'DISC') {
-        const aiData = await getDiscAiReport(result.id);
-        const report = aiData?.report || {};
-        const data = {
-          studentName,
-          completionDate: new Date().toLocaleDateString('id-ID'),
-          certificateId,
-          resultTitle: result.dominantType,
-          resultSubtitle: 'DISC Profile',
-          score: '100%',
-          code: result.dominantType,
-          summary: report.profile_summary || 'Tidak ada deskripsi AI.',
-          commStyle: report.communication_style || '',
-          traits: report.behavior_traits || [],
-          strengths: report.strengths || [],
-          challenges: report.challenges || [],
-          workEnv: report.work_environment || '',
-          careers: report.career_recommendations || [],
-          collabTips: report.collaboration_tips || [],
-          conflictRisks: report.conflict_risks || [],
-          devTips: report.dev_tips || []
-        };
-        html = await getDiscCertificateHtml(data);
-      } else if (result.testType === 'Graphology') {
-        const aiData = await getGraphologyAiReport(result.id);
-        const report = aiData?.report || {};
-        const data = {
-          studentName,
-          completionDate: new Date().toLocaleDateString('id-ID'),
-          certificateId,
-          typeId: 'GRP-8',
-          title: result.personality_type || 'Graphology Profile',
-          subtitle: result.thinking_style || '',
-          matchScore: '100%',
-          summary: report.summary || 'Tidak ada deskripsi AI.',
-          brainProcess: report.brain_process || '',
-          workEnv: report.work_environment || '',
-          traits: [],
-          strengths: report.strengths || [],
-          challenges: report.challenges || [],
-          careers: report.career_recommendations || [],
-          collabTips: [],
-          conflictRisks: [],
-          devTips: []
-        };
-        html = await getGraphologyCertificateHtml(data);
-      } else {
-        const aiData = await getThinkingStyleAiReport(result.id);
-        const report = aiData?.report || {};
-        const data = {
-          studentName,
-          completionDate: new Date().toLocaleDateString('id-ID'),
-          certificateId,
-          resultTitle: result.thinkingStyle?.type || 'CST Profile',
-          resultSubtitle: '',
-          score: result.percent ? `${result.percent}%` : '100%',
-          summary: report.profile_summary || 'Tidak ada deskripsi AI.',
-          brainProcess: report.thinking_process || '',
-          traits: report.cognitive_characteristics || [],
-          strengths: report.strengths || [],
-          challenges: report.challenges || [],
-          workEnv: report.learning_style || '',
-          careers: report.career_recommendations || [],
-          collabTips: report.collaboration_tips || [],
-          conflictRisks: report.conflict_potential || [],
-          devTips: report.self_development_tips || []
-        };
-        html = await getCSTCertificateHTML(data);
-      }
-
-      await downloadPdfFromHtml(html, `Sertifikat_${result.testType || 'CST'}_${studentName}.pdf`);
-    } catch (err) {
-      console.error("Gagal mengunduh sertifikat:", err);
-      alert("Terjadi kesalahan saat membuat sertifikat: " + (err instanceof Error ? err.message : String(err)));
-    } finally {
-      setGeneratingId(null);
-    }
-  };
-
-
 
   const QuickActionCard = ({
     icon: Icon,
@@ -256,59 +160,16 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({ us
           />
 
           <QuickActionCard
-            icon={Download}
-            title="Download Sertifikat"
-            description="Download semua hasil test Anda dalam format PDF untuk arsip pribadi"
-            action="Download"
+            icon={Sparkles}
+            title="Graphology Test"
+            description="Analisis kepribadian melalui tulisan tangan dan tanda tangan Anda"
+            action="Mulai Test"
             color="indigo"
-            badge={`${totalTests} File`}
-            onClick={() => setIsCertModalOpen(true)}
+            badge="New"
+            to="/customer/dashboard/graphology-test"
           />
         </div>
       </div>
-
-      {/* Certificate Modal */}
-      <Dialog open={isCertModalOpen} onOpenChange={setIsCertModalOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Download Sertifikat</DialogTitle>
-            <DialogDescription>
-              Pilih sertifikat hasil test yang ingin Anda download.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-            {results.length === 0 ? (
-              <p className="text-center text-gray-500 py-4">Belum ada sertifikat tersedia. Selesaikan test terlebih dahulu.</p>
-            ) : (
-              results.map((result: any) => (
-                <div key={result.id} className="p-4 border rounded-xl flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-gray-50 hover:bg-gray-100 transition-colors">
-                  <div>
-                    <h4 className="font-semibold text-gray-900">
-                      {result.testType === 'DISC' ? 'Tes Kepribadian DISC' : 
-                       result.testType === 'Graphology' ? 'Tes Graphology' : 
-                       'Tes Gaya Kognitif'}
-                    </h4>
-                    {result.thinkingStyle?.type && (
-                      <p className="text-xs font-medium text-blue-600 mb-1">
-                        Tipe: {result.thinkingStyle.type}
-                      </p>
-                    )}
-                    <p className="text-sm text-gray-500">{result.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : (result.fullname || user?.fullname)}</p>
-                  </div>
-                  <Button 
-                    onClick={() => handleDownloadCert(result)}
-                    disabled={generatingId === result.id}
-                    size="sm"
-                    className="w-full sm:w-auto"
-                  >
-                    {generatingId === result.id ? 'Membuat...' : 'Download'}
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Tips Section */}
       {totalTests === 0 && (

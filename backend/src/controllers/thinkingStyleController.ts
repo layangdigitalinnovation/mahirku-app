@@ -208,9 +208,27 @@ export const getThinkingStyleAiReport = async (
       return;
     }
 
+    // Check ownership
     if (String(result.userId) !== String(userId)) {
-      const member = await User.findByPk(result.userId);
-      if (String(member?.parentId) !== String(userId)) {
+      let isAllowed = false;
+
+      // Allow if super_admin
+      if (req.user?.roleId) {
+        const currentUserRole = await Role.findByPk(req.user.roleId);
+        if (currentUserRole?.name === 'super_admin') {
+          isAllowed = true;
+        }
+      }
+
+      // Allow if member belongs to current user
+      if (!isAllowed) {
+        const member = await User.findByPk(result.userId);
+        if (member && String(member.parentId) === String(userId)) {
+          isAllowed = true;
+        }
+      }
+
+      if (!isAllowed) {
         res.status(403).json({ message: "Forbidden" });
         return;
       }

@@ -3,6 +3,7 @@ import fs from 'fs';
 import GraphologyTest from '../models/GraphologyTest';
 import { GroqService } from '../services/groqService';
 import User from '../models/User';
+import Role from '../models/Role';
 import { sequelize } from '../config/database';
 import { AuthRequest } from '../middlewares/authMiddleware';
 
@@ -122,9 +123,27 @@ export const getGraphologyResult = async (req: AuthRequest, res: Response): Prom
             res.status(404).json({ status: 'failed', message: 'Graphology test not found' });
             return;
         }
+        // Check ownership
         if (String(testRecord.userId) !== String(authUserId)) {
-            const memberUser = await User.findByPk(testRecord.userId);
-            if (String(memberUser?.parentId) !== String(authUserId)) {
+            let isAllowed = false;
+
+            // Allow if super_admin
+            if (req.user?.roleId) {
+                const currentUserRole = await Role.findByPk(req.user.roleId);
+                if (currentUserRole?.name === 'super_admin') {
+                    isAllowed = true;
+                }
+            }
+
+            // Allow if member belongs to current user
+            if (!isAllowed) {
+                const memberUser = await User.findByPk(testRecord.userId);
+                if (memberUser && String(memberUser.parentId) === String(authUserId)) {
+                    isAllowed = true;
+                }
+            }
+
+            if (!isAllowed) {
                 res.status(403).json({ status: 'failed', message: 'Forbidden' });
                 return;
             }

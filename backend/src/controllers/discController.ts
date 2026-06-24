@@ -140,9 +140,27 @@ export const getDiscAiReport = async (req: AuthRequest, res: Response): Promise<
             return;
         }
 
+        // Check ownership
         if (String(result.user_id) !== String(userId)) {
-            const member = await User.findByPk(result.user_id);
-            if (String(member?.parentId) !== String(userId)) {
+            let isAllowed = false;
+
+            // Allow if super_admin
+            if (req.user?.roleId) {
+                const currentUserRole = await Role.findByPk(req.user.roleId);
+                if (currentUserRole?.name === 'super_admin') {
+                    isAllowed = true;
+                }
+            }
+
+            // Allow if member belongs to current user
+            if (!isAllowed) {
+                const member = await User.findByPk(result.user_id);
+                if (member && String(member.parentId) === String(userId)) {
+                    isAllowed = true;
+                }
+            }
+
+            if (!isAllowed) {
                 res.status(403).json({ message: 'Forbidden' });
                 return;
             }

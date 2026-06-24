@@ -324,9 +324,9 @@ export const TestResult: React.FC = () => {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Result Card */}
-          <Card className="lg:col-span-1">
+          <Card className="lg:col-span-2">
             <CardHeader className="text-center">
               <div className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center">
                 <Brain size={48} />
@@ -402,11 +402,8 @@ export const TestResult: React.FC = () => {
             </CardFooter>
           </Card>
 
-          {/* AI Report Card */}
-          <div className="lg:col-span-1 space-y-6">
-            <AiReportSection resultId={testResult.id} />
-
-            {/* QR Code & Actions */}
+          {/* QR Code & Actions */}
+          <div className="lg:col-span-1">
             <Card>
               <CardHeader>
                 <h3 className="text-xl font-semibold">Apa Selanjutnya?</h3>
@@ -449,6 +446,11 @@ export const TestResult: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* AI Report Card - Full Width */}
+        <div className="mt-8">
+          <AiReportSection resultId={testResult.id} />
         </div>
       </div>
 
