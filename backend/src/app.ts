@@ -56,7 +56,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/thinking-style', thinkingStyleRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/payment', paymentRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/vouchers', voucherRoutes);

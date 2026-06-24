@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User";
 import { AuthRequest } from "../middlewares/authMiddleware";
 import { getReferralFromCookie } from "../middlewares/referralMiddleware";
+import { xenditPayment } from "./xenditController";
 
 export const purchaseToken = async (
   req: AuthRequest,
@@ -29,42 +30,20 @@ export const purchaseToken = async (
     const referralCode = getReferralFromCookie(req);
     console.log('Referral code from cookie in purchaseToken:', referralCode);
 
-    // Panggil endpoint pembayaran Xendit via axios (loopback HTTP call)
-    const axios = require("axios");
-    console.log('Initiating loopback call to:', "http://127.0.0.1:5000/api/payments/xendit");
-    console.log('Payload:', { userId, packageId, voucherCode, referralCode });
+    // Call xenditPayment logic directly instead of loopback HTTP call
+    req.body.userId = userId;
+    if (referralCode) {
+        req.body.referralCode = referralCode;
+    }
 
-    const paymentRes = await axios.post(
-      "http://127.0.0.1:5000/api/payments/xendit",
-      { userId, packageId, voucherCode, referralCode },
-      {
-        headers: {
-          Authorization: req.headers.authorization || "",
-          Cookie: req.headers.cookie || "", // Teruskan cookies
-        },
-        withCredentials: true, // Penting untuk cookies
-      }
-    );
-
-    res.status(200).json({
-      message: "Silakan lanjutkan ke halaman pembayaran.",
-      paymentUrl: paymentRes.data.paymentUrl,
-      invoiceId: paymentRes.data.invoiceId,
-    });
+    await xenditPayment(req as any, res);
   } catch (err: any) {
-    console.error("purchaseToken error details:", {
-      url: err.config?.url,
-      method: err.config?.method,
-      status: err.response?.status,
-      statusText: err.response?.statusText,
-      data: err.response?.data
-    });
+    console.error("purchaseToken error details:", err);
     res
       .status(500)
       .json({
         message: "Gagal memproses pembelian token.",
-        error: err.message,
-        details: err.response?.data
+        error: err.message
       });
   }
 };
