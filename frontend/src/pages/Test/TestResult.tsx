@@ -21,8 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useMeQuery } from "@/hooks/useAuthQuery";
-import { downloadPdfFromHtml } from "@/utils/certificateGenerator";
-import { getCSTCertificateHTML } from "@/utils/cstCertificateGenerator";
+
 import { useThinkingStyleAiReport } from "@/hooks/useAiReports";
 import { getThinkingStyleAiReport } from "@/services/api/aiReports";
 
@@ -233,7 +232,6 @@ export const TestResult: React.FC = () => {
     await logout();
   };
 
-  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (!testResult) {
@@ -245,44 +243,9 @@ export const TestResult: React.FC = () => {
     return <div>Memuat...</div>;
   }
 
-  const handleDownloadCertificate = async () => {
-    setIsGenerating(true);
-    try {
-      const certificateId = `CRT-${testResult.id}-${Date.now().toString(36).toUpperCase()}`;
-      const studentName = testResult.fullname || user?.fullname || 'Peserta';
-      
-      const aiData = await getThinkingStyleAiReport(testResult.id);
-      const data = {
-        studentName,
-        completionDate: new Date().toLocaleDateString('id-ID'),
-        certificateId,
-        resultTitle: testResult.thinkingStyle?.type || 'CST Profile',
-        resultSubtitle: '',
-        score: testResult.percent ? `${testResult.percent}%` : '100%',
-        summary: aiData?.report || 'Tidak ada deskripsi AI.',
-        brainProcess: '',
-        traits: [],
-        strengths: [],
-        challenges: [],
-        workEnv: '',
-        careers: [],
-        collabTips: [],
-        conflictRisks: [],
-        devTips: []
-      };
-      
-      const html = await getCSTCertificateHTML(data);
-      await downloadPdfFromHtml(html, `Sertifikat_CognitiveStyle_${studentName}.pdf`);
-    } catch (err) {
-      console.error("Gagal mengunduh sertifikat:", err);
-      alert("Terjadi kesalahan saat membuat sertifikat.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="py-4 md:py-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
@@ -384,22 +347,7 @@ export const TestResult: React.FC = () => {
               </div>
             </CardContent>
 
-            <CardFooter className="space-y-3 flex flex-col">
-              <Button asChild variant="outline" className="w-full">
-                <Link to={`/thinking-style/${testResult.thinkingStyleId}`}>
-                  Lihat Penjelasan Hasil Test
-                </Link>
-              </Button>
-              {/* tombol sertifikat */}
-              <Button
-                onClick={handleDownloadCertificate}
-                variant="secondary"
-                className="w-full"
-                disabled={isGenerating}
-              >
-                {isGenerating ? "Membuat Sertifikat..." : "Download Sertifikat"}
-              </Button>
-            </CardFooter>
+
           </Card>
 
           {/* QR Code & Actions */}
