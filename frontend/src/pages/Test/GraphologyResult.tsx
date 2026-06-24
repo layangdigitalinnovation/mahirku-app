@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { graphologyService, GraphologyResultData } from '../../services/graphology.service';
-import { BrainCircuit, CheckCircle, Quote, Briefcase, AlertTriangle, MessageSquare, Share2 } from 'lucide-react';
+import { BrainCircuit, CheckCircle, Quote, Briefcase, AlertTriangle, MessageSquare, Share2, Brain, Zap, TrendingUp, Shield } from 'lucide-react';
 import { useGraphologyAiReport } from '../../hooks/useAiReports';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const GraphologyResult: React.FC = () => {
     const { test_id } = useParams<{ test_id: string }>();
@@ -77,12 +79,15 @@ export const GraphologyResult: React.FC = () => {
         );
     };
 
+    const location = useLocation();
+    const fullname = location.state?.fullname;
+
     return (
         <div className="max-w-5xl mx-auto p-4 md:p-8">
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Graphology Personality Report</h1>
-                    <p className="text-gray-500 text-lg">Analisis kepribadian dari tulisan tangan dan tanda tangan Anda</p>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Graphology Personality Report {fullname && fullname !== 'Pengguna' ? fullname : 'Anda'}</h1>
+                    <p className="text-gray-500 text-lg">Analisis kepribadian dari tulisan tangan dan tanda tangan {fullname && fullname !== 'Pengguna' ? fullname : 'Anda'}</p>
                 </div>
                 <div className="hidden gap-3 sm:flex">
                     <button className="flex items-center gap-2 px-4 py-2 border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg font-medium transition-colors">
@@ -125,99 +130,156 @@ export const GraphologyResult: React.FC = () => {
                 </div>
             </div>
 
-            <div className="space-y-6">
-                {result.summary && (
-                    <div className="bg-slate-50 rounded-2xl p-6 border-l-4 border-l-blue-500 shadow-sm">
-                        <h4 className="font-bold text-slate-900 mb-2">Ringkasan Profil</h4>
-                        <p className="text-slate-700 leading-relaxed">{result.summary}</p>
-                    </div>
-                )}
+            <Tabs defaultValue="overview" className="w-full mt-8">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 h-auto p-1 bg-slate-100 rounded-xl">
+                    <TabsTrigger value="overview" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+                        <Brain className="w-4 h-4" /> <span className="hidden sm:inline">Ringkasan</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="character" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+                        <Zap className="w-4 h-4" /> <span className="hidden sm:inline">Karakter</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="career" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+                        <Briefcase className="w-4 h-4" /> <span className="hidden sm:inline">Karir & Kerja</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="development" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+                        <TrendingUp className="w-4 h-4" /> <span className="hidden sm:inline">Pengembangan</span>
+                    </TabsTrigger>
+                </TabsList>
 
-                {result.brain_process && (
-                    <div className="bg-indigo-50 rounded-2xl p-6 border-l-4 border-l-indigo-500 shadow-sm">
-                        <h4 className="font-bold text-indigo-900 mb-2">Cara Otak Memproses Informasi</h4>
-                        <p className="text-indigo-800 leading-relaxed">{result.brain_process}</p>
-                    </div>
-                )}
-
-                <div className="grid md:grid-cols-2 gap-6">
-                    {result.strengths && result.strengths.length > 0 && (
-                        <div className="bg-green-50 rounded-2xl p-6 border border-green-100 shadow-sm">
-                            <div className="flex items-center gap-2 mb-4">
-                                <CheckCircle className="w-5 h-5 text-green-600" />
-                                <h4 className="font-bold text-green-900">Kekuatan Utama</h4>
-                            </div>
-                            {renderList(result.strengths)}
-                        </div>
+                <TabsContent value="overview" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+                    {result.summary && (
+                        <Card className="border-l-4 border-l-blue-500 bg-slate-50 shadow-sm hover:shadow-md transition-shadow">
+                            <CardContent className="p-6">
+                                <h4 className="font-bold text-slate-900 mb-2">Ringkasan Profil</h4>
+                                <p className="text-slate-700 leading-relaxed text-sm">{result.summary}</p>
+                            </CardContent>
+                        </Card>
                     )}
-                    
-                    {result.challenges && result.challenges.length > 0 && (
-                        <div className="bg-red-50 rounded-2xl p-6 border border-red-100 shadow-sm">
-                            <div className="flex items-center gap-2 mb-4">
-                                <AlertTriangle className="w-5 h-5 text-red-600" />
-                                <h4 className="font-bold text-red-900">Tantangan & Titik Buta</h4>
-                            </div>
-                            {renderList(result.challenges)}
-                        </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {result.brain_process && (
+                            <Card className="border-l-4 border-l-indigo-500 bg-indigo-50/50 shadow-sm hover:shadow-md transition-shadow">
+                                <CardContent className="p-6">
+                                    <h4 className="font-bold text-indigo-900 mb-2">Cara Otak Memproses Informasi</h4>
+                                    <p className="text-indigo-800 leading-relaxed text-sm">{result.brain_process}</p>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {result.traits && result.traits.length > 0 && (
+                            <Card className="border-l-4 border-l-teal-500 bg-teal-50/50 shadow-sm hover:shadow-md transition-shadow">
+                                <CardContent className="p-6">
+                                    <h4 className="font-bold text-teal-900 mb-2">Sifat / Karakter (Traits)</h4>
+                                    <div className="text-sm">
+                                        {renderList(result.traits)}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="character" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {result.strengths && result.strengths.length > 0 && (
+                            <Card className="border-l-4 border-l-emerald-500 bg-emerald-50/50 shadow-sm hover:shadow-md transition-shadow">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                        <h4 className="font-bold text-emerald-900">Kekuatan Utama</h4>
+                                    </div>
+                                    <div className="text-sm">
+                                        {renderList(result.strengths)}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                        
+                        {result.challenges && result.challenges.length > 0 && (
+                            <Card className="border-l-4 border-l-amber-500 bg-amber-50/50 shadow-sm hover:shadow-md transition-shadow">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Shield className="w-5 h-5 text-amber-600" />
+                                        <h4 className="font-bold text-amber-900">Tantangan & Titik Buta</h4>
+                                    </div>
+                                    <div className="text-sm">
+                                        {renderList(result.challenges)}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+
+                    {result.conflict_risks && result.conflict_risks.length > 0 && (
+                        <Card className="border-l-4 border-l-rose-500 bg-rose-50/50 shadow-sm hover:shadow-md transition-shadow">
+                            <CardContent className="p-6">
+                                <h4 className="font-bold text-rose-900 mb-2">Potensi Konflik</h4>
+                                <div className="text-sm">
+                                    {renderList(result.conflict_risks)}
+                                </div>
+                            </CardContent>
+                        </Card>
                     )}
-                </div>
+                </TabsContent>
 
-                {result.work_environment && (
-                    <div className="bg-orange-50 rounded-2xl p-6 border-l-4 border-l-orange-500 shadow-sm">
-                        <h4 className="font-bold text-orange-900 mb-2">Lingkungan Kerja Ideal</h4>
-                        <p className="text-orange-800 leading-relaxed">{result.work_environment}</p>
-                    </div>
-                )}
+                <TabsContent value="career" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+                    {result.work_environment && (
+                        <Card className="border-l-4 border-l-sky-500 bg-sky-50/50 shadow-sm hover:shadow-md transition-shadow">
+                            <CardContent className="p-6">
+                                <h4 className="font-bold text-sky-900 mb-2">Lingkungan Kerja Ideal</h4>
+                                <p className="text-sky-800 leading-relaxed text-sm">{result.work_environment}</p>
+                            </CardContent>
+                        </Card>
+                    )}
 
-                {result.careers && result.careers.length > 0 && (
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div className="absolute right-0 bottom-0 opacity-5">
-                            <Briefcase className="w-48 h-48 -mr-12 -mb-12" />
-                        </div>
-                        <div className="flex items-center gap-3 mb-6 relative z-10">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <Briefcase className="w-5 h-5 text-blue-600" />
+                    {result.careers && result.careers.length > 0 && (
+                        <Card className="border-l-4 border-l-blue-600 bg-blue-50/50 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                            <div className="absolute right-0 bottom-0 opacity-5">
+                                <Briefcase className="w-48 h-48 -mr-12 -mb-12" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900">Pekerjaan yang Direkomendasikan</h3>
-                        </div>
-                        <div className="flex flex-wrap gap-3 relative z-10">
-                            {result.careers.map((career, i) => (
-                                <span key={i} className="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-100 rounded-lg font-medium">
-                                    {career}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                            <CardContent className="p-6 relative z-10">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <Briefcase className="w-5 h-5 text-blue-600" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-blue-900">Pekerjaan yang Direkomendasikan</h3>
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                    {result.careers.map((career, i) => (
+                                        <span key={i} className="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-100 rounded-lg text-sm font-medium">
+                                            {career}
+                                        </span>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
 
-                {result.traits && result.traits.length > 0 && (
-                    <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-                        <h4 className="font-bold text-slate-900 mb-2">Sifat / Karakter (Traits)</h4>
-                        {renderList(result.traits)}
-                    </div>
-                )}
+                    {result.collab_tips && result.collab_tips.length > 0 && (
+                        <Card className="border-l-4 border-l-fuchsia-500 bg-fuchsia-50/50 shadow-sm hover:shadow-md transition-shadow">
+                            <CardContent className="p-6">
+                                <h4 className="font-bold text-fuchsia-900 mb-2">Tips Kolaborasi</h4>
+                                <div className="text-sm">
+                                    {renderList(result.collab_tips)}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                </TabsContent>
 
-                {result.collab_tips && result.collab_tips.length > 0 && (
-                    <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-                        <h4 className="font-bold text-slate-900 mb-2">Tips Kolaborasi</h4>
-                        {renderList(result.collab_tips)}
-                    </div>
-                )}
-
-                {result.conflict_risks && result.conflict_risks.length > 0 && (
-                    <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-                        <h4 className="font-bold text-slate-900 mb-2">Potensi Konflik</h4>
-                        {renderList(result.conflict_risks)}
-                    </div>
-                )}
-
-                {result.dev_tips && result.dev_tips.length > 0 && (
-                    <div className="bg-purple-50 rounded-2xl p-6 border-l-4 border-l-purple-500 shadow-sm">
-                        <h4 className="font-bold text-purple-900 mb-2">Tips Pengembangan Diri</h4>
-                        {renderList(result.dev_tips)}
-                    </div>
-                )}
-            </div>
+                <TabsContent value="development" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+                    {result.dev_tips && result.dev_tips.length > 0 && (
+                        <Card className="border-l-4 border-l-purple-500 bg-purple-50 shadow-sm hover:shadow-md transition-shadow">
+                            <CardContent className="p-6">
+                                <h4 className="font-bold text-purple-900 mb-2">Tips Pengembangan Diri</h4>
+                                <div className="text-sm">
+                                    {renderList(result.dev_tips)}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                </TabsContent>
+            </Tabs>
 
         </div>
     );

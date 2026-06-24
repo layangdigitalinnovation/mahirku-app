@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Brain, CheckCircle, Shield, TrendingUp, LogOut } from "lucide-react";
+import { Brain, CheckCircle, Shield, TrendingUp, LogOut, Zap, Briefcase } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import {
   Card,
@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useMeQuery } from "@/hooks/useAuthQuery";
 import { downloadPdfFromHtml } from "@/utils/certificateGenerator";
@@ -63,102 +64,149 @@ const AiReportSection = ({ resultId }: { resultId: number }) => {
         Detail Laporan Assessment
       </h3>
 
-      <div className="space-y-6">
-        <Card className="border-l-4 border-l-blue-500 bg-slate-50">
-          <CardContent className="p-6">
-            <h4 className="font-bold text-slate-900 mb-2">Ringkasan Profil</h4>
-            <p className="text-slate-700 leading-relaxed">{report.profile_summary}</p>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 h-auto p-1 bg-slate-100 rounded-xl">
+          <TabsTrigger value="overview" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+            <Brain className="w-4 h-4" /> <span className="hidden sm:inline">Ringkasan</span>
+          </TabsTrigger>
+          <TabsTrigger value="character" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+            <Zap className="w-4 h-4" /> <span className="hidden sm:inline">Karakter</span>
+          </TabsTrigger>
+          <TabsTrigger value="career" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+            <Briefcase className="w-4 h-4" /> <span className="hidden sm:inline">Karir & Kerja</span>
+          </TabsTrigger>
+          <TabsTrigger value="development" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+            <TrendingUp className="w-4 h-4" /> <span className="hidden sm:inline">Pengembangan</span>
+          </TabsTrigger>
+        </TabsList>
 
-        <Card className="border-l-4 border-l-indigo-500 bg-indigo-50">
-          <CardContent className="p-6">
-            <h4 className="font-bold text-indigo-900 mb-2">Cara Memproses Informasi</h4>
-            <p className="text-indigo-800 leading-relaxed">{report.thinking_process}</p>
-          </CardContent>
-        </Card>
-
-        {report.cognitive_characteristics && (
-          <Card>
+        <TabsContent value="overview" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+          <Card className="border-l-4 border-l-blue-500 bg-slate-50 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6">
-              <h4 className="font-bold text-slate-900 mb-2">Karakteristik Kognitif</h4>
-              {renderList(report.cognitive_characteristics)}
+              <h4 className="font-bold text-slate-900 mb-2">Ringkasan Profil</h4>
+              <p className="text-slate-700 leading-relaxed text-sm">{report.profile_summary}</p>
             </CardContent>
           </Card>
-        )}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="border-l-4 border-l-indigo-500 bg-indigo-50/50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-indigo-900 mb-2">Cara Memproses Informasi</h4>
+                <p className="text-indigo-800 leading-relaxed text-sm">{report.thinking_process}</p>
+              </CardContent>
+            </Card>
 
-        {report.strengths && (
-          <Card className="border-l-4 border-l-green-500 bg-green-50">
-            <CardContent className="p-6">
-              <h4 className="font-bold text-green-900 mb-2">Kekuatan Utama</h4>
-              {renderList(report.strengths)}
-            </CardContent>
-          </Card>
-        )}
+            {report.cognitive_characteristics && (
+              <Card className="border-l-4 border-l-teal-500 bg-teal-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-teal-900 mb-2">Karakteristik Kognitif</h4>
+                  <div className="text-sm">
+                    {renderList(report.cognitive_characteristics)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
 
-        {report.challenges && (
-          <Card className="border-l-4 border-l-red-500 bg-red-50">
-            <CardContent className="p-6">
-              <h4 className="font-bold text-red-900 mb-2">Tantangan & Hambatan</h4>
-              {renderList(report.challenges)}
-            </CardContent>
-          </Card>
-        )}
+        <TabsContent value="character" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {report.strengths && (
+              <Card className="border-l-4 border-l-emerald-500 bg-emerald-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-emerald-900 mb-2 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" /> Kekuatan Utama
+                  </h4>
+                  <div className="text-sm">
+                    {renderList(report.strengths)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-        {report.decision_making && (
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-bold text-slate-900 mb-2">Gaya Pengambilan Keputusan</h4>
-              <p className="text-slate-700 leading-relaxed">{report.decision_making}</p>
-            </CardContent>
-          </Card>
-        )}
+            {report.challenges && (
+              <Card className="border-l-4 border-l-amber-500 bg-amber-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                    <Shield className="w-4 h-4" /> Tantangan & Hambatan
+                  </h4>
+                  <div className="text-sm">
+                    {renderList(report.challenges)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-        {report.learning_style && (
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-bold text-slate-900 mb-2">Gaya Belajar Efektif</h4>
-              <p className="text-slate-700 leading-relaxed">{report.learning_style}</p>
-            </CardContent>
-          </Card>
-        )}
+          {report.conflict_potential && (
+            <Card className="border-l-4 border-l-rose-500 bg-rose-50/50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-rose-900 mb-2">Potensi Konflik</h4>
+                <div className="text-sm">
+                  {renderList(report.conflict_potential)}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
 
-        {report.career_recommendations && (
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-bold text-slate-900 mb-2">Rekomendasi Karir</h4>
-              {renderList(report.career_recommendations)}
-            </CardContent>
-          </Card>
-        )}
+        <TabsContent value="career" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+          {report.learning_style && (
+            <Card className="border-l-4 border-l-sky-500 bg-sky-50/50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-sky-900 mb-2">Lingkungan Kerja / Belajar Ideal</h4>
+                <p className="text-sky-800 leading-relaxed text-sm">{report.learning_style}</p>
+              </CardContent>
+            </Card>
+          )}
 
-        {report.collaboration_tips && (
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-bold text-slate-900 mb-2">Tips Kolaborasi</h4>
-              {renderList(report.collaboration_tips)}
-            </CardContent>
-          </Card>
-        )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {report.career_recommendations && (
+              <Card className="border-l-4 border-l-blue-600 bg-blue-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-blue-900 mb-2">Rekomendasi Karir</h4>
+                  <div className="text-sm">
+                    {renderList(report.career_recommendations)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-        {report.conflict_potential && (
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-bold text-slate-900 mb-2">Potensi Konflik</h4>
-              {renderList(report.conflict_potential)}
-            </CardContent>
-          </Card>
-        )}
+            {report.collaboration_tips && (
+              <Card className="border-l-4 border-l-fuchsia-500 bg-fuchsia-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-fuchsia-900 mb-2">Tips Kolaborasi</h4>
+                  <div className="text-sm">
+                    {renderList(report.collaboration_tips)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
 
-        {report.self_development_tips && (
-          <Card className="border-l-4 border-l-purple-500 bg-purple-50">
-            <CardContent className="p-6">
-              <h4 className="font-bold text-purple-900 mb-2">Tips Pengembangan Diri</h4>
-              {renderList(report.self_development_tips)}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+        <TabsContent value="development" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+          {report.decision_making && (
+            <Card className="border-l-4 border-l-orange-500 bg-orange-50/50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-orange-900 mb-2">Gaya Pengambilan Keputusan</h4>
+                <p className="text-orange-800 leading-relaxed text-sm">{report.decision_making}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {report.self_development_tips && (
+            <Card className="border-l-4 border-l-purple-500 bg-purple-50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-purple-900 mb-2">Tips Pengembangan Diri</h4>
+                <div className="text-sm">
+                  {renderList(report.self_development_tips)}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
@@ -239,9 +287,9 @@ export const TestResult: React.FC = () => {
         <div className="text-center mb-8">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Hasil Gaya Kognitif Anda
+            Hasil Gaya Kognitif {testResult.fullname && testResult.fullname !== 'Pengguna' ? testResult.fullname : 'Anda'}
           </h1>
-          <p className="text-gray-600">Temukan pola berpikir unik Anda</p>
+          <p className="text-gray-600">Temukan pola berpikir unik {testResult.fullname && testResult.fullname !== 'Pengguna' ? testResult.fullname : 'Anda'}</p>
         </div>
 
         {/* Info Upgrade Affiliator */}

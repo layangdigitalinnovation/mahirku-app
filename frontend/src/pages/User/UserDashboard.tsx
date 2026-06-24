@@ -186,7 +186,7 @@ export const UserDashboard: React.FC = () => {
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
                           <h3 className="font-heading text-lg font-semibold text-gray-900">
-                            {result.fullname || 'Pengguna'}
+                            {result.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : (result.fullname || user?.fullname || 'Pengguna')}
                           </h3>
                           {isBirthDateValid && birthDate && (
                             <p className="text-sm text-gray-600">

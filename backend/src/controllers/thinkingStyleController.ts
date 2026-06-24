@@ -202,10 +202,18 @@ export const getThinkingStyleAiReport = async (
     const { userId } = req.user;
     const { resultId } = req.params as any;
 
-    const result = await ThinkingStyleResult.findOne({ where: { id: resultId, userId } });
+    const result = await ThinkingStyleResult.findByPk(resultId);
     if (!result) {
       res.status(404).json({ message: "Hasil tes tidak ditemukan" });
       return;
+    }
+
+    if (result.userId !== userId) {
+      const member = await User.findByPk(result.userId);
+      if (member?.parentId !== userId) {
+        res.status(403).json({ message: "Forbidden" });
+        return;
+      }
     }
 
     res.status(200).json({

@@ -123,8 +123,11 @@ export const getGraphologyResult = async (req: AuthRequest, res: Response): Prom
             return;
         }
         if (testRecord.userId !== authUserId) {
-            res.status(403).json({ status: 'failed', message: 'Forbidden' });
-            return;
+            const memberUser = await User.findByPk(testRecord.userId);
+            if (memberUser?.parentId !== authUserId) {
+                res.status(403).json({ status: 'failed', message: 'Forbidden' });
+                return;
+            }
         }
 
         if (testRecord.status !== 'completed') {

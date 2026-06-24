@@ -134,10 +134,18 @@ export const getDiscAiReport = async (req: AuthRequest, res: Response): Promise<
             return;
         }
 
-        const result = await DiscResult.findOne({ where: { id: resultId, user_id: userId } });
+        const result = await DiscResult.findByPk(resultId);
         if (!result) {
             res.status(404).json({ message: 'Hasil tes tidak ditemukan' });
             return;
+        }
+
+        if (result.user_id !== userId) {
+            const member = await User.findByPk(result.user_id);
+            if (member?.parentId !== userId) {
+                res.status(403).json({ message: 'Forbidden' });
+                return;
+            }
         }
 
         res.status(200).json({

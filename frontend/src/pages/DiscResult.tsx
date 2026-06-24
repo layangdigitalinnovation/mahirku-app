@@ -3,8 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Box,
     Button,
-    Card,
-    CardContent,
+    Card as MuiCard,
+    CardContent as MuiCardContent,
     Container,
     Typography,
     Paper,
@@ -15,9 +15,11 @@ import {
     DialogContentText,
     DialogActions
 } from '@mui/material';
-import { TrendingUp, LogOut } from 'lucide-react';
+import { TrendingUp, LogOut, Brain, CheckCircle, Shield, Zap, Briefcase } from 'lucide-react';
 import { useMeQuery } from '@/hooks/useAuthQuery';
 import { useAuth } from '@/hooks/useAuth';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -46,6 +48,7 @@ interface DiscResultData {
     sScore: number;
     cScore: number;
     dominantType: string;
+    fullname?: string;
 }
 
 export interface DiscAiReportData {
@@ -80,101 +83,145 @@ const AiReportSection = ({ resultId }: { resultId: number }) => {
 
   return (
     <div className="mt-8 mb-4">
-      <Typography variant="h6" sx={{ fontSize: 18, fontWeight: 900, color: '#0F172A', mb: 3 }}>
+      <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <Brain className="h-6 w-6 text-blue-600" />
         Detail Laporan Assessment
-      </Typography>
+      </h3>
 
-      <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #0EA5E9', bgcolor: '#F8FAFC' }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
-          Ringkasan Profil
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#334155', lineHeight: 1.6 }}>
-          {report.profile_summary}
-        </Typography>
-      </Paper>
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 h-auto p-1 bg-slate-100 rounded-xl">
+          <TabsTrigger value="overview" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+            <Brain className="w-4 h-4" /> <span className="hidden sm:inline">Ringkasan</span>
+          </TabsTrigger>
+          <TabsTrigger value="character" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+            <Zap className="w-4 h-4" /> <span className="hidden sm:inline">Karakter</span>
+          </TabsTrigger>
+          <TabsTrigger value="career" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+            <Briefcase className="w-4 h-4" /> <span className="hidden sm:inline">Karir & Kerja</span>
+          </TabsTrigger>
+          <TabsTrigger value="development" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
+            <TrendingUp className="w-4 h-4" /> <span className="hidden sm:inline">Pengembangan</span>
+          </TabsTrigger>
+        </TabsList>
 
-      <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #3B82F6', bgcolor: '#EFF6FF' }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1E3A8A', mb: 1 }}>
-          Gaya Komunikasi Utama
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#1E40AF', lineHeight: 1.6 }}>
-          {report.communication_style}
-        </Typography>
-      </Paper>
+        <TabsContent value="overview" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+          <Card className="border-l-4 border-l-blue-500 bg-slate-50 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <h4 className="font-bold text-slate-900 mb-2">Ringkasan Profil</h4>
+              <p className="text-slate-700 leading-relaxed text-sm">{report.profile_summary}</p>
+            </CardContent>
+          </Card>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="border-l-4 border-l-indigo-500 bg-indigo-50/50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-indigo-900 mb-2">Gaya Komunikasi Utama</h4>
+                <p className="text-indigo-800 leading-relaxed text-sm">{report.communication_style}</p>
+              </CardContent>
+            </Card>
 
-      {report.behavior_traits && (
-        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #E2E8F0', borderRadius: 2 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
-            Karakter Perilaku
-          </Typography>
-          {renderList(report.behavior_traits)}
-        </Paper>
-      )}
+            {report.behavior_traits && (
+              <Card className="border-l-4 border-l-teal-500 bg-teal-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-teal-900 mb-2">Karakter Perilaku</h4>
+                  <div className="text-sm">
+                    {renderList(report.behavior_traits)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
 
-      {report.strengths && (
-        <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #22C55E', bgcolor: '#F0FDF4' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#166534', mb: 1 }}>
-            Kekuatan Utama
-          </Typography>
-          {renderList(report.strengths)}
-        </Paper>
-      )}
+        <TabsContent value="character" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {report.strengths && (
+              <Card className="border-l-4 border-l-emerald-500 bg-emerald-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-emerald-900 mb-2 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" /> Kekuatan Utama
+                  </h4>
+                  <div className="text-sm">
+                    {renderList(report.strengths)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-      {report.challenges && (
-        <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #EF4444', bgcolor: '#FEF2F2' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#991B1B', mb: 1 }}>
-            Tantangan & Titik Buta
-          </Typography>
-          {renderList(report.challenges)}
-        </Paper>
-      )}
+            {report.challenges && (
+              <Card className="border-l-4 border-l-amber-500 bg-amber-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                    <Shield className="w-4 h-4" /> Tantangan & Titik Buta
+                  </h4>
+                  <div className="text-sm">
+                    {renderList(report.challenges)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-      {report.work_environment && (
-        <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #F59E0B', bgcolor: '#FFFBEB' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#92400E', mb: 1 }}>
-            Lingkungan Kerja Ideal
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#B45309', lineHeight: 1.6 }}>
-            {report.work_environment}
-          </Typography>
-        </Paper>
-      )}
+          {report.conflict_risks && (
+            <Card className="border-l-4 border-l-rose-500 bg-rose-50/50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-rose-900 mb-2">Potensi Konflik</h4>
+                <div className="text-sm">
+                  {renderList(report.conflict_risks)}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
 
-      {report.career_recommendations && (
-        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #E2E8F0', borderRadius: 2 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
-            Rekomendasi Karir
-          </Typography>
-          {renderList(report.career_recommendations)}
-        </Paper>
-      )}
+        <TabsContent value="career" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+          {report.work_environment && (
+            <Card className="border-l-4 border-l-sky-500 bg-sky-50/50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-sky-900 mb-2">Lingkungan Kerja Ideal</h4>
+                <p className="text-sky-800 leading-relaxed text-sm">{report.work_environment}</p>
+              </CardContent>
+            </Card>
+          )}
 
-      {report.collaboration_tips && (
-        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #E2E8F0', borderRadius: 2 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
-            Tips Kolaborasi
-          </Typography>
-          {renderList(report.collaboration_tips)}
-        </Paper>
-      )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {report.career_recommendations && (
+              <Card className="border-l-4 border-l-blue-600 bg-blue-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-blue-900 mb-2">Rekomendasi Karir</h4>
+                  <div className="text-sm">
+                    {renderList(report.career_recommendations)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-      {report.conflict_risks && (
-        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #E2E8F0', borderRadius: 2 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0F172A', mb: 1 }}>
-            Potensi Konflik
-          </Typography>
-          {renderList(report.conflict_risks)}
-        </Paper>
-      )}
+            {report.collaboration_tips && (
+              <Card className="border-l-4 border-l-fuchsia-500 bg-fuchsia-50/50 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <h4 className="font-bold text-fuchsia-900 mb-2">Tips Kolaborasi</h4>
+                  <div className="text-sm">
+                    {renderList(report.collaboration_tips)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
 
-      {report.dev_tips && (
-        <Paper elevation={0} sx={{ p: 3, mb: 3, borderLeft: '4px solid #8B5CF6', bgcolor: '#F5F3FF' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#5B21B6', mb: 1 }}>
-            Tips Pengembangan Diri
-          </Typography>
-          {renderList(report.dev_tips)}
-        </Paper>
-      )}
+        <TabsContent value="development" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
+          {report.dev_tips && (
+            <Card className="border-l-4 border-l-purple-500 bg-purple-50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <h4 className="font-bold text-purple-900 mb-2">Tips Pengembangan Diri</h4>
+                <div className="text-sm">
+                  {renderList(report.dev_tips)}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
@@ -335,7 +382,7 @@ const DiscResult: React.FC = () => {
             <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
                 <Box sx={{ textAlign: 'center', mb: 4 }}>
                     <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-                        Your DISC Profile
+                        DISC Profile {result.fullname && result.fullname !== 'Pengguna' ? result.fullname : 'Anda'}
                     </Typography>
                     <Typography variant="h6" color="primary">
                         Dominant Type: {result.dominantType}
@@ -352,8 +399,8 @@ const DiscResult: React.FC = () => {
                         <Bar options={options} data={data} />
                     </Box>
                     <Box sx={{ flex: { xs: '1 1 auto', md: 1 } }}>
-                        <Card variant="outlined">
-                            <CardContent>
+                        <MuiCard variant="outlined">
+                            <MuiCardContent>
                                 <Typography variant="h6" gutterBottom>
                                     Detailed Scores
                                 </Typography>
@@ -375,8 +422,8 @@ const DiscResult: React.FC = () => {
                                         <Typography variant="h4">{result.cScore}</Typography>
                                     </Box>
                                 </Box>
-                            </CardContent>
-                        </Card>
+                            </MuiCardContent>
+                        </MuiCard>
                     </Box>
                 </Box>
 
