@@ -208,9 +208,9 @@ export const getThinkingStyleAiReport = async (
       return;
     }
 
-    if (result.userId !== userId) {
+    if (String(result.userId) !== String(userId)) {
       const member = await User.findByPk(result.userId);
-      if (member?.parentId !== userId) {
+      if (String(member?.parentId) !== String(userId)) {
         res.status(403).json({ message: "Forbidden" });
         return;
       }

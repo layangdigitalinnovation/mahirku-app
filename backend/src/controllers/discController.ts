@@ -140,9 +140,9 @@ export const getDiscAiReport = async (req: AuthRequest, res: Response): Promise<
             return;
         }
 
-        if (result.user_id !== userId) {
+        if (String(result.user_id) !== String(userId)) {
             const member = await User.findByPk(result.user_id);
-            if (member?.parentId !== userId) {
+            if (String(member?.parentId) !== String(userId)) {
                 res.status(403).json({ message: 'Forbidden' });
                 return;
             }

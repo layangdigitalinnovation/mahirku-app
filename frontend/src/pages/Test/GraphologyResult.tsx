@@ -131,18 +131,18 @@ export const GraphologyResult: React.FC = () => {
             </div>
 
             <Tabs defaultValue="overview" className="w-full mt-8">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 h-auto p-1 bg-slate-100 rounded-xl">
-                    <TabsTrigger value="overview" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
-                        <Brain className="w-4 h-4" /> <span className="hidden sm:inline">Ringkasan</span>
+                <TabsList className="flex flex-wrap sm:flex-nowrap w-full gap-2 mb-6 h-auto p-1.5 bg-slate-100 rounded-xl overflow-x-auto">
+                    <TabsTrigger value="overview" className="flex-1 min-w-[140px] py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex justify-center items-center gap-2 text-sm font-medium">
+                        <Brain className="w-4 h-4" /> <span>Ringkasan</span>
                     </TabsTrigger>
-                    <TabsTrigger value="character" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
-                        <Zap className="w-4 h-4" /> <span className="hidden sm:inline">Karakter</span>
+                    <TabsTrigger value="character" className="flex-1 min-w-[140px] py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex justify-center items-center gap-2 text-sm font-medium">
+                        <Zap className="w-4 h-4" /> <span>Karakter</span>
                     </TabsTrigger>
-                    <TabsTrigger value="career" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
-                        <Briefcase className="w-4 h-4" /> <span className="hidden sm:inline">Karir & Kerja</span>
+                    <TabsTrigger value="career" className="flex-1 min-w-[140px] py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex justify-center items-center gap-2 text-sm font-medium">
+                        <Briefcase className="w-4 h-4" /> <span>Karir & Kerja</span>
                     </TabsTrigger>
-                    <TabsTrigger value="development" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
-                        <TrendingUp className="w-4 h-4" /> <span className="hidden sm:inline">Pengembangan</span>
+                    <TabsTrigger value="development" className="flex-1 min-w-[140px] py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex justify-center items-center gap-2 text-sm font-medium">
+                        <TrendingUp className="w-4 h-4" /> <span>Pengembangan</span>
                     </TabsTrigger>
                 </TabsList>
 
@@ -156,7 +156,7 @@ export const GraphologyResult: React.FC = () => {
                         </Card>
                     )}
 
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
                         {result.brain_process && (
                             <Card className="border-l-4 border-l-indigo-500 bg-indigo-50/50 shadow-sm hover:shadow-md transition-shadow">
                                 <CardContent className="p-6">
@@ -180,7 +180,7 @@ export const GraphologyResult: React.FC = () => {
                 </TabsContent>
 
                 <TabsContent value="character" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
                         {result.strengths && result.strengths.length > 0 && (
                             <Card className="border-l-4 border-l-emerald-500 bg-emerald-50/50 shadow-sm hover:shadow-md transition-shadow">
                                 <CardContent className="p-6">
@@ -232,39 +232,29 @@ export const GraphologyResult: React.FC = () => {
                         </Card>
                     )}
 
-                    {result.careers && result.careers.length > 0 && (
-                        <Card className="border-l-4 border-l-blue-600 bg-blue-50/50 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                            <div className="absolute right-0 bottom-0 opacity-5">
-                                <Briefcase className="w-48 h-48 -mr-12 -mb-12" />
-                            </div>
-                            <CardContent className="p-6 relative z-10">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <Briefcase className="w-5 h-5 text-blue-600" />
+                    <div className="space-y-6">
+                        {result.careers && result.careers.length > 0 && (
+                            <Card className="border-l-4 border-l-blue-600 bg-blue-50/50 shadow-sm hover:shadow-md transition-shadow">
+                                <CardContent className="p-6">
+                                    <h4 className="font-bold text-blue-900 mb-2">Rekomendasi Karir</h4>
+                                    <div className="text-sm">
+                                        {renderList(result.careers)}
                                     </div>
-                                    <h3 className="text-xl font-bold text-blue-900">Pekerjaan yang Direkomendasikan</h3>
-                                </div>
-                                <div className="flex flex-wrap gap-3">
-                                    {result.careers.map((career, i) => (
-                                        <span key={i} className="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-100 rounded-lg text-sm font-medium">
-                                            {career}
-                                        </span>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                                </CardContent>
+                            </Card>
+                        )}
 
-                    {result.collab_tips && result.collab_tips.length > 0 && (
-                        <Card className="border-l-4 border-l-fuchsia-500 bg-fuchsia-50/50 shadow-sm hover:shadow-md transition-shadow">
-                            <CardContent className="p-6">
-                                <h4 className="font-bold text-fuchsia-900 mb-2">Tips Kolaborasi</h4>
-                                <div className="text-sm">
-                                    {renderList(result.collab_tips)}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                        {result.collab_tips && result.collab_tips.length > 0 && (
+                            <Card className="border-l-4 border-l-fuchsia-500 bg-fuchsia-50/50 shadow-sm hover:shadow-md transition-shadow">
+                                <CardContent className="p-6">
+                                    <h4 className="font-bold text-fuchsia-900 mb-2">Tips Kolaborasi</h4>
+                                    <div className="text-sm">
+                                        {renderList(result.collab_tips)}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
                 </TabsContent>
 
                 <TabsContent value="development" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">

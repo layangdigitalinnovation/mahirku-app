@@ -65,18 +65,18 @@ const AiReportSection = ({ resultId }: { resultId: number }) => {
       </h3>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 h-auto p-1 bg-slate-100 rounded-xl">
-          <TabsTrigger value="overview" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
-            <Brain className="w-4 h-4" /> <span className="hidden sm:inline">Ringkasan</span>
+        <TabsList className="flex flex-wrap sm:flex-nowrap w-full gap-2 mb-6 h-auto p-1.5 bg-slate-100 rounded-xl overflow-x-auto">
+          <TabsTrigger value="overview" className="flex-1 min-w-[140px] py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex justify-center items-center gap-2 text-sm font-medium">
+            <Brain className="w-4 h-4" /> <span>Ringkasan</span>
           </TabsTrigger>
-          <TabsTrigger value="character" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
-            <Zap className="w-4 h-4" /> <span className="hidden sm:inline">Karakter</span>
+          <TabsTrigger value="character" className="flex-1 min-w-[140px] py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex justify-center items-center gap-2 text-sm font-medium">
+            <Zap className="w-4 h-4" /> <span>Karakter</span>
           </TabsTrigger>
-          <TabsTrigger value="career" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
-            <Briefcase className="w-4 h-4" /> <span className="hidden sm:inline">Karir & Kerja</span>
+          <TabsTrigger value="career" className="flex-1 min-w-[140px] py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex justify-center items-center gap-2 text-sm font-medium">
+            <Briefcase className="w-4 h-4" /> <span>Karir & Kerja</span>
           </TabsTrigger>
-          <TabsTrigger value="development" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex gap-2 text-sm font-medium">
-            <TrendingUp className="w-4 h-4" /> <span className="hidden sm:inline">Pengembangan</span>
+          <TabsTrigger value="development" className="flex-1 min-w-[140px] py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg flex justify-center items-center gap-2 text-sm font-medium">
+            <TrendingUp className="w-4 h-4" /> <span>Pengembangan</span>
           </TabsTrigger>
         </TabsList>
 
@@ -88,7 +88,7 @@ const AiReportSection = ({ resultId }: { resultId: number }) => {
             </CardContent>
           </Card>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             <Card className="border-l-4 border-l-indigo-500 bg-indigo-50/50 shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <h4 className="font-bold text-indigo-900 mb-2">Cara Memproses Informasi</h4>
@@ -110,7 +110,7 @@ const AiReportSection = ({ resultId }: { resultId: number }) => {
         </TabsContent>
 
         <TabsContent value="character" className="space-y-6 mt-0 animate-in fade-in-50 duration-500">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             {report.strengths && (
               <Card className="border-l-4 border-l-emerald-500 bg-emerald-50/50 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
@@ -160,7 +160,7 @@ const AiReportSection = ({ resultId }: { resultId: number }) => {
             </Card>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             {report.career_recommendations && (
               <Card className="border-l-4 border-l-blue-600 bg-blue-50/50 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-6">

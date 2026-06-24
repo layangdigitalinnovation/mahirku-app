@@ -122,9 +122,9 @@ export const getGraphologyResult = async (req: AuthRequest, res: Response): Prom
             res.status(404).json({ status: 'failed', message: 'Graphology test not found' });
             return;
         }
-        if (testRecord.userId !== authUserId) {
+        if (String(testRecord.userId) !== String(authUserId)) {
             const memberUser = await User.findByPk(testRecord.userId);
-            if (memberUser?.parentId !== authUserId) {
+            if (String(memberUser?.parentId) !== String(authUserId)) {
                 res.status(403).json({ status: 'failed', message: 'Forbidden' });
                 return;
             }
