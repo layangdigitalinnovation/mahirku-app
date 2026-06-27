@@ -438,8 +438,8 @@ export default function DashboardScreen({ navigation }: any) {
                             </Text>
                           </Text>
                         </View>
-                        {/* Only show date when valid and not DISC */}
-                        {!isDisc && date && (
+                        {/* Only show date when valid */}
+                        {date && (
                           <Text style={styles.activityDate}>{date}</Text>
                         )}
                       </View>

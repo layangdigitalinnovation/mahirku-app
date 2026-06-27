@@ -69,7 +69,7 @@ export const getMemberReports = async (req: Request, res: Response): Promise<voi
         tests.push({
           id: d.id,
           testType: 'DISC',
-          date: d.created_at,
+          date: (d as any).createdAt || (d as any).created_at,
           result: {
             type: d.dominant_type
           },

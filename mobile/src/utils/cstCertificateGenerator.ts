@@ -87,6 +87,15 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
 
         @media print {
             @page { size: A4 portrait; margin: 0; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .serif { font-family: 'Playfair Display', serif; }
@@ -144,22 +153,32 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
     </div>
 
     <!-- PAGE 2: DETAIL LAPORAN -->
-    <div class="a4-report py-8 px-10 flex flex-col bg-white">
-        <div class="flex items-center justify-between border-b pb-4 mb-5">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl shadow-sm">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-slate-800">Detail Laporan Assessment</h2>
-                    <p class="text-sm text-slate-500">Cognitive Style (9 Dimensions Mapping)</p>
-                </div>
-            </div>
-            <div class="text-right">
-                <p class="text-sm font-semibold text-slate-400">${data.studentName}</p>
-                <p class="text-xs text-slate-400">${data.certificateId}</p>
-            </div>
-        </div>
+    <div class="a4-report bg-white">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="display: table-header-group;">
+                <tr>
+                    <td class="pt-8 px-10">
+                        <div class="flex items-center justify-between border-b pb-4 mb-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl shadow-sm">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-800">Detail Laporan Assessment</h2>
+                                    <p class="text-sm text-slate-500">Cognitive Style (9 Dimensions Mapping)</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-semibold text-slate-400">${data.studentName}</p>
+                                <p class="text-xs text-slate-400">${data.certificateId}</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="px-10">
 
         <div class="${c.bg} text-white rounded-2xl p-5 mb-5 flex items-center justify-between shadow-md">
             <div>
@@ -176,28 +195,28 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
         <div class="grid grid-cols-2 gap-6">
             <!-- KOLOM KIRI -->
             <div class="space-y-4">
-                <div>
+                <div class="avoid-break">
                     <h4 class="text-[14px] font-bold text-slate-800 mb-1 border-l-4 border-indigo-500 pl-3">Ringkasan Profil</h4>
                     <p class="text-[12.5px] text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
                         ${data.summary}
                     </p>
                 </div>
 
-                <div>
+                <div class="avoid-break">
                     <h4 class="text-[14px] font-bold text-slate-800 mb-1 border-l-4 border-indigo-500 pl-3">Cara Otak Memproses Informasi</h4>
                     <p class="text-[12.5px] text-slate-600 leading-relaxed px-2">
                         ${data.brainProcess}
                     </p>
                 </div>
 
-                <div>
+                <div class="avoid-break">
                     <h4 class="text-[14px] font-bold text-slate-800 mb-1.5 border-l-4 border-indigo-500 pl-3">Karakteristik Dominan</h4>
                     <ul class="space-y-1 pl-2">
                         ${data.traits.map(t => `<li class="flex items-start gap-2 text-[12.5px] text-slate-700 py-0.5"><i class="fas fa-circle mt-1 text-[11px] ${c.text}"></i><span class="leading-snug font-medium">${t}</span></li>`).join('')}
                     </ul>
                 </div>
 
-                <div class="bg-emerald-50/50 rounded-xl p-3.5 border border-emerald-100">
+                <div class="bg-emerald-50/50 rounded-xl p-3.5 border border-emerald-100 avoid-break">
                     <h4 class="text-[13px] font-bold text-emerald-800 mb-2 flex items-center gap-2">
                         <i class="fas fa-check-circle"></i> Kekuatan Utama
                     </h4>
@@ -206,7 +225,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                     </ul>
                 </div>
                 
-                <div class="bg-amber-50/50 rounded-xl p-3.5 border border-amber-100">
+                <div class="bg-amber-50/50 rounded-xl p-3.5 border border-amber-100 avoid-break">
                     <h4 class="text-[13px] font-bold text-amber-800 mb-2 flex items-center gap-2">
                         <i class="fas fa-exclamation-triangle"></i> Titik Buta (Blind Spots)
                     </h4>
@@ -218,14 +237,14 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
 
             <!-- KOLOM KANAN -->
             <div class="space-y-4">
-                <div>
+                <div class="avoid-break">
                     <h4 class="text-[14px] font-bold text-slate-800 mb-1 border-l-4 border-indigo-500 pl-3">Lingkungan Belajar & Kerja Ideal</h4>
                     <p class="text-[12.5px] text-slate-600 leading-relaxed px-2">
                          ${data.workEnv}
                     </p>
                 </div>
 
-                <div>
+                <div class="avoid-break">
                     <h4 class="text-[14px] font-bold text-slate-800 mb-2 border-l-4 border-indigo-500 pl-3">Rekomendasi Karir Digital</h4>
                     <div class="grid grid-cols-2 gap-2 pl-2">
                         ${data.careers.map((t, idx) => {
@@ -235,7 +254,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                     </div>
                 </div>
 
-                <div class="bg-blue-50/50 rounded-xl p-3.5 border border-blue-100">
+                <div class="bg-blue-50/50 rounded-xl p-3.5 border border-blue-100 avoid-break">
                     <h4 class="text-[13px] font-bold text-blue-800 mb-2 flex items-center gap-2">
                         <i class="fas fa-users"></i> Cara Efektif Berkolaborasi
                     </h4>
@@ -251,7 +270,7 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
                     </ul>
                 </div>
 
-                <div class="bg-indigo-50/50 rounded-xl p-3.5 border border-indigo-100">
+                <div class="bg-indigo-50/50 rounded-xl p-3.5 border border-indigo-100 avoid-break">
                     <h4 class="text-[13px] font-bold text-indigo-800 mb-2 flex items-center gap-2">
                         <i class="fas fa-chart-line"></i> Tips Pengembangan Diri
                     </h4>
@@ -262,12 +281,22 @@ export const generateCSTCertificatePDF = async (data: CSTCertificateData) => {
             </div>
         </div>
 
-        <div class="mt-auto pt-3 border-t border-slate-100 flex items-start gap-2.5">
-            <i class="fas fa-info-circle text-slate-400 mt-0.5 text-xs"></i>
-            <p class="text-[10px] text-slate-400 leading-relaxed">
-                <strong>Disclaimer:</strong> Hasil ini merupakan pemetaan dimensi kognitif beserta spektrum Ekstroversi/Introversi. Laporan ini dirancang untuk pemetaan bakat karir digital dan metode kolaborasi, bukan merupakan diagnosis psikologis klinis.
-            </p>
-        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot style="display: table-footer-group;">
+                <tr>
+                    <td class="pb-8 px-10">
+                        <div class="mt-8 pt-3 border-t border-slate-100 flex items-start gap-2.5 avoid-break">
+                            <i class="fas fa-info-circle text-slate-400 mt-0.5 text-xs"></i>
+                            <p class="text-[10px] text-slate-400 leading-relaxed">
+                                <strong>Disclaimer:</strong> Hasil ini merupakan pemetaan dimensi kognitif beserta spektrum Ekstroversi/Introversi. Laporan ini dirancang untuk pemetaan bakat karir digital dan metode kolaborasi, bukan merupakan diagnosis psikologis klinis.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 </body>
 </html>

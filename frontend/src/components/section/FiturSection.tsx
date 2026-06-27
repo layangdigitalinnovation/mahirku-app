@@ -13,7 +13,7 @@ const features = [
     id: 1,
     title: "Pilihan Personality Test",
     description:
-      "Temukan pola berpikir unik dan karakteristik pribadi Anda melalui tes komprehensif yang menggabungkan teknologi biometrik modern dan analisis mendalam. Hasil tes akan memberikan wawasan berharga tentang cara Anda memproses informasi dan membuat keputusan. Dengan pemahaman mendalam tentang gaya berpikir Anda, Anda dapat mengoptimalkan potensi diri dan meningkatkan efektivitas dalam pembelajaran dan pengambilan keputusan sehari-hari.",
+      "Temukan pola berpikir unik dan karakteristik pribadi Anda melalui tes komprehensif dengan analisis mendalam. Hasil tes akan memberikan wawasan berharga tentang cara Anda memproses informasi dan membuat keputusan. Dengan pemahaman mendalam tentang gaya berpikir Anda, Anda dapat mengoptimalkan potensi diri dan meningkatkan efektivitas dalam pembelajaran dan pengambilan keputusan sehari-hari.",
     icon: brain,
   },
   {

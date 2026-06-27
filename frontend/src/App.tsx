@@ -203,6 +203,10 @@ function AppRoutes() {
         <Route path="overview" element={<UserDashboard />} />
         <Route path="users" element={<CustomerChilds />} />
         <Route path="invoice" element={<UserInvoice />} />
+        
+        {/* Affiliate Center untuk User */}
+        <Route path="affiliate-center" element={<AffiliatorDashboard />} />
+        <Route path="affiliate-center/withdraw" element={<AffiliateWithdrawPage />} />
 
         {/* Test */}
         <Route path="test" element={<CognitiveTest />} />

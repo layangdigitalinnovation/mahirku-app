@@ -112,29 +112,32 @@ export const UserDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Info Upgrade Affiliator (Hanya untuk user yang punya Mitra Pendamping) */}
+        {/* Info Affiliate Center / Peluang Upgrade (Hanya untuk user yang punya Mitra Pendamping) */}
         {user?.parent && user?.roleId === 4 && (
           <div className="mb-8 relative overflow-hidden bg-linear-to-r from-yellow-50 to-orange-50 rounded-2xl shadow-sm border border-yellow-100 p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
               <div className="space-y-2 max-w-2xl">
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold uppercase tracking-wide">
-                    Peluang Upgrade
+                    {userResults.length > 0 ? "Affiliate Center" : "Peluang Upgrade"}
                   </span>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">
-                  Dapatkan Akses Affiliator Secara Otomatis!
+                  {userResults.length > 0 
+                    ? "Akses Dashboard Affiliator Anda" 
+                    : "Dapatkan Akses Affiliator Secara Otomatis!"}
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Selesaikan <span className="font-semibold text-gray-900">Tes Gaya Kognitif</span> sekarang juga.
-                  Setelah tes selesai, akun Anda akan otomatis di-upgrade menjadi <span className="font-semibold text-blue-600">Affiliator</span>.
-                  Anda akan mendapatkan akses ke Dashboard Affiliator dan mulai bisa menghasilkan pendapatan tambahan.
+                  {userResults.length > 0
+                    ? "Karena Anda telah menyelesaikan tes, Anda memiliki akses penuh ke fitur Affiliator. Bagikan link referral Anda dan mulai hasilkan pendapatan tambahan sekarang!"
+                    : <><span className="font-semibold text-gray-900">Selesaikan Tes Gaya Kognitif</span> sekarang juga. Setelah tes selesai, akun Anda akan otomatis mendapatkan akses <span className="font-semibold text-blue-600">Affiliator</span>. Anda akan mendapatkan akses ke Dashboard Affiliator dan mulai bisa menghasilkan pendapatan tambahan.</>
+                  }
                 </p>
               </div>
               <div className="shrink-0">
-                <Link to="/customer/dashboard/test">
+                <Link to={userResults.length > 0 ? "/customer/dashboard/affiliate-center" : "/customer/dashboard/test"}>
                   <Button className="bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg shadow-yellow-200/50 transition-all hover:scale-105">
-                    Mulai Tes Sekarang
+                    {userResults.length > 0 ? "Buka Affiliate Center" : "Mulai Tes Sekarang"}
                   </Button>
                 </Link>
               </div>
@@ -185,8 +188,11 @@ export const UserDashboard: React.FC = () => {
                     >
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
-                          <h3 className="font-heading text-lg font-semibold text-gray-900">
+                          <h3 className="font-heading text-lg font-semibold text-gray-900 flex items-center gap-2">
                             {result.fullname === 'Pengguna' ? (user?.fullname || 'Pengguna') : (result.fullname || user?.fullname || 'Pengguna')}
+                            <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                              {result.testType === 'DISC' ? 'DISC Test' : String(result.testType) === 'Graphology' ? 'Graphology Test' : 'Cognitive Style Test'}
+                            </span>
                           </h3>
                           {isBirthDateValid && birthDate && (
                             <p className="text-sm text-gray-600">

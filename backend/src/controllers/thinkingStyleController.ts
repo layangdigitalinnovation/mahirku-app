@@ -304,9 +304,10 @@ export const getThinkingStyleHistory = async (
       return {
         ...json,
         id: item.id, // Ensure ID is preserved
+        userId: item.user_id || item.userId || json.user_id || json.userId, // Map userId for frontend
         fullname: user.fullname, // Use current user fullname as fallback since DISC doesn't store snapshot
         birthdate: derivedBirthdate, // Use derived birthdate or null
-        createdAt: item.created_at, // Normalize field name
+        createdAt: item.createdAt || item.created_at || json.createdAt || json.created_at, // Normalize field name
         testType: 'DISC',
         // Map snake_case to camelCase for frontend compatibility
         dScore: json.d_score,
@@ -322,7 +323,7 @@ export const getThinkingStyleHistory = async (
           theory: "William Moulton Marston's DISC Theory",
           code: item.dominant_type?.split(' ')[0] || 'DISC'
         },
-        sortDate: new Date(item.created_at)
+        sortDate: new Date(item.createdAt || item.created_at || json.createdAt || json.created_at || new Date())
       };
     });
 
@@ -330,6 +331,8 @@ export const getThinkingStyleHistory = async (
       const json = item.toJSON();
       return {
         ...json,
+        id: item.id,
+        userId: item.userId || json.userId, // Map userId for frontend
         fullname: user.fullname,
         birthdate: derivedBirthdate,
         testType: 'Graphology',

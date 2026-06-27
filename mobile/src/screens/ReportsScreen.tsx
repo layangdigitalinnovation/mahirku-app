@@ -207,7 +207,7 @@ export default function ReportsScreen({ navigation }: any) {
                         </Text>
                         <View style={styles.dateBadge}>
                           <Text style={styles.itemDate}>
-                            {item.testType === 'DISC' ? '' : dateStr}
+                            {dateStr}
                           </Text>
                         </View>
                       </View>

@@ -124,7 +124,9 @@ export const getGraphologyResult = async (req: AuthRequest, res: Response): Prom
             return;
         }
         // Check ownership
-        if (String(testRecord.userId) !== String(authUserId)) {
+        const testUserId = testRecord.userId || (testRecord as any).user_id;
+        
+        if (String(testUserId) !== String(authUserId)) {
             let isAllowed = false;
 
             // Allow if super_admin
@@ -137,7 +139,7 @@ export const getGraphologyResult = async (req: AuthRequest, res: Response): Prom
 
             // Allow if member belongs to current user
             if (!isAllowed) {
-                const memberUser = await User.findByPk(testRecord.userId);
+                const memberUser = await User.findByPk(testUserId);
                 if (memberUser && String(memberUser.parentId) === String(authUserId)) {
                     isAllowed = true;
                 }

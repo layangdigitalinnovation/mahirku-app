@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
-import { Text, Button, Surface, useTheme } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Platform, Alert } from 'react-native';
+import { Text, Button, Surface, useTheme, ActivityIndicator } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { DiscResultData, getDiscAiReport } from '../api/disc';
@@ -8,6 +8,7 @@ import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import ShareResultModal from '../components/ui/ShareResultModal';
 import { buildShareCaption, shareResultPosterPDF, shareResultText } from '../utils/testResultShare';
+import { generateDISCCertificatePDF } from '../utils/discCertificateGenerator';
 
 export default function DiscResultScreen() {
   const navigation = useNavigation<any>();
@@ -16,6 +17,7 @@ export default function DiscResultScreen() {
   const theme = useTheme();
   const queryClient = useQueryClient();
   const [shareOpen, setShareOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { data: aiReportRes } = useQuery({
     queryKey: ['discAiReport', result?.id],
@@ -31,6 +33,35 @@ export default function DiscResultScreen() {
 
   const me = queryClient.getQueryData<any>(['me']);
   const userName = me?.user?.fullname || 'Pengguna';
+
+  const handleDownloadCertificate = async () => {
+    setIsDownloading(true);
+    try {
+      await generateDISCCertificatePDF({
+        studentName: userName,
+        completionDate: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        certificateId: result?.id ? String(result.id) : 'DISC-UNKNOWN',
+        resultTitle: getTypeLabel(result?.dominantType || ''),
+        resultSubtitle: getTypeDescription(result?.dominantType || ''),
+        score: '100%', 
+        code: result?.dominantType || 'D',
+        summary: effectiveDiscAiReport?.profile_summary || '',
+        commStyle: effectiveDiscAiReport?.communication_style || '',
+        traits: effectiveDiscAiReport?.behavior_traits || [],
+        strengths: effectiveDiscAiReport?.strengths || [],
+        challenges: effectiveDiscAiReport?.challenges || [],
+        workEnv: effectiveDiscAiReport?.work_environment || '',
+        careers: effectiveDiscAiReport?.career_recommendations || [],
+        collabTips: [],
+        conflictRisks: [],
+        devTips: [],
+      });
+    } catch (error) {
+      Alert.alert('Gagal', 'Terjadi kesalahan saat mengunduh sertifikat.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const getTypeLabel = (type: string) => {
     const map: Record<string, string> = { D: 'Dominance', I: 'Influence', S: 'Steadiness', C: 'Compliance' };
@@ -137,7 +168,7 @@ export default function DiscResultScreen() {
           <ScoreBar label="Compliance (C)" score={result?.cScore || 0} color="#34D399" />
         </Surface>
 
-        {effectiveDiscAiReport && (
+        {effectiveDiscAiReport ? (
           <View style={{ marginTop: 24, marginBottom: 12 }}>
             <Text style={{ fontSize: 18, fontWeight: '900', color: '#0F172A', marginBottom: 16 }}>Detail Laporan Assessment</Text>
             
@@ -212,21 +243,40 @@ export default function DiscResultScreen() {
               </View>
             )}
           </View>
+        ) : (
+          <View style={{ marginTop: 24, marginBottom: 24, alignItems: 'center', justifyContent: 'center', paddingVertical: 40, backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: '#F1F5F9' }}>
+            <ActivityIndicator size="large" color="#0EA5E9" />
+            <Text style={{ marginTop: 16, color: '#64748B', textAlign: 'center', paddingHorizontal: 24, fontSize: 14, lineHeight: 22 }}>Mohon tunggu untuk menampilkan Detail Laporan Assessment</Text>
+          </View>
         )}
       </ScrollView>
 
       <Surface style={styles.footer} elevation={5}>
-        <Button
-          mode="contained-tonal"
-          onPress={() => setShareOpen(true)}
-          style={styles.shareBtn}
-          labelStyle={styles.shareBtnText}
-          textColor="#0EA5E9"
-        >
-          Bagikan Hasil
-        </Button>
-        <Button mode="contained" onPress={() => navigation.navigate('Dashboard')} style={styles.doneBtn} labelStyle={styles.doneBtnText} buttonColor="#0EA5E9">
-          Selesai & Kembali ke Dashboard
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Button
+            mode="contained-tonal"
+            onPress={() => setShareOpen(true)}
+            style={[styles.shareBtn, { flex: 1 }]}
+            labelStyle={styles.shareBtnText}
+            textColor="#0EA5E9"
+            icon="share-variant"
+          >
+            Bagikan
+          </Button>
+          <Button
+            mode="contained"
+            onPress={handleDownloadCertificate}
+            loading={isDownloading}
+            disabled={isDownloading || !effectiveDiscAiReport}
+            style={[styles.shareBtn, { flex: 1, backgroundColor: '#0EA5E9' }]}
+            labelStyle={[styles.shareBtnText, { color: '#FFFFFF' }]}
+            icon="download"
+          >
+            Sertifikat
+          </Button>
+        </View>
+        <Button mode="text" onPress={() => navigation.navigate('Dashboard')} textColor="#64748B" style={{ marginTop: 4 }}>
+          Kembali ke Dashboard
         </Button>
       </Surface>
 

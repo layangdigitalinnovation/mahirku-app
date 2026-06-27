@@ -255,7 +255,7 @@ export const TestResult: React.FC = () => {
           <p className="text-gray-600">Temukan pola berpikir unik {testResult.fullname && testResult.fullname !== 'Pengguna' ? testResult.fullname : 'Anda'}</p>
         </div>
 
-        {/* Info Upgrade Affiliator */}
+        {/* Info Affiliate Center */}
         {user?.parent && (
           <Card className="mb-8 bg-linear-to-r from-yellow-50 to-orange-50 border-yellow-200 overflow-hidden relative">
             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-orange-200 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
@@ -266,21 +266,21 @@ export const TestResult: React.FC = () => {
                 </div>
                 <div className="grow space-y-2">
                   <h3 className="text-xl font-bold text-gray-900">
-                    Selamat! Akun Anda Telah Di-Upgrade
+                    Affiliate Center
                   </h3>
                   <p className="text-gray-700 leading-relaxed">
-                    Karena Anda telah menyelesaikan Tes Gaya Kognitif, status akun Anda kini menjadi <span className="font-bold text-yellow-700">Affiliator</span>. 
+                    Karena Anda telah menyelesaikan tes, Anda kini dapat mengakses fitur <span className="font-bold text-yellow-700">Affiliator</span>. 
                     Anda sekarang memiliki akses ke Dashboard Affiliator untuk mulai menghasilkan pendapatan.
                   </p>
                 </div>
                 <div className="shrink-0 w-full sm:w-auto">
-                  <Button 
-                    onClick={handleLogout}
-                    className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg shadow-yellow-200/50 transition-all hover:scale-105"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout & Login Kembali
-                  </Button>
+                  <Link to="/customer/dashboard/affiliate-center">
+                    <Button 
+                      className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg shadow-yellow-200/50 transition-all hover:scale-105"
+                    >
+                      Buka Affiliate Center
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </CardContent>
@@ -405,17 +405,23 @@ export const TestResult: React.FC = () => {
       <AlertDialog open={openUpgradeDialog} onOpenChange={setOpenUpgradeDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Selamat! Akun Anda Telah Di-Upgrade</AlertDialogTitle>
+            <AlertDialogTitle>Affiliate Center</AlertDialogTitle>
             <AlertDialogDescription>
-              Karena Anda telah menyelesaikan Tes Gaya Kognitif, status akun Anda kini menjadi <strong>Affiliator</strong>.
+              Karena Anda telah menyelesaikan tes, Anda kini dapat mengakses fitur <strong>Affiliator</strong>.
               <br /><br />
-              Silakan <strong>Logout</strong> dan Login kembali untuk mengakses Dashboard Affiliator dan mulai menghasilkan pendapatan.
+              Silakan Login ke Dashboard Affiliator untuk mulai menghasilkan pendapatan dari program referral.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Nanti Saja</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout} className="bg-primary hover:bg-primary/90">
-              Logout Sekarang
+            <AlertDialogCancel asChild>
+              <Link to="/customer/dashboard" className="px-4 py-2 border rounded-md font-medium text-slate-700 bg-white hover:bg-slate-50 inline-flex items-center justify-center">
+                Kembali ke Dashboard
+              </Link>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild className="bg-primary hover:bg-primary/90">
+              <Link to="/customer/dashboard/affiliate-center">
+                Buka Affiliate Center
+              </Link>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

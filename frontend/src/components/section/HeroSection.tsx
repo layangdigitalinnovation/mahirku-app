@@ -23,12 +23,12 @@ export const HeroSection = () => {
           <p className="text-body1 text-neutral-900 max-w-2xl mx-auto font-body">
             temukan semua potensi diri anda dari kemampuan daya pikir, psikologi, dan mental untuk menuju kesuksesan
           </p>
-          <div className="flex flex-wrap items-center gap-4">
-            <Button asChild size="lg" variant="secondary">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full max-w-sm sm:max-w-none mx-auto sm:mx-0">
+            <Button asChild variant="secondary" className="w-full sm:w-auto h-[48px] text-base font-semibold">
               <Link to="/register">Mulai Tes Sekarang</Link>
             </Button>
-            <a href="https://play.google.com/store/apps/details?id=com.mahirku.app" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-              <img src={googlePlayBadge} alt="Get it on Google Play" className="h-11 w-auto" />
+            <a href="https://play.google.com/store/apps/details?id=com.mahirku.app" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto hover:opacity-80 transition-opacity flex justify-center">
+              <img src={googlePlayBadge} alt="Get it on Google Play" className="h-[48px] w-auto object-contain" />
             </a>
           </div>
         </div>
