@@ -27,8 +27,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Unauthorized, bisa redirect ke login atau hapus token
-      console.warn('Unauthorized, redirecting to login...');
-      localStorage.removeItem('token');// Atau gunakan navigate() jika di React component
+      console.warn('Unauthorized, dispatching auth-error event...');
+      localStorage.removeItem('token');
+      // Dispatch custom event to trigger logout in AuthProvider
+      window.dispatchEvent(new Event('auth-error'));
     }
 
     // Tambahkan log error lainnya jika perlu

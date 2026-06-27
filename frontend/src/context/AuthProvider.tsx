@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { login, registerUser, registerAffiliator } from '../services/api';
 import { clearAllCookies } from '@/utils/cookies';
@@ -89,6 +89,96 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeUser();
   }, [navigate, location.pathname]);
 
+  // Enhanced logout with complete cache clearing
+  const logout = useCallback(async () => {
+    try {
+      // Clear all React Query cache
+      clearAllCache();
+
+      // Clear all authentication-related data
+      const keysToRemove = [
+        'neuroscan-user',
+        'token',
+        'authToken',
+        'refreshToken',
+        'userSession',
+        'userPreferences'
+      ];
+
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      });
+
+      // Clear all cst: cached data
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('cst:')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Clear cookies using utility function
+      clearAllCookies();
+
+      // Reset user state
+      setUser(null);
+      
+      // Navigate to login page
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force logout even if there's an error
+      setUser(null);
+      navigate('/login', { replace: true });
+    }
+  }, [clearAllCache, navigate]);
+
+  // Listen for auth-error event (from axios interceptor)
+  useEffect(() => {
+    const handleAuthError = () => {
+      // Hanya tampilkan alert jika user sedang login
+      const storedUser = localStorage.getItem('neuroscan-user');
+      if (storedUser) {
+        alert('Sesi Anda telah berakhir. Silakan login kembali.');
+        logout();
+      }
+    };
+    window.addEventListener('auth-error', handleAuthError);
+    return () => {
+      window.removeEventListener('auth-error', handleAuthError);
+    };
+  }, [logout]);
+
+  // Implement inactivity timeout
+  useEffect(() => {
+    if (!user) return; // Only start timer if user is logged in
+
+    // 60 minutes inactivity timeout
+    const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000;
+    let inactivityTimer: ReturnType<typeof setTimeout>;
+
+    const resetTimer = () => {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        alert('Sesi Anda telah berakhir karena tidak ada aktivitas. Silakan login kembali.');
+        logout();
+      }, INACTIVITY_TIMEOUT_MS);
+    };
+
+    // Events to listen to for resetting the timer
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+
+    // Setup initial timer and event listeners
+    resetTimer();
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+
+    // Cleanup
+    return () => {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+    };
+  }, [user, logout]);
+
   // Login function
   const loginUser = async (email: string, password: string) => {
     try {
@@ -166,49 +256,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Enhanced logout with complete cache clearing
-  const logout = async () => {
-    try {
-      // Clear all React Query cache
-      clearAllCache();
-
-      // Clear all authentication-related data
-      const keysToRemove = [
-        'neuroscan-user',
-        'token',
-        'authToken',
-        'refreshToken',
-        'userSession',
-        'userPreferences'
-      ];
-
-      keysToRemove.forEach(key => {
-        localStorage.removeItem(key);
-        sessionStorage.removeItem(key);
-      });
-
-      // Clear all cst: cached data
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('cst:')) {
-          localStorage.removeItem(key);
-        }
-      });
-
-      // Clear cookies using utility function
-      clearAllCookies();
-
-      // Reset user state
-      setUser(null);
-      
-      // Navigate to login page
-      navigate('/login', { replace: true });
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Force logout even if there's an error
-      setUser(null);
-      navigate('/login', { replace: true });
-    }
-  };
 
   const contextValue: AuthContextType = {
     user,
