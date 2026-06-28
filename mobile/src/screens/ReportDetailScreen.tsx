@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Button, Surface } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '../components/basic/Card';
 import PrimaryButton from '../components/basic/PrimaryButton';
@@ -886,24 +887,37 @@ export default function ReportDetailScreen({ navigation, route }: any) {
               </View>
             </>
           ) : null}
-
-          <PrimaryButton
-            title="Bagikan Hasil"
-            leftIcon={<Feather name="share-2" size={18} color="#0F172A" />}
-            onPress={() => setShareOpen(true)}
-            style={{ marginTop: 14 }}
-            variant="secondary"
-          />
-
-          <PrimaryButton
-            title="Download Sertifikat"
-            leftIcon={<Feather name="download" size={18} color="#FFFFFF" />}
-            onPress={dlCert}
-            style={styles.downloadBtn}
-            loading={downloading}
-          />
         </Card>
       </ScrollView >
+
+      <Surface style={styles.footer} elevation={5}>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Button
+            mode="contained-tonal"
+            onPress={() => setShareOpen(true)}
+            style={[styles.shareBtn, { flex: 1, backgroundColor: shareType === 'disc' ? '#E0F2FE' : '#EEF2FF' }]}
+            labelStyle={styles.shareBtnText}
+            textColor={shareType === 'disc' ? '#0EA5E9' : '#4F46E5'}
+            icon="share-variant"
+          >
+            Bagikan
+          </Button>
+          <Button
+            mode="contained"
+            onPress={dlCert}
+            loading={downloading}
+            disabled={downloading || !effectiveReport}
+            style={[styles.shareBtn, { flex: 1, backgroundColor: shareType === 'disc' ? '#0EA5E9' : '#4F46E5' }]}
+            labelStyle={[styles.shareBtnText, { color: '#FFFFFF' }]}
+            icon="download"
+          >
+            Sertifikat
+          </Button>
+        </View>
+        <Button mode="text" onPress={() => (fromFingerprint ? navigation.replace('Dashboard') : navigation.goBack())} textColor="#64748B" style={{ marginTop: 4 }}>
+          Kembali ke Dashboard
+        </Button>
+      </Surface>
       <ShareResultModal
         visible={shareOpen}
         onClose={() => setShareOpen(false)}
@@ -1230,4 +1244,7 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 4
   },
+  footer: { padding: 24, paddingBottom: Platform.OS === 'ios' ? 34 : 24, backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32, gap: 10 },
+  shareBtn: { borderRadius: 16, height: 52, justifyContent: 'center' },
+  shareBtnText: { fontSize: 15, fontWeight: 'bold', letterSpacing: 0.2 },
 });

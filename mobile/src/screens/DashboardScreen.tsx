@@ -424,7 +424,7 @@ export default function DashboardScreen({ navigation }: any) {
                         </View>
                         <View style={{ flex: 1, marginLeft: 16 }}>
                           <Text style={styles.activityName}>
-                            {item.testType === 'DISC' ? 'DISC Test' : 'Cognitive Style Test'}
+                            {item.testType === 'DISC' ? 'DISC Test' : item.testType === 'Graphology' ? 'Graphology Test' : 'Cognitive Style Test'}
                           </Text>
                           <Text style={styles.activityResult}>
                             Hasil: <Text style={{ fontWeight: '600', color: '#4F46E5' }}>
@@ -434,7 +434,9 @@ export default function DashboardScreen({ navigation }: any) {
                                   const name = discNameMap[code] || item.thinkingStyle?.type || code;
                                   return `${code} (${name})`;
                                 })()
-                                : (item.thinkingStyle?.type || 'Unknown')}
+                                : item.testType === 'Graphology'
+                                  ? (item.thinkingStyle?.type || 'Proses Analisis')
+                                  : (item.thinkingStyle?.type || 'Unknown')}
                             </Text>
                           </Text>
                         </View>

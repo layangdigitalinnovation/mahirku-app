@@ -52,9 +52,9 @@ export default function DiscResultScreen() {
         challenges: effectiveDiscAiReport?.challenges || [],
         workEnv: effectiveDiscAiReport?.work_environment || '',
         careers: effectiveDiscAiReport?.career_recommendations || [],
-        collabTips: [],
-        conflictRisks: [],
-        devTips: [],
+        collabTips: effectiveDiscAiReport?.collaboration_tips || [],
+        conflictRisks: effectiveDiscAiReport?.conflict_risks || [],
+        devTips: effectiveDiscAiReport?.dev_tips || [],
       });
     } catch (error) {
       Alert.alert('Gagal', 'Terjadi kesalahan saat mengunduh sertifikat.');
@@ -236,6 +236,56 @@ export default function DiscResultScreen() {
                   {effectiveDiscAiReport.career_recommendations.map((it: string, idx: number) => (
                     <View key={`car-${idx}`} style={styles.bulletRow}>
                       <MaterialCommunityIcons name="briefcase-outline" size={16} color="#0EA5E9" />
+                      <Text style={styles.bulletText}>{it}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {(Array.isArray(effectiveDiscAiReport.collaboration_tips) && effectiveDiscAiReport.collaboration_tips.length > 0) || (Array.isArray(effectiveDiscAiReport.conflict_risks) && effectiveDiscAiReport.conflict_risks.length > 0) ? (
+              <View style={[styles.block, { backgroundColor: '#F0F9FF', borderColor: '#E0F2FE' }]}>
+                {Array.isArray(effectiveDiscAiReport.collaboration_tips) && effectiveDiscAiReport.collaboration_tips.length > 0 && (
+                  <View>
+                    <Text style={[styles.blockTitle, { color: '#1D4ED8' }]}>Cara Berkolaborasi</Text>
+                    <View style={{ gap: 8, marginTop: 10 }}>
+                      {effectiveDiscAiReport.collaboration_tips.map((it: string, idx: number) => (
+                        <View key={`col-${idx}`} style={styles.bulletRow}>
+                          <Feather name="users" size={16} color="#3B82F6" />
+                          <Text style={styles.bulletText}>{it}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {Array.isArray(effectiveDiscAiReport.collaboration_tips) && effectiveDiscAiReport.collaboration_tips.length > 0 && Array.isArray(effectiveDiscAiReport.conflict_risks) && effectiveDiscAiReport.conflict_risks.length > 0 && (
+                  <View style={{ height: 1, backgroundColor: '#DBEAFE', marginVertical: 16 }} />
+                )}
+
+                {Array.isArray(effectiveDiscAiReport.conflict_risks) && effectiveDiscAiReport.conflict_risks.length > 0 && (
+                  <View>
+                    <Text style={[styles.blockTitle, { color: '#BE123C' }]}>Potensi Konflik</Text>
+                    <View style={{ gap: 8, marginTop: 10 }}>
+                      {effectiveDiscAiReport.conflict_risks.map((it: string, idx: number) => (
+                        <View key={`con-${idx}`} style={styles.bulletRow}>
+                          <Feather name="zap" size={16} color="#EF4444" />
+                          <Text style={styles.bulletText}>{it}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </View>
+            ) : null}
+
+            {Array.isArray(effectiveDiscAiReport.dev_tips) && effectiveDiscAiReport.dev_tips.length > 0 && (
+              <View style={[styles.block, { backgroundColor: '#F5F3FF', borderColor: '#EDE9FE' }]}>
+                <Text style={[styles.blockTitle, { color: '#4338CA' }]}>Tips Pengembangan Diri</Text>
+                <View style={{ gap: 8, marginTop: 10 }}>
+                  {effectiveDiscAiReport.dev_tips.map((it: string, idx: number) => (
+                    <View key={`dev-${idx}`} style={styles.bulletRow}>
+                      <Feather name="trending-up" size={16} color="#6366F1" />
                       <Text style={styles.bulletText}>{it}</Text>
                     </View>
                   ))}
