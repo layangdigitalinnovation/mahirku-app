@@ -79,7 +79,7 @@ Do not include markdown code fences or extra text. Output ONLY a valid JSON obje
                         ],
                     },
                 ],
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                model: 'llama-3.2-90b-vision-preview',
                 temperature: 0.25,
                 max_completion_tokens: 1500,
                 response_format: { type: 'json_object' }
@@ -154,7 +154,7 @@ Return JSON with this exact structure:
 
         const chatCompletion = await this.groq.chat.completions.create({
             messages: [{ role: 'user', content: prompt }],
-            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            model: 'llama-3.3-70b-versatile',
             temperature: 0.25,
             max_completion_tokens: 1100,
             response_format: { type: 'json_object' }
@@ -219,7 +219,7 @@ Return JSON with this exact structure:
 
         const chatCompletion = await this.groq.chat.completions.create({
             messages: [{ role: 'user', content: prompt }],
-            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            model: 'llama-3.3-70b-versatile',
             temperature: 0.25,
             max_completion_tokens: 1100,
             response_format: { type: 'json_object' }

@@ -3,7 +3,7 @@
     "name": "Mahirku",
     "slug": "mahirku-mobile",
     "scheme": "mahirku",
-    "version": "1.0.32",
+    "version": "1.0.33",
     "platforms": [
       "android"
     ],
@@ -20,7 +20,7 @@
     },
     "android": {
       "package": "com.mahirku.app",
-      "versionCode": 8,
+      "versionCode": 33,
       "jsEngine": "hermes",
       "permissions": [
         "android.permission.INTERNET",
@@ -42,6 +42,8 @@
         {
           "android": {
             "kotlinVersion": "1.9.24",
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true
           }
