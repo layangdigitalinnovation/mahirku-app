@@ -79,7 +79,7 @@ Do not include markdown code fences or extra text. Output ONLY a valid JSON obje
                         ],
                     },
                 ],
-                model: 'llama-3.2-11b-vision-preview',
+                model: 'qwen/qwen3.8-27b',
                 temperature: 0.25,
                 max_completion_tokens: 1500,
                 response_format: { type: 'json_object' }
