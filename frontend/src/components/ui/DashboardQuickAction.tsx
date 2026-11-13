@@ -7,7 +7,6 @@ import {
   PlusCircle
 } from 'lucide-react';
 import { ThinkingStyleResult } from '@/services/api';
-import { ThinkingStyleResult } from '@/services/api';
 
 // Card components defined inline
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (

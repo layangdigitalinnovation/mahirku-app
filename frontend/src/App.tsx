@@ -48,6 +48,9 @@ import CertificateVerification from './pages/CertificateVerification';
 import MitraDashboardLayout from './layouts/mitra/MitraDashboardLayout';
 import { MitraDashboard } from './pages/Mitra/MitraDashboard';
 import { MitraMembers } from './pages/Mitra/MitraMembers';
+import ManageLandingPages from './pages/Admin/ManageLandingPages';
+import LandingPageBuilder from './pages/Admin/LandingPageBuilder';
+import PublicLandingPage from './pages/PublicLandingPage';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{
@@ -103,6 +106,10 @@ function AppRoutes() {
 
       {/* Certificate Verification - Public Route */}
       <Route path="/verify-certificate/:certificateId" element={<CertificateVerification />} />
+
+      {/* Public Landing Pages for Ads (Mobile Responsive & Checkout) */}
+      <Route path="/lp/:slug" element={<PublicLandingPage />} />
+      <Route path="/lp-karakter" element={<PublicLandingPage />} />
 
       <Route element={<AffiliatorLandingLayout />}>
         <Route path="/affiliator-landing" element={<AffiliatorLanding />} />
@@ -188,7 +195,18 @@ function AppRoutes() {
         <Route path='thinking-style/edit/:id' element={<EditDetailThinkingStylePage />} />
         <Route path='invoice' element={<AdminInvoice />} />
         <Route path='disc-questions' element={<DiscQuestionsManagement />} />
+        <Route path='landing-pages' element={<ManageLandingPages />} />
       </Route>
+
+      {/* Fullscreen Landing Page Web Builder */}
+      <Route
+        path="/admin/dashboard/landing-pages/builder/:id"
+        element={
+          <ProtectedRoute requiredRole={RoleName.SUPER_ADMIN}>
+            <LandingPageBuilder />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/customer/dashboard/*"

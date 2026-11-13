@@ -1,8 +1,22 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // Otomatis arahkan ke backend lokal (port 5000) jika berjalan di localhost
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ) {
+    return 'http://localhost:5000/api';
+  }
+  return 'https://api.mahirku.com/api';
+};
+
 // Buat instance axios
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://api.mahirku.com/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },

@@ -13,6 +13,8 @@ import DiscQuestion from './DiscQuestion';
 import DiscOption from './DiscOption';
 import DiscResult from './DiscResult';
 import GraphologyTest from './GraphologyTest';
+import LandingPage from './LandingPage';
+import LandingPageSubmission from './LandingPageSubmission';
 
 const models = {
   User,
@@ -30,6 +32,8 @@ const models = {
   DiscOption,
   DiscResult,
   GraphologyTest,
+  LandingPage,
+  LandingPageSubmission,
 };
 
 // Registrasi association
@@ -38,6 +42,8 @@ Role.associate(models);
 DiscQuestion.associate(models);
 DiscOption.associate(models);
 DiscResult.associate(models);
+LandingPage.associate(models);
+LandingPageSubmission.associate(models);
 
 export { sequelize } from '../config/database';
 export default models;

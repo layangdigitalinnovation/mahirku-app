@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Users, TrendingUp, Package, Gift, Wallet, Lightbulb, List, ListChecks } from "lucide-react";
+import { Users, TrendingUp, Package, Gift, Wallet, Lightbulb, List, ListChecks, Globe } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import AppSidebar from "@/components/ui/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -62,6 +62,12 @@ export default function SuperAdminDashboardLayout() {
       path: "/admin/dashboard/invoice",
       icon: List,
       title: "Manajemen Invoice",
+    },
+    {
+      label: "Landing Page Builder",
+      path: "/admin/dashboard/landing-pages",
+      icon: Globe,
+      title: "Landing Page & Funnel Builder",
     }
   ];
 
